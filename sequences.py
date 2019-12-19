@@ -1,8 +1,8 @@
 import numpy as np
 import textwrap
-
 from attr import attrs, attrib
 import attr
+from seqCommands import SeqCommand
 
 
 #################################################################
@@ -327,6 +327,12 @@ class T2Sequence(T1Sequence):
         self.sequence += textwrap.dedent("""\
         }
         """)
+
+
+
+    
+
+
 
 #################################################################
 if __name__ == "__main__":
