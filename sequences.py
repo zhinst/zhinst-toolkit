@@ -77,36 +77,25 @@ class Sequence(object):
         self.update_params()
         self.check_attributes()
         self.write_sequence()
-        self.replace_params()
         return self.sequence
 
     # main method to define sequence, will be overwritten
     def write_sequence(self):
-        self.sequence = "// base Sequence"
+        self.sequence = SeqCommand.header_comment(sequence_type="None")
 
     def update_params(self):
         if self.trigger_mode == "None":
-            self.trigger_cmd_1 = "//"
-            self.trigger_cmd_2 = "//"
+            self.trigger_cmd_1 = SeqCommand.comment_line()
+            self.trigger_cmd_2 = SeqCommand.comment_line()
             self.dead_cycles = 0 
         elif self.trigger_mode == "Send Trigger":
-            self.trigger_cmd_1 = "setTrigger(1);"
-            self.trigger_cmd_2 = "setTrigger(0);"
+            self.trigger_cmd_1 = SeqCommand.trigger(1)
+            self.trigger_cmd_2 = SeqCommand.trigger(0)
             self.dead_cycles = self.time_to_cycles(self.dead_time)
         elif self.trigger_mode == "External Trigger":
-            self.trigger_cmd_1 = "waitDigTrigger(1);"
-            self.trigger_cmd_2 = "//"
+            self.trigger_cmd_1 = SeqCommand.wait_dig_trigger()
+            self.trigger_cmd_2 = SeqCommand.comment_line()
             self.dead_cycles = 0      
-    
-    def replace_params(self):
-        self.sequence = self.sequence.replace("_LOOP_", str(self.repetitions))
-        self.sequence = self.sequence.replace("_WAIT-CYCLES-1_", str(int(self.wait_cycles)))
-        self.sequence = self.sequence.replace("_WAIT-CYCLES-2_", str(self.dead_cycles))
-        self.sequence = self.sequence.replace("_TRIGGER-COMMAND-1_", self.trigger_cmd_1)
-        self.sequence = self.sequence.replace("_TRIGGER-COMMAND-2_", self.trigger_cmd_2)
-        self.sequence = self.sequence.replace("wait(0);", "//")
-        if self.trigger_mode == "External Trigger":
-            self.sequence = self.sequence.replace("waitWave();", "//")
 
     def time_to_cycles(self, time, wait_time=True):
         if wait_time:
@@ -141,34 +130,20 @@ class SimpleSequence(Sequence):
     waveform_buffer_samples = attrib(default=16)
 
     def write_sequence(self):            
-        self.sequence = textwrap.dedent("""\
-            // Simple Sequence - Replace Waveforms
-
-            """)
+        self.sequence = SeqCommand.header_comment(sequence_type="Simple")
         for i in range(self.n_HW_loop):
-            self.sequence += textwrap.dedent("""\
-                wave w*N*_1 = randomUniform(_BUFFER_);
-                wave w*N*_2 = randomUniform(_BUFFER_);
-            """).replace("*N*", "{}".format(i+1))
-        self.sequence += textwrap.dedent("""\
-            
-            repeat(_LOOP_){
-            
-            """)    
+            self.sequence += SeqCommand.init_buffer_indexed(self.waveform_buffer_samples, i)
+        self.sequence += SeqCommand.repeat(self.repetitions)
         for i in range(self.n_HW_loop):    
-            self.sequence += textwrap.dedent("""\
-                // waveform {} / {}
-                _TRIGGER-COMMAND-1_
-                wait(_WAIT-CYCLES-1_);
-                _TRIGGER-COMMAND-2_
-                playWave(w*N*_1, w*N*_2);
-                waitWave();
-                wait(_WAIT-CYCLES-2_);
-                
-            """).replace("*N*", "{}".format(i+1)).format(i+1, self.n_HW_loop)
-        self.sequence += textwrap.dedent("""\
-            }
-            """)
+            self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
+            self.sequence += self.trigger_cmd_1
+            self.sequence += SeqCommand.wait(self.wait_cycles)
+            self.sequence += self.trigger_cmd_2
+            self.sequence += SeqCommand.play_wave_indexed(i)
+            self.sequence += SeqCommand.wait_wave()
+            self.sequence += SeqCommand.wait(self.dead_cycles)
+            self.sequence += SeqCommand.new_line()
+        self.sequence += SeqCommand.close_bracket()
         
     def update_params(self):
         super().update_params()
@@ -179,10 +154,6 @@ class SimpleSequence(Sequence):
         elif self.trigger_mode == "External Trigger":
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
         self.waveform_buffer_samples = self.time_to_cycles(self.waveform_buffer, wait_time=False) // 16 * 16  # multiple of 16
-
-    def replace_params(self):
-        super().replace_params()
-        self.sequence = self.sequence.replace("_BUFFER_", str(self.waveform_buffer_samples))
 
     def check_attributes(self):
         super().check_attributes()
@@ -196,31 +167,18 @@ class RabiSequence(Sequence):
     pulse_truncation = attrib(default=3, validator=is_positive)
 
     def write_sequence(self):
-        self.sequence = textwrap.dedent("""\
-            // Rabi Sequence
-            
-            wave w_1 = gauss(_GAUSS-PARAMS_);
-            wave w_2 = drag(_GAUSS-PARAMS_);
-            
-        """)
-        self.sequence += textwrap.dedent("""\
-        repeat(_LOOP_){
-
-        """)
+        self.sequence = SeqCommand.header_comment(sequence_type="Rabi")
+        self.sequence += SeqCommand.init_gauss(self.gauss_params)
+        self.sequence += SeqCommand.repeat(self.repetitions)
         for i, amp in enumerate(self.pulse_amplitudes):
-            self.sequence += textwrap.dedent("""\
-                // waveform {} / {}
-                _TRIGGER-COMMAND-1_
-                wait(_WAIT-CYCLES-1_);
-                _TRIGGER-COMMAND-2_
-                playWave({}*w_1, {}*w_2);
-                waitWave();
-                wait(_WAIT-CYCLES-2_);
-
-            """).format(i+1, len(self.pulse_amplitudes), amp, amp)
-        self.sequence += textwrap.dedent("""\
-        }
-        """)
+            self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
+            self.sequence += self.trigger_cmd_1
+            self.sequence += SeqCommand.wait(self.wait_cycles)
+            self.sequence += self.trigger_cmd_2
+            self.sequence += SeqCommand.play_wave_scaled(amp, amp)
+            self.sequence += SeqCommand.wait_wave()
+            self.sequence += SeqCommand.wait(self.dead_cycles)
+        self.sequence += SeqCommand.close_bracket()
 
     def update_params(self):
         super().update_params()
@@ -230,10 +188,6 @@ class RabiSequence(Sequence):
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time) - self.gauss_params[0]/8
         elif self.trigger_mode == "External Trigger":
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
-
-    def replace_params(self):
-        super().replace_params()
-        self.sequence = self.sequence.replace("_GAUSS-PARAMS_", ",".join([str(p) for p in self.gauss_params]))
 
     def check_attributes(self):
         super().check_attributes()
@@ -250,31 +204,18 @@ class T1Sequence(Sequence):
     delay_times = attrib(default=np.array([1e-6]))
 
     def write_sequence(self):
-        self.sequence = textwrap.dedent("""\
-            // T1 Sequence
-            
-            wave w_1 = {} * gauss(_GAUSS-PARAMS_);
-            wave w_2 = {} * drag(_GAUSS-PARAMS_);
-            
-        """).format(self.pulse_amplitude, self.pulse_amplitude)
-        self.sequence += textwrap.dedent("""\
-        repeat(_LOOP_){
-
-        """)
-        for i, t in enumerate([self.time_to_cycles(t) for t in self.delay_times]):
-            self.sequence += textwrap.dedent("""\
-                // waveform {} / {}
-                _TRIGGER-COMMAND-1_
-                wait(_WAIT-CYCLES-1_ - {});
-                _TRIGGER-COMMAND-2_
-                playWave(w_1, w_2);
-                waitWave();
-                wait(_WAIT-CYCLES-2_ + {});
-
-            """).format(i+1, len(self.delay_times), t, t)
-        self.sequence += textwrap.dedent("""\
-        }
-        """)
+        self.sequence = SeqCommand.header_comment(sequence_type="T1")
+        self.sequence += SeqCommand.init_gauss_scaled(self.pulse_amplitude, self.gauss_params)
+        self.sequence += SeqCommand.repeat(self.repetitions)
+        for i, t in enumerate(self.delay_times):
+            self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
+            self.sequence += self.trigger_cmd_1
+            self.sequence += SeqCommand.wait(self.wait_cycles - t)
+            self.sequence += self.trigger_cmd_2
+            self.sequence += SeqCommand.play_wave()
+            self.sequence += SeqCommand.wait_wave()
+            self.sequence += SeqCommand.wait(self.dead_cycles + t)
+        self.sequence += SeqCommand.close_bracket()
 
     def update_params(self):
         super().update_params()
@@ -284,10 +225,6 @@ class T1Sequence(Sequence):
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time) - self.gauss_params[0]/8
         elif self.trigger_mode == "External Trigger":
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
-
-    def replace_params(self):
-        super().replace_params()
-        self.sequence = self.sequence.replace("_GAUSS-PARAMS_", ",".join([str(p) for p in self.gauss_params]))
 
     def check_attributes(self):
         super().check_attributes()
@@ -299,38 +236,21 @@ class T1Sequence(Sequence):
 @attrs
 class T2Sequence(T1Sequence):
     def write_sequence(self):
-        self.sequence = textwrap.dedent("""\
-            // T2* Sequence
-            
-            wave w_1 = 0.5 * {} * gauss(_GAUSS-PARAMS_);
-            wave w_2 = 0.5 * {} * drag(_GAUSS-PARAMS_);
-            
-        """).format(self.pulse_amplitude, self.pulse_amplitude)
-        self.sequence += textwrap.dedent("""\
-        repeat(_LOOP_){
-
-        """)
+        self.sequence = SeqCommand.header_comment(sequence_type="T2* (Ramsey)")
+        self.sequence += SeqCommand.init_gauss_scaled(0.5 * self.pulse_amplitude, self.gauss_params)
+        self.sequence += SeqCommand.repeat(self.repetitions)
         playWave_latency = 10e-9
         for i, t in enumerate([self.time_to_cycles(t) for t in (self.delay_times-playWave_latency)]):
-            self.sequence += textwrap.dedent("""\
-                // waveform {} / {}
-                _TRIGGER-COMMAND-1_
-                wait(_WAIT-CYCLES-1_ - {});
-                _TRIGGER-COMMAND-2_
-                playWave(w_1, w_2);
-                wait({});
-                playWave(w_1, w_2);
-                waitWave();
-                wait(_WAIT-CYCLES-2_);
-
-            """).format(i+1, len(self.delay_times), t, t)
-        self.sequence += textwrap.dedent("""\
-        }
-        """)
-
-
-
-    
+            self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
+            self.sequence += self.trigger_cmd_1
+            self.sequence += SeqCommand.wait(self.wait_cycles - t)
+            self.sequence += self.trigger_cmd_2
+            self.sequence += SeqCommand.play_wave()
+            self.sequence += SeqCommand.wait(t)
+            self.sequence += SeqCommand.play_wave()
+            self.sequence += SeqCommand.wait_wave()
+            self.sequence += SeqCommand.wait(self.dead_cycles)
+        self.sequence += SeqCommand.close_bracket()  
 
 
 

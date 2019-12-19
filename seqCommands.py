@@ -1,9 +1,21 @@
+from datetime import datetime
+
+
 class SeqCommand(object):
+    @staticmethod
+    def header_comment(sequence_type="None"):
+        now = datetime.now()
+        return (
+            "// Zurich Instruments sequencer program\n"
+            "// sequence type:              {}\n"
+            "// automatically generated:    {}\n\n"
+        ).format(sequence_type, now.strftime("%d/%m/%Y @%H:%M"))
+
     @staticmethod
     def repeat(i):
         if i < 0:
             raise ValueError("Invalid number of repetitions!")
-        return "repeat({}){{".format(i)
+        return "\nrepeat({}){{\n\n".format(i)
 
     @staticmethod
     def new_line():
@@ -17,7 +29,10 @@ class SeqCommand(object):
     def wait(i):
         if i < 0:
             raise ValueError("Wait time cannot be negative!")
-        return "wait({});\n".format(int(i))
+        if i == 0:
+            return ""
+        else:
+            return "wait({});\n".format(int(i))
 
     @staticmethod
     def wait_wave():
@@ -31,7 +46,11 @@ class SeqCommand(object):
 
     @staticmethod
     def count_waveform(i, n):
-        return "// waveform {} / {}\n".format(i, n)
+        return "// waveform {} / {}\n".format(i + 1, n)
+
+    @staticmethod
+    def play_wave():
+        return "playWave(w_1, w_2);\n"
 
     @staticmethod
     def play_wave_scaled(amp1, amp2):
@@ -41,13 +60,13 @@ class SeqCommand(object):
 
     @staticmethod
     def play_wave_indexed(i):
-        return "playWave(w{}_1, w{}_2);\n".format(i, i)
+        return "playWave(w{}_1, w{}_2);\n".format(i + 1, i + 1)
 
     @staticmethod
     def play_wave_indexed_scaled(amp1, amp2, i):
         if abs(amp1) > 1 or abs(amp2) > 1:
             raise ValueError("Amplitude cannot be larger than 1.0!")
-        return "playWave({}*w{}_1, {}*w{}_2);\n".format(amp1, i, amp2, i)
+        return "playWave({}*w{}_1, {}*w{}_2);\n".format(amp1, i + 1, amp2, i + 1)
 
     @staticmethod
     def init_buffer_indexed(length, i):
@@ -55,26 +74,31 @@ class SeqCommand(object):
             raise ValueError("Invalid Values for waveform buffer!")
         return (
             "wave w{}_1 = randomUniform({});\n" "wave w{}_2 = randomUniform({});\n"
-        ).format(i, length, i, length)
+        ).format(i + 1, length, i + 1, length)
 
     @staticmethod
-    def init_gauss(length, pos, width):
+    def init_gauss(gauss_params):
+        length, pos, width = gauss_params
         return (
-            "wave w_1 = gauss({}, {}, {});\n" "wave w_2 = gauss({}, {}, {});\n"
+            "wave w_1 = gauss({}, {}, {});\n" "wave w_2 = drag({}, {}, {});\n"
         ).format(length, pos, width, length, pos, width)
 
     @staticmethod
-    def init_gauss_scaled(amp, length, pos, width):
+    def init_gauss_scaled(amp, gauss_params):
+        length, pos, width = gauss_params
         if abs(amp) > 1:
             raise ValueError("Amplitude cannot be larger than 1.0!")
         return (
-            "wave w_1 = {} * gauss({}, {}, {});\n"
-            "wave w_2 = {} * gauss({}, {}, {});\n"
+            "wave w_1 = {} * gauss({}, {}, {});\n" "wave w_2 = {} * drag({}, {}, {});\n"
         ).format(amp, length, pos, width, amp, length, pos, width)
 
     @staticmethod
     def close_bracket():
-        return "\n}}"
+        return "\n}"
+
+    @staticmethod
+    def wait_dig_trigger():
+        return "waitDigTrigger(1);"
 
 
 #################################################################
