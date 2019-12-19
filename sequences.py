@@ -124,6 +124,17 @@ class Sequence(object):
         if (self.period - self.dead_time - self.latency + self.trigger_delay) < 0: 
             raise ValueError("Wait time cannot be negative!")
 
+    def __setattr__(self, name, value) -> None:
+        """Call the validator when we set the field (by default it only runs on __init__)"""
+        for attribute in [a for a in getattr(self.__class__, '__attrs_attrs__', []) if a.name == name]:
+            if attribute.type is not None:
+                if isinstance(value, attribute.type) is False:
+                    raise TypeError('{}.{} cannot set {} because it is not a {}'.format(
+                        self.__class__.__name__, attribute.name, value, attribute.type.__name__))
+            if attribute.validator is not None:
+                attribute.validator(self, attribute, value)
+        super().__setattr__(name, value)
+
 @attrs
 class SimpleSequence(Sequence):
     waveform_buffer = attrib(default=1e-6, validator=is_positive)
