@@ -222,11 +222,35 @@ class AWG(object):
     def set(self, **settings):
         self.__sequence.set(**settings)
 
-    def set_waveform(self, wave1, wave2):
-        raise NotImplementedError
+    def update(self):
+        if self.__sequence.sequence_type == "Simple":
+            if len(self.waveforms) == 0:
+                raise Exception("No Waveforms defined!")
+            self.__sequence.set(
+                buffer_lengths=[w.buffer_length for w in self.waveforms]
+            )
+        print("Uploaded sequence program to device!") # self.upload_program(self.__sequence.get())
 
-    def upload_waveform(self):
-        raise NotImplementedError
+    def add_waveform(self, wave1, wave2):
+        if self.__sequence.sequence_type == "Simple":
+            w = Waveform(wave1, wave2)
+            self.waveforms.append(w)
+            print("added waveform of length 2 x {}".format(w.buffer_length))
+        else:
+            print("AWG Sequence type must be 'Simple' to upload waveforms!")
+
+    def upload_waveforms(self):
+        self.update()
+        for w in self.waveforms:
+            self.upload_waveform(w)
+        print("Finished uploading {} waveforms!".format(len(self.waveforms)))
+        self.waveforms = []
+
+    def upload_waveform(self, waveform):
+        print("     ... uploaded waveform of length 2 x {}".format(waveform.buffer_length))
+
+    def print_sequence(self):
+        print(self.__sequence.get())
 
 
 class Waveform(object):
@@ -237,7 +261,6 @@ class Waveform(object):
         self.data = self.interleave_waveforms(wave1, wave2)
 
     def interleave_waveforms(self, x1, x2):
-        # if waveforms are empty, upload zeros
         if len(x1) == 0:
             x1 = np.zeros(1)
         if len(x2) == 0:
@@ -249,7 +272,6 @@ class Waveform(object):
         data = np.zeros((2, self.buffer_length))
 
         if self.align_start:
-            # align to start
             if len(x1) > n:
                 data[0, :n] = x1[:n] / m1 if m1 >= 1 else x1[:n]
             else:
@@ -259,7 +281,6 @@ class Waveform(object):
             else:
                 data[1, : len(x2)] = x2 / m2 if m2 >= 1 else x2
         else:
-            # alignment to end
             if len(x1) > n:
                 data[0, :n] = x1[len(x1) - n :] / m1 if m1 >= 1 else x1[len(x1) - n :]
             else:
@@ -270,7 +291,6 @@ class Waveform(object):
             else:
                 data[1, (self.buffer_length - len(x2)) :] = x2 / m2 if m2 >= 1 else x2
 
-        # use int16 for faster upload
         interleaved_data = (data.reshape((-2,), order="F") * (2 ** 15 - 1)).astype(
             "int16"
         )

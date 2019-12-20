@@ -72,6 +72,8 @@ class SeqCommand(object):
     def init_buffer_indexed(length, i):
         if length < 16 or i < 0:
             raise ValueError("Invalid Values for waveform buffer!")
+        if length % 16 != 0:
+            raise ValueError("Buffer Length has to be multiple of 16!")
         return (
             "wave w{}_1 = randomUniform({});\n" "wave w{}_2 = randomUniform({});\n"
         ).format(i + 1, length, i + 1, length)

@@ -161,18 +161,21 @@ class Sequence(object):
 #################################################################
 @attrs
 class SimpleSequence(Sequence):
-    waveform_buffer = attrib(default=1e-6, validator=is_positive)
-    waveform_buffer_samples = attrib(default=16)
+    buffer_lengths = attrib(default=[800], validator=attr.validators.instance_of(list))
 
     def write_sequence(self):            
         self.sequence = SeqCommand.header_comment(sequence_type="Simple")
         for i in range(self.n_HW_loop):
-            self.sequence += SeqCommand.init_buffer_indexed(self.waveform_buffer_samples, i)
+            self.sequence += SeqCommand.init_buffer_indexed(self.buffer_lengths[i], i)
         self.sequence += SeqCommand.repeat(self.repetitions)
         for i in range(self.n_HW_loop):    
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
             self.sequence += self.trigger_cmd_1
-            self.sequence += SeqCommand.wait(self.wait_cycles)
+            if self.trigger_mode == "External Trigger":
+                temp = self.wait_cycles
+            else:
+                temp = self.wait_cycles - self.buffer_lengths[i]/8
+            self.sequence += SeqCommand.wait(temp)
             self.sequence += self.trigger_cmd_2
             self.sequence += SeqCommand.play_wave_indexed(i)
             self.sequence += SeqCommand.wait_wave()
@@ -183,17 +186,18 @@ class SimpleSequence(Sequence):
     def update_params(self):
         super().update_params()
         if self.trigger_mode == "None":
-            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.waveform_buffer)
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
         elif self.trigger_mode == "Send Trigger":
-            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.waveform_buffer)
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
         elif self.trigger_mode == "External Trigger":
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
-        self.waveform_buffer_samples = self.time_to_cycles(self.waveform_buffer, wait_time=False) // 16 * 16  # multiple of 16
+        if len(self.buffer_lengths) > self.n_HW_loop:
+            self.n_HW_loop = len(self.buffer_lengths)
 
     def check_attributes(self):
         super().check_attributes()
-        if (self.period - self.dead_time - self.waveform_buffer) < 0:
-            raise ValueError("Wait time cannot be negative!")
+        if len(self.buffer_lengths) != self.n_HW_loop:
+            raise ValueError("Length of list buffer_lengths has to be equal to length of HW loop!")
 
 #################################################################
 @attrs
