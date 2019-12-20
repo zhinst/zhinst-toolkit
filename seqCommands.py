@@ -101,8 +101,3 @@ class SeqCommand(object):
     @staticmethod
     def wait_dig_trigger():
         return "waitDigTrigger(1);"
-
-
-#################################################################
-if __name__ == "__main__":
-    pass

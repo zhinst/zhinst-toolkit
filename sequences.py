@@ -1,104 +1,32 @@
-import numpy as np
-import textwrap
-from attr import attrs, attrib
-import attr
 from seqCommands import SeqCommand
 
+import textwrap
+import attr
 
-#################################################################
-# validators here
+
+
 def is_positive(self, attribute, value):
     if value < 0:
         raise ValueError("Must be positive!")
 
 def amp_smaller_1(self, attribute, value):
-    if np.max(np.abs(value)) > 1.0:
+    if max(abs(value)) > 1.0:
         raise ValueError("Amplitude cannot be larger than 1.0!")
 
-#################################################################
-
-class SequenceProgram(object):
-    """SequenceProgram class that holds information about an AWG sequence.
-    The class holds a Sequence object, depending on the set type of the sequence.
-    the get() method returns the generated string for the seqC program that can 
-    be downloaded to the AWG.
-    
-    Typical Usage:
-
-        s = SequenceProgram()
-        s.set(sequence_type="T1")
-        s.set(delay_times=np.linspace(0, 10e-6, 11), period=20e-6, trigger_mode="Send Trigger")
-        s.set(period=-1)
-            > ValueError("Period must be positive!")
-        
-        s.list_params()
-            > {'sequence_type': 'T1',
-            >  'sequence_parameters': {'clock_rate': 2400000000.0,
-            >  'period': 2e-05,
-            >   ...
-
-        print(s.get())
-            > // Zurich Instruments sequencer program
-            > // sequence type:              T1
-            > // automatically generated:    20/12/2019 @10:47
-            >
-            > wave w_1 = 1 * gauss(720, 360, 120);
-            > wave w_2 = 1 * drag(720, 360, 120);
-            > ...
-    
-    """
-    
-    def __init__(self, sequence_type=None, **kwargs):
-        self.__set_type(sequence_type)
-        self.__sequence = self.sequence_class(**kwargs)        
-    
-    def get(self):
-        return self.__sequence.get()
-
-    def set(self, **settings):
-        if "sequence_type" in settings:
-            current_params = attr.asdict(self.__sequence)
-            self.__init__(settings["sequence_type"])
-            self.__sequence.set(**current_params) 
-        self.__sequence.set(**settings)
-
-    def list_params(self):
-        return dict(
-            sequence_type=self.sequence_type, 
-            sequence_parameters=attr.asdict(self.__sequence)
-        )
-
-    def __set_type(self, type):
-        if type == "None" or type is None:
-            self.sequence_class = Sequence
-        elif type == "Simple":
-            self.sequence_class = SimpleSequence
-        elif type == "Rabi":
-            self.sequence_class = RabiSequence
-        elif type == "T1":
-            self.sequence_class = T1Sequence
-        elif type == "T2*":
-            self.sequence_class = T2Sequence
-        else:
-            raise ValueError("Unknown Sequence Type!")
-        self.sequence_type = type
-
-#################################################################
-@attrs
+@attr.s
 class Sequence(object):   
-    clock_rate      = attrib(default=2.4e9, validator=is_positive)
-    period          = attrib(default=100e-6, validator=is_positive)
-    trigger_mode    = attrib(default="None", validator=attr.validators.in_(["None", "Send Trigger", "External Trigger"]))
-    repetitions     = attrib(default=1, converter=int, validator=is_positive)
-    n_HW_loop       = attrib(default=1, converter=int, validator=is_positive)
-    dead_time       = attrib(default=5e-6, validator=is_positive)
-    trigger_delay   = attrib(default=0)
-    latency         = attrib(default=160e-9, validator=is_positive)
-    # params to replace placeholders in sequence
-    trigger_cmd_1 = attrib(default="//")
-    trigger_cmd_2 = attrib(default="//")
-    wait_cycles = attrib(default=0)
-    dead_cycles = attrib(default=0)
+    clock_rate      = attr.ib(default=2.4e9, validator=is_positive)
+    period          = attr.ib(default=100e-6, validator=is_positive)
+    trigger_mode    = attr.ib(default="None", validator=attr.validators.in_(["None", "Send Trigger", "External Trigger"]))
+    repetitions     = attr.ib(default=1, converter=int, validator=is_positive)
+    n_HW_loop       = attr.ib(default=1, converter=int, validator=is_positive)
+    dead_time       = attr.ib(default=5e-6, validator=is_positive)
+    trigger_delay   = attr.ib(default=0)
+    latency         = attr.ib(default=160e-9, validator=is_positive)
+    trigger_cmd_1 = attr.ib(default="//")
+    trigger_cmd_2 = attr.ib(default="//")
+    wait_cycles = attr.ib(default=0)
+    dead_cycles = attr.ib(default=0)
 
     def set(self, **settings):
         for key in settings:
@@ -113,7 +41,6 @@ class Sequence(object):
         self.write_sequence()
         return self.sequence
 
-    # main method to define sequence, will be overwritten
     def write_sequence(self):
         self.sequence = SeqCommand.header_comment(sequence_type="None")
 
@@ -138,7 +65,7 @@ class Sequence(object):
             return int(time * self.clock_rate)
         
     def get_gauss_params(self, width, truncation):
-        gauss_length = self.time_to_cycles(2*truncation*width, wait_time=False) // 16 * 16  # multiple of 16
+        gauss_length = self.time_to_cycles(2*truncation*width, wait_time=False) // 16 * 16  
         gauss_pos = int(gauss_length/2)
         gauss_width = self.time_to_cycles(width, wait_time=False)
         self.gauss_params = [gauss_length, gauss_pos, gauss_width]
@@ -158,10 +85,9 @@ class Sequence(object):
                 attribute.validator(self, attribute, value)
         super().__setattr__(name, value)
 
-#################################################################
-@attrs
+@attr.s
 class SimpleSequence(Sequence):
-    buffer_lengths = attrib(default=[800], validator=attr.validators.instance_of(list))
+    buffer_lengths = attr.ib(default=[800], validator=attr.validators.instance_of(list))
 
     def write_sequence(self):            
         self.sequence = SeqCommand.header_comment(sequence_type="Simple")
@@ -199,12 +125,11 @@ class SimpleSequence(Sequence):
         if len(self.buffer_lengths) != self.n_HW_loop:
             raise ValueError("Length of list buffer_lengths has to be equal to length of HW loop!")
 
-#################################################################
-@attrs
+@attr.s
 class RabiSequence(Sequence):
-    pulse_amplitudes = attrib(default=np.array([1.0]), validator=amp_smaller_1)
-    pulse_width = attrib(default=50e-9, validator=is_positive)
-    pulse_truncation = attrib(default=3, validator=is_positive)
+    pulse_amplitudes = attr.ib(default=[1.0], validator=amp_smaller_1)
+    pulse_width = attr.ib(default=50e-9, validator=is_positive)
+    pulse_truncation = attr.ib(default=3, validator=is_positive)
 
     def write_sequence(self):
         self.sequence = SeqCommand.header_comment(sequence_type="Rabi")
@@ -236,13 +161,12 @@ class RabiSequence(Sequence):
         if self.n_HW_loop < len(self.pulse_amplitudes):
             raise ValueError("Length of hardware loop too long for number of specified amplitudes!")
 
-#################################################################
-@attrs
+@attr.s
 class T1Sequence(Sequence):
-    pulse_amplitude = attrib(default=1, validator=amp_smaller_1)
-    pulse_width = attrib(default=50e-9, validator=is_positive)
-    pulse_truncation = attrib(default=3, validator=is_positive)
-    delay_times = attrib(default=np.array([1e-6]))
+    pulse_amplitude = attr.ib(default=1, validator=amp_smaller_1)
+    pulse_width = attr.ib(default=50e-9, validator=is_positive)
+    pulse_truncation = attr.ib(default=3, validator=is_positive)
+    delay_times = attr.ib(default=[1e-6])
 
     def write_sequence(self):
         self.sequence = SeqCommand.header_comment(sequence_type="T1")
@@ -274,8 +198,7 @@ class T1Sequence(Sequence):
         if self.n_HW_loop > len(self.delay_times):
             raise ValueError("Length of hardware loop too long for number of specified delay times!")
         
-#################################################################
-@attrs
+@attr.s
 class T2Sequence(T1Sequence):
     def write_sequence(self):
         self.sequence = SeqCommand.header_comment(sequence_type="T2* (Ramsey)")
@@ -294,7 +217,3 @@ class T2Sequence(T1Sequence):
             self.sequence += SeqCommand.wait(self.dead_cycles)
         self.sequence += SeqCommand.close_bracket()  
 
-
-#################################################################
-if __name__ == "__main__":
-    pass
