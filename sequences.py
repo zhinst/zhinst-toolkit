@@ -17,25 +17,59 @@ def amp_smaller_1(self, attribute, value):
 
 #################################################################
 
-
 class SequenceProgram(object):
+    """SequenceProgram class that holds information about an AWG sequence.
+    The class holds a Sequence object, depending on the set type of the sequence.
+    the get() method returns the generated string for the seqC program that can 
+    be downloaded to the AWG.
     
-    def __init__(self, sequence_type, **kwargs):
+    Typical Usage:
+
+        s = SequenceProgram()
+        s.set(sequence_type="T1")
+        s.set(delay_times=np.linspace(0, 10e-6, 11), period=20e-6, trigger_mode="Send Trigger")
+        s.set(period=-1)
+            > ValueError("Period must be positive!")
+        
+        s.list_params()
+            > {'sequence_type': 'T1',
+            >  'sequence_parameters': {'clock_rate': 2400000000.0,
+            >  'period': 2e-05,
+            >   ...
+
+        print(s.get())
+            > // Zurich Instruments sequencer program
+            > // sequence type:              T1
+            > // automatically generated:    20/12/2019 @10:47
+            >
+            > wave w_1 = 1 * gauss(720, 360, 120);
+            > wave w_2 = 1 * drag(720, 360, 120);
+            > ...
+    
+    """
+    
+    def __init__(self, sequence_type=None, **kwargs):
         self.__set_type(sequence_type)
-        self.sequence = self.sequence_class(**kwargs)        
+        self.__sequence = self.sequence_class(**kwargs)        
     
     def get(self):
-        return self.sequence.get()
+        return self.__sequence.get()
 
     def set(self, **settings):
         if "sequence_type" in settings:
-            current_params = attr.asdict(self.sequence)
+            current_params = attr.asdict(self.__sequence)
             self.__init__(settings["sequence_type"])
-            self.sequence.set(**current_params) 
-        self.sequence.set(**settings)
+            self.__sequence.set(**current_params) 
+        self.__sequence.set(**settings)
+
+    def list_params(self):
+        return dict(
+            sequence_type=self.sequence_type, 
+            sequence_parameters=attr.asdict(self.__sequence)
+        )
 
     def __set_type(self, type):
-        if type == "None":
+        if type == "None" or type is None:
             self.sequence_class = Sequence
         elif type == "Simple":
             self.sequence_class = SimpleSequence
@@ -49,7 +83,7 @@ class SequenceProgram(object):
             raise ValueError("Unknown Sequence Type!")
         self.sequence_type = type
 
-
+#################################################################
 @attrs
 class Sequence(object):   
     clock_rate      = attrib(default=2.4e9, validator=is_positive)
@@ -124,6 +158,7 @@ class Sequence(object):
                 attribute.validator(self, attribute, value)
         super().__setattr__(name, value)
 
+#################################################################
 @attrs
 class SimpleSequence(Sequence):
     waveform_buffer = attrib(default=1e-6, validator=is_positive)
@@ -160,6 +195,7 @@ class SimpleSequence(Sequence):
         if (self.period - self.dead_time - self.waveform_buffer) < 0:
             raise ValueError("Wait time cannot be negative!")
 
+#################################################################
 @attrs
 class RabiSequence(Sequence):
     pulse_amplitudes = attrib(default=np.array([1.0]), validator=amp_smaller_1)
@@ -195,7 +231,8 @@ class RabiSequence(Sequence):
             raise ValueError("Wait time cannot be negative!")
         if self.n_HW_loop < len(self.pulse_amplitudes):
             raise ValueError("Length of hardware loop too long for number of specified amplitudes!")
-        
+
+#################################################################
 @attrs
 class T1Sequence(Sequence):
     pulse_amplitude = attrib(default=1, validator=amp_smaller_1)
@@ -233,6 +270,7 @@ class T1Sequence(Sequence):
         if self.n_HW_loop > len(self.delay_times):
             raise ValueError("Length of hardware loop too long for number of specified delay times!")
         
+#################################################################
 @attrs
 class T2Sequence(T1Sequence):
     def write_sequence(self):
@@ -251,7 +289,6 @@ class T2Sequence(T1Sequence):
             self.sequence += SeqCommand.wait_wave()
             self.sequence += SeqCommand.wait(self.dead_cycles)
         self.sequence += SeqCommand.close_bracket()  
-
 
 
 #################################################################
