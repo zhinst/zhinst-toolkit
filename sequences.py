@@ -173,7 +173,7 @@ class T1Sequence(Sequence):
         self.sequence = SeqCommand.header_comment(sequence_type="T1")
         self.sequence += SeqCommand.init_gauss_scaled(self.pulse_amplitude, self.gauss_params)
         self.sequence += SeqCommand.repeat(self.repetitions)
-        for i, t in enumerate(self.delay_times):
+        for i, t in enumerate([self.time_to_cycles(t) for t in (self.delay_times)]):
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
             self.sequence += self.trigger_cmd_1
             self.sequence += SeqCommand.wait(self.wait_cycles - t)
