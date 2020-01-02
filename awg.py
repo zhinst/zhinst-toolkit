@@ -1,13 +1,15 @@
 from waveform import Waveform
-from sequences import SequenceProgram
+from sequenceProgram import SequenceProgram
+import time
 
 
 class AWG(object):
     def __init__(self):
         self.in_use = False
-        self.__sequence = SequenceProgram()
-        self.awg = None  # daq.awgModule()
         self.waveforms = []
+        self.__sequence = SequenceProgram()
+        self.__daq = None
+        self.__awg = None  # daq.awgModule()
 
     def set(self, **settings):
         self.__sequence.set(**settings)
@@ -19,9 +21,8 @@ class AWG(object):
             self.__sequence.set(
                 buffer_lengths=[w.buffer_length for w in self.waveforms]
             )
-        print(
-            "Uploaded sequence program to device!"
-        )  # self.upload_program(self.__sequence.get())
+        self._upload_program(self.__sequence.get())
+        print("Uploaded sequence program to device!")
 
     def add_waveform(self, wave1, wave2):
         if self.__sequence.sequence_type == "Simple":
@@ -41,13 +42,39 @@ class AWG(object):
     def run(self):
         pass
 
-    def _init_awg(self):
-        pass
+    def setup(self, daq, device, index):
+        self.__daq = daq
+        self.device = device
+        self.awg_index = index
+        self.__awg = self.__daq.awgModule()
+        self.__awg.set("device", device)
+        self.__awg.set("index", index)
+        self.__awg.execute()
 
-    def _upload_program(self):
-        pass
+    def _upload_program(self, awg_program):
+        self.__awg.set("compiler/sourcestring", awg_program)
+        time.sleep(1)
+        print("Compiler Status: {}".format(self.__awg.getInt("compiler/status")))
+        # while self.__awg.getInt("compiler/status") == -1:
+        #     time.sleep(0.1)
+        if self.__awg.getInt("compiler/status") == 1:
+            raise Exception(
+                "Upload failed:\n" + self.__awg.getString("compiler/statusstring")
+            )
+        if self.__awg.getInt("compiler/status") == 2:
+            # warning
+            pass
+        if self.__awg.getInt("compiler/status") == 0:
+            # successful
+            pass
 
-    def upload_waveform(self, waveform, index=0):
+    def upload_waveform(self, waveform, loop_index=0):
+        node = "/{}/awgs/{}/waveform/waves/{}".format(
+            self.device, self.awg_index, loop_index
+        )
+        print("node: {}".format(node))
+        print("data: {}".format(waveform.data))
+        self.__daq.setVector(node, waveform.data)
         print(
             "     ... uploaded waveform of length 2 x {}".format(waveform.buffer_length)
         )

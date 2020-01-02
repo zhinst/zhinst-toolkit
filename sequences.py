@@ -2,6 +2,7 @@ from seqCommands import SeqCommand
 
 import textwrap
 import attr
+import numpy as np
 
 
 
@@ -10,7 +11,7 @@ def is_positive(self, attribute, value):
         raise ValueError("Must be positive!")
 
 def amp_smaller_1(self, attribute, value):
-    if max(abs(value)) > 1.0:
+    if np.max(np.abs(value)) > 1.0:
         raise ValueError("Amplitude cannot be larger than 1.0!")
 
 @attr.s

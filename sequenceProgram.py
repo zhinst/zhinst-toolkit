@@ -43,7 +43,7 @@ class SequenceProgram(object):
     def set(self, **settings):
         if "sequence_type" in settings:
             current_params = attr.asdict(self.__sequence)
-            self.__init__(settings["sequence_type"])
+            self.__init__(sequence_type=settings["sequence_type"])
             self.__sequence.set(**current_params)
         self.__sequence.set(**settings)
 
