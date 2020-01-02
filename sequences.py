@@ -118,12 +118,12 @@ class SimpleSequence(Sequence):
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
         elif self.trigger_mode == "External Trigger":
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
-        if len(self.buffer_lengths) > self.n_HW_loop:
+        if len(self.buffer_lengths) != self.n_HW_loop:
             self.n_HW_loop = len(self.buffer_lengths)
 
     def check_attributes(self):
         super().check_attributes()
-        if len(self.buffer_lengths) != self.n_HW_loop:
+        if len(self.buffer_lengths) > self.n_HW_loop:
             raise ValueError("Length of list buffer_lengths has to be equal to length of HW loop!")
 
 @attr.s
@@ -205,8 +205,7 @@ class T2Sequence(T1Sequence):
         self.sequence = SeqCommand.header_comment(sequence_type="T2* (Ramsey)")
         self.sequence += SeqCommand.init_gauss_scaled(0.5 * self.pulse_amplitude, self.gauss_params)
         self.sequence += SeqCommand.repeat(self.repetitions)
-        playWave_latency = 10e-9
-        for i, t in enumerate([self.time_to_cycles(t) for t in (self.delay_times-playWave_latency)]):
+        for i, t in enumerate([self.time_to_cycles(t) for t in (self.delay_times)]):
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
             self.sequence += self.trigger_cmd_1
             self.sequence += SeqCommand.wait(self.wait_cycles - t)

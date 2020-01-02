@@ -1,0 +1,61 @@
+import pytest
+from hypothesis import given, assume, strategies as st
+from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
+
+from sequenceProgram import SequenceProgram
+import numpy as np
+
+
+class SequenceProgramMachine(RuleBasedStateMachine):
+    def __init__(self):
+        super().__init__()
+        self.sequenceProgram = SequenceProgram()
+
+    @rule(type=st.integers(0, 3))
+    def change_type(self, type):
+        if type == 0:
+            t = "None"
+        elif type == 1:
+            t = "Simple"
+        elif type == 2:
+            t = "T1"
+        elif type == 3:
+            t = "T2*"
+        self.sequenceProgram.set(sequence_type=t)
+        assert self.sequenceProgram.sequence_type == t
+
+    @rule(l=st.integers(1, 1000), amp=st.floats(0, 1.0))
+    def change_amps(self, l, amp):
+        test_array = np.random.uniform(0, amp, l)
+        self.sequenceProgram.set(pulse_amplitudes=test_array)
+        params = self.sequenceProgram.list_params()
+        if self.sequenceProgram.sequence_type == "Rabi":
+            assert np.array_equal(
+                params["sequence_parameters"]["pulse_amplitudes"], test_array
+            )
+        else:
+            assert "pulse_amplitudes" not in params["sequence_parameters"].keys()
+
+    @rule(l=st.integers(1, 1000), t=st.floats(100e-9, 10e-6))
+    def change_delays(self, l, t):
+        test_array = np.linspace(0, t, l)
+        self.sequenceProgram.set(delay_times=test_array)
+        params = self.sequenceProgram.list_params()
+        if self.sequenceProgram.sequence_type in ["T1", "T2*"]:
+            assert np.array_equal(
+                params["sequence_parameters"]["delay_times"], test_array
+            )
+        else:
+            assert "delay_times" not in params["sequence_parameters"].keys()
+
+    @rule()
+    def get_sequence(self):
+        sequence = self.sequenceProgram.get()
+        if self.sequenceProgram.sequence_type is None:
+            assert "None" in sequence
+        else:
+            assert self.sequenceProgram.sequence_type in sequence
+
+
+TestPrograms = SequenceProgramMachine.TestCase
+
