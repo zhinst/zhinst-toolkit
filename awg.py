@@ -7,9 +7,10 @@ class AWG(object):
     def __init__(self):
         self.in_use = False
         self.waveforms = []
+        self.awg_module_executed = False
         self.__sequence = SequenceProgram()
         self.__daq = None
-        self.__awg = None  # daq.awgModule()
+        self.__awg = None
 
     def set(self, **settings):
         self.__sequence.set(**settings)
@@ -50,37 +51,41 @@ class AWG(object):
         self.__awg.set("device", device)
         self.__awg.set("index", index)
         self.__awg.execute()
+        self.awg_module_executed = True
 
     def _upload_program(self, awg_program):
-        self.__awg.set("compiler/sourcestring", awg_program)
-        time.sleep(1)
-        print("Compiler Status: {}".format(self.__awg.getInt("compiler/status")))
-        # while self.__awg.getInt("compiler/status") == -1:
-        #     time.sleep(0.1)
-        if self.__awg.getInt("compiler/status") == 1:
-            raise Exception(
-                "Upload failed:\n" + self.__awg.getString("compiler/statusstring")
-            )
-        if self.__awg.getInt("compiler/status") == 2:
-            # warning
-            pass
-        if self.__awg.getInt("compiler/status") == 0:
-            # successful
-            pass
+        if self.awg_module_executed:
+            self.__awg.set("compiler/sourcestring", awg_program)
+            time.sleep(1)
+            print("Compiler Status: {}".format(self.__awg.getInt("compiler/status")))
+            if self.__awg.getInt("compiler/status") == 1:
+                raise Exception(
+                    "Upload failed:\n" + self.__awg.getString("compiler/statusstring")
+                )
+            if self.__awg.getInt("compiler/status") == 2:
+                # warning
+                pass
+            if self.__awg.getInt("compiler/status") == 0:
+                # successful
+                pass
 
     def upload_waveform(self, waveform, loop_index=0):
-        node = "/{}/awgs/{}/waveform/waves/{}".format(
-            self.device, self.awg_index, loop_index
-        )
-        print("node: {}".format(node))
-        print("data: {}".format(waveform.data))
-        self.__daq.setVector(node, waveform.data)
-        print(
-            "     ... uploaded waveform of length 2 x {}".format(waveform.buffer_length)
-        )
+        if self.awg_module_executed:
+            node = "/{}/awgs/{}/waveform/waves/{}".format(
+                self.device, self.awg_index, loop_index
+            )
+            print("node: {}".format(node))
+            print("data: {}".format(waveform.data))
+            self.__daq.setVector(node, waveform.data)
+            print(
+                "     ... uploaded waveform of length 2 x {}".format(
+                    waveform.buffer_length
+                )
+            )
 
-    def print_sequence(self):
-        print(self.__sequence.get())
+    def get_sequence(self):
+        return self.__sequence.get()
 
+    @property
     def sequence_params(self):
         return self.__sequence.list_params()
