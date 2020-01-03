@@ -8,7 +8,7 @@ class HDAWG(Device):
         >>> hd = HDAWG()
         >>> hd.connect("dev8030")
         >>> hd.set_node_value("sigouts/0/on", 1)
-        >>> hd.get_node_value("sigouts/0/on")
+        >>> hd.get_node_value("sigouts/0/on") --> 1
         >>> hd.setup_awg(0)
         >>> hd.awgs[0].set(sequence_type="Simple")
         >>> hd.awgs[0].add_waveform(np.linspace(-1, 1, 100), np.lispace(1, -1, 100))
@@ -24,7 +24,7 @@ class HDAWG(Device):
         pass
 
     def connect(self, device):
-        """connect to device, overwrite ZiDevice method
+        """connect to device, overwrite Device method
         
         Arguments:
             device {string} -- device ID, e.g. "dev8030"

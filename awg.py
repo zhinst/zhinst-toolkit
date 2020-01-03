@@ -62,7 +62,6 @@ class AWG(object):
         else:
             raise NotConnectedError("AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device.") 
 
-
     def setup(self, daq, device):
         self.__daq = daq
         self.__device = device
