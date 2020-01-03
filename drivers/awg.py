@@ -1,5 +1,5 @@
-from .waveform import Waveform
-from .sequenceProgram import SequenceProgram
+from helpers import Waveform
+from helpers import SequenceProgram
 import time
 
 
