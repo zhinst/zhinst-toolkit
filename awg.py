@@ -107,16 +107,6 @@ class AWG(object):
             )
         else:
             raise NotConnectedError("AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device.")
-
-    
-    def __wait_awg_done(self, timeout=100):
-        tik = time.time()
-        while(self.__awg.getInt("awg/enable") == 1):
-            tok = time.time()
-            print("      ... AWG running for {} s".format(tok - tik))
-            if tok - tik > timeout:
-                break
-
     
     def get_sequence(self):
         return self.__sequence.get()
