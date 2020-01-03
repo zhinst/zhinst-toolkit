@@ -59,9 +59,9 @@ class AWGMachine(RuleBasedStateMachine):
     @rule(type=st.integers(0, 3))
     def change_type(self, type):
         if type == 0:
-            t = "None"
-        elif type == 1:
             t = "Simple"
+        elif type == 1:
+            t = "Rabi"
         elif type == 2:
             t = "T1"
         elif type == 3:
@@ -73,6 +73,21 @@ class AWGMachine(RuleBasedStateMachine):
     @precondition(lambda self: len(self.awg.waveforms) > 0)
     def update_awg(self):
         self.awg.update()
+        if self.awg.sequence_params["sequence_type"] == "Simple":
+            assert (
+                len(self.awg.waveforms)
+                == self.awg.sequence_params["sequence_parameters"]["n_HW_loop"]
+            )
+        if self.awg.sequence_params["sequence_type"] == "Rabi":
+            assert (
+                len(self.awg.sequence_params["sequence_parameters"]["pulse_amplitudes"])
+                == self.awg.sequence_params["sequence_parameters"]["n_HW_loop"]
+            )
+        if self.awg.sequence_params["sequence_type"] in ["T1", "T2*"]:
+            assert (
+                len(self.awg.sequence_params["sequence_parameters"]["delay_times"])
+                == self.awg.sequence_params["sequence_parameters"]["n_HW_loop"]
+            )
 
     @rule(l=st.integers(0, 1000))
     def add_waveform(self, l):
