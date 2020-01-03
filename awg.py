@@ -3,12 +3,17 @@ from sequenceProgram import SequenceProgram
 import time
 
 
+
+class NotConnectedError(Exception):
+    pass
+
+
 class AWG(object):
     def __init__(self, **kwargs):
         self.in_use = False
-        self.waveforms = []
-        self.__index = kwargs.get("index", 0)
         self.awg_module_executed = False
+        self.__waveforms = []
+        self.__index = kwargs.get("index", 0)
         self.__sequence = SequenceProgram()
         self.__daq = None
         self.__awg = None
@@ -18,10 +23,10 @@ class AWG(object):
 
     def update(self):
         if self.__sequence.sequence_type == "Simple":
-            if len(self.waveforms) == 0:
+            if len(self.__waveforms) == 0:
                 raise Exception("No Waveforms defined!")
             self.__sequence.set(
-                buffer_lengths=[w.buffer_length for w in self.waveforms]
+                buffer_lengths=[w.buffer_length for w in self.__waveforms]
             )
         self._upload_program(self.__sequence.get())
         print("Uploaded sequence program to device!")
@@ -29,7 +34,7 @@ class AWG(object):
     def add_waveform(self, wave1, wave2):
         if self.__sequence.sequence_type == "Simple":
             w = Waveform(wave1, wave2)
-            self.waveforms.append(w)
+            self.__waveforms.append(w)
             print("added waveform of length 2 x {}".format(w.buffer_length))
         else:
             print("AWG Sequence type must be 'Simple' to upload waveforms!")
@@ -37,13 +42,26 @@ class AWG(object):
     def upload_waveforms(self):
         self.update()
         time.sleep(1)
-        for i, w in enumerate(self.waveforms):
+        for i, w in enumerate(self.__waveforms):
             self.upload_waveform(w, i)
-        print("Finished uploading {} waveforms!".format(len(self.waveforms)))
-        self.waveforms = []
+        print("Finished uploading {} waveforms!".format(len(self.__waveforms)))
+        self.__waveforms = []
 
     def run(self):
-        pass
+        if self.awg_module_executed:
+            if not self.__awg.getInt("awg/enable"):
+                self.__awg.set("awg/enable", 1)
+                #self.__wait_awg_done(timeout=100)
+        else:
+            raise NotConnectedError("AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device.") 
+
+    def stop(self):
+        if self.awg_module_executed:
+            if self.__awg.getInt("awg/enable"):
+                self.__awg.set("awg/enable", 0)
+        else:
+            raise NotConnectedError("AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device.") 
+
 
     def setup(self, daq, device):
         self.__daq = daq
@@ -71,6 +89,8 @@ class AWG(object):
             if self.__awg.getInt("compiler/status") == 0:
                 # successful
                 pass
+        else:
+            raise NotConnectedError("AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device.") 
 
     def upload_waveform(self, waveform, loop_index=0):
         if self.awg_module_executed:
@@ -78,14 +98,26 @@ class AWG(object):
                 self.__device, self.index, loop_index
             )
             print("node: {}".format(node))
-            print("data: {}".format(waveform.data))
+            # print("data: {}".format(waveform.data))
             self.__daq.setVector(node, waveform.data)
             print(
                 "     ... uploaded waveform of length 2 x {}".format(
                     waveform.buffer_length
                 )
             )
+        else:
+            raise NotConnectedError("AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device.")
 
+    
+    def __wait_awg_done(self, timeout=100):
+        tik = time.time()
+        while(self.__awg.getInt("awg/enable") == 1):
+            tok = time.time()
+            print("      ... AWG running for {} s".format(tok - tik))
+            if tok - tik > timeout:
+                break
+
+    
     def get_sequence(self):
         return self.__sequence.get()
 
@@ -96,4 +128,12 @@ class AWG(object):
     @property
     def index(self):
         return self.__index
+
+    @property
+    def waveforms(self):
+        return self.__waveforms
+
+    @property
+    def is_running(self):
+        return self.__awg.getInt("awg/enable") == 1
 

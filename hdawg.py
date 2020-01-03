@@ -18,8 +18,8 @@ class HDAWG(Device):
 
     """
 
-    def __init__(self, n_channels=8, **kwargs):
-        self.__n_channels = n_channels
+    def __init__(self, hdawg8=True, **kwargs):
+        self.__n_channels = 8 if hdawg8 else 4
         self.__awgs = []
         for i in range(int(self.__n_channels / 2)):
             self.__awgs.append(AWG(index=i))

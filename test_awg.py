@@ -2,7 +2,7 @@ import pytest
 from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 
-from awg import AWG
+from awg import AWG, NotConnectedError
 import numpy as np
 
 
@@ -72,22 +72,23 @@ class AWGMachine(RuleBasedStateMachine):
     @rule()
     @precondition(lambda self: len(self.awg.waveforms) > 0)
     def update_awg(self):
-        self.awg.update()
-        if self.awg.sequence_params["sequence_type"] == "Simple":
-            assert (
-                len(self.awg.waveforms)
-                == self.awg.sequence_params["sequence_parameters"]["n_HW_loop"]
-            )
-        if self.awg.sequence_params["sequence_type"] == "Rabi":
-            assert (
-                len(self.awg.sequence_params["sequence_parameters"]["pulse_amplitudes"])
-                == self.awg.sequence_params["sequence_parameters"]["n_HW_loop"]
-            )
-        if self.awg.sequence_params["sequence_type"] in ["T1", "T2*"]:
-            assert (
-                len(self.awg.sequence_params["sequence_parameters"]["delay_times"])
-                == self.awg.sequence_params["sequence_parameters"]["n_HW_loop"]
-            )
+        with pytest.raises(NotConnectedError):
+            self.awg.update()
+            if self.awg.sequence_params["sequence_type"] == "Simple":
+                assert (
+                    len(self.awg.waveforms)
+                    == self.awg.sequence_params["sequence_parameters"]["n_HW_loop"]
+                )
+            if self.awg.sequence_params["sequence_type"] == "Rabi":
+                assert (
+                    len(self.awg.sequence_params["sequence_parameters"]["pulse_amplitudes"])
+                    == self.awg.sequence_params["sequence_parameters"]["n_HW_loop"]
+                )
+            if self.awg.sequence_params["sequence_type"] in ["T1", "T2*"]:
+                assert (
+                    len(self.awg.sequence_params["sequence_parameters"]["delay_times"])
+                    == self.awg.sequence_params["sequence_parameters"]["n_HW_loop"]
+                )
 
     @rule(l=st.integers(0, 1000))
     def add_waveform(self, l):
@@ -96,8 +97,9 @@ class AWGMachine(RuleBasedStateMachine):
     @rule()
     @precondition(lambda self: len(self.awg.waveforms) > 0)
     def upload_waveforms(self):
-        self.awg.upload_waveforms()
-        assert self.awg.waveforms == []
+        with pytest.raises(NotConnectedError):
+            self.awg.upload_waveforms()
+            assert self.awg.waveforms == []
 
     @rule()
     def get_sequence(self):
@@ -107,5 +109,11 @@ class AWGMachine(RuleBasedStateMachine):
         else:
             assert self.awg.sequence_params["sequence_type"] in s
 
+    @rule(test=st.integers())
+    def overwrite_props(self, test):
+        with pytest.raises(AttributeError):
+            self.awg.waveforms = test
+            self.awg.index = test
+            self.awg.sequence_params = test
 
 TestPrograms = AWGMachine.TestCase
