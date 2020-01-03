@@ -7,6 +7,9 @@ import time
 class NotConnectedError(Exception):
     pass
 
+class CompilationFailedError(Exception):
+    pass
+
 
 class AWG(object):
     def __init__(self, **kwargs):
@@ -41,7 +44,7 @@ class AWG(object):
 
     def upload_waveforms(self):
         self.update()
-        time.sleep(1)
+        time.sleep(0.2)
         for i, w in enumerate(self.__waveforms):
             self.upload_waveform(w, i)
         print("Finished uploading {} waveforms!".format(len(self.__waveforms)))
@@ -79,7 +82,7 @@ class AWG(object):
                 time.sleep(0.1)
             print("Compiler Status: {}".format(self.__awg.getInt("compiler/status")))
             if self.__awg.getInt("compiler/status") == 1:
-                raise Exception(
+                raise CompilationFailedError(
                     "Upload failed:\n" + self.__awg.getString("compiler/statusstring")
                 )
             if self.__awg.getInt("compiler/status") == 2:

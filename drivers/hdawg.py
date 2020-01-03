@@ -11,7 +11,7 @@ class HDAWG(Device):
         >>> hd.get_node_value("sigouts/0/on") --> 1
         >>> hd.setup_awg(0)
         >>> hd.awgs[0].set(sequence_type="Simple")
-        >>> hd.awgs[0].add_waveform(np.linspace(-1, 1, 100), np.lispace(1, -1, 100))
+        >>> hd.awgs[0].add_waveform(np.linspace(-1, 1, 100), np.linspace(1, -1, 100))
         >>> hd.upload_waveforms()
         >>> hd.awgs[0].run() 
     """
