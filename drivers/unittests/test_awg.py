@@ -2,7 +2,7 @@ import pytest
 from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 
-from awg import AWG, NotConnectedError
+from drivers.awg import AWG, NotConnectedError
 import numpy as np
 
 

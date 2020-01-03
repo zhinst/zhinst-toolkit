@@ -1,4 +1,4 @@
-from seqCommands import SeqCommand
+from .seqCommands import SeqCommand
 
 import textwrap
 import attr

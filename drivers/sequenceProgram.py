@@ -1,5 +1,5 @@
 import attr
-from sequences import Sequence, SimpleSequence, RabiSequence, T1Sequence, T2Sequence
+from .sequences import Sequence, SimpleSequence, RabiSequence, T1Sequence, T2Sequence
 
 
 class SequenceProgram(object):

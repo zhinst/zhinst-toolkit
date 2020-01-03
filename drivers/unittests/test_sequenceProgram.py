@@ -2,7 +2,7 @@ import pytest
 from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 
-from sequenceProgram import SequenceProgram
+from drivers.sequenceProgram import SequenceProgram
 import numpy as np
 
 

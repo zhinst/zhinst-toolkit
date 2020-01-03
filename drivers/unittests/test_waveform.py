@@ -1,7 +1,7 @@
 import pytest
 from hypothesis import given, assume, strategies as st
 
-from waveform import Waveform
+from drivers.waveform import Waveform
 import numpy as np
 
 
