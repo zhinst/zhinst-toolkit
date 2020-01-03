@@ -6,6 +6,7 @@ from helpers import AWG
 from helpers.awg import NotConnectedError, CompilationFailedError
 import zhinst.utils
 import numpy as np
+import time
 
 
 @pytest.fixture(scope="session")
@@ -69,13 +70,53 @@ def test_sequence_upload_Simple_before_addWaveform(awg):
     with pytest.raises(Exception):
         awg.update()
 
+
 @given(n=st.integers(1, 10))
-@settings(deadline=10000, max_examples=100)
+@settings(deadline=10000, max_examples=20)
 def test_simple_sequence_upload_n_waveforms(awg, n):
     awg.set(sequence_type="Simple")
     for i in range(n):
         awg.add_waveform(np.ones(80), np.ones(80))
     awg.upload_waveforms()
+
+
+@given(n=st.integers(1, 3))
+@settings(deadline=10000, max_examples=5)
+def test_simple_sequence_run_stop(awg, n):
+    awg.set(sequence_type="Simple", repetitions=1000, period=1)
+    awg.add_waveform(np.ones(80), np.ones(80))
+    awg.upload_waveforms()
+    for i in range(n):
+        awg.run()
+        time.sleep(0.5)
+        assert awg.is_running
+        awg.stop()
+        assert not awg.is_running
+        time.sleep(0.5)
+
+
+@given(length=st.integers(1, 100), amp=st.floats(-1, 1))
+@settings(deadline=10000, max_examples=10)
+def test_simple_sequence_uploaded_waveform_matches(connection, length, amp):
+    daq, dev = connection
+    awg = AWG()
+    awg.setup(daq, dev)
+    awg.set(sequence_type="Simple")
+    wave1 = amp*np.ones(length)
+    wave2 = amp*np.ones(length)
+    awg.add_waveform(wave1, wave2)
+    awg.upload_waveforms()
+    node = "/{}/awgs/0/waveform/waves/0".format(dev)
+    d = daq.get(node, flat=True, settingsonly=False)
+    vec = d[node][0]["vector"]
+    vec1 = vec[::2]
+    vec2 = vec[1::2]
+    vec1 = vec1[:len(wave1)] 
+    vec2 = vec2[:len(wave2)]
+    wave1 = (wave1*(2**15-1)).astype("uint16")
+    wave2 = (wave2*(2**15-1)).astype("uint16")
+    assert np.array_equal(wave1, vec1)
+    assert np.array_equal(wave2, vec2)
 
 # @given(lenghts=st.lists(st.integers(100, 200), min_size=1, max_size=10))
 # @settings(deadline=1000, max_examples=10)

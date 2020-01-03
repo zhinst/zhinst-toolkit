@@ -44,7 +44,7 @@ class AWG(object):
 
     def upload_waveforms(self):
         self.update()
-        time.sleep(0.2)
+        time.sleep(0.25)
         for i, w in enumerate(self.__waveforms):
             self.upload_waveform(w, i)
         print("Finished uploading {} waveforms!".format(len(self.__waveforms)))
@@ -54,6 +54,7 @@ class AWG(object):
         if self.awg_module_executed:
             if not self.__awg.getInt("awg/enable"):
                 self.__awg.set("awg/enable", 1)
+                #time.sleep(0.1)
                 #self.__wait_awg_done(timeout=100)
         else:
             raise NotConnectedError("AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device.") 
