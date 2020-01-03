@@ -1,4 +1,5 @@
 from .device import Device
+from helpers import AWG
 
 
 class UHFQA(Device):
