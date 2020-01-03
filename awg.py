@@ -4,9 +4,10 @@ import time
 
 
 class AWG(object):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.in_use = False
         self.waveforms = []
+        self.__index = kwargs.get("index", 0)
         self.awg_module_executed = False
         self.__sequence = SequenceProgram()
         self.__daq = None
@@ -35,6 +36,7 @@ class AWG(object):
 
     def upload_waveforms(self):
         self.update()
+        time.sleep(1)
         for i, w in enumerate(self.waveforms):
             self.upload_waveform(w, i)
         print("Finished uploading {} waveforms!".format(len(self.waveforms)))
@@ -43,20 +45,21 @@ class AWG(object):
     def run(self):
         pass
 
-    def setup(self, daq, device, index):
+    def setup(self, daq, device):
         self.__daq = daq
-        self.device = device
-        self.awg_index = index
+        self.__device = device
         self.__awg = self.__daq.awgModule()
         self.__awg.set("device", device)
-        self.__awg.set("index", index)
+        self.__awg.set("index", self.index)
         self.__awg.execute()
         self.awg_module_executed = True
+        self.in_use = True
 
     def _upload_program(self, awg_program):
         if self.awg_module_executed:
             self.__awg.set("compiler/sourcestring", awg_program)
-            time.sleep(1)
+            while self.__awg.getInt("compiler/status") == -1:
+                time.sleep(0.1)
             print("Compiler Status: {}".format(self.__awg.getInt("compiler/status")))
             if self.__awg.getInt("compiler/status") == 1:
                 raise Exception(
@@ -72,7 +75,7 @@ class AWG(object):
     def upload_waveform(self, waveform, loop_index=0):
         if self.awg_module_executed:
             node = "/{}/awgs/{}/waveform/waves/{}".format(
-                self.device, self.awg_index, loop_index
+                self.__device, self.index, loop_index
             )
             print("node: {}".format(node))
             print("data: {}".format(waveform.data))
@@ -89,3 +92,8 @@ class AWG(object):
     @property
     def sequence_params(self):
         return self.__sequence.list_params()
+
+    @property
+    def index(self):
+        return self.__index
+

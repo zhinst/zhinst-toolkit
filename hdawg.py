@@ -1,4 +1,5 @@
 from device import Device
+from awg import AWG
 
 
 class HDAWG(Device):
@@ -17,6 +18,13 @@ class HDAWG(Device):
 
     """
 
+    def __init__(self, n_channels=8, **kwargs):
+        self.__n_channels = n_channels
+        self.__awgs = []
+        for i in range(int(self.__n_channels / 2)):
+            self.__awgs.append(AWG(index=i))
+        pass
+
     def connect(self, device):
         """connect to device, overwrite ZiDevice method
         
@@ -24,3 +32,15 @@ class HDAWG(Device):
             device {string} -- device string
         """
         super().connect(device, "HDAWG")
+
+    def disconnect(self):
+        pass
+
+    def setup_awg(self, i):
+        self.__awgs[i].setup(self._daq, self._device)
+        print("Started AWG {} of device {}".format(i, self._device))
+
+    @property
+    def awgs(self):
+        return self.__awgs
+

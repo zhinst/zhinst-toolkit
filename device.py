@@ -36,12 +36,14 @@ class Device(object):
             api_level {int} -- ziPython API level (default: {6})
         """
         if address == "":
-            self.daq = zhinst.utils.autoConnect(default_port=port, api_level=api_level)
-            self.device = zhinst.utils.autoDetect(self.daq)
+            self._daq = zhinst.utils.autoConnect(
+                default_port=port, api_level=api_level
+            )
+            self._device = zhinst.utils.autoDetect(self._daq)
         else:
             address = address.replace("-1", "")
             address = address.replace("-2", "")
-            (self.daq, self.device, _) = zhinst.utils.create_api_session(
+            (self._daq, self._device, _) = zhinst.utils.create_api_session(
                 address,
                 api_level,
                 required_devtype=device_type,
@@ -59,7 +61,7 @@ class Device(object):
         Returns:
             vaious datatypes -- value actually set on device
         """
-        node = "/{}/".format(self.device) + set_command
+        node = "/{}/".format(self._device) + set_command
         dtype = self.__get_node_datatype(node)
         self.__set_parameter(node, dtype(value))
         return self.get_node_value(node)
@@ -72,13 +74,13 @@ class Device(object):
             value {various} -- actual value to be set
         """
         if isinstance(value, float):
-            self.daq.asyncSetDouble(node, value)
+            self._daq.asyncSetDouble(node, value)
         elif isinstance(value, int):
-            self.daq.asyncSetInt(node, value)
+            self._daq.asyncSetInt(node, value)
         elif isinstance(value, str):
-            self.daq.asyncSetString(node, value)
+            self._daq.asyncSetString(node, value)
         elif isinstance(value, complex):
-            self.daq.setComplex(node, value)
+            self._daq.setComplex(node, value)
         return
 
     def get_node_value(self, node):
@@ -90,11 +92,11 @@ class Device(object):
         Returns:
             various -- value on device
         """
-        if self.device not in node:
-            node = "/{}/".format(self.device) + node
+        if self._device not in node:
+            node = "/{}/".format(self._device) + node
         dtype = self.__get_node_datatype(node)
         # read data from ZI
-        d = self.daq.get(node, flat=True)
+        d = self._daq.get(node, flat=True)
         assert len(d) > 0
         # extract and return data
         data = next(iter(d.values()))
@@ -119,7 +121,7 @@ class Device(object):
         if node in self.__node_datatypes:
             return self.__node_datatypes[node]
         # find datatype from returned data
-        d = self.daq.get(node, flat=True)
+        d = self._daq.get(node, flat=True)
         assert len(d) > 0
         data = next(iter(d.values()))
         # if returning dict, strip timing information (API level 6)
