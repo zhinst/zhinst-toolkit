@@ -75,7 +75,7 @@ def test_sequence_upload_Simple_before_addWaveform(awg):
 @settings(deadline=10000, max_examples=20)
 def test_simple_sequence_upload_n_waveforms(awg, n):
     awg.set(sequence_type="Simple")
-    for i in range(n):
+    for _ in range(n):
         awg.add_waveform(np.ones(80), np.ones(80))
     awg.upload_waveforms()
 
@@ -86,7 +86,7 @@ def test_simple_sequence_run_stop(awg, n):
     awg.set(sequence_type="Simple", repetitions=1000, period=1)
     awg.add_waveform(np.ones(80), np.ones(80))
     awg.upload_waveforms()
-    for i in range(n):
+    for _ in range(n):
         awg.run()
         time.sleep(0.5)
         assert awg.is_running
@@ -95,15 +95,15 @@ def test_simple_sequence_run_stop(awg, n):
         time.sleep(0.5)
 
 
-@given(length=st.integers(1, 100), amp=st.floats(-1, 1))
+@given(length=st.integers(1, 100))
 @settings(deadline=10000, max_examples=10)
-def test_simple_sequence_uploaded_waveform_matches(connection, length, amp):
+def test_simple_sequence_uploaded_waveform_matches(connection, length):
     daq, dev = connection
     awg = AWG()
     awg.setup(daq, dev)
     awg.set(sequence_type="Simple")
-    wave1 = amp*np.ones(length)
-    wave2 = amp*np.ones(length)
+    wave1 = np.ones(length)
+    wave2 = np.ones(length)
     awg.add_waveform(wave1, wave2)
     awg.upload_waveforms()
     node = "/{}/awgs/0/waveform/waves/0".format(dev)
@@ -117,6 +117,16 @@ def test_simple_sequence_uploaded_waveform_matches(connection, length, amp):
     wave2 = (wave2*(2**15-1)).astype("uint16")
     assert np.array_equal(wave1, vec1)
     assert np.array_equal(wave2, vec2)
+
+
+@given(n=st.integers(50, 100))
+@settings(deadline=10000, max_examples=5)
+def test_simple_sequence_upload_long_program(awg, n):
+    awg.set(sequence_type="Simple")
+    for _ in range(n):
+        awg.add_waveform(np.ones(80), np.ones(80))
+    awg.upload_waveforms()
+
 
 # @given(lenghts=st.lists(st.integers(100, 200), min_size=1, max_size=10))
 # @settings(deadline=1000, max_examples=10)
