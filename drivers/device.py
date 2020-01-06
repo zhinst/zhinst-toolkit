@@ -56,7 +56,7 @@ class Device(object):
             )
         return
 
-    def set_node_value(self, set_command, value):
+    def set_node(self, set_command, value):
         """sets the node value of the given node
         
         Arguments:
@@ -71,7 +71,7 @@ class Device(object):
             node = set_command
         dtype = self.__get_node_datatype(node)
         self.__set_parameter(node, dtype(value))
-        return self.get_node_value(node)
+        return self.get_node(node)
 
     def __set_parameter(self, node, value):
         """set value for given node depending on datatype
@@ -90,7 +90,7 @@ class Device(object):
             self._daq.setComplex(node, value)
         return
 
-    def get_node_value(self, get_command):
+    def get_node(self, get_command):
         """method to get value of node from device
         
         Arguments:
