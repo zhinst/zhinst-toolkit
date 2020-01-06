@@ -3,6 +3,11 @@ import zhinst.utils
 import numpy as np
 
 
+class DeviceTypeError(Exception):
+    pass
+
+
+
 class Device(object):
     """ZiDevice class that implements basic functionality common to any ZI device
     
@@ -16,19 +21,19 @@ class Device(object):
         get_node_value(self, node)
 
     Typical Usage:
-        device = ZiDevice()
+        device = Device()
         device.connect("dev8030", "HDAWG")
         device.set_node_value("sigouts/0/on", 1)
         device.get_node_value("sigouts/0/on")
 
     """
 
-    def connect(self, address, device_type, port=8004, api_level=6):
+    def connect(self, address, device_type=None, port=8004, api_level=6):
         """open connection to HDAWG device, initialize DAQ object
         
         Arguments:
             object {self} -- self
-            address {string} -- device address, e.g. "dev8030" or "dev8030-1" for indexing
+            address {string} -- device address, e.g. "dev8030"
             device_type {string} -- required device type, e.g. {"HDAWG", "UHFQA"}
         
         Keyword Arguments:
@@ -41,8 +46,8 @@ class Device(object):
             )
             self._device = zhinst.utils.autoDetect(self._daq)
         else:
-            address = address.replace("-1", "")
-            address = address.replace("-2", "")
+            if device_type is None:
+                raise DeviceTypeError("Device type must be specified")
             (self._daq, self._device, _) = zhinst.utils.create_api_session(
                 address,
                 api_level,
@@ -61,7 +66,9 @@ class Device(object):
         Returns:
             vaious datatypes -- value actually set on device
         """
-        node = "/{}/".format(self._device) + set_command
+        node = self._command_to_node(set_command)
+        if "/zi/" in set_command.lower():
+            node = set_command
         dtype = self.__get_node_datatype(node)
         self.__set_parameter(node, dtype(value))
         return self.get_node_value(node)
@@ -83,7 +90,7 @@ class Device(object):
             self._daq.setComplex(node, value)
         return
 
-    def get_node_value(self, node):
+    def get_node_value(self, get_command):
         """method to get value of node from device
         
         Arguments:
@@ -92,8 +99,7 @@ class Device(object):
         Returns:
             various -- value on device
         """
-        if self._device not in node:
-            node = "/{}/".format(self._device) + node
+        node = self._command_to_node(get_command)
         dtype = self.__get_node_datatype(node)
         # read data from ZI
         d = self._daq.get(node, flat=True)
@@ -141,8 +147,17 @@ class Device(object):
             dtype = float
         elif data.dtype in (complex, np.complex_, np.complex64, np.complex128):
             dtype = complex
-        # else: ERROR
+        else: 
+            raise Exception("Node data type not recognized!")
         # keep track of datatype for future use
         self.__node_datatypes[node] = dtype
         return dtype
 
+    def _command_to_node(self, command):
+        command = command.lower()
+        if command[0] != "/":
+            command = "/" + command
+        if "/zi/" not in command:
+            if self._device not in command:
+                command = "/{}".format(self._device) + command
+        return command
