@@ -39,10 +39,12 @@ class SeqCommand(object):
         return "waitWave();\n"
 
     @staticmethod
-    def trigger(i):
-        if i not in [0, 1]:
+    def trigger(value, index=1):
+        if value not in [0, 1]:
             raise ValueError("Invalid Trigger Value!")
-        return "setTrigger({});\n".format(i)
+        if index not in [1, 2]:
+            raise ValueError("Invalid Trigger Index!")
+        return "setTrigger({});\n".format(value << (index-1))
 
     @staticmethod
     def count_waveform(i, n):
@@ -99,5 +101,10 @@ class SeqCommand(object):
         return "\n}"
 
     @staticmethod
-    def wait_dig_trigger():
-        return "waitDigTrigger(1);"
+    def wait_dig_trigger(index=0):
+        if index not in [0, 1, 2]:
+            raise ValueError("Invalid Trigger Index!")
+        if index == 0:
+            return "waitDigTrigger(1);"
+        else:
+            return "waitDigTrigger({}, 1);\n".format(index)

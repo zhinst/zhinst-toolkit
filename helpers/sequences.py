@@ -16,6 +16,7 @@ def amp_smaller_1(self, attribute, value):
 
 @attr.s
 class Sequence(object):   
+    target          = attr.ib(default="HDAWG", validator=attr.validators.in_(["HDAWG", "UHFQA"]))
     clock_rate      = attr.ib(default=2.4e9, validator=is_positive)
     period          = attr.ib(default=100e-6, validator=is_positive)
     trigger_mode    = attr.ib(default="None", validator=attr.validators.in_(["None", "Send Trigger", "External Trigger"]))
@@ -55,7 +56,7 @@ class Sequence(object):
             self.trigger_cmd_2 = SeqCommand.trigger(0)
             self.dead_cycles = self.time_to_cycles(self.dead_time)
         elif self.trigger_mode == "External Trigger":
-            self.trigger_cmd_1 = SeqCommand.wait_dig_trigger()
+            self.trigger_cmd_1 = SeqCommand.wait_dig_trigger(index=int(self.target=="UHFQA"))
             self.trigger_cmd_2 = SeqCommand.comment_line()
             self.dead_cycles = 0      
 
@@ -94,6 +95,7 @@ class SimpleSequence(Sequence):
         self.sequence = SeqCommand.header_comment(sequence_type="Simple")
         for i in range(self.n_HW_loop):
             self.sequence += SeqCommand.init_buffer_indexed(self.buffer_lengths[i], i)
+        self.sequence += self.trigger_cmd_2
         self.sequence += SeqCommand.repeat(self.repetitions)
         for i in range(self.n_HW_loop):    
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
@@ -135,6 +137,7 @@ class RabiSequence(Sequence):
     def write_sequence(self):
         self.sequence = SeqCommand.header_comment(sequence_type="Rabi")
         self.sequence += SeqCommand.init_gauss(self.gauss_params)
+        self.sequence += self.trigger_cmd_2
         self.sequence += SeqCommand.repeat(self.repetitions)
         for i, amp in enumerate(self.pulse_amplitudes):
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
@@ -172,6 +175,7 @@ class T1Sequence(Sequence):
     def write_sequence(self):
         self.sequence = SeqCommand.header_comment(sequence_type="T1")
         self.sequence += SeqCommand.init_gauss_scaled(self.pulse_amplitude, self.gauss_params)
+        self.sequence += self.trigger_cmd_2
         self.sequence += SeqCommand.repeat(self.repetitions)
         for i, t in enumerate([self.time_to_cycles(t) for t in (self.delay_times)]):
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
@@ -204,6 +208,7 @@ class T2Sequence(T1Sequence):
     def write_sequence(self):
         self.sequence = SeqCommand.header_comment(sequence_type="T2* (Ramsey)")
         self.sequence += SeqCommand.init_gauss_scaled(0.5 * self.pulse_amplitude, self.gauss_params)
+        self.sequence += self.trigger_cmd_2
         self.sequence += SeqCommand.repeat(self.repetitions)
         for i, t in enumerate([self.time_to_cycles(t) for t in (self.delay_times)]):
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
