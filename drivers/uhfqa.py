@@ -18,6 +18,11 @@ class UHFQA(Device):
 
     """
 
+    def __init__(self):
+        self.__awg = AWG()
+        self.__awg.set(target="UHFQA", clock_rate=1.8e9)
+
+
     def connect(self, device):
         """connect to device, overwrite ZiDevice method
         
@@ -25,3 +30,20 @@ class UHFQA(Device):
             device {string} -- device string
         """
         super().connect(device, "UHFQA")
+
+    def disconnect(self):
+        pass
+
+    def setup_awg(self):
+        """setup AWG object, creates awgModule object and 
+        executes it
+
+        """
+        self.__awg.setup(self._daq, self._device)
+        print("Started AWG of device {}".format(self._device))
+
+    @property
+    def awg(self):
+        """use property awgs to access list of AWG objects
+        """
+        return self.__awg
