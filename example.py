@@ -6,34 +6,34 @@ import time
 
 if __name__ == "__main__":
     
-    
     hd = HDAWG()
     hd.connect("dev8030")
-    hd.set_node_value("sigouts/2/on", 1)
-    hd.set_node_value("sigouts/3/on", 1)
-    hd.set_node_value("awgs/1/single", 1)
+    hd.set_node("sigouts/2/on", 1)
+    hd.set_node("sigouts/3/on", 1)
+    hd.set_node("awgs/1/single", 1)
+    hd.set_node("awgs/1/outputs/1/amplitude", 0.25)
     hd.setup_awg(1)
 
     qa = UHFQA()
     qa.connect("dev2266")
-    qa.set_node_value("sigouts/1/on", 1)
-    qa.set_node_value("awgs/0/single", 1)
+    qa.set_node("sigouts/1/on", 1)
+    qa.set_node("awgs/0/single", 1)
     qa.setup_awg()
 
-    # parameters for T1
+    # parameters for Rabi
     period = 0.01
     repetitions = 5
-    t1_times = np.linspace(0, 60e-6, 350)
-    repetitions_RO = repetitions * len(t1_times)
-
+    rabi_amplitudes = np.linspace(0, 1.0, 200)
+    repetitions_RO = repetitions * len(rabi_amplitudes)
 
     # setup sequencers
     hd.awgs[1].set(
-        sequence_type="T1",
+        sequence_type="Rabi",
         period=period,
         trigger_mode="Send Trigger",
-        clock_rate=2.4e9,
-        delay_times=t1_times,
+        clock_rate=hd.get_node("system/clocks/sampleclock/freq"),
+        pulse_amplitudes=rabi_amplitudes,
+        pulse_width=20e-9,
         pulse_truncation=4,
         repetitions=repetitions
     )
@@ -47,11 +47,8 @@ if __name__ == "__main__":
     )
 
     x = np.linspace(0, 180, 3200)
-    w1 = np.sin(x)
-    w2 = np.cos(x)
-    qa.awg.add_waveform(w1, w2)
+    qa.awg.add_waveform(np.sin(x), np.cos(x))
 
-    
     hd.awgs[1].update()
     qa.awg.upload_waveforms()
 
