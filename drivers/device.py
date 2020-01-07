@@ -7,18 +7,17 @@ class DeviceTypeError(Exception):
     pass
 
 
-
 class Device(object):
     def connect(self, address, device_type=None, port=8004, api_level=6):
         if address == "":
             self.__daq = zhinst.utils.autoConnect(
                 default_port=port, api_level=api_level
             )
-            self._device = zhinst.utils.autoDetect(self.__daq)
+            self.__device = zhinst.utils.autoDetect(self.__daq)
         else:
             if device_type is None:
                 raise DeviceTypeError("Device type must be specified")
-            (self.__daq, self._device, _) = zhinst.utils.create_api_session(
+            (self.__daq, self.__device, _) = zhinst.utils.create_api_session(
                 address,
                 api_level,
                 required_devtype=device_type,
@@ -34,59 +33,46 @@ class Device(object):
         else:
             raise Exception("Invalid number of arguments!")
         settings = self.__commands_to_node(settings)
-        return self.__daq.set(settings)
+        self.__daq.set(settings)
+        return
 
-    def get_node(self, get_command):
-        node = self.__command_to_node(get_command)
-        dtype = self.__get_node_datatype(node)
-        # read data from ZI
-        d = self.__daq.get(node, flat=True)
-        assert len(d) > 0
-        # extract and return data
-        data = next(iter(d.values()))
-        # all others
-        if isinstance(data, dict) and "value" in data:
-            data = data["value"]
-        value = dtype(data[0])
-        return value
-
-    def __get_node_datatype(self, node):
-        # used cached value, if available
-        if not hasattr(self, "_node_datatypes"):
-            self.__node_datatypes = dict()
-        if node in self.__node_datatypes:
-            return self.__node_datatypes[node]
-        # find datatype from returned data
-        d = self.__daq.get(node, flat=True)
-        assert len(d) > 0
-        data = next(iter(d.values()))
-        # if returning dict, strip timing information (API level 6)
-        if isinstance(data, list):
-            data = data[0]
-        if isinstance(data, dict) and "value" in data:
-            data = data["value"]
-        if isinstance(data, dict) and "vector" in data:
-            data = data["vector"]
-        # get first item, if python list assume string
-        if isinstance(data, list):
-            dtype = str
-        # not string, should be np array, check dtype
-        elif data.dtype in (int, np.int_, np.int64, np.int32, np.int16):
-            dtype = int
-        elif data.dtype in (float, np.float_, np.float64, np.float32):
-            dtype = float
-        elif data.dtype in (complex, np.complex_, np.complex64, np.complex128):
-            dtype = complex
-        else: 
-            raise Exception("Node data type not recognized!")
-        # keep track of datatype for future use
-        self.__node_datatypes[node] = dtype
-        return dtype
-
+    def get(self, command):
+        if isinstance(command, list):
+            paths = []
+            for c in command:
+                paths.append(self.__command_to_node(c))
+            node_string = ", ".join([p for p in paths])
+        elif isinstance(command, str):
+            node_string = self.__command_to_node(command) 
+        else:
+            raise Exception("Invalid argument!")
+        data = self.__daq.get(node_string, settingsonly=False, flat=True)
+        return self.__get_value_from_dict(data)
+        
+    def __get_value_from_dict(self, data):
+        if not isinstance(data, dict):
+            raise Exception("Something went wrong...")
+        if not len(data):
+            raise Exception("No data returned... does the node exist?")
+        new_data = dict()
+        for key, data_dict in data.items():
+            key = key.replace("/{}/".format(self.__device), "")
+            if isinstance(data_dict, list):
+                data_dict = data_dict[0]
+            if "value" in data_dict.keys():
+                new_data[key] = data_dict["value"][0]
+            if "vector" in data_dict.keys():
+                new_data[key] = data_dict["vector"]
+        return new_data
     
     def __commands_to_node(self, settings):
         new_settings = []
         for args in settings:
+            try:
+                if len(args) != 2: 
+                    raise Exception("node/value must be specified as pairs!")
+            except TypeError:
+                raise Exception("node/value must be specified as pairs!")
             new_settings.append( (self.__command_to_node(args[0]), args[1]) )
         return new_settings
     
@@ -96,6 +82,6 @@ class Device(object):
         if command[0] != "/":
             command = "/" + command
         if "/zi/" not in command:
-            if self._device not in command:
-                command = "/{}".format(self._device) + command
+            if self.__device not in command:
+                command = "/{}".format(self.__device) + command
         return command
