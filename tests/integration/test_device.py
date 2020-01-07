@@ -19,9 +19,8 @@ def dev():
 
 @pytest.fixture(scope="session")
 def nodes_int(dev):
-    daq = dev._daq
+    daq = dev._Device__daq
     settings = daq.listNodesJSON("*", settingsonly=True)
-    #json_string = settings.replace("\/", "/")
     node_dict = json.loads(settings)
     node_list = []
     for key, value in node_dict.items():
@@ -33,9 +32,8 @@ def nodes_int(dev):
 
 @pytest.fixture(scope="session")
 def nodes_double(dev):
-    daq = dev._daq
+    daq = dev._Device__daq
     settings = daq.listNodesJSON("*", settingsonly=True)
-    #json_string = settings.replace("\/", "/")
     node_dict = json.loads(settings)
     node_list = []
     for key, value in node_dict.items():
@@ -56,24 +54,22 @@ def test_device_connect():
     dev.connect(address, "HDAWG")
 
 
-@given(lst=st.lists(st.integers(0, 491), 20, 20, unique=True))
-@settings(deadline=5000, max_examples=5)
-def test_get_set_integer(dev, lst, nodes_int):
-    for l in lst:
-        node = nodes_int[l] 
-        temp = dev.get_node_value(node)
-        comp = dev.set_node_value(node, temp)
-        assert comp == temp
+@given(i=st.integers(0, 475))
+@settings(deadline=500, max_examples=50)
+def test_get_set_integer(dev, i, nodes_int):
+    node = nodes_int[i] 
+    temp = dev.get(node)
+    dev.set(node, temp)
+    assert dev.get(node) == temp
 
 
-@given(lst=st.lists(st.integers(0, 284), 20, 20, unique=True))
-@settings(deadline=5000, max_examples=5)
-def test_get_set_double(dev, lst, nodes_double):
-    for l in lst:
-        node = nodes_double[l] 
-        temp = dev.get_node_value(node)
-        comp = dev.set_node_value(node, temp)
-        assert comp == temp
+@given(i=st.integers(0, 284))
+@settings(deadline=500, max_examples=50)
+def test_get_set_double(dev, i, nodes_double):
+    node = nodes_double[i] 
+    temp = dev.get(node)
+    dev.set(node, temp)
+    assert round(dev.get(node), 5) == round(temp, 5)
 
 
 @pytest.mark.skip
@@ -81,27 +77,33 @@ def test_get_set_vector(dev):
     pass
 
 
-@pytest.mark.skip
-def test_get_set_complex(dev, nodes_complex):
-    pass
+def test_set_command_list_def(dev):
+    dev.set([])
+    dev.set("sigouts/0/on", 1)
+    dev.set("sigouts/0/on", 0)
+    dev.set([("sigouts/0/on", 1), ("sigouts/0/on", 0)])
+    with pytest.raises(Exception):
+        dev.set([("blub")])
+        dev.set(["asdfasd"])
+        dev.set([0])
 
 
 def test_command_defs(dev):
     command = "sigouts/0/on"
-    dev.set_node_value(command, 0)
-    assert dev.get_node_value(command) == 0
+    dev.set(command, 0)
+    assert dev.get(command) == 0
     command = "/sigouts/0/on"
-    dev.set_node_value(command, 0)
-    assert dev.get_node_value(command) == 0
+    dev.set(command, 0)
+    assert dev.get(command) == 0
     command = "dev8030/sigouts/0/on"
-    dev.set_node_value(command, 0)
-    assert dev.get_node_value(command) == 0
+    dev.set(command, 0)
+    assert dev.get(command) == 0
     command = "/dev8030/sigouts/0/on"
-    dev.set_node_value(command, 0)
-    assert dev.get_node_value(command) == 0
+    dev.set(command, 0)
+    assert dev.get(command) == 0
     command = "sigouts/0/xyz"
-    with pytest.raises(TypeError):
-        dev.set_node_value(command, 0)
+    with pytest.raises(RuntimeError):
+        dev.set(command, 0)
     
 
 
