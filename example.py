@@ -8,16 +8,20 @@ if __name__ == "__main__":
     
     hd = HDAWG()
     hd.connect("dev8030")
-    hd.set_node("sigouts/2/on", 1)
-    hd.set_node("sigouts/3/on", 1)
-    hd.set_node("awgs/1/single", 1)
-    hd.set_node("awgs/1/outputs/1/amplitude", 0.25)
+    hd.set([
+        ("sigouts/2/on", 1),
+        ("sigouts/3/on", 1),
+        ("awgs/1/single", 1),
+        ("awgs/1/outputs/1/amplitude", 0.25)
+    ])
     hd.setup_awg(1)
 
     qa = UHFQA()
     qa.connect("dev2266")
-    qa.set_node("sigouts/1/on", 1)
-    qa.set_node("awgs/0/single", 1)
+    qa.set([
+        ("sigouts/1/on", 1),
+        ("awgs/0/single", 1)
+    ])
     qa.setup_awg()
 
     # parameters for Rabi
@@ -31,7 +35,7 @@ if __name__ == "__main__":
         sequence_type="Rabi",
         period=period,
         trigger_mode="Send Trigger",
-        clock_rate=hd.get_node("system/clocks/sampleclock/freq"),
+        clock_rate=hd.get("system/clocks/sampleclock/freq", valueonly=True),
         pulse_amplitudes=rabi_amplitudes,
         pulse_width=20e-9,
         pulse_truncation=4,
@@ -55,6 +59,6 @@ if __name__ == "__main__":
     print(hd.awgs[1].sequence_params)
     print(qa.awg.sequence_params)
 
-    qa.awg.run()
-    time.sleep(1)
-    hd.awgs[1].run()
+    # qa.awg.run()
+    # time.sleep(1)
+    # hd.awgs[1].run()

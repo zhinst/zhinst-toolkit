@@ -10,14 +10,14 @@ class DeviceTypeError(Exception):
 class Device(object):
     def connect(self, address, device_type=None, port=8004, api_level=6):
         if address == "":
-            self.__daq = zhinst.utils.autoConnect(
+            self._daq = zhinst.utils.autoConnect(
                 default_port=port, api_level=api_level
             )
-            self.__device = zhinst.utils.autoDetect(self.__daq)
+            self._device = zhinst.utils.autoDetect(self._daq)
         else:
             if device_type is None:
                 raise DeviceTypeError("Device type must be specified")
-            (self.__daq, self.__device, _) = zhinst.utils.create_api_session(
+            (self._daq, self._device, _) = zhinst.utils.create_api_session(
                 address,
                 api_level,
                 required_devtype=device_type,
@@ -33,10 +33,10 @@ class Device(object):
         else:
             raise Exception("Invalid number of arguments!")
         settings = self.__commands_to_node(settings)
-        self.__daq.set(settings)
+        self._daq.set(settings)
         return
 
-    def get(self, command):
+    def get(self, command, valueonly=False):
         if isinstance(command, list):
             paths = []
             for c in command:
@@ -46,8 +46,15 @@ class Device(object):
             node_string = self.__command_to_node(command) 
         else:
             raise Exception("Invalid argument!")
-        data = self.__daq.get(node_string, settingsonly=False, flat=True)
-        return self.__get_value_from_dict(data)
+        data = self._daq.get(node_string, settingsonly=False, flat=True)
+        data = self.__get_value_from_dict(data)
+        if valueonly:
+            if len(data) > 1:
+                return [v for v in data.values()]
+            else:
+                return  list(data.values())[0]
+        else:
+            return data
         
     def __get_value_from_dict(self, data):
         if not isinstance(data, dict):
@@ -56,7 +63,7 @@ class Device(object):
             raise Exception("No data returned... does the node exist?")
         new_data = dict()
         for key, data_dict in data.items():
-            key = key.replace("/{}/".format(self.__device), "")
+            key = key.replace("/{}/".format(self._device), "")
             if isinstance(data_dict, list):
                 data_dict = data_dict[0]
             if "value" in data_dict.keys():
@@ -82,6 +89,6 @@ class Device(object):
         if command[0] != "/":
             command = "/" + command
         if "/zi/" not in command:
-            if self.__device not in command:
-                command = "/{}".format(self.__device) + command
+            if self._device not in command:
+                command = "/{}".format(self._device) + command
         return command
