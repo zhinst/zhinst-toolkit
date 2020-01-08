@@ -1,6 +1,6 @@
 # ZI_driver_wrapper
 
-This module contains instrument drivers for the HDAWG and UHFQA.
+This module contains instrument drivers for the HDAWG and UHFQA. Drivers for QCoDeS, Labber and QCCS can make use of this wrapper as a common basis. Its functionality facilitates the device interface and usability. The `drivers` module can also be tested independently of the QCoDeS or Labber implementations, currently the code coverage of unit and integration tests is at roughly 90%.  
 
 # Usage
 
