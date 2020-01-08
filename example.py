@@ -6,6 +6,7 @@ import time
 
 if __name__ == "__main__":
     
+    # set device parameters
     hd = HDAWG()
     hd.connect("dev8030")
     hd.set([
@@ -24,13 +25,12 @@ if __name__ == "__main__":
     ])
     qa.setup_awg()
 
-    # parameters for Rabi
+    # set sequence parameters
     period = 0.01
     repetitions = 5
     rabi_amplitudes = np.linspace(0, 1.0, 200)
     repetitions_RO = repetitions * len(rabi_amplitudes)
 
-    # setup sequencers
     hd.awgs[1].set(
         sequence_type="Rabi",
         period=period,
@@ -41,6 +41,7 @@ if __name__ == "__main__":
         pulse_truncation=4,
         repetitions=repetitions
     )
+    hd.awgs[1].update()
 
     qa.awg.set(
         sequence_type="Simple",
@@ -49,13 +50,10 @@ if __name__ == "__main__":
         clock_rate=1.8e9,
         repetitions=repetitions_RO
     )
-
     x = np.linspace(0, 180, 3200)
     qa.awg.add_waveform(np.sin(x), np.cos(x))
-
-    hd.awgs[1].update()
     qa.awg.upload_waveforms()
-
+    
     print(hd.awgs[1].sequence_params)
     print(qa.awg.sequence_params)
 
