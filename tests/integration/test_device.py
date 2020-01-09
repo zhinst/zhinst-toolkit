@@ -19,7 +19,7 @@ def dev():
 
 @pytest.fixture(scope="session")
 def nodes_int(dev):
-    daq = dev._Device__daq
+    daq = dev._daq
     settings = daq.listNodesJSON("*", settingsonly=True)
     node_dict = json.loads(settings)
     node_list = []
@@ -32,7 +32,7 @@ def nodes_int(dev):
 
 @pytest.fixture(scope="session")
 def nodes_double(dev):
-    daq = dev._Device__daq
+    daq = dev._daq
     settings = daq.listNodesJSON("*", settingsonly=True)
     node_dict = json.loads(settings)
     node_list = []
@@ -57,24 +57,19 @@ def test_device_connect():
 @given(i=st.integers(0, 475))
 @settings(deadline=500, max_examples=50)
 def test_get_set_integer(dev, i, nodes_int):
-    node = nodes_int[i] 
-    temp = dev.get(node)
+    node = nodes_int[i]
+    temp = dev.get(node, valueonly=True)
     dev.set(node, temp)
-    assert dev.get(node) == temp
+    assert dev.get(node, valueonly=True) == temp
 
 
 @given(i=st.integers(0, 284))
 @settings(deadline=500, max_examples=50)
 def test_get_set_double(dev, i, nodes_double):
-    node = nodes_double[i] 
-    temp = dev.get(node)
+    node = nodes_double[i]
+    temp = dev.get(node, valueonly=True)
     dev.set(node, temp)
-    assert round(dev.get(node), 5) == round(temp, 5)
-
-
-@pytest.mark.skip
-def test_get_set_vector(dev):
-    pass
+    assert round(dev.get(node, valueonly=True), 5) == round(temp, 5)
 
 
 def test_set_command_list_def(dev):
@@ -91,24 +86,17 @@ def test_set_command_list_def(dev):
 def test_command_defs(dev):
     command = "sigouts/0/on"
     dev.set(command, 0)
-    assert dev.get(command) == 0
+    assert dev.get(command, valueonly=True) == 0
     command = "/sigouts/0/on"
     dev.set(command, 0)
-    assert dev.get(command) == 0
+    assert dev.get(command, valueonly=True) == 0
     command = "dev8030/sigouts/0/on"
     dev.set(command, 0)
-    assert dev.get(command) == 0
+    assert dev.get(command, valueonly=True) == 0
     command = "/dev8030/sigouts/0/on"
     dev.set(command, 0)
-    assert dev.get(command) == 0
+    assert dev.get(command, valueonly=True) == 0
     command = "sigouts/0/xyz"
     with pytest.raises(RuntimeError):
         dev.set(command, 0)
-    
-
-
-
-
-
-
 
