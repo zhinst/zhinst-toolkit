@@ -4,7 +4,7 @@ from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 
 from drivers.awg import AWG
 from drivers.awg import NotConnectedError, CompilationFailedError
-from helpers import SequenceProgram
+from helpers import SequenceProgram, Waveform
 import zhinst.utils
 import numpy as np
 import time

@@ -98,7 +98,7 @@ def test_init_buffer_indexed(l, i):
 
 @given(l=st.integers(0, 10000), p=st.integers(0, 10000), w=st.integers(0, 10000))
 def test_init_gauss(l, p, w):
-    if not (l > p and l > w) or l % 16 or w <= 0:
+    if not (l > p and p > w) or l % 16 or w <= 0:
         with pytest.raises(ValueError):
             SeqCommand.init_gauss([l, p, w])
     else:

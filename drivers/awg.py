@@ -61,12 +61,16 @@ class AWG(object):
             )
         self._wait_upload_done()
 
-    def upload_waveform(self, waveform, loop_index=0):
+    def upload_waveform(self, waveform, wave_index=0):
         if not isinstance(waveform, Waveform):
             raise WaveformUploadError("Parameter waveform has to be a Waveform object!")
         if self.awg_module_executed:
-            node = f"/{self.__device}/awgs/{self.index}/waveform/waves/{loop_index}"
-            self.__daq.setVector(node, waveform.data)
+            node = f"/{self.__device}/awgs/{self.index}/waveform/waves/{wave_index}"
+            try:
+                self.__daq.setVector(node, waveform.data)
+            except RuntimeError as e:
+                raise e
+
         else:
             raise NotConnectedError(
                 "AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device."
@@ -89,7 +93,7 @@ class AWG(object):
     def is_running(self):
         if self.awg_module_executed:
             return bool(self.__awg.getInt("awg/enable"))
-        else: 
+        else:
             raise NotConnectedError(
                 "AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device."
             )
