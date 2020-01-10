@@ -21,7 +21,7 @@ class Device(object):
                 address,
                 api_level,
                 required_devtype=device_type,
-                required_err_msg="This driver requires a {}!".format(device_type),
+                required_err_msg=f"This driver requires a {device_type}!"
             )
         return
 
@@ -63,7 +63,7 @@ class Device(object):
             raise Exception("No data returned... does the node exist?")
         new_data = dict()
         for key, data_dict in data.items():
-            key = key.replace("/{}/".format(self._device), "")
+            key = key.replace(f"/{self._device}/", "")
             if isinstance(data_dict, list):
                 data_dict = data_dict[0]
             if "value" in data_dict.keys():
@@ -89,5 +89,5 @@ class Device(object):
             command = "/" + command
         if "/zi/" not in command:
             if self._device not in command:
-                command = "/{}".format(self._device) + command
+                command = f"/{self._device}" + command
         return command

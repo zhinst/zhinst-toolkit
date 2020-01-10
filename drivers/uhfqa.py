@@ -22,7 +22,6 @@ class UHFQA(Device):
         self.__awg = AWG()
         self.__awg.set(target="UHFQA", clock_rate=1.8e9)
 
-
     def connect(self, device):
         """connect to device, overwrite ZiDevice method
         
@@ -40,7 +39,7 @@ class UHFQA(Device):
 
         """
         self.__awg.setup(self._daq, self._device)
-        print("Started AWG of device {}".format(self._device))
+        print(f"Started AWG of device {self._device}")
 
     @property
     def awg(self):

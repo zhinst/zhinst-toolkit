@@ -81,8 +81,7 @@ class Sequence(object):
         for attribute in [a for a in getattr(self.__class__, '__attrs_attrs__', []) if a.name == name]:
             if attribute.type is not None:
                 if isinstance(value, attribute.type) is False:
-                    raise TypeError('{}.{} cannot set {} because it is not a {}'.format(
-                        self.__class__.__name__, attribute.name, value, attribute.type.__name__))
+                    raise TypeError(f"{self.__class__.__name__}.{attribute.name} cannot set {value} because it is not a {attribute.type.__name__}")
             if attribute.validator is not None:
                 attribute.validator(self, attribute, value)
         super().__setattr__(name, value)

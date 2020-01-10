@@ -3,12 +3,13 @@ from helpers import SequenceProgram
 import time
 
 
-
 class NotConnectedError(Exception):
     pass
 
+
 class CompilationFailedError(Exception):
     pass
+
 
 class UploadTimeoutError(Exception):
     pass
@@ -41,7 +42,6 @@ class AWG(object):
         if self.__sequence.sequence_type == "Simple":
             w = Waveform(wave1, wave2)
             self.__waveforms.append(w)
-            # print("added waveform of length 2 x {}".format(w.buffer_length))
         else:
             print("AWG Sequence type must be 'Simple' to upload waveforms!")
 
@@ -49,24 +49,26 @@ class AWG(object):
         self.update()
         for i, w in enumerate(self.__waveforms):
             self._upload_waveform(w, i)
-        print("Finished uploading {} waveforms!".format(len(self.__waveforms)))
+        print(f"Finished uploading {len(self.__waveforms)} waveforms!")
         self.__waveforms = []
 
     def run(self):
         if self.awg_module_executed:
             if not self.__awg.getInt("awg/enable"):
                 self.__awg.set("awg/enable", 1)
-                #time.sleep(0.1)
-                #self.__wait_awg_done(timeout=100)
         else:
-            raise NotConnectedError("AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device.") 
+            raise NotConnectedError(
+                "AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device."
+            )
 
     def stop(self):
         if self.awg_module_executed:
             if self.__awg.getInt("awg/enable"):
                 self.__awg.set("awg/enable", 0)
         else:
-            raise NotConnectedError("AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device.") 
+            raise NotConnectedError(
+                "AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device."
+            )
 
     def setup(self, daq, device):
         self.__daq = daq
@@ -83,7 +85,7 @@ class AWG(object):
             self.__awg.set("compiler/sourcestring", awg_program)
             while self.__awg.getInt("compiler/status") == -1:
                 time.sleep(0.1)
-            print("Compiler Status: {}".format(self.__awg.getInt("compiler/status")))
+            print(f"Compiler Status: {self.__awg.getInt('compiler/status')}")
             if self.__awg.getInt("compiler/status") == 1:
                 raise CompilationFailedError(
                     "Upload failed:\n" + self.__awg.getString("compiler/statusstring")
@@ -95,38 +97,31 @@ class AWG(object):
                 # successful
                 pass
         else:
-            raise NotConnectedError("AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device.")
-        self._wait_upload_done() 
+            raise NotConnectedError(
+                "AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device."
+            )
+        self._wait_upload_done()
 
     def _upload_waveform(self, waveform, loop_index=0):
         if self.awg_module_executed:
-            node = "/{}/awgs/{}/waveform/waves/{}".format(
-                self.__device, self.index, loop_index
-            )
-            # print("node: {}".format(node))
-            # print("data: {}".format(waveform.data))
+            node = f"/{self.__device}/awgs/{self.index}/waveform/waves/{loop_index}"
             self.__daq.setVector(node, waveform.data)
-            # print(
-            #     "     ... uploaded waveform of length 2 x {}".format(
-            #         waveform.buffer_length
-            #     )
-            # )
         else:
-            raise NotConnectedError("AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device.")
-    
+            raise NotConnectedError(
+                "AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device."
+            )
+
     def _wait_upload_done(self, timeout=10):
         time.sleep(0.2)
-        node = "/{}/awgs/{}/sequencer/status".format(
-                self.__device, self.index
-            )
-        print("Status: {} ".format(self.__daq.getInt(node)))
+        node = f"/{self.__device}/awgs/{self.index}/sequencer/status"
+        print(f"Status: {self.__daq.getInt(node)} ")
         tik = time.time()
         while self.__daq.getInt(node):
-            print("Status: {} ".format(self.__daq.getInt(node)))
+            print(f"Status: {self.__daq.getInt(node)}")
             time.sleep(0.01)
             if time.time() - tik >= timeout:
                 raise UploadTimeoutError()
-        print("Status: {} ".format(self.__daq.getInt(node)))
+        print(f"Status: {self.__daq.getInt(node)}")
 
     def get_sequence(self):
         return self.__sequence.get()

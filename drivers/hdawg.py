@@ -42,7 +42,7 @@ class HDAWG(Device):
             i {int} -- index of AWG
         """
         self.__awgs[i].setup(self._daq, self._device)
-        print("Started AWG {} of device {}".format(i, self._device))
+        print(f"Started AWG {i} of device {self._device}")
 
     @property
     def awgs(self):
