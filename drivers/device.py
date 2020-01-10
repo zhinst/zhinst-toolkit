@@ -83,69 +83,69 @@ class Device(object):
 
     # set and get node values here ...
 
-    def set(self, *args):
-        if len(args) == 2:
-            settings = [(args[0], args[1])]
-        elif len(args) == 1:
-            settings = args[0]
-        else:
-            raise Exception("Invalid number of arguments!")
-        settings = self.__commands_to_node(settings)
-        self._daq.set(settings)
-        return
+    # def set(self, *args):
+    #     if len(args) == 2:
+    #         settings = [(args[0], args[1])]
+    #     elif len(args) == 1:
+    #         settings = args[0]
+    #     else:
+    #         raise Exception("Invalid number of arguments!")
+    #     settings = self.__commands_to_node(settings)
+    #     self._daq.set(settings)
+    #     return
 
-    def get(self, command, valueonly=False):
-        if isinstance(command, list):
-            paths = []
-            for c in command:
-                paths.append(self.__command_to_node(c))
-            node_string = ", ".join([p for p in paths])
-        elif isinstance(command, str):
-            node_string = self.__command_to_node(command)
-        else:
-            raise Exception("Invalid argument!")
-        data = self._daq.get(node_string, settingsonly=False, flat=True)
-        data = self.__get_value_from_dict(data)
-        if valueonly:
-            if len(data) > 1:
-                return [v for v in data.values()]
-            else:
-                return list(data.values())[0]
-        else:
-            return data
+    # def get(self, command, valueonly=False):
+    #     if isinstance(command, list):
+    #         paths = []
+    #         for c in command:
+    #             paths.append(self.__command_to_node(c))
+    #         node_string = ", ".join([p for p in paths])
+    #     elif isinstance(command, str):
+    #         node_string = self.__command_to_node(command)
+    #     else:
+    #         raise Exception("Invalid argument!")
+    #     data = self._daq.get(node_string, settingsonly=False, flat=True)
+    #     data = self.__get_value_from_dict(data)
+    #     if valueonly:
+    #         if len(data) > 1:
+    #             return [v for v in data.values()]
+    #         else:
+    #             return list(data.values())[0]
+    #     else:
+    #         return data
 
-    def __get_value_from_dict(self, data):
-        if not isinstance(data, dict):
-            raise Exception("Something went wrong...")
-        if not len(data):
-            raise Exception("No data returned... does the node exist?")
-        new_data = dict()
-        for key, data_dict in data.items():
-            key = key.replace(f"/{self._device}/", "")
-            if isinstance(data_dict, list):
-                data_dict = data_dict[0]
-            if "value" in data_dict.keys():
-                new_data[key] = data_dict["value"][0]
-            if "vector" in data_dict.keys():
-                new_data[key] = data_dict["vector"]
-        return new_data
+    # def __get_value_from_dict(self, data):
+    #     if not isinstance(data, dict):
+    #         raise Exception("Something went wrong...")
+    #     if not len(data):
+    #         raise Exception("No data returned... does the node exist?")
+    #     new_data = dict()
+    #     for key, data_dict in data.items():
+    #         key = key.replace(f"/{self._device}/", "")
+    #         if isinstance(data_dict, list):
+    #             data_dict = data_dict[0]
+    #         if "value" in data_dict.keys():
+    #             new_data[key] = data_dict["value"][0]
+    #         if "vector" in data_dict.keys():
+    #             new_data[key] = data_dict["vector"]
+    #     return new_data
 
-    def __commands_to_node(self, settings):
-        new_settings = []
-        for args in settings:
-            try:
-                if len(args) != 2:
-                    raise Exception("node/value must be specified as pairs!")
-            except TypeError:
-                raise Exception("node/value must be specified as pairs!")
-            new_settings.append((self.__command_to_node(args[0]), args[1]))
-        return new_settings
+    # def __commands_to_node(self, settings):
+    #     new_settings = []
+    #     for args in settings:
+    #         try:
+    #             if len(args) != 2:
+    #                 raise Exception("node/value must be specified as pairs!")
+    #         except TypeError:
+    #             raise Exception("node/value must be specified as pairs!")
+    #         new_settings.append((self.__command_to_node(args[0]), args[1]))
+    #     return new_settings
 
-    def __command_to_node(self, command):
-        command = command.lower()
-        if command[0] != "/":
-            command = "/" + command
-        if "/zi/" not in command:
-            if self._device not in command:
-                command = f"/{self._device}" + command
-        return command
+    # def __command_to_node(self, command):
+    #     command = command.lower()
+    #     if command[0] != "/":
+    #         command = "/" + command
+    #     if "/zi/" not in command:
+    #         if self._device not in command:
+    #             command = f"/{self._device}" + command
+    #     return command

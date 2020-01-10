@@ -1,15 +1,25 @@
+import matplotlib.pyplot as plt
+import networkx as nx
 
-
-
-
-
+from drivers.factory import Factory
+from networkx.drawing.nx_agraph import graphviz_layout
 
 
 class Controller:
+    def setup(self):
+        some_dict = {
+            "hd": {
+                "config": {"type": "hdawg", "serial": "dev8030", "interface": "1gbe"}
+            }
+        }
+        self.__graph, labels = Factory.create(some_dict)
+        figure, ax = plt.subplots()
+        plt.title("qccs_network")
+        pos = graphviz_layout(self.__graph, prog="circo")
+        nx.draw(self.__graph, pos, labels=labels, with_labels=True, arrows=False)
+        return ax
+
     pass
-
-
-
 
 
 # def set(self, **settings):
@@ -40,5 +50,5 @@ class Controller:
 #         self.__waveforms = []
 
 
-
 #         self.__awg.set(target="UHFQA", clock_rate=1.8e9)
+
