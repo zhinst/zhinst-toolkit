@@ -1,4 +1,5 @@
 from helpers import Waveform
+import zhinst.ziPython as zi
 import time
 
 
@@ -9,7 +10,9 @@ class AWG(object):
         self.__daq = None
         self.__awg = None
 
-    def setup(self, daq, device):
+    def setup(self, daq, device: str):
+        if not isinstance(daq, zi.ziDAQServer):
+            raise TypeError("not a ziDAQServer!")
         self.__daq = daq
         self.__device = device
         self.__awg = self.__daq.awgModule()
@@ -84,7 +87,12 @@ class AWG(object):
 
     @property
     def is_running(self):
-        return bool(self.__awg.getInt("awg/enable"))
+        if self.awg_module_executed:
+            return bool(self.__awg.getInt("awg/enable"))
+        else: 
+            raise NotConnectedError(
+                "AWG not connected, use `awg.setup(daq, device)` to associate AWG to a device."
+            )
 
 
 class NotConnectedError(Exception):
