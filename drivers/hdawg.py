@@ -1,5 +1,5 @@
 from .device import Device
-from helpers import AWG
+from .awg import AWG
 
 
 class HDAWG(Device):
