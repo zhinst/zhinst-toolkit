@@ -33,6 +33,7 @@ def test_setup_awg(connection):
     awg = AWG()
     daq, dev = connection
     assert not awg.awg_module_executed
+    assert awg.queue == []
     awg.setup(daq, dev)
     assert awg.awg_module_executed
     assert awg.index == 0
@@ -81,35 +82,48 @@ def test_simple_sequence_run_stop(awg, n):
         time.sleep(0.5)
 
 
-# @given(length=st.integers(1, 100))
-# @settings(deadline=10000, max_examples=10)
-# def test_simple_sequence_uploaded_waveform_matches(connection, length):
-#     daq, dev = connection
-#     awg = AWG()
-#     awg.setup(daq, dev)
-#     awg.set(sequence_type="Simple")
-#     wave1 = np.ones(length)
-#     wave2 = np.ones(length)
-#     awg.add_waveform(wave1, wave2)
-#     awg.upload_waveforms()
-#     node = "/{}/awgs/0/waveform/waves/0".format(dev)
-#     d = daq.get(node, flat=True, settingsonly=False)
-#     vec = d[node][0]["vector"]
-#     vec1 = vec[::2]
-#     vec2 = vec[1::2]
-#     vec1 = vec1[: len(wave1)]
-#     vec2 = vec2[: len(wave2)]
-#     wave1 = (wave1 * (2 ** 15 - 1)).astype("uint16")
-#     wave2 = (wave2 * (2 ** 15 - 1)).astype("uint16")
-#     assert np.array_equal(wave1, vec1)
-#     assert np.array_equal(wave2, vec2)
+@given(length=st.integers(1, 100))
+@settings(deadline=10000, max_examples=10)
+def test_simple_sequence_uploaded_waveform_matches(connection, length):
+    # sequence
+    p = SequenceProgram()
+    p.set(sequence_type="Simple")
+    # awg
+    daq, dev = connection
+    awg = AWG()
+    awg.setup(daq, dev)
+    # waveform
+    wave1 = np.ones(length)
+    wave2 = np.ones(length)
+    w = Waveform(wave1, wave2)
+    # queue and upload
+    awg.queue_waveform(w)
+    p.set(buffer_lengths=[wave.buffer_length for wave in awg.queue])
+    awg.upload_program(p.get())
+    awg.upload_waveforms()
+    assert awg.queue == []
+    # compare
+    node = "/{}/awgs/0/waveform/waves/0".format(dev)
+    d = daq.get(node, flat=True, settingsonly=False)
+    vec = d[node][0]["vector"]
+    vec1 = vec[::2]
+    vec2 = vec[1::2]
+    vec1 = vec1[: len(wave1)]
+    vec2 = vec2[: len(wave2)]
+    wave1 = (wave1 * (2 ** 15 - 1)).astype("uint16")
+    wave2 = (wave2 * (2 ** 15 - 1)).astype("uint16")
+    assert np.array_equal(wave1, vec1)
+    assert np.array_equal(wave2, vec2)
 
 
-# @given(lenghts=st.lists(st.integers(100, 200), min_size=1, max_size=10))
-# @settings(deadline=1000, max_examples=10)
-# def test_simple_sequence_upload_different_waveforms(awg, lenghts):
-#     awg.set(sequence_type="Simple")
-#     for l in lenghts:
-#         awg.add_waveform(np.ones(l), np.ones(l))
-#     awg.upload_waveforms()
+@given(lenghts=st.lists(st.integers(100, 200), min_size=1, max_size=10))
+@settings(deadline=1000, max_examples=10)
+def test_simple_sequence_upload_different_waveforms(awg, lenghts):
+    p = SequenceProgram()
+    p.set(sequence_type="Simple")
+    for l in lenghts:
+        awg.queue_waveform(Waveform(np.ones(l), np.ones(l)))
+    p.set(buffer_lengths=[w.buffer_length for w in awg.queue])
+    awg.upload_program(p.get())
+    awg.upload_waveforms()
 

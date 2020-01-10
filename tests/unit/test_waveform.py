@@ -9,18 +9,21 @@ class TestWaveform:
     def test_initial_buffer_length(self):
         w = Waveform([], [])
         assert w.buffer_length % 16 == 0
+        assert w.buffer_length >= 32
 
     @given(st.integers(0, 100000), st.integers(0, 100000))
     def test_random_buffer_length(self, l1, l2):
         assume(l1 > 0 and l2 > 0)
         w = Waveform(np.ones(l1), np.ones(l2))
         assert w.buffer_length % 16 == 0
+        assert w.buffer_length >= 32
 
     @given(st.integers(0, 100000), st.integers(0, 100000))
     def test_buffer_length_matches_data(self, l1, l2):
         assume(l1 > 0 and l2 > 0)
         w = Waveform(np.ones(l1), np.ones(l2))
         assert 2 * w.buffer_length == len(w.data)
+        assert w.buffer_length >= 32
 
     @given(st.floats(0.0, 10.0))
     def test_max_range_waveform(self, amp):

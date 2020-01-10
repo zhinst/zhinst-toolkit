@@ -5,7 +5,7 @@ class Waveform(object):
     def __init__(self, wave1, wave2, granularity=16, align_start=True):
         self.__granularity = granularity
         self.__align_start = align_start
-        self.__buffer_length = self.__round_up(max(len(wave1), len(wave2), 16))
+        self.__buffer_length = self.__round_up(max(len(wave1), len(wave2), 32))
         self.__data = self.__interleave_waveforms(wave1, wave2)
 
     @property

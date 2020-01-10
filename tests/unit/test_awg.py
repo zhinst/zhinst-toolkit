@@ -10,6 +10,7 @@ import numpy as np
 def test_init_awg():
     awg = AWG()
     assert awg.awg_module_executed == False
+    assert awg.queue == []
 
 
 def test_setup_awg_error():
@@ -24,11 +25,8 @@ def test_not_connected_error():
         awg.run()
         awg.stop()
         awg.upload_program("Test")
-        awg.upload_waveform(Waveform([], []))
+        awg.queue_waveform(Waveform([], []))
+        awg.upload_waveforms()
         awg.is_running
+        
 
-
-def test_waveform_error():
-    awg = AWG()
-    with pytest.raises(WaveformUploadError):
-        awg.upload_waveform("blub")
