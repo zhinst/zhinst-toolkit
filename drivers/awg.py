@@ -1,33 +1,11 @@
 from helpers import Waveform
-from helpers import SequenceProgram
 import time
-
-
-class NotConnectedError(Exception):
-    pass
-
-
-class CompilationFailedError(Exception):
-    pass
-
-
-class UploadTimeoutError(Exception):
-    pass
-
-
-class WaveformUploadError(Exception):
-    pass
-
-
-class CompilationWarning(Warning):
-    pass
 
 
 class AWG(object):
     def __init__(self, **kwargs):
         self.awg_module_executed = False
         self.__index = kwargs.get("index", 0)
-        self.__sequence = SequenceProgram()
         self.__daq = None
         self.__awg = None
 
@@ -107,4 +85,24 @@ class AWG(object):
     @property
     def is_running(self):
         return bool(self.__awg.getInt("awg/enable"))
+
+
+class NotConnectedError(Exception):
+    pass
+
+
+class CompilationFailedError(Exception):
+    pass
+
+
+class UploadTimeoutError(Exception):
+    pass
+
+
+class WaveformUploadError(Exception):
+    pass
+
+
+class CompilationWarning(Warning):
+    pass
 
