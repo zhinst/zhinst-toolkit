@@ -9,6 +9,7 @@ class AWG(object):
         self.__index = kwargs.get("index", 0)
         self.__daq = None
         self.__awg = None
+        self.__queue = []
 
     def setup(self, daq, device: str):
         if not isinstance(daq, zi.ziDAQServer):
@@ -61,13 +62,27 @@ class AWG(object):
             )
         self._wait_upload_done()
 
-    def upload_waveform(self, waveform, wave_index=0):
+    def queue_waveform(self, waveform: Waveform):
         if not isinstance(waveform, Waveform):
             raise WaveformUploadError("Parameter waveform has to be a Waveform object!")
+        self.__queue.append(waveform)
+
+    def clear_queue(self):
+        self.__queue = []
+
+    def upload_waveforms(self):
         if self.awg_module_executed:
-            node = f"/{self.__device}/awgs/{self.index}/waveform/waves/{wave_index}"
+            node_data_pairs = []
+            for i, waveform in enumerate(self.__queue):
+                node_data_pairs.append(
+                    (
+                        f"/{self.__device}/awgs/{self.index}/waveform/waves/{i}",
+                        waveform.data,
+                    )
+                )
             try:
-                self.__daq.setVector(node, waveform.data)
+                self.__daq.set(node_data_pairs)
+                self.clear_queue()
             except RuntimeError as e:
                 raise e
 
@@ -88,6 +103,10 @@ class AWG(object):
     @property
     def index(self):
         return self.__index
+
+    @property
+    def queue(self):
+        return self.__queue
 
     @property
     def is_running(self):
