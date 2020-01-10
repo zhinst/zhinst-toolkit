@@ -5,17 +5,18 @@ class SeqCommand(object):
     @staticmethod
     def header_comment(sequence_type="None"):
         now = datetime.now()
+        now_string = now.strftime("%d/%m/%Y @%H:%M")
         return (
-            "// Zurich Instruments sequencer program\n"
-            "// sequence type:              {}\n"
-            "// automatically generated:    {}\n\n"
-        ).format(sequence_type, now.strftime("%d/%m/%Y @%H:%M"))
+            f"// Zurich Instruments sequencer program\n"
+            f"// sequence type:              {sequence_type}\n"
+            f"// automatically generated:    {now_string}\n\n"
+        )
 
     @staticmethod
     def repeat(i):
         if i < 0:
             raise ValueError("Invalid number of repetitions!")
-        return "\nrepeat({}){{\n\n".format(i)
+        return f"\nrepeat({i}){{\n\n"
 
     @staticmethod
     def new_line():
@@ -32,7 +33,7 @@ class SeqCommand(object):
         if i == 0:
             return ""
         else:
-            return "wait({});\n".format(int(i))
+            return f"wait({int(i)});\n"
 
     @staticmethod
     def wait_wave():
@@ -44,11 +45,11 @@ class SeqCommand(object):
             raise ValueError("Invalid Trigger Value!")
         if index not in [1, 2]:
             raise ValueError("Invalid Trigger Index!")
-        return "setTrigger({});\n".format(value << (index-1))
+        return f"setTrigger({value << (index - 1)});\n"
 
     @staticmethod
     def count_waveform(i, n):
-        return "// waveform {} / {}\n".format(i + 1, n)
+        return f"// waveform {i+1} / {n}\n"
 
     @staticmethod
     def play_wave():
@@ -58,43 +59,66 @@ class SeqCommand(object):
     def play_wave_scaled(amp1, amp2):
         if abs(amp1) > 1 or abs(amp2) > 1:
             raise ValueError("Amplitude cannot be larger than 1.0!")
-        return "playWave({}*w_1, {}*w_2);\n".format(amp1, amp2)
+        return f"playWave({amp1}*w_1, {amp2}*w_2);\n"
 
     @staticmethod
     def play_wave_indexed(i):
-        return "playWave(w{}_1, w{}_2);\n".format(i + 1, i + 1)
+        if i < 0:
+            raise ValueError("Invalid Waveform Index!")
+        return f"playWave(w{i + 1}_1, w{i + 1}_2);\n"
 
     @staticmethod
     def play_wave_indexed_scaled(amp1, amp2, i):
+        if i < 0:
+            raise ValueError("Invalid Waveform Index!")
         if abs(amp1) > 1 or abs(amp2) > 1:
             raise ValueError("Amplitude cannot be larger than 1.0!")
-        return "playWave({}*w{}_1, {}*w{}_2);\n".format(amp1, i + 1, amp2, i + 1)
+        return f"playWave({amp1}*w{i+1}_1, {amp2}*w{i+2}_2);\n"
 
     @staticmethod
     def init_buffer_indexed(length, i):
         if length < 16 or i < 0:
             raise ValueError("Invalid Values for waveform buffer!")
-        if length % 16 != 0:
+        if length % 16:
             raise ValueError("Buffer Length has to be multiple of 16!")
         return (
-            "wave w{}_1 = randomUniform({});\n" "wave w{}_2 = randomUniform({});\n"
-        ).format(i + 1, length, i + 1, length)
+            f"wave w{i + 1}_1 = randomUniform({length});\n"
+            f"wave w{i + 1}_2 = randomUniform({length});\n"
+        )
 
     @staticmethod
     def init_gauss(gauss_params):
         length, pos, width = gauss_params
+        if length < 16:
+            raise ValueError("Invalid Value for length!")
+        if length % 16:
+            raise ValueError("Length has to be multiple of 16!")
+        if not (pos < length and width < pos):
+            raise ValueError("Length has to be larger than position and width!")
+        if not (width > 0):
+            raise ValueError("Values cannot be negative!")
         return (
-            "wave w_1 = gauss({}, {}, {});\n" "wave w_2 = drag({}, {}, {});\n"
-        ).format(length, pos, width, length, pos, width)
+            f"wave w_1 = gauss({length}, {pos}, {width});\n"
+            f"wave w_2 = drag({length}, {pos}, {width});\n"
+        )
 
     @staticmethod
     def init_gauss_scaled(amp, gauss_params):
         length, pos, width = gauss_params
         if abs(amp) > 1:
             raise ValueError("Amplitude cannot be larger than 1.0!")
+        if length < 16:
+            raise ValueError("Invalid Value for length!")
+        if length % 16:
+            raise ValueError("Length has to be multiple of 16!")
+        if not (pos < length and width < pos):
+            raise ValueError("Length has to be larger than position and width!")
+        if not (width > 0):
+            raise ValueError("Values cannot be negative!")
         return (
-            "wave w_1 = {} * gauss({}, {}, {});\n" "wave w_2 = {} * drag({}, {}, {});\n"
-        ).format(amp, length, pos, width, amp, length, pos, width)
+            f"wave w_1 = {amp} * gauss({length}, {pos}, {width});\n"
+            f"wave w_2 = {amp} * drag({length}, {pos}, {width});\n"
+        )
 
     @staticmethod
     def close_bracket():
@@ -107,4 +131,4 @@ class SeqCommand(object):
         if index == 0:
             return "waitDigTrigger(1);"
         else:
-            return "waitDigTrigger({}, 1);\n".format(index)
+            return f"waitDigTrigger({index}, 1);\n"

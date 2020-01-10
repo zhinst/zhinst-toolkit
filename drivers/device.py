@@ -83,7 +83,6 @@ class Device(object):
             new_settings.append( (self.__command_to_node(args[0]), args[1]) )
         return new_settings
     
-    
     def __command_to_node(self, command):
         command = command.lower()
         if command[0] != "/":
