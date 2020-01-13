@@ -1,8 +1,9 @@
 import json
 
-from connection import ZIDeviceConnection
-from drivers.factory import Factory
-from instrument_setup import InstrumentConfiguration
+from .drivers.connection import ZIDeviceConnection
+from .drivers.devices.factory import Factory
+from interface import InstrumentConfiguration
+
 
 class Controller(object):
     def __init__(self):
@@ -29,8 +30,7 @@ class Controller(object):
             if dev.name == name:
                 self.__device = Factory.configure_device(dev)
                 self.__connection.connect_device(
-                    serial=self.__device.serial, 
-                    interface=self.__device.interface
+                    serial=self.__device.serial, interface=self.__device.interface
                 )
             else:
                 raise Exception("Device not found in Instrument Configuration!")
