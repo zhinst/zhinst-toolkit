@@ -1,31 +1,8 @@
 import abc
-from enum import Enum
-
 import zhinst.ziPython as zi
 
 
-class DeviceManufacturer(Enum):
-    ZI = 1,
-    ANAPICO = 2
-
-    @staticmethod
-    def from_string(type_: str):
-        if type_ == 'zi':
-            return DeviceManufacturer.ZI
-
-
-class ConnectionFactory(object):
-
-    @staticmethod
-    def create(type_, **kwargs):
-        if type_ == DeviceManufacturer.ZI:
-            return ZIDeviceConnection(**kwargs)
-
-
 class DeviceConnection(metaclass=abc.ABCMeta):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
     @abc.abstractmethod
     def connect(self):
         pass
@@ -36,22 +13,43 @@ class DeviceConnection(metaclass=abc.ABCMeta):
 
 
 class ZIDeviceConnection(DeviceConnection):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, connection_details):
+        self.__connection_details = connection_details
         self.__daq = None
 
     def connect(self):
-        self.__daq = zi.ziDAQServer(self.host, self.port, self.api)
+        self.__daq = zi.ziDAQServer(
+            self.__connection_details.host,
+            self.__connection_details.port,
+            self.__connection_details.api,
+        )
         if self.__daq is not None:
-            print(f"Successfully connected to data server at {self.host}:{self.port} api version: {self.api}")
+            print(
+                f"Successfully connected to data server at "
+                f"{self.__connection_details.host}"
+                f"{self.__connection_details.port} "
+                f"api version: {self.__connection_details.api}"
+            )
+        else:
+            print("No connection could be established...")
 
     def connect_device(self, **kwargs):
         if self.__daq is None:
             raise Exception("No existing connection to data server")
-        if not all(k for k in ['serial', 'interface']):
+        if not all(k for k in ["serial", "interface"]):
             raise Exception(
-                'To connect a Zurich Instruments\' device, youd need a serial and an interface [1gbe or usb]')
-        serial = kwargs.get('serial')
-        interface = kwargs.get('interface')
+                "To connect a Zurich Instruments' device, youd need a serial and an interface [1gbe or usb]"
+            )
+        serial = kwargs.get("serial")
+        interface = kwargs.get("interface")
         self.__daq.connectDevice(serial, interface)
-        print(f"Successfully connected device {serial} to data server using {interface} interface")
+        print(
+            f"Successfully connected to device {serial.upper()} on interface {interface.upper()}"
+        )
+
+    def set(self, *args):
+        return self.__daq.set(*args)
+
+    def get(self, *args, **kwargs):
+        return self.__daq.get(*args, **kwargs)
+
