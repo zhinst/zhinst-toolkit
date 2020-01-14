@@ -24,4 +24,3 @@ if __name__ == "__main__":
     # c.set("sigouts/0/on", 1)
     # time.sleep(3)
     # c.set("sigouts/0/on", 0)
-

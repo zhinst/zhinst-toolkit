@@ -15,4 +15,3 @@ class Factory(object):
             raise Exception(f"unsupported device type! {type_}")
 
         return dev
-

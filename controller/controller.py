@@ -139,4 +139,3 @@ class Controller(object):
 
 
 #         self.__awg.set(target="UHFQA", clock_rate=1.8e9)
-

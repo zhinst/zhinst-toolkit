@@ -136,4 +136,3 @@ class WaveformUploadError(Exception):
 
 class CompilationWarning(Warning):
     pass
-

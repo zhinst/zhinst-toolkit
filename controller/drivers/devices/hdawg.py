@@ -27,4 +27,3 @@ class HDAWG(Device):
             #     src_attr={"device": self},
             # )
             # super().stitch_graphs(self._awgs[i.awg].graph)
-
