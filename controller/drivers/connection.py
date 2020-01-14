@@ -16,6 +16,7 @@ class ZIDeviceConnection(DeviceConnection):
     def __init__(self, connection_details):
         self.__connection_details = connection_details
         self.__daq = None
+        self.__awg = None
 
     def connect(self):
         self.__daq = zi.ziDAQServer(
@@ -47,8 +48,42 @@ class ZIDeviceConnection(DeviceConnection):
             f"Successfully connected to device {serial.upper()} on interface {interface.upper()}"
         )
 
-    def set(self, *args):
-        return self.__daq.set(*args)
+    def awg_init(self):
+        self.__awg = self.__daq.awgModule()
+        self.__awg.execute()
+
+    def awg_set(self, *args, **kwargs):
+        if self.__awg is not None:
+            self.__awg.set(*args, **kwargs)
+        else:
+            raise Exception("AWG Module not initialized yet!")
+
+    def awg_get(self, *args, **kwargs):
+        if self.__awg is not None:
+            return self.__awg.get(*args, **kwargs)
+        else:
+            raise Exception("AWG Module not initialized yet!")
+
+    def awg_getInt(self, *args, **kwargs):
+        if self.__awg is not None:
+            return self.__awg.getInt(*args, **kwargs)
+        else:
+            raise Exception("AWG Module not initialized yet!")
+
+    def awg_getDouble(self, *args, **kwargs):
+        if self.__awg is not None:
+            return self.__awg.getDouble(*args, **kwargs)
+        else:
+            raise Exception("AWG Module not initialized yet!")
+
+    def awg_getString(self, *args, **kwargs):
+        if self.__awg is not None:
+            return self.__awg.getString(*args, **kwargs)
+        else:
+            raise Exception("AWG Module not initialized yet!")
+
+    def set(self, *args, **kwargs):
+        self.__daq.set(*args, **kwargs)
 
     def get(self, *args, **kwargs):
         return self.__daq.get(*args, **kwargs)
