@@ -31,6 +31,7 @@ class ZIDeviceConnection(DeviceConnection):
                 f"{self.__connection_details.port} "
                 f"api version: {self.__connection_details.api}"
             )
+            self.__awg = self.AWGModule(self.__daq)
         else:
             print("No connection could be established...")
 
@@ -48,43 +49,82 @@ class ZIDeviceConnection(DeviceConnection):
             f"Successfully connected to device {serial.upper()} on interface {interface.upper()}"
         )
 
-    def awg_init(self):
-        self.__awg = self.__daq.awgModule()
-        self.__awg.execute()
-
-    def awg_set(self, *args, **kwargs):
-        if self.__awg is not None:
-            self.__awg.set(*args, **kwargs)
-        else:
-            raise Exception("AWG Module not initialized yet!")
-
-    def awg_get(self, *args, **kwargs):
-        if self.__awg is not None:
-            return self.__awg.get(*args, **kwargs)
-        else:
-            raise Exception("AWG Module not initialized yet!")
-
-    def awg_getInt(self, *args, **kwargs):
-        if self.__awg is not None:
-            return self.__awg.getInt(*args, **kwargs)
-        else:
-            raise Exception("AWG Module not initialized yet!")
-
-    def awg_getDouble(self, *args, **kwargs):
-        if self.__awg is not None:
-            return self.__awg.getDouble(*args, **kwargs)
-        else:
-            raise Exception("AWG Module not initialized yet!")
-
-    def awg_getString(self, *args, **kwargs):
-        if self.__awg is not None:
-            return self.__awg.getString(*args, **kwargs)
-        else:
-            raise Exception("AWG Module not initialized yet!")
-
-    def set(self, *args, **kwargs):
-        self.__daq.set(*args, **kwargs)
+    def set(self, *args):
+        self.__daq.set(*args)
 
     def get(self, *args, **kwargs):
         return self.__daq.get(*args, **kwargs)
+
+    class AWGModule:
+        def __init__(self, daq):
+            self.__awgModule = daq.awgModule()
+            self.__awgModule.execute()
+            self.__index = self.__awgModule.getInt("index")
+            self.__device = self.__awgModule.getString("device")
+
+        def set(self, *args, **kwargs):
+            self.update(**kwargs)
+            self.__awgModule.set(*args)
+
+        def get(self, *args, **kwargs):
+            self.update(**kwargs)
+            return self.__awgModule.get(*args, flat=True)
+
+        def get_int(self, *args, **kwargs):
+            self.update(**kwargs)
+            return self.__awgModule.getInt(*args)
+
+        def get_double(self, *args, **kwargs):
+            self.update(**kwargs)
+            return self.__awgModule.getDouble(*args)
+
+        def get_string(self, *args, **kwargs):
+            self.update(**kwargs)
+            return self.__awgModule.getString(*args)
+
+        def update(self, **kwargs):
+            if "index" in kwargs.keys():
+                self.__update_index(kwargs["index"])
+            if "device" in kwargs.keys():
+                self.__update_device(kwargs["device"])
+
+        def __update_index(self, index):
+            if index != self.index:
+                self.__awgModule.set("index", index)
+                self.__index = index
+
+        def __update_device(self, device):
+            if device != self.device:
+                self.__awgModule.set("device", device)
+                self.__device = device
+
+        @property
+        def index(self):
+            return self.__index
+
+        @property
+        def device(self):
+            return self.__device
+
+    @property
+    def awgModule(self):
+        return self.__awg
+
+    # def awg_getInt(self, *args, **kwargs):
+    #     if self.__awg is not None:
+    #         return self.__awg.getInt(*args, **kwargs)
+    #     else:
+    #         raise Exception("AWG Module not initialized yet!")
+
+    # def awg_getDouble(self, *args, **kwargs):
+    #     if self.__awg is not None:
+    #         return self.__awg.getDouble(*args, **kwargs)
+    #     else:
+    #         raise Exception("AWG Module not initialized yet!")
+
+    # def awg_getString(self, *args, **kwargs):
+    #     if self.__awg is not None:
+    #         return self.__awg.getString(*args, **kwargs)
+    #     else:
+    #         raise Exception("AWG Module not initialized yet!")
 
