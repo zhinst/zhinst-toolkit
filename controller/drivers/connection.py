@@ -109,22 +109,3 @@ class ZIDeviceConnection(DeviceConnection):
     @property
     def awgModule(self):
         return self.__awg
-
-    # def awg_getInt(self, *args, **kwargs):
-    #     if self.__awg is not None:
-    #         return self.__awg.getInt(*args, **kwargs)
-    #     else:
-    #         raise Exception("AWG Module not initialized yet!")
-
-    # def awg_getDouble(self, *args, **kwargs):
-    #     if self.__awg is not None:
-    #         return self.__awg.getDouble(*args, **kwargs)
-    #     else:
-    #         raise Exception("AWG Module not initialized yet!")
-
-    # def awg_getString(self, *args, **kwargs):
-    #     if self.__awg is not None:
-    #         return self.__awg.getString(*args, **kwargs)
-    #     else:
-    #         raise Exception("AWG Module not initialized yet!")
-
