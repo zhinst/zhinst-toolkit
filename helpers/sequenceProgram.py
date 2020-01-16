@@ -49,7 +49,7 @@ class SequenceProgram(object):
 
     def list_params(self):
         return dict(
-            sequence_type=self.sequence_type,
+            sequence_type=self.__sequence_type,
             sequence_parameters=attr.asdict(self.__sequence),
         )
 
@@ -66,4 +66,9 @@ class SequenceProgram(object):
             self.sequence_class = T2Sequence
         else:
             raise ValueError("Unknown Sequence Type!")
-        self.sequence_type = type
+        self.__sequence_type = type
+
+    @property
+    def sequence_type(self):
+        return self.__sequence_type
+
