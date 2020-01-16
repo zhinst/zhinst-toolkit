@@ -92,6 +92,7 @@ class ZIDeviceConnection(DeviceConnection):
             if index != self.index:
                 self.__awgModule.set("/index", index)
                 self.__index = index
+                print(f"Updated awg index to {index}")
 
         def __update_device(self, device):
             if device != self.device:
