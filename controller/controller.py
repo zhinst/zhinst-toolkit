@@ -52,9 +52,6 @@ class Controller(object):
         self.__connection.awgModule.set("compiler/sourcestring", program)
         while self.__connection.awgModule.get_int("compiler/status") == -1:
             time.sleep(0.1)
-            print(
-                f"Compiler status: {self.__connection.awgModule.get_int('compiler/status')}"
-            )
         if self.__connection.awgModule.get_int("compiler/status") == 1:
             raise Exception(
                 "Upload failed: \n"
@@ -65,8 +62,21 @@ class Controller(object):
                 "Compiled with warning: \n"
                 + self.__connection.awgModule.get_string("compiler/statusstring")
             )
+        if self.__connection.awgModule.get_int("compiler/status") == 2:
+            print("Compilation successful")
         self.__wait_upload_done(awg)
 
+    def awg_run(self, awg):
+        self.set(f"/awgs/{awg}/enable", 1)
+        print(f"Started AWG {awg}!")
+
+    def awg_stop(self, awg):   
+        self.set(f"/awgs/{awg}/enable", 0)
+        print(f"Stopped AWG {awg}!")
+
+    def awg_is_running(self, awg):
+        return bool(self.__connection.awgModule.get_int("awg/enable", index=awg))
+    
     def awg_queue_waveform(self, awg, waveform: Waveform, **kwargs):
         if self.__compiler.sequence_type(awg) != "Simple":
             raise Exception("Waveform upload only possible for 'Simple' sequence!")
@@ -92,13 +102,15 @@ class Controller(object):
         time.sleep(0.01)
         node = f"/{self.__device.serial}/awgs/{awg}/sequencer/status"
         tik = time.time()
-        print(f"Sequencer status: {self.get(node)}")
         while self.get(node):
-            print(f"Sequencer status: {self.get(node)}")
             time.sleep(0.01)
             if time.time() - tik >= timeout:
                 raise Exception("Program upload timed out!")
-        print(f"Sequencer status: {self.get(node)}")
+        print(f"Sequencer status: {'Uploaded' if not self.get(node) else 'FAILED!!'}")
+
+    def compiler_list_params(self, awg):
+        return self.__compiler.list_params(awg)
+
 
     # set and get here ...
     def set(self, *args):
