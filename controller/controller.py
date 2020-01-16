@@ -1,8 +1,11 @@
 import json
+import time
 
 from .drivers.connection import ZIDeviceConnection
 from .drivers.devices.factory import Factory
+from helpers import SequenceProgram, Waveform
 from interface import InstrumentConfiguration
+from compiler import Compiler
 
 
 class Controller(object):
@@ -10,6 +13,7 @@ class Controller(object):
         self.__connection = None
         self.__instrument_config = None
         self.__device = None
+        self.__compiler = None
 
     def setup(self, instrument_config):
         try:
@@ -26,15 +30,77 @@ class Controller(object):
 
     def connect_device(self, name):
         devices = self.__instrument_config.instruments[0].setup
-        for dev in devices:
-            if dev.name == name:
-                self.__device = Factory.configure_device(dev)
-                self.__connection.connect_device(
-                    serial=self.__device.serial, interface=self.__device.interface
-                )
-            else:
-                raise Exception("Device not found in Instrument Configuration!")
+        dev = devices[0]  # support only one device for now
+        if dev.name == name:
+            self.__device = Factory.configure_device(dev)
+            self.__connection.connect_device(
+                serial=self.__device.serial, interface=self.__device.interface
+            )
+            self.__compiler = Compiler(dev)
+        else:
+            raise Exception("Device not found in Instrument Configuration!")
 
+    def compile_program(self, awg):
+        self.__connection.awgModule.update(index=awg, device=self.__device.serial)
+        if self.__compiler.sequence_type(awg) == "Simple":
+            buffer_lengths = [
+                w.buffer_length for w in self.__device.awgs[awg].waveforms
+            ]
+            self.__compiler.set_parameter(awg, buffer_lengths=buffer_lengths)
+        self.__update_awg_program(awg)
+        program = self.__device.awgs[awg].get_program()
+        self.__connection.awgModule.set("compiler/sourcestring", program)
+        while self.__connection.awgModule.get_int("compiler/status") == -1:
+            time.sleep(0.1)
+            print(
+                f"Compiler status: {self.__connection.awgModule.get_int('compiler/status')}"
+            )
+        if self.__connection.awgModule.get_int("compiler/status") == 1:
+            raise Exception(
+                "Upload failed: \n"
+                + self.__connection.awgModule.get_string("compiler/statusstring")
+            )
+        if self.__connection.awgModule.get_int("compiler/status") == 2:
+            raise Warning(
+                "Compiled with warning: \n"
+                + self.__connection.awgModule.get_string("compiler/statusstring")
+            )
+        self.__wait_upload_done(awg)
+
+    def awg_queue_waveform(self, awg, waveform: Waveform, **kwargs):
+        if self.__compiler.sequence_type(awg) != "Simple":
+            raise Exception("Waveform upload only possible for 'Simple' sequence!")
+        self.__device.awgs[awg].waveforms.append(waveform)
+        print(f"current length of queue: {len(self.__device.awgs[awg].waveforms)}")
+
+    def awg_upload_waveforms(self, awg):
+        waveform_data = [w.data for w in self.__device.awgs[awg].waveforms]
+        self.compile_program(awg)
+        nodes = [f"awgs/{awg}/waveform/waves/{i}" for i in range(len(waveform_data))]
+        self.set(zip(nodes, waveform_data))
+        self.__device.awgs[awg].reset_waveforms()
+
+    def awg_set_sequence_params(self, awg, **kwargs):
+        self.__compiler.set_parameter(awg, **kwargs)
+        self.__update_awg_program(awg)
+
+    def __update_awg_program(self, awg):
+        program = self.__compiler.get_program(awg)
+        self.__device.awgs[awg].set_program(program)
+
+    def __wait_upload_done(self, awg, timeout=10):
+        time.sleep(0.01)
+        node = f"/{self.__device.serial}/awgs/{awg}/sequencer/status"
+        tik = time.time()
+        print(f"Sequencer status: {self.get(node)}")
+        while self.get(node):
+            print(f"Sequencer status: {self.get(node)}")
+            time.sleep(0.01)
+            if time.time() - tik >= timeout:
+                raise Exception("Program upload timed out!")
+        print(f"Sequencer status: {self.get(node)}")
+
+    # set and get here ...
     def set(self, *args):
         if self.__device is not None:
             if len(args) == 2:
@@ -107,35 +173,3 @@ class Controller(object):
                 command = f"/{self.__device.serial}" + command
         return command
 
-
-###################################################################
-
-# def set(self, **settings):
-#         self.__sequence.set(**settings)
-
-#     def update(self):
-#         if self.__sequence.sequence_type == "Simple":
-#             if len(self.__waveforms) == 0:
-#                 raise Exception("No Waveforms defined!")
-#             self.__sequence.set(
-#                 buffer_lengths=[w.buffer_length for w in self.__waveforms]
-#             )
-#         self._upload_program(self.__sequence.get())
-#         print("Uploaded sequence program to device!")
-
-#     def add_waveform(self, wave1, wave2):
-#         if self.__sequence.sequence_type == "Simple":
-#             w = Waveform(wave1, wave2)
-#             self.__waveforms.append(w)
-#         else:
-#             print("AWG Sequence type must be 'Simple' to upload waveforms!")
-
-#     def upload_waveforms(self):
-#         self.update()
-#         for i, w in enumerate(self.__waveforms):
-#             self._upload_waveform(w, i)
-#         print(f"Finished uploading {len(self.__waveforms)} waveforms!")
-#         self.__waveforms = []
-
-
-#         self.__awg.set(target="UHFQA", clock_rate=1.8e9)
