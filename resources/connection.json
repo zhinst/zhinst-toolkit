@@ -38,6 +38,22 @@
                   "trig": null,
                   "marker": null
                 }
+              },
+              {
+                "awg": 1,
+                "config": {
+                  "iq": false
+                },
+                "ch0": {
+                  "wave": "u2",
+                  "trig": null,
+                  "marker": null
+                },
+                "ch1": {
+                  "wave": "u3",
+                  "trig": null,
+                  "marker": null
+                }
               }
             ],
             "dio": {
