@@ -19,6 +19,21 @@ class AWG:
         ]
         # super().__init__(name=self.id, parent=None)
         self.parent = parent
+        self.__waveforms = list()
+        self.__program = str()
+
+    def set_program(self, program):
+        self.__program = program
+
+    def get_program(self):
+        return self.__program
+
+    def reset_waveforms(self):
+        self.__waveforms = list()
+
+    @property
+    def waveforms(self):
+        return self.__waveforms
 
         # for i in range(len(self._channels)):
         #     super().add_edge(

@@ -18,3 +18,7 @@ class Device:
     @property
     def interface(self):
         return self._config.interface
+
+    @property
+    def awgs(self):
+        return self._awgs
