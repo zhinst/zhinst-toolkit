@@ -14,7 +14,7 @@ class SequenceProgramMachine(RuleBasedStateMachine):
     @rule(type=st.integers(0, 3))
     def change_type(self, type):
         if type == 0:
-            t = "None"
+            t = None
         elif type == 1:
             t = "Simple"
         elif type == 2:
@@ -52,7 +52,7 @@ class SequenceProgramMachine(RuleBasedStateMachine):
     def get_sequence(self):
         sequence = self.sequenceProgram.get()
         if self.sequenceProgram.sequence_type is None:
-            assert "None" in sequence
+            assert sequence is None
         else:
             assert self.sequenceProgram.sequence_type in sequence
 

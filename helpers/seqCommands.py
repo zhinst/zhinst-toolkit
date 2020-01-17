@@ -93,7 +93,7 @@ class SeqCommand(object):
             raise ValueError("Invalid Value for length!")
         if length % 16:
             raise ValueError("Length has to be multiple of 16!")
-        if not (pos < length and width < pos):
+        if not (length > pos and length > width):
             raise ValueError("Length has to be larger than position and width!")
         if not (width > 0):
             raise ValueError("Values cannot be negative!")
@@ -111,7 +111,7 @@ class SeqCommand(object):
             raise ValueError("Invalid Value for length!")
         if length % 16:
             raise ValueError("Length has to be multiple of 16!")
-        if not (pos < length and width < pos):
+        if not (length > pos and length > width):
             raise ValueError("Length has to be larger than position and width!")
         if not (width > 0):
             raise ValueError("Values cannot be negative!")
