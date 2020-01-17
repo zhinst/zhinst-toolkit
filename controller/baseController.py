@@ -45,7 +45,7 @@ class BaseController(object):
             else:
                 raise Exception("Invalid number of arguments!")
             settings = self.__commands_to_node(settings)
-            self._connection.set(settings)
+            return self._connection.set(settings)
         else:
             raise Exception("No device connected!")
 
