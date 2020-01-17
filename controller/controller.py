@@ -3,9 +3,8 @@ import time
 
 from .drivers.connection import ZIDeviceConnection
 from .drivers.devices.factory import Factory
-from helpers import SequenceProgram, Waveform
+from helpers import SequenceProgram, Waveform, Compiler
 from interface import InstrumentConfiguration
-from compiler import Compiler
 
 
 class Controller(object):
@@ -70,13 +69,13 @@ class Controller(object):
         self.set(f"/awgs/{awg}/enable", 1)
         print(f"Started AWG {awg}!")
 
-    def awg_stop(self, awg):   
+    def awg_stop(self, awg):
         self.set(f"/awgs/{awg}/enable", 0)
         print(f"Stopped AWG {awg}!")
 
     def awg_is_running(self, awg):
         return bool(self.__connection.awgModule.get_int("awg/enable", index=awg))
-    
+
     def awg_queue_waveform(self, awg, waveform: Waveform, **kwargs):
         if self.__compiler.sequence_type(awg) != "Simple":
             raise Exception("Waveform upload only possible for 'Simple' sequence!")
@@ -110,7 +109,6 @@ class Controller(object):
 
     def compiler_list_params(self, awg):
         return self.__compiler.list_params(awg)
-
 
     # set and get here ...
     def set(self, *args):
