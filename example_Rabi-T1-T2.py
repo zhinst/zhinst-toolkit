@@ -9,8 +9,8 @@ def wait_awg_done(c, awg, sleep=0.5):
     time.sleep(sleep)
     tik = time.time()
     while c.awg_is_running(awg):
-        time.sleep(10 * sleep)
-        print(f"AWG {awg} running for {(time.time() - tik):.2f} s")
+        time.sleep(sleep)
+        print(f"AWG {awg} running for {int(time.time() - tik)} s")
     time.sleep(sleep)
 
 
@@ -73,6 +73,6 @@ if __name__ == "__main__":
             c.awg_compile(awg0)
             c.awg_run(awg1)
             c.awg_run(awg0)
-            wait_awg_done(c, awg0, sleep=0.5)
+            wait_awg_done(c, awg0, sleep=1)
 
     print("Done!")
