@@ -1,4 +1,4 @@
-# ZI_driver_wrapper
+# zi-driver
 
 See examples for more ...
 
