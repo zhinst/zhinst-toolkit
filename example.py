@@ -38,7 +38,7 @@ if __name__ == "__main__":
         repetitions=reps,
     )
     c.awg_set_sequence_params(awg0, **settings)
-    c.compile_program(awg0)
+    c.awg_compile(awg0)
 
     settings = dict(
         sequence_type="Simple",
