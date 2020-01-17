@@ -54,7 +54,4 @@ class Waveform(object):
 
     def __round_up(self, n):
         m, rest = divmod(n, self.__granularity)
-        if not rest:
-            return n
-        else:
-            return (m + 1) * self.__granularity
+        return n if not rest else (m + 1) * self.__granularity
