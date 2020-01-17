@@ -54,7 +54,7 @@ class SequenceProgram(object):
         )
 
     def __set_type(self, type):
-        if type == "None" or type is None:
+        if type is None:
             self.sequence_class = Sequence
         elif type == "Simple":
             self.sequence_class = SimpleSequence
