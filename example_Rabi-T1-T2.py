@@ -5,6 +5,15 @@ from helpers import Waveform
 from controller import Controller
 
 
+def wait_awg_done(c, awg, sleep=0.5):
+    time.sleep(sleep)
+    tik = time.time()
+    while c.awg_is_running(awg):
+        time.sleep(10 * sleep)
+        print(f"AWG {awg} running for {(time.time() - tik):.2f} s")
+    time.sleep(sleep)
+
+
 if __name__ == "__main__":
 
     c = Controller()
@@ -19,7 +28,7 @@ if __name__ == "__main__":
         [
             (f"/awgs/{awg1}/auxtriggers/*/slope", 1),  # trigger to Rise
             (f"/awgs/{awg1}/auxtriggers/*/channel", 2),  # Trigger In 3
-            ("/awgs/*/single", 1),  # Rerun
+            ("/awgs/*/single", 1),  # Rerun off
             ("/sigouts/0/on", 1),
             ("/sigouts/2/on", 1),
         ]
@@ -29,11 +38,24 @@ if __name__ == "__main__":
     num_points = 101
     amps = np.linspace(0, 1, num_points)
     delays = np.logspace(-7, -5, num_points)
-    reps = 5
-    period = 50e-3
+    reps = 1000
+    period = 50e-6
 
-    # on AWG1: send trigger, Rabi sequence
-    settings = dict(
+    # on AWG2: wait for trigger, play "Simple" sequence with ones on ch1
+    settings_simple = dict(
+        sequence_type="Simple",
+        trigger_mode="External Trigger",
+        latency=100e-9,
+        period=period,
+        repetitions=reps * num_points,
+    )
+    c.awg_set_sequence_params(awg1, **settings_simple)
+    # queue waveform and upload
+    c.awg_queue_waveform(awg1, Waveform(np.ones(2000), []))
+    c.awg_upload_waveforms(awg1)
+
+    # define settings for Rabi, T1, T2
+    settings_rabi = dict(
         sequence_type="Rabi",
         trigger_mode="Send Trigger",
         pulse_amplitudes=amps,
@@ -42,59 +64,15 @@ if __name__ == "__main__":
         period=period,
         repetitions=reps,
     )
-    c.awg_set_sequence_params(awg0, **settings)
-    c.awg_compile(awg0)
+    settings_t1 = dict(sequence_type="T1", delay_times=delays, pulse_amplitude=1.0)
+    settings_t2 = dict(sequence_type="T2*", delay_times=delays, pulse_amplitude=1.0)
 
-    # on AWG2: wait for trigger, play "Simple" sequence with ones on ch1
-    settings = dict(
-        sequence_type="Simple",
-        trigger_mode="External Trigger",
-        latency=100e-9,
-        period=period,
-        repetitions=reps * num_points,
-    )
-    c.awg_set_sequence_params(awg1, **settings)
-    # queue waveform and upload
-    c.awg_queue_waveform(awg1, Waveform(np.ones(2000), []))
-    c.awg_upload_waveforms(awg1)
-
-    # run AWGs, slave first
-    c.awg_run(awg1)
-    c.awg_run(awg0)
-
-    time.sleep(2)
-    while c.awg_is_running(awg0):
-        time.sleep(2)
-        print("Running Rabi sequence ...")
-    time.sleep(2)
-
-    # on AWG1: send trigger, T1 sequence
-    settings = dict(sequence_type="T1", delay_times=delays, pulse_amplitude=1.0,)
-    c.awg_set_sequence_params(awg0, **settings)
-    c.awg_compile(awg0)
-
-    # run AWGs, slave first
-    c.awg_run(awg1)
-    c.awg_run(awg0)
-
-    time.sleep(2)
-    while c.awg_is_running(0):
-        time.sleep(2)
-        print("Running T1 sequence ...")
-    time.sleep(2)
-
-    # on AWG1: send trigger, T2* sequence
-    c.awg_set_sequence_params(awg0, sequence_type="T2*")
-    c.awg_compile(awg0)
-
-    # run AWGs, slave first
-    c.awg_run(awg1)
-    c.awg_run(awg0)
-
-    time.sleep(2)
-    while c.awg_is_running(0):
-        time.sleep(2)
-        print("Running T2* sequence ...")
-    time.sleep(2)
+    for i in range(3):
+        for settings in [settings_rabi, settings_t1, settings_t2]:
+            c.awg_set_sequence_params(awg0, **settings)
+            c.awg_compile(awg0)
+            c.awg_run(awg1)
+            c.awg_run(awg0)
+            wait_awg_done(c, awg0, sleep=0.5)
 
     print("Done!")
