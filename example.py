@@ -1,8 +1,8 @@
-from helpers import Waveform
-from controller import Controller
-from controller.drivers.connection import ZIDeviceConnection
 import numpy as np
 import time
+
+from helpers import Waveform
+from controller import Controller
 
 
 if __name__ == "__main__":
@@ -14,6 +14,7 @@ if __name__ == "__main__":
     awg0 = 0
     awg1 = 1
 
+    # basic device settings
     c.set(
         [
             (f"/awgs/{awg1}/auxtriggers/*/slope", 1),  # trigger to Rise
@@ -24,10 +25,12 @@ if __name__ == "__main__":
         ]
     )
 
+    # shared sequence parameters
     amps = np.linspace(0, 1, 101)
     reps = 10000
-    period = 100e-6
+    period = 1e-3
 
+    # on AWG1: send trigger, Rabi sequence
     settings = dict(
         sequence_type="Rabi",
         trigger_mode="Send Trigger",
@@ -40,6 +43,7 @@ if __name__ == "__main__":
     c.awg_set_sequence_params(awg0, **settings)
     c.awg_compile(awg0)
 
+    # on AWG2: wait for trigger, play "Simple" sequence with ones on ch1
     settings = dict(
         sequence_type="Simple",
         trigger_mode="External Trigger",
@@ -48,6 +52,7 @@ if __name__ == "__main__":
         repetitions=reps * len(amps),
     )
     c.awg_set_sequence_params(awg1, **settings)
+    # queue waveform and upload
     c.awg_queue_waveform(awg1, Waveform(np.ones(2000), []))
     c.awg_upload_waveforms(awg1)
 
