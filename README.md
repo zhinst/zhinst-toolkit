@@ -1,4 +1,4 @@
-# ZI_driver_wrapper
+# zi-driver
 
 See examples for more ...
 
@@ -36,5 +36,28 @@ for i in range(3):
         c.awg_run(awg1)
         c.awg_run(awg0)
         wait_awg_done(c, awg0, sleep=1)
+
+```
+
+### `example_waveform_upload.py`:
+
+In "Simple" mode: queue waveforms and upload them all at once.
+
+```python
+c = Controller()
+
+....
+
+x = np.linspace(-1, 1, 200)
+    y1 = x
+    y2 = np.sinc(5 * x)
+
+    n = 250  # MAX. ~250 waveforms.... otherwise sporadic disconnects and waveform corruption!
+    for i in range(n):
+        c.awg_queue_waveform(awg0, Waveform(i / n * y1, []))
+        c.awg_queue_waveform(awg1, Waveform((1 - i / n) * y2, []))
+
+    c.awg_upload_waveforms(awg0)
+    c.awg_upload_waveforms(awg1)
 
 ```
