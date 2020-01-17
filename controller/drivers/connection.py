@@ -48,6 +48,7 @@ class ZIDeviceConnection(DeviceConnection):
         print(
             f"Successfully connected to device {serial.upper()} on interface {interface.upper()}"
         )
+        self.__awg.update(device=serial, index=0)
 
     def set(self, *args):
         return self.__daq.set(*args)
