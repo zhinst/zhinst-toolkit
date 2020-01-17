@@ -8,7 +8,7 @@ from controller import Controller
 if __name__ == "__main__":
 
     c = Controller()
-    c.setup("resources/connection.json")
+    c.setup("resources/connection-hdawg.json")
     c.connect_device("hdawg0")
 
     awg0 = 0
@@ -19,16 +19,18 @@ if __name__ == "__main__":
         [
             (f"/awgs/{awg1}/auxtriggers/*/slope", 1),  # trigger to Rise
             (f"/awgs/{awg1}/auxtriggers/*/channel", 2),  # Trigger In 3
-            ("/awgs/*/single", 0),  # Rerun
+            ("/awgs/*/single", 1),  # Rerun
             ("/sigouts/0/on", 1),
             ("/sigouts/2/on", 1),
         ]
     )
 
     # shared sequence parameters
-    amps = np.linspace(0, 1, 101)
-    reps = 10000
-    period = 1e-3
+    num_points = 101
+    amps = np.linspace(0, 1, num_points)
+    delays = np.logspace(-7, -5, num_points)
+    reps = 5
+    period = 50e-3
 
     # on AWG1: send trigger, Rabi sequence
     settings = dict(
@@ -49,7 +51,7 @@ if __name__ == "__main__":
         trigger_mode="External Trigger",
         latency=100e-9,
         period=period,
-        repetitions=reps * len(amps),
+        repetitions=reps * num_points,
     )
     c.awg_set_sequence_params(awg1, **settings)
     # queue waveform and upload
@@ -59,5 +61,40 @@ if __name__ == "__main__":
     # run AWGs, slave first
     c.awg_run(awg1)
     c.awg_run(awg0)
+
+    time.sleep(2)
+    while c.awg_is_running(awg0):
+        time.sleep(2)
+        print("Running Rabi sequence ...")
+    time.sleep(2)
+
+    # on AWG1: send trigger, T1 sequence
+    settings = dict(sequence_type="T1", delay_times=delays, pulse_amplitude=1.0,)
+    c.awg_set_sequence_params(awg0, **settings)
+    c.awg_compile(awg0)
+
+    # run AWGs, slave first
+    c.awg_run(awg1)
+    c.awg_run(awg0)
+
+    time.sleep(2)
+    while c.awg_is_running(0):
+        time.sleep(2)
+        print("Running T1 sequence ...")
+    time.sleep(2)
+
+    # on AWG1: send trigger, T2* sequence
+    c.awg_set_sequence_params(awg0, sequence_type="T2*")
+    c.awg_compile(awg0)
+
+    # run AWGs, slave first
+    c.awg_run(awg1)
+    c.awg_run(awg0)
+
+    time.sleep(2)
+    while c.awg_is_running(0):
+        time.sleep(2)
+        print("Running T2* sequence ...")
+    time.sleep(2)
 
     print("Done!")
