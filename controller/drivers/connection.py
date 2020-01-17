@@ -50,7 +50,7 @@ class ZIDeviceConnection(DeviceConnection):
         )
 
     def set(self, *args):
-        self.__daq.set(*args)
+        return self.__daq.set(*args)
 
     def get(self, *args, **kwargs):
         return self.__daq.get(*args, **kwargs)

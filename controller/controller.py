@@ -61,6 +61,7 @@ class Controller(BaseController):
         self.awg_compile(awg)
         nodes = [f"awgs/{awg}/waveform/waves/{i}" for i in range(len(waveform_data))]
         self.set(zip(nodes, waveform_data))
+        time.sleep(0.5)  # make sure waveform uplaod finished, any other way??
         self._device.awgs[awg].reset_waveforms()
 
     def awg_set_sequence_params(self, awg, **kwargs):
