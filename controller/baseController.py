@@ -10,7 +10,7 @@ class BaseController(object):
     def __init__(self):
         self._connection = None
         self._instrument_config = None
-        self._device = None
+        self._devices = None
 
     def setup(self, instrument_config):
         try:
@@ -27,41 +27,44 @@ class BaseController(object):
 
     def connect_device(self, name):
         devices = self._instrument_config.instruments[0].setup
-        dev = devices[0]  # support only one device for now
-        if dev.name == name:
-            self._device = Factory.configure_device(dev)
-            self._connection.connect_device(
-                serial=self._device.serial, interface=self._device.interface
-            )
-        else:
+        for dev in devices:
+            if self._devices is None:
+                self._devices = dict()
+            if dev.name == name:
+                self._devices[name] = Factory.configure_device(dev)
+                self._connection.connect_device(
+                    serial=self._devices[name].serial,
+                    interface=self._devices[name].interface,
+                )
+        if name not in self._devices.keys():
             raise Exception("Device not found in Instrument Configuration!")
 
-    def set(self, *args):
-        if self._device is not None:
+    def set(self, name, *args):
+        if self._devices is not None:
             if len(args) == 2:
                 settings = [(args[0], args[1])]
             elif len(args) == 1:
                 settings = args[0]
             else:
                 raise Exception("Invalid number of arguments!")
-            settings = self.__commands_to_node(settings)
+            settings = self.__commands_to_node(name, settings)
             return self._connection.set(settings)
         else:
             raise Exception("No device connected!")
 
-    def get(self, command, valueonly=True):
-        if self._device is not None:
+    def get(self, name, command, valueonly=True):
+        if self._devices is not None:
             if isinstance(command, list):
                 paths = []
                 for c in command:
-                    paths.append(self.__command_to_node(c))
+                    paths.append(self.__command_to_node(name, c))
                 node_string = ", ".join([p for p in paths])
             elif isinstance(command, str):
-                node_string = self.__command_to_node(command)
+                node_string = self.__command_to_node(name, command)
             else:
                 raise Exception("Invalid argument!")
             data = self._connection.get(node_string, settingsonly=False, flat=True)
-            data = self.__get_value_from_dict(data)
+            data = self.__get_value_from_dict(name, data)
             if valueonly:
                 if len(data) > 1:
                     return [v for v in data.values()]
@@ -72,14 +75,14 @@ class BaseController(object):
         else:
             raise Exception("No device connected!")
 
-    def __get_value_from_dict(self, data):
+    def __get_value_from_dict(self, name, data):
         if not isinstance(data, dict):
             raise Exception("Something went wrong...")
         if not len(data):
             raise Exception("No data returned... does the node exist?")
         new_data = dict()
         for key, data_dict in data.items():
-            key = key.replace(f"/{self._device.serial}/", "")
+            key = key.replace(f"/{self._devices[name].serial}/", "")
             if isinstance(data_dict, list):
                 data_dict = data_dict[0]
             if "value" in data_dict.keys():
@@ -88,7 +91,7 @@ class BaseController(object):
                 new_data[key] = data_dict["vector"]
         return new_data
 
-    def __commands_to_node(self, settings):
+    def __commands_to_node(self, name, settings):
         new_settings = []
         for args in settings:
             try:
@@ -96,15 +99,15 @@ class BaseController(object):
                     raise Exception("node/value must be specified as pairs!")
             except TypeError:
                 raise Exception("node/value must be specified as pairs!")
-            new_settings.append((self.__command_to_node(args[0]), args[1]))
+            new_settings.append((self.__command_to_node(name, args[0]), args[1]))
         return new_settings
 
-    def __command_to_node(self, command):
+    def __command_to_node(self, name, command):
         command = command.lower()
         if command[0] != "/":
             command = "/" + command
         if "/zi/" not in command:
-            if self._device.serial not in command:
-                command = f"/{self._device.serial}" + command
+            if self._devices[name].serial not in command:
+                command = f"/{self._devices[name].serial}" + command
         return command
 
