@@ -10,8 +10,8 @@ class Controller(BaseController):
         super().__init__()
         self._compiler = Compiler()
 
-    def connect_device(self, name):
-        super().connect_device(name)
+    def connect_device(self, name, address):
+        super().connect_device(name, address)
         for dev in self._instrument_config.instruments[0].setup:
             if dev.name == name:
                 self._compiler.add_device(dev)
