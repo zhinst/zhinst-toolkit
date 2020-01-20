@@ -85,50 +85,50 @@ def test_get_set(connection_hdawg):
 
 
 def test_awg_module_init(connection_hdawg):
-    assert connection_hdawg.awgModule is None
+    assert connection_hdawg.awg_module is None
     connection_hdawg.connect()
     time.sleep(1)
-    assert connection_hdawg.awgModule is not None
-    assert connection_hdawg.awgModule.device == ""
-    assert connection_hdawg.awgModule.index == 0
+    assert connection_hdawg.awg_module is not None
+    assert connection_hdawg.awg_module.device == ""
+    assert connection_hdawg.awg_module.index == 0
 
 
 def test_awg_module_device_update(connection_hdawg):
     connection_hdawg.connect()
     connection_hdawg.connect_device(serial=SERIAL, interface=INTERFACE)
     time.sleep(1)
-    assert connection_hdawg.awgModule.device == SERIAL
-    assert connection_hdawg.awgModule.index == 0
-    connection_hdawg.awgModule.update(index=1, device="test")
-    assert connection_hdawg.awgModule.index == 1
-    assert connection_hdawg.awgModule.device == "test"
+    assert connection_hdawg.awg_module.device == SERIAL
+    assert connection_hdawg.awg_module.index == 0
+    connection_hdawg.awg_module.update(index=1, device="test")
+    assert connection_hdawg.awg_module.index == 1
+    assert connection_hdawg.awg_module.device == "test"
 
 
 def test_awg_module_set_get_int(connection_hdawg):
     connection_hdawg.connect()
     connection_hdawg.connect_device(serial=SERIAL, interface=INTERFACE)
     time.sleep(1)
-    connection_hdawg.awgModule.set("/index", 2)
-    assert connection_hdawg.awgModule.get_int("/index") == 2
-    connection_hdawg.awgModule.set("/index", 0)
-    assert connection_hdawg.awgModule.get_int("/index") == 0
+    connection_hdawg.awg_module.set("/index", 2)
+    assert connection_hdawg.awg_module.get_int("/index") == 2
+    connection_hdawg.awg_module.set("/index", 0)
+    assert connection_hdawg.awg_module.get_int("/index") == 0
 
 
 def test_awg_module_set_get_string(connection_hdawg):
     connection_hdawg.connect()
     connection_hdawg.connect_device(serial=SERIAL, interface=INTERFACE)
     time.sleep(1)
-    connection_hdawg.awgModule.set("/device", "test")
+    connection_hdawg.awg_module.set("/device", "test")
     with pytest.raises(RuntimeError):
-        connection_hdawg.awgModule.get_string("/device")
-    connection_hdawg.awgModule.set("/device", SERIAL)
-    assert connection_hdawg.awgModule.get_string("/device") == SERIAL
-    connection_hdawg.awgModule.get_string("/directory")
+        connection_hdawg.awg_module.get_string("/device")
+    connection_hdawg.awg_module.set("/device", SERIAL)
+    assert connection_hdawg.awg_module.get_string("/device") == SERIAL
+    connection_hdawg.awg_module.get_string("/directory")
 
 
 def test_awg_module_get_double(connection_hdawg):
     connection_hdawg.connect()
     connection_hdawg.connect_device(serial=SERIAL, interface=INTERFACE)
     time.sleep(1)
-    connection_hdawg.awgModule.get_double("/progress")
+    connection_hdawg.awg_module.get_double("/progress")
 
