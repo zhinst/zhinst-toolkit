@@ -3,7 +3,7 @@ import time
 
 from .drivers.connection import ZIDeviceConnection
 from .drivers.devices.factory import Factory
-from interface import InstrumentConfiguration
+from ..interface import InstrumentConfiguration
 
 
 class BaseController(object):

@@ -2,6 +2,8 @@
 
 See examples for more ...
 
+use as `from zi-drivers.controller import Controller`
+
 
 ### `example_multi_device.py`
 
