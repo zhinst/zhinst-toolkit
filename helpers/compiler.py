@@ -1,4 +1,4 @@
-from helpers import SequenceProgram
+from .sequenceProgram import SequenceProgram
 
 
 class Compiler:
