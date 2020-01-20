@@ -7,22 +7,25 @@ from controller import Controller
 
 if __name__ == "__main__":
 
+    hd = "hdawg0"
+
     c = Controller()
     c.setup("resources/connection-hdawg.json")
-    c.connect_device("hdawg0")
+    c.connect_device(hd)
 
     awg0 = 0
     awg1 = 1
 
     # basic device settings
     c.set(
+        hd,
         [
             (f"/awgs/{awg1}/auxtriggers/*/slope", 1),  # trigger to Rise
             (f"/awgs/{awg1}/auxtriggers/*/channel", 2),  # Trigger In 3
             ("/awgs/*/single", 1),  # Rerun
             ("/sigouts/0/on", 1),
             ("/sigouts/2/on", 1),
-        ]
+        ],
     )
 
     # shared sequence parameters
@@ -41,8 +44,8 @@ if __name__ == "__main__":
         period=period,
         repetitions=reps,
     )
-    c.awg_set_sequence_params(awg0, **settings)
-    c.awg_compile(awg0)
+    c.awg_set_sequence_params(hd, awg0, **settings)
+    c.awg_compile(hd, awg0)
 
     # on AWG2: wait for trigger, play "Simple" sequence with ones on ch1
     settings = dict(
@@ -52,13 +55,13 @@ if __name__ == "__main__":
         period=period,
         repetitions=reps * len(delays),
     )
-    c.awg_set_sequence_params(awg1, **settings)
+    c.awg_set_sequence_params(hd, awg1, **settings)
     # queue waveform and upload
-    c.awg_queue_waveform(awg1, Waveform(np.ones(2000), []))
-    c.awg_upload_waveforms(awg1)
+    c.awg_queue_waveform(hd, awg1, Waveform(np.ones(2000), []))
+    c.awg_upload_waveforms(hd, awg1)
 
     # run AWGs, slave first
-    c.awg_run(awg1)
-    c.awg_run(awg0)
+    c.awg_run(hd, awg1)
+    c.awg_run(hd, awg0)
 
     print("Done!")
