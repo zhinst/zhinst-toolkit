@@ -8,7 +8,7 @@ from controller import Controller
 def wait_awg_done(c, awg, sleep=0.5):
     time.sleep(sleep)
     tik = time.time()
-    while c.awg_is_running(awg):
+    while c.awg_is_running("hdawg0", awg):
         time.sleep(sleep)
         print(f"AWG {awg} running for {int(time.time() - tik)} s")
     time.sleep(sleep)
@@ -16,15 +16,17 @@ def wait_awg_done(c, awg, sleep=0.5):
 
 if __name__ == "__main__":
 
+    hd = "hdawg0"
+    
     c = Controller()
     c.setup("resources/connection-hdawg.json")
-    c.connect_device("hdawg0")
+    c.connect_device(hd)
 
     awg0 = 0
     awg1 = 1
 
     # basic device settings
-    c.set(
+    c.set(hd, 
         [
             (f"/awgs/{awg1}/auxtriggers/*/slope", 1),  # trigger to Rise
             (f"/awgs/{awg1}/auxtriggers/*/channel", 2),  # Trigger In 3
@@ -53,8 +55,8 @@ if __name__ == "__main__":
         repetitions=reps,
     )
 
-    c.awg_set_sequence_params(awg0, **settings_master)
-    c.awg_set_sequence_params(awg1, **settings_slave)
+    c.awg_set_sequence_params(hd, awg0, **settings_master)
+    c.awg_set_sequence_params(hd, awg1, **settings_slave)
 
     x = np.linspace(-1, 1, 200)
     y1 = x
@@ -62,14 +64,14 @@ if __name__ == "__main__":
 
     n = 250  # MAX. ~250 waveforms.... otherwise sporadic disconnects and waveform corruption!
     for i in range(n):
-        c.awg_queue_waveform(awg0, Waveform(i / n * y1, []))
-        c.awg_queue_waveform(awg1, Waveform((1 - i / n) * y2, []))
+        c.awg_queue_waveform(hd, awg0, Waveform(i / n * y1, []))
+        c.awg_queue_waveform(hd, awg1, Waveform((1 - i / n) * y2, []))
 
-    c.awg_upload_waveforms(awg0)
-    c.awg_upload_waveforms(awg1)
+    c.awg_upload_waveforms(hd, awg0)
+    c.awg_upload_waveforms(hd, awg1)
 
-    c.awg_run(awg1)
-    c.awg_run(awg0)
+    c.awg_run(hd, awg1)
+    c.awg_run(hd, awg0)
     wait_awg_done(c, awg0, sleep=1)
 
     print("Done!")

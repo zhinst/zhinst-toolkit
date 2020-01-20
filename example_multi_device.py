@@ -23,7 +23,7 @@ if __name__ == "__main__":
             ("/sigouts/0/on", 1),
             ("/awgs/0/triggers/*/channel", 2),
             ("/awgs/0/triggers/*/slope", 1),
-        ],  # Rerun
+        ],
     )
     c.set(
         hd,
@@ -62,11 +62,10 @@ if __name__ == "__main__":
         clock_rate=1.8e9,
     )
     c.awg_set_sequence_params(qa, 0, **settings)
-    # queue waveform and upload
     c.awg_queue_waveform(qa, 0, Waveform(np.ones(2000), []))
     c.awg_upload_waveforms(qa, 0)
 
-    # run AWGs, slave first
+    # run AWGs
     c.awg_run(qa, 0)
     time.sleep(0.5)
     c.awg_run(hd, 0)
