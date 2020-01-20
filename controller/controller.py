@@ -17,9 +17,7 @@ class Controller(BaseController):
                 self._compiler.add_device(dev)
 
     def awg_compile(self, name, awg):
-        self._connection.awgModule.update(
-            index=awg, device=self._devices[name].serial
-        )
+        self._connection.awg_module.update(index=awg, device=self._devices[name].serial)
         if self._compiler.sequence_type(name, awg) == "Simple":
             buffer_lengths = [
                 w.buffer_length for w in self._devices[name].awgs[awg].waveforms
@@ -27,20 +25,20 @@ class Controller(BaseController):
             self._compiler.set_parameter(name, awg, buffer_lengths=buffer_lengths)
         self.__update_awg_program(name, awg)
         program = self._devices[name].awgs[awg].get_program()
-        self._connection.awgModule.set("compiler/sourcestring", program)
-        while self._connection.awgModule.get_int("compiler/status") == -1:
+        self._connection.awg_module.set("compiler/sourcestring", program)
+        while self._connection.awg_module.get_int("compiler/status") == -1:
             time.sleep(0.1)
-        if self._connection.awgModule.get_int("compiler/status") == 1:
+        if self._connection.awg_module.get_int("compiler/status") == 1:
             raise Exception(
                 "Upload failed: \n"
-                + self._connection.awgModule.get_string("compiler/statusstring")
+                + self._connection.awg_module.get_string("compiler/statusstring")
             )
-        if self._connection.awgModule.get_int("compiler/status") == 2:
+        if self._connection.awg_module.get_int("compiler/status") == 2:
             raise Warning(
                 "Compiled with warning: \n"
-                + self._connection.awgModule.get_string("compiler/statusstring")
+                + self._connection.awg_module.get_string("compiler/statusstring")
             )
-        if self._connection.awgModule.get_int("compiler/status") == 2:
+        if self._connection.awg_module.get_int("compiler/status") == 2:
             print("Compilation successful")
         self.__wait_upload_done(name, awg)
 
@@ -54,7 +52,7 @@ class Controller(BaseController):
 
     def awg_is_running(self, name, awg):
         return bool(
-            self._connection.awgModule.get_int(
+            self._connection.awg_module.get_int(
                 "awg/enable", index=awg, device=self._devices[name].serial
             )
         )
@@ -88,15 +86,11 @@ class Controller(BaseController):
 
     def __wait_upload_done(self, name, awg, timeout=10):
         time.sleep(0.01)
-        self._connection.awgModule.update(
-            device=self._devices[name].serial, index=awg
-        )
+        self._connection.awg_module.update(device=self._devices[name].serial, index=awg)
         tik = time.time()
-        while self._connection.awgModule.get_int("/elf/status") == 2:
+        while self._connection.awg_module.get_int("/elf/status") == 2:
             time.sleep(0.01)
             if time.time() - tik >= timeout:
                 raise Exception("Program upload timed out!")
-        status = self._connection.awgModule.get_int("/elf/status")
-        print(
-            f"{name}: Sequencer status: {'Uploaded' if status == 0 else 'FAILED!!'}"
-        )
+        status = self._connection.awg_module.get_int("/elf/status")
+        print(f"{name}: Sequencer status: {'Uploaded' if status == 0 else 'FAILED!!'}")
