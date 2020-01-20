@@ -109,5 +109,5 @@ class ZIDeviceConnection(DeviceConnection):
             return self.__device
 
     @property
-    def awgModule(self):
+    def awg_module(self):
         return self.__awg
