@@ -11,9 +11,9 @@ if __name__ == "__main__":
     qa = "uhfqa0"
 
     c = Controller()
-    c.setup("resources/connection-hd-qa.json")
-    c.connect_device(hd)
-    c.connect_device(qa)
+    c.setup("connection-hd-qa.json")
+    c.connect_device(hd, "dev8030")
+    c.connect_device(qa, "dev2266")
 
     # device settings
     c.set(
