@@ -2,11 +2,9 @@ import pytest
 from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 from dataclasses import dataclass
-
-from controller.drivers.devices.factory import Factory
-from controller.drivers.devices.hdawg import HDAWG
-from controller.drivers.devices.uhfqa import UHFQA
 import numpy as np
+
+from .context import Factory, HDAWG, UHFQA
 
 
 class Device:

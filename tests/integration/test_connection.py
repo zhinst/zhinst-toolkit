@@ -1,11 +1,10 @@
 import pytest
 from hypothesis import given, assume, strategies as st
 from pytest import fixture
-
-from interface import InstrumentConfiguration
-from controller.drivers import connection
 import json
 import time
+
+from .context import ziDrivers
 
 
 SERIAL = "dev8030"
@@ -15,24 +14,24 @@ INTERFACE = "1gbe"
 
 @fixture()
 def connection_hdawg():
-    instrument_config = "resources/connection-hdawg.json"
+    instrument_config = "ziDrivers/resources/connection-hdawg.json"
     with open(instrument_config) as file:
         data = json.load(file)
-        schema = InstrumentConfiguration()
+        schema = ziDrivers.interface.InstrumentConfiguration()
         config = schema.load(data)
-        con = connection.ZIDeviceConnection(config.api_configs[0].details)
+        con = ziDrivers.connection.ZIDeviceConnection(config.api_configs[0].details)
         yield con
         del con
 
 
 @fixture()
 def connection_uhfqa():
-    instrument_config = "resources/connection-uhfqa.json"
+    instrument_config = "ziDrivers/resources/connection-uhfqa.json"
     with open(instrument_config) as file:
         data = json.load(file)
-        schema = InstrumentConfiguration()
+        schema = ziDrivers.interface.InstrumentConfiguration()
         config = schema.load(data)
-        con = connection.ZIDeviceConnection(config.api_configs[0].details)
+        con = ziDrivers.connection.ZIDeviceConnection(config.api_configs[0].details)
         yield con
         del con
 
@@ -54,6 +53,7 @@ def test_connect_device_hdawg(connection_hdawg):
         connection_hdawg.connect_device(serial="ajdf", interface=INTERFACE)
         connection_hdawg.connect_device(serial=SERIAL, interface="asdhf")
     connection_hdawg.connect_device(serial=SERIAL, interface=INTERFACE)
+
 
 def test_connect_device_uhfqa(connection_uhfqa):
     connection_uhfqa.connect()

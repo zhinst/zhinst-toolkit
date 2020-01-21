@@ -2,7 +2,7 @@ import json
 import time
 
 from .baseController import BaseController
-from helpers import SequenceProgram, Waveform, Compiler
+from .helpers import Waveform, Compiler
 
 
 class Controller(BaseController):
@@ -57,7 +57,7 @@ class Controller(BaseController):
             )
         )
 
-    def awg_queue_waveform(self, name, awg, waveform: Waveform):
+    def awg_queue_waveform(self, name, awg, waveform):
         if self._compiler.sequence_type(name, awg) != "Simple":
             raise Exception("Waveform upload only possible for 'Simple' sequence!")
         self._devices[name].awgs[awg].waveforms.append(waveform)
