@@ -2,7 +2,10 @@
 
 See examples for more ...
 
-use as `from zi-drivers.controller import Controller`
+use pip install:
+```
+pip install -e zi-drivers
+```
 
 
 ### `example_multi_device.py`
