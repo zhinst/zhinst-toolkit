@@ -1,0 +1,7 @@
+.hypothesis
+.pytest_cache
+.coverage
+__pycache__
+Untitled.ipynb
+.ipynb_checkpoints
+.vscode

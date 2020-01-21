@@ -1,0 +1,51 @@
+{
+  "$schema": "./connection-schema.json",
+  "api_configs": [
+    {
+      "provider": "zi",
+      "details": {
+        "host": "localhost",
+        "port": 8004,
+        "api": 6
+      }
+    }
+  ],
+  "instruments": [
+    {
+      "provider": "zi",
+      "setup": [
+        {
+          "name": "uhfqa0",
+          "config": {
+            "serial": "dev2266",
+            "device_type": "uhfqa",
+            "interface": "1gbe"
+          },
+          "connectivity": {
+            "awgs": [
+              {
+                "awg": 0,
+                "config": {
+                  "iq": false
+                },
+                "ch0": {
+                  "wave": "u0",
+                  "trig": null,
+                  "marker": null
+                },
+                "ch1": {
+                  "wave": "u1",
+                  "trig": null,
+                  "marker": null
+                }
+              }
+            ],
+            "dio": {
+              "device": "None"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
