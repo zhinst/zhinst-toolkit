@@ -1,8 +1,9 @@
 import pytest
 from hypothesis import given, assume, strategies as st
-
-from helpers.seqCommands import SeqCommand
 import numpy as np
+
+from .context import SeqCommand
+
 
 
 @given(t=st.integers(0, 3))

@@ -1,8 +1,13 @@
 import numpy as np
 import time
 
-from helpers import Waveform
-from controller import Controller
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from ziDrivers.controller import Controller
+from ziDrivers.helpers import Waveform
 
 
 if __name__ == "__main__":

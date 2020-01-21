@@ -1,8 +1,8 @@
 import pytest
 from hypothesis import given, assume, strategies as st
-
-from helpers import Waveform
 import numpy as np
+
+from .context import Waveform
 
 
 class TestWaveform:

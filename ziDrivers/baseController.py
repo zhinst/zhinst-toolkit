@@ -2,9 +2,9 @@ import json
 import time
 import os
 
-from .drivers.connection import ZIDeviceConnection
-from .drivers.devices.factory import Factory
-from interface import InstrumentConfiguration
+from .connection import ZIDeviceConnection
+from .devices import Factory
+from .interface import InstrumentConfiguration
 
 
 class BaseController(object):
@@ -15,7 +15,7 @@ class BaseController(object):
 
     def setup(self, filename):
         dir = os.path.dirname(__file__)
-        instrument_config = os.path.join(dir, "../resources/", filename)
+        instrument_config = os.path.join(dir, "./resources/", filename)
         try:
             with open(instrument_config) as file:
                 data = json.load(file)
