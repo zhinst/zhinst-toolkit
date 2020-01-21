@@ -2,7 +2,7 @@ import json
 import time
 
 from .baseController import BaseController
-from ..helpers import SequenceProgram, Waveform, Compiler
+from helpers import SequenceProgram, Waveform, Compiler
 
 
 class Controller(BaseController):
