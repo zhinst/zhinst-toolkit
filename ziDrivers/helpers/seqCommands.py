@@ -16,7 +16,7 @@ class SeqCommand(object):
     def repeat(i):
         if i < 0:
             raise ValueError("Invalid number of repetitions!")
-        return f"\nrepeat({i}){{\n\n"
+        return f"\nrepeat({int(i)}){{\n\n"
 
     @staticmethod
     def new_line():
