@@ -51,11 +51,7 @@ class Controller(BaseController):
         print(f"{name}: Stopped AWG {awg}!")
 
     def awg_is_running(self, name, awg):
-        return bool(
-            self._connection.awg_module.get_int(
-                "awg/enable", index=awg, device=self._devices[name].serial
-            )
-        )
+        return self.get(name, f"/awgs/{awg}/enable")
 
     def awg_queue_waveform(self, name, awg, waveform):
         if self._compiler.sequence_type(name, awg) != "Simple":
