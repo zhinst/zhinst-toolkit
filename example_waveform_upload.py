@@ -17,23 +17,24 @@ def wait_awg_done(c, awg, sleep=0.5):
 if __name__ == "__main__":
 
     hd = "hdawg0"
-    
+
     c = Controller()
-    c.setup("resources/connection-hdawg.json")
-    c.connect_device(hd)
+    c.setup("connection-hdawg.json")
+    c.connect_device(hd, "dev8030")
 
     awg0 = 0
     awg1 = 1
 
     # basic device settings
-    c.set(hd, 
+    c.set(
+        hd,
         [
             (f"/awgs/{awg1}/auxtriggers/*/slope", 1),  # trigger to Rise
             (f"/awgs/{awg1}/auxtriggers/*/channel", 2),  # Trigger In 3
             ("/awgs/*/single", 1),  # Rerun off
             ("/sigouts/0/on", 1),
             ("/sigouts/2/on", 1),
-        ]
+        ],
     )
 
     # shared sequence parameters

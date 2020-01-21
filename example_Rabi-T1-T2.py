@@ -19,8 +19,8 @@ if __name__ == "__main__":
     hd = "hdawg0"
 
     c = Controller()
-    c.setup("resources/connection-hdawg.json")
-    c.connect_device(hd)
+    c.setup("connection-hdawg.json")
+    c.connect_device(hd, "dev8030")
 
     awg0 = 0
     awg1 = 1
