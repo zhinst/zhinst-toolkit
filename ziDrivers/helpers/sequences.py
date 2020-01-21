@@ -215,7 +215,7 @@ class T2Sequence(T1Sequence):
             self.sequence += SeqCommand.wait(self.wait_cycles - t)
             self.sequence += self.trigger_cmd_2
             self.sequence += SeqCommand.play_wave()
-            self.sequence += SeqCommand.wait(t)
+            self.sequence += SeqCommand.wait(t - 3) # -3 to subtract additional cycles of playWave() ...
             self.sequence += SeqCommand.play_wave()
             self.sequence += SeqCommand.wait_wave()
             self.sequence += SeqCommand.wait(self.dead_cycles)
