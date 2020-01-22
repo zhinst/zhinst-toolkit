@@ -53,20 +53,34 @@ class Controller(BaseController):
     def awg_is_running(self, name, awg):
         return self.get(name, f"/awgs/{awg}/enable")
 
-    def awg_queue_waveform(self, name, awg, waveform):
+    def awg_queue_waveform(self, name, awg, data=([], [])):
         if self._compiler.sequence_type(name, awg) != "Simple":
             raise Exception("Waveform upload only possible for 'Simple' sequence!")
+        waveform = Waveform(data[0], data[1])
         self._devices[name].awgs[awg].waveforms.append(waveform)
         print(
             f"current length of queue: {len(self._devices[name].awgs[awg].waveforms)}"
         )
 
+    def awg_compile_and_upload_waveforms(self, name, awg):
+        self.awg_compile(name, awg)
+        self.awg_upload_waveforms(name, awg)
+
     def awg_upload_waveforms(self, name, awg):
         waveform_data = [w.data for w in self._devices[name].awgs[awg].waveforms]
-        self.awg_compile(name, awg)
         nodes = [f"awgs/{awg}/waveform/waves/{i}" for i in range(len(waveform_data))]
+        tok = time.time()
         self.set(name, zip(nodes, waveform_data))
-        time.sleep(0.5)  # make sure waveform uplaod finished, any other way??
+        tik = time.time()
+        print(f"Upload of {len(waveform_data)} waveforms took {tik - tok} s")
+        # time.sleep(0.5)  # make sure waveform uplaod finished, any other way??
+
+    def awg_replace_waveform(self, name, awg, data=([], []), index=0):
+        if index not in range(len(self._devices[name].awgs[awg].waveforms)):
+            raise Exception("Index out of range!")
+        self._devices[name].awgs[awg].waveforms[index].replace_data(data[0], data[1])
+
+    def awg_reset_queue(self, name, awg):
         self._devices[name].awgs[awg].reset_waveforms()
 
     def awg_set_sequence_params(self, name, awg, **kwargs):
@@ -89,4 +103,4 @@ class Controller(BaseController):
             if time.time() - tik >= timeout:
                 raise Exception("Program upload timed out!")
         status = self._connection.awg_module.get_int("/elf/status")
-        print(f"{name}: Sequencer status: {'Uploaded' if status == 0 else 'FAILED!!'}")
+        print(f"{name}: Sequencer status: {'ELF file uploaded' if status == 0 else 'FAILED!!'}")
