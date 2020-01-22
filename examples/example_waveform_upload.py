@@ -6,8 +6,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from ziDrivers.controller import Controller
-from ziDrivers.helpers import Waveform
+from ziDrivers import Controller
 
 
 def wait_awg_done(c, awg, sleep=0.5):
@@ -43,8 +42,8 @@ if __name__ == "__main__":
     )
 
     # shared sequence parameters
-    reps = 1000
-    period = 50e-6
+    reps = 10
+    period = 0.1
 
     # on AWG2: wait for trigger, play "Simple" sequence with ones on ch1
     settings_master = dict(
@@ -70,11 +69,11 @@ if __name__ == "__main__":
 
     n = 250  # MAX. ~250 waveforms.... otherwise sporadic disconnects and waveform corruption!
     for i in range(n):
-        c.awg_queue_waveform(hd, awg0, Waveform(i / n * y1, []))
-        c.awg_queue_waveform(hd, awg1, Waveform((1 - i / n) * y2, []))
+        c.awg_queue_waveform(hd, awg0, data=(i / n * y1, []))
+        c.awg_queue_waveform(hd, awg1, data=((1 - i / n) * y2, []))
 
-    c.awg_upload_waveforms(hd, awg0)
-    c.awg_upload_waveforms(hd, awg1)
+    c.awg_compile_and_upload_waveforms(hd, awg0)
+    c.awg_compile_and_upload_waveforms(hd, awg1)
 
     c.awg_run(hd, awg1)
     c.awg_run(hd, awg0)
