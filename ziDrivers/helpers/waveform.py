@@ -5,8 +5,22 @@ class Waveform(object):
     def __init__(self, wave1, wave2, granularity=16, align_start=True):
         self.__granularity = granularity
         self.__align_start = align_start
-        self.__buffer_length = self.__round_up(max(len(wave1), len(wave2), 32))
-        self.__data = self.__interleave_waveforms(wave1, wave2)
+        self.__waves = [wave1, wave2]
+        self.__update()
+
+    def add_wave(self, ch, wave):
+        if ch not in [0, 1]:
+            raise Exception("Waveform index out of range!")
+        self.__waves[ch] = wave
+        self.__update()
+
+    def replace_data(self, wave1, wave2):
+        new_buffer_length = self.__round_up(max(len(wave1), len(wave2), 32))
+        if new_buffer_length == self.buffer_length:
+            self.__waves = [wave1, wave2]
+            self.__update()
+        else:
+            raise Exception("Waveform lengths don't match!")
 
     @property
     def data(self):
@@ -15,6 +29,12 @@ class Waveform(object):
     @property
     def buffer_length(self):
         return self.__buffer_length
+
+    def __update(self):
+        self.__buffer_length = self.__round_up(
+            max(len(self.__waves[0]), len(self.__waves[1]), 32)
+        )
+        self.__data = self.__interleave_waveforms(self.__waves[0], self.__waves[1])
 
     def __interleave_waveforms(self, x1, x2):
         if len(x1) == 0:
