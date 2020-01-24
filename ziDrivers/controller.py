@@ -73,7 +73,6 @@ class Controller(BaseController):
         self.set(name, zip(nodes, waveform_data))
         tik = time.time()
         print(f"Upload of {len(waveform_data)} waveforms took {tik - tok} s")
-        # time.sleep(0.5)  # make sure waveform uplaod finished, any other way??
 
     def awg_replace_waveform(self, name, awg, data=([], []), index=0):
         if index not in range(len(self._devices[name].awgs[awg].waveforms)):
