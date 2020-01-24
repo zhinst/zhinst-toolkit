@@ -1,5 +1,12 @@
 import attr
-from .sequences import Sequence, SimpleSequence, RabiSequence, T1Sequence, T2Sequence
+from .sequences import (
+    Sequence,
+    SimpleSequence,
+    RabiSequence,
+    T1Sequence,
+    T2Sequence,
+    ReadoutSequence,
+)
 
 
 class SequenceProgram(object):
@@ -64,6 +71,8 @@ class SequenceProgram(object):
             self.sequence_class = T1Sequence
         elif type == "T2*":
             self.sequence_class = T2Sequence
+        elif type == "Readout":
+            self.sequence_class = ReadoutSequence
         else:
             raise ValueError("Unknown Sequence Type!")
         self.__sequence_type = type

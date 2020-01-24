@@ -223,3 +223,41 @@ class T2Sequence(T1Sequence):
             self.sequence += SeqCommand.wait(self.dead_cycles)
         self.sequence += SeqCommand.close_bracket()  
 
+
+@attr.s
+class ReadoutSequence(Sequence):
+    readout_length = attr.ib(default=2e-6, validator=is_positive)
+    readout_amplitudes = attr.ib(default=[1])
+    readout_frequencies = attr.ib(default=[100e6])    
+    
+    def write_sequence(self):
+        self.sequence = SeqCommand.header_comment(sequence_type="Readout")
+        length = self.time_to_cycles(self.readout_length, wait_time=False) // 16 * 16  
+        self.sequence += SeqCommand.init_readout_pulse(
+            length, 
+            self.readout_amplitudes, 
+            self.readout_frequencies, 
+            clk_rate=self.clock_rate
+        )
+        self.sequence += SeqCommand.init_trigger(target=self.target)
+        self.sequence += SeqCommand.repeat(self.repetitions)
+        self.sequence += self.trigger_cmd_1
+        self.sequence += SeqCommand.wait(self.wait_cycles)
+        self.sequence += self.trigger_cmd_2
+        if self.target == "uhfqa":
+                self.sequence += SeqCommand.readout_trigger()
+        self.sequence += SeqCommand.play_wave()
+        self.sequence += SeqCommand.wait_wave()
+        self.sequence += SeqCommand.wait(self.dead_cycles)
+        self.sequence += SeqCommand.close_bracket()  
+
+    def update_params(self):
+        super().update_params()
+        if self.trigger_mode == "None":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+        elif self.trigger_mode == "Send Trigger":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+        elif self.trigger_mode == "External Trigger":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
+
+
