@@ -121,6 +121,30 @@ class SeqCommand(object):
         )
 
     @staticmethod
+    def init_readout_pulse(length, amps, frequencies, clk_rate=1.8e9):
+        assert len(amps) == len(frequencies)
+        assert abs(max(amps)) <= 1.0
+        n_periods = [length * f / clk_rate for f in frequencies]
+        n = len(n_periods)
+        s = str()
+        for i in range(n):
+            s += f"wave w{i+1}_I = 1/{n} * sine({int(length)}, {amps[i]}, 0, {n_periods[i]});\n"
+            s += f"wave w{i+1}_Q = 1/{n} * cosine({int(length)}, {amps[i]}, 0, {n_periods[i]});\n"
+        s += "\n"
+        if n > 1:
+            s += (
+                f"wave w_1 = add(" + ", ".join([f"w{i+1}_I" for i in range(n)]) + ");\n"
+            )
+            s += (
+                f"wave w_2 = add(" + ", ".join([f"w{i+1}_Q" for i in range(n)]) + ");\n"
+            )
+        else:
+            s += "wave w_1 = w1_I;\n"
+            s += "wave w_2 = w1_Q;\n"
+        s += "\n"
+        return s
+
+    @staticmethod
     def close_bracket():
         return "\n}"
 
