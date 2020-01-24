@@ -94,7 +94,7 @@ class SimpleSequence(Sequence):
         self.sequence = SeqCommand.header_comment(sequence_type="Simple")
         for i in range(self.n_HW_loop):
             self.sequence += SeqCommand.init_buffer_indexed(self.buffer_lengths[i], i)
-        self.sequence += self.trigger_cmd_2
+        self.sequence += SeqCommand.init_trigger(target=self.target)
         self.sequence += SeqCommand.repeat(self.repetitions)
         for i in range(self.n_HW_loop):    
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
@@ -105,6 +105,8 @@ class SimpleSequence(Sequence):
                 temp = self.wait_cycles - self.buffer_lengths[i]/8
             self.sequence += SeqCommand.wait(temp)
             self.sequence += self.trigger_cmd_2
+            if self.target == "uhfqa":
+                self.sequence += SeqCommand.readout_trigger()
             self.sequence += SeqCommand.play_wave_indexed(i)
             self.sequence += SeqCommand.wait_wave()
             self.sequence += SeqCommand.wait(self.dead_cycles)
