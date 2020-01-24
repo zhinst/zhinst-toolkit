@@ -248,6 +248,7 @@ class ReadoutSequence(Sequence):
                 self.sequence += SeqCommand.readout_trigger()
         self.sequence += SeqCommand.play_wave()
         self.sequence += SeqCommand.wait_wave()
+        self.sequence += SeqCommand.trigger(0)
         self.sequence += SeqCommand.wait(self.dead_cycles)
         self.sequence += SeqCommand.close_bracket()  
 
