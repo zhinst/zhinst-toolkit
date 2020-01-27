@@ -3,6 +3,7 @@ from .seqCommands import SeqCommand
 import textwrap
 import attr
 import numpy as np
+from pathlib import Path
 
 
 
@@ -260,5 +261,29 @@ class ReadoutSequence(Sequence):
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
         elif self.trigger_mode == "External Trigger":
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
+
+
+@attr.s
+class CustomSequence(Sequence):
+    path = attr.ib(default="")
+    program = attr.ib(default="")
+    custom_params = attr.ib(default=[])
+    
+    def write_sequence(self):
+        self.sequence = SeqCommand.header_comment(sequence_type="Custom")
+        self.sequence += f"// from file: {self.path}\n\n"
+        self.sequence += self.program
+
+    def update_params(self):
+        if self.path:
+            self.program = Path(self.path).read_text()
+        for i, p in enumerate(self.custom_params):
+            self.program = self.program.replace(f"$param{i+1}$", str(p))
+
+    def check_attributes(self):
+        if self.path:
+            p = Path(self.path)
+            if p.suffix != ".seqc":
+                raise ValueError("Specified file is not a .seqc file!")
 
 
