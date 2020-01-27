@@ -6,6 +6,7 @@ from .sequences import (
     T1Sequence,
     T2Sequence,
     ReadoutSequence,
+    CustomSequence
 )
 
 
@@ -73,6 +74,8 @@ class SequenceProgram(object):
             self.sequence_class = T2Sequence
         elif type == "Readout":
             self.sequence_class = ReadoutSequence
+        elif type == "Custom":
+            self.sequence_class = CustomSequence
         else:
             raise ValueError("Unknown Sequence Type!")
         self.__sequence_type = type
