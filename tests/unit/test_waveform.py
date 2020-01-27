@@ -51,3 +51,11 @@ class TestWaveform:
             assert w.data[-1] == 2 ** 15 - 1
             assert w.data[-2] == 2 ** 15 - 1
 
+    def test_replace_waveform(self):
+        w = Waveform([], [])
+        w.replace_data(np.ones(32), np.ones(32))
+        assert np.array_equal(w.data, np.ones(64) * (2 ** 15 - 1))
+        w = Waveform(np.zeros(8000), np.zeros(8000))
+        w.replace_data(np.ones(8000), np.ones(8000))
+        assert np.array_equal(w.data, np.ones(16000) * (2 ** 15 - 1))
+
