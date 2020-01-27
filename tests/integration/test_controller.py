@@ -74,11 +74,11 @@ def test_waveform_upload(controller):
     controller.awg_set_sequence_params(HD, 1, sequence_type="Simple")
     controller.awg_set_sequence_params(QA, 0, sequence_type="Simple")
     for i in range(10):
-        w = ziDrivers.helpers.Waveform(np.ones(800), -np.ones(800))
-        controller.awg_queue_waveform(HD, 0, w)
-        controller.awg_queue_waveform(HD, 1, w)
-        controller.awg_queue_waveform(QA, 0, w)
-    controller.awg_upload_waveforms(HD, 0)
-    controller.awg_upload_waveforms(HD, 1)
-    controller.awg_upload_waveforms(QA, 0)
+        w = (np.ones(800), -np.ones(800))
+        controller.awg_queue_waveform(HD, 0, data=w)
+        controller.awg_queue_waveform(HD, 1, data=w)
+        controller.awg_queue_waveform(QA, 0, data=w)
+    controller.awg_compile_and_upload_waveforms(HD, 0)
+    controller.awg_compile_and_upload_waveforms(HD, 1)
+    controller.awg_compile_and_upload_waveforms(QA, 0)
 
