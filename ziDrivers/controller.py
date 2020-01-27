@@ -24,7 +24,10 @@ class Controller(BaseController):
             ]
             self._compiler.set_parameter(name, awg, buffer_lengths=buffer_lengths)
         self.__update_awg_program(name, awg)
-        program = self._devices[name].awgs[awg].get_program()
+        program = self._devices[name].awgs[awg].program
+        if program == self._connection.awg_module.get_string("compiler/sourcestring"):
+            print("Same program! Did nothing...")
+            return
         self._connection.awg_module.set("compiler/sourcestring", program)
         while self._connection.awg_module.get_int("compiler/status") == -1:
             time.sleep(0.1)
@@ -38,7 +41,7 @@ class Controller(BaseController):
                 "Compiled with warning: \n"
                 + self._connection.awg_module.get_string("compiler/statusstring")
             )
-        if self._connection.awg_module.get_int("compiler/status") == 2:
+        if self._connection.awg_module.get_int("compiler/status") == 0:
             print("Compilation successful")
         self.__wait_upload_done(name, awg)
 
@@ -102,4 +105,6 @@ class Controller(BaseController):
             if time.time() - tik >= timeout:
                 raise Exception("Program upload timed out!")
         status = self._connection.awg_module.get_int("/elf/status")
-        print(f"{name}: Sequencer status: {'ELF file uploaded' if status == 0 else 'FAILED!!'}")
+        print(
+            f"{name}: Sequencer status: {'ELF file uploaded' if status == 0 else 'FAILED!!'}"
+        )
