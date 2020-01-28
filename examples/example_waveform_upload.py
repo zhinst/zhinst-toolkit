@@ -63,11 +63,11 @@ if __name__ == "__main__":
     c.awg_set_sequence_params(hd, awg0, **settings_master)
     c.awg_set_sequence_params(hd, awg1, **settings_slave)
 
-    x = np.linspace(-1, 1, 200)
+    x = np.linspace(-1, 1, 400)
     y1 = x
     y2 = np.sinc(5 * x)
 
-    n = 250  # MAX. ~250 waveforms.... otherwise sporadic disconnects and waveform corruption!
+    n = 400
     for i in range(n):
         c.awg_queue_waveform(hd, awg0, data=(i / n * y1, []))
         c.awg_queue_waveform(hd, awg1, data=((1 - i / n) * y2, []))
