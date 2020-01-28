@@ -266,6 +266,58 @@ class ReadoutSequence(Sequence):
 
 
 @attr.s
+class PulsedSpectroscopySequence(Sequence):
+    pulse_length = attr.ib(default=2e-6, validator=is_positive)
+    pulse_amplitude = attr.ib(default=1)
+       
+    
+    def write_sequence(self):
+        self.sequence = SeqCommand.header_comment(sequence_type="Pulsed Spectroscopy")
+        length = self.time_to_cycles(self.pulse_length, wait_time=False) // 16 * 16  
+        self.sequence += SeqCommand.init_ones(self.pulse_amplitude, length)
+        self.sequence += SeqCommand.repeat(self.repetitions)
+        self.sequence += self.trigger_cmd_1
+        self.sequence += SeqCommand.wait(self.wait_cycles)
+        self.sequence += self.trigger_cmd_2
+        self.sequence += SeqCommand.readout_trigger()
+        self.sequence += SeqCommand.play_wave()
+        self.sequence += SeqCommand.wait_wave()
+        self.sequence += SeqCommand.wait(self.dead_cycles)
+        self.sequence += SeqCommand.close_bracket()  
+
+    def update_params(self):
+        super().update_params()
+        self.target = "uhfqa"
+        if self.trigger_mode == "None":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+        elif self.trigger_mode == "Send Trigger":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+        elif self.trigger_mode == "External Trigger":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
+
+@attr.s
+class CWSpectroscopySequence(Sequence):    
+    def write_sequence(self):
+        self.sequence = SeqCommand.header_comment(sequence_type="Pulsed Spectroscopy")
+        self.sequence += SeqCommand.repeat(self.repetitions)
+        self.sequence += self.trigger_cmd_1
+        self.sequence += SeqCommand.wait(self.wait_cycles)
+        self.sequence += self.trigger_cmd_2
+        self.sequence += SeqCommand.readout_trigger()
+        self.sequence += SeqCommand.wait(self.dead_cycles)
+        self.sequence += SeqCommand.close_bracket()  
+
+    def update_params(self):
+        super().update_params()
+        if self.trigger_mode == "None":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+        elif self.trigger_mode == "Send Trigger":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+        elif self.trigger_mode == "External Trigger":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
+
+
+@attr.s
 class CustomSequence(Sequence):
     path = attr.ib(default="")
     program = attr.ib(default="")
