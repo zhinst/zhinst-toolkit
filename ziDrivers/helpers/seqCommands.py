@@ -160,3 +160,8 @@ class SeqCommand(object):
     @staticmethod
     def readout_trigger():
         return "startQAMonitor(); startQAResult();\n"
+
+    @staticmethod
+    def init_ones(amp, length):
+        return (f"wave w_1 = {amp} * ones({length});\n"
+                f"wave w_2 = {amp} * ones({length});\n\n")

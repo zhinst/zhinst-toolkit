@@ -6,6 +6,8 @@ from .sequences import (
     T1Sequence,
     T2Sequence,
     ReadoutSequence,
+    PulsedSpectroscopySequence,
+    CWSpectroscopySequence,
     CustomSequence
 )
 
@@ -74,6 +76,10 @@ class SequenceProgram(object):
             self.sequence_class = T2Sequence
         elif type == "Readout":
             self.sequence_class = ReadoutSequence
+        elif type == "Pulsed Spectroscopy":
+            self.sequence_class = PulsedSpectroscopySequence
+        elif type == "CW Spectroscopy":
+            self.sequence_class = CWSpectroscopySequence
         elif type == "Custom":
             self.sequence_class = CustomSequence
         else:
