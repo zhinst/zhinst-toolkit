@@ -158,14 +158,5 @@ class SeqCommand(object):
             return f"waitDigTrigger({index}, 1);\n"
 
     @staticmethod
-    def init_trigger(target="hdawg"):
-        if target == "hdawg":
-            return "setTrigger(0);"
-        elif target == "uhfqa":
-            return "var RO_TRIGGER = AWG_INTEGRATION_ARM + AWG_INTEGRATION_TRIGGER + AWG_MONITOR_TRIGGER;\n"
-        else:
-            raise Exception("Not a valid target device!!")
-
-    @staticmethod
     def readout_trigger():
-        return "setTrigger(RO_TRIGGER);\n"
+        return "startQAMonitor(); startQAResult();\n"

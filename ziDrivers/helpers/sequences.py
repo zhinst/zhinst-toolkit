@@ -95,7 +95,7 @@ class SimpleSequence(Sequence):
         self.sequence = SeqCommand.header_comment(sequence_type="Simple")
         for i in range(self.n_HW_loop):
             self.sequence += SeqCommand.init_buffer_indexed(self.buffer_lengths[i], i)
-        self.sequence += SeqCommand.init_trigger(target=self.target)
+        self.sequence += SeqCommand.trigger(0)
         self.sequence += SeqCommand.repeat(self.repetitions)
         for i in range(self.n_HW_loop):    
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
@@ -243,7 +243,7 @@ class ReadoutSequence(Sequence):
             self.readout_frequencies, 
             clk_rate=self.clock_rate
         )
-        self.sequence += SeqCommand.init_trigger(target=self.target)
+        self.sequence += SeqCommand.trigger(0)
         self.sequence += SeqCommand.repeat(self.repetitions)
         self.sequence += self.trigger_cmd_1
         self.sequence += SeqCommand.wait(self.wait_cycles)
@@ -252,7 +252,6 @@ class ReadoutSequence(Sequence):
                 self.sequence += SeqCommand.readout_trigger()
         self.sequence += SeqCommand.play_wave()
         self.sequence += SeqCommand.wait_wave()
-        self.sequence += SeqCommand.trigger(0)
         self.sequence += SeqCommand.wait(self.dead_cycles)
         self.sequence += SeqCommand.close_bracket()  
 
