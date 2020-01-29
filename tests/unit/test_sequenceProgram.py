@@ -11,7 +11,7 @@ class SequenceProgramMachine(RuleBasedStateMachine):
         super().__init__()
         self.sequenceProgram = SequenceProgram()
 
-    @rule(type=st.integers(0, 5))
+    @rule(type=st.integers(0, 7))
     def change_type(self, type):
         if type == 0:
             t = None
@@ -25,6 +25,10 @@ class SequenceProgramMachine(RuleBasedStateMachine):
             t = "Readout"
         elif type == 5:
             t = "Custom"
+        elif type == 6:
+            t = "CW Spectroscopy"
+        elif type == 7:
+            t = "Pulsed Spectroscopy"
         self.sequenceProgram.set(sequence_type=t)
         assert self.sequenceProgram.sequence_type == t
 
