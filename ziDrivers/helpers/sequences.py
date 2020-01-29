@@ -288,12 +288,13 @@ class PulsedSpectroscopySequence(Sequence):
     def update_params(self):
         super().update_params()
         self.target = "uhfqa"
+        temp = self.period - self.dead_time - self.pulse_length
         if self.trigger_mode == "None":
-            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+            self.wait_cycles = self.time_to_cycles(temp)
         elif self.trigger_mode == "Send Trigger":
-            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+            self.wait_cycles = self.time_to_cycles(temp)
         elif self.trigger_mode == "External Trigger":
-            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
+            self.wait_cycles = self.time_to_cycles(temp - self.latency + self.trigger_delay)
 
 @attr.s
 class CWSpectroscopySequence(Sequence):    
