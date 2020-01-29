@@ -299,7 +299,7 @@ class PulsedSpectroscopySequence(Sequence):
 @attr.s
 class CWSpectroscopySequence(Sequence):    
     def write_sequence(self):
-        self.sequence = SeqCommand.header_comment(sequence_type="Pulsed Spectroscopy")
+        self.sequence = SeqCommand.header_comment(sequence_type="CW Spectroscopy")
         self.sequence += SeqCommand.repeat(self.repetitions)
         self.sequence += self.trigger_cmd_1
         self.sequence += SeqCommand.wait(self.wait_cycles)
