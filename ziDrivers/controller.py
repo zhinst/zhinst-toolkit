@@ -10,8 +10,8 @@ class Controller(BaseController):
         super().__init__()
         self._compiler = Compiler()
 
-    def connect_device(self, name, address):
-        super().connect_device(name, address)
+    def connect_device(self, name, address, interface):
+        super().connect_device(name, address, interface)
         for dev in self._instrument_config.instruments[0].setup:
             if dev.name == name:
                 self._compiler.add_device(dev)
@@ -25,9 +25,9 @@ class Controller(BaseController):
             self._compiler.set_parameter(name, awg, buffer_lengths=buffer_lengths)
         self.__update_awg_program(name, awg)
         program = self._devices[name].awgs[awg].program
-        if program == self._connection.awg_module.get_string("compiler/sourcestring"):
-            print("Same program! Did nothing...")
-            return
+        # if program == self._connection.awg_module.get_string("compiler/sourcestring"):
+        #     print("Same program! Did nothing...")
+        #     return
         self._connection.awg_module.set("compiler/sourcestring", program)
         while self._connection.awg_module.get_int("compiler/status") == -1:
             time.sleep(0.1)
