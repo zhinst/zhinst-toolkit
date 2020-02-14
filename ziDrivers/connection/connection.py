@@ -56,6 +56,9 @@ class ZIDeviceConnection(DeviceConnection):
     def get(self, *args, **kwargs):
         return self.__daq.get(*args, **kwargs)
 
+    def list_nodes(self, *args, **kwargs):
+        return self.__daq.listNodesJSON(*args, **kwargs)
+
     class AWGModule:
         def __init__(self, daq):
             self.__awgModule = daq.awgModule()

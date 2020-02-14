@@ -1,0 +1,4 @@
+attrs
+marshmallow
+numpy
+zhinst

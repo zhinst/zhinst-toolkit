@@ -2,7 +2,7 @@ import json
 import time
 
 from .baseController import BaseController
-from ..helpers import SequenceProgram, Waveform, Compiler
+from .helpers import Waveform, Compiler
 
 
 class Controller(BaseController):
@@ -10,8 +10,8 @@ class Controller(BaseController):
         super().__init__()
         self._compiler = Compiler()
 
-    def connect_device(self, name, address):
-        super().connect_device(name, address)
+    def connect_device(self, name, address, interface):
+        super().connect_device(name, address, interface)
         for dev in self._instrument_config.instruments[0].setup:
             if dev.name == name:
                 self._compiler.add_device(dev)
@@ -24,7 +24,10 @@ class Controller(BaseController):
             ]
             self._compiler.set_parameter(name, awg, buffer_lengths=buffer_lengths)
         self.__update_awg_program(name, awg)
-        program = self._devices[name].awgs[awg].get_program()
+        program = self._devices[name].awgs[awg].program
+        # if program == self._connection.awg_module.get_string("compiler/sourcestring"):
+        #     print("Same program! Did nothing...")
+        #     return
         self._connection.awg_module.set("compiler/sourcestring", program)
         while self._connection.awg_module.get_int("compiler/status") == -1:
             time.sleep(0.1)
@@ -38,7 +41,7 @@ class Controller(BaseController):
                 "Compiled with warning: \n"
                 + self._connection.awg_module.get_string("compiler/statusstring")
             )
-        if self._connection.awg_module.get_int("compiler/status") == 2:
+        if self._connection.awg_module.get_int("compiler/status") == 0:
             print("Compilation successful")
         self.__wait_upload_done(name, awg)
 
@@ -51,26 +54,35 @@ class Controller(BaseController):
         print(f"{name}: Stopped AWG {awg}!")
 
     def awg_is_running(self, name, awg):
-        return bool(
-            self._connection.awg_module.get_int(
-                "awg/enable", index=awg, device=self._devices[name].serial
-            )
-        )
+        return self.get(name, f"/awgs/{awg}/enable")
 
-    def awg_queue_waveform(self, name, awg, waveform: Waveform):
+    def awg_queue_waveform(self, name, awg, data=([], [])):
         if self._compiler.sequence_type(name, awg) != "Simple":
             raise Exception("Waveform upload only possible for 'Simple' sequence!")
+        waveform = Waveform(data[0], data[1])
         self._devices[name].awgs[awg].waveforms.append(waveform)
         print(
             f"current length of queue: {len(self._devices[name].awgs[awg].waveforms)}"
         )
 
+    def awg_compile_and_upload_waveforms(self, name, awg):
+        self.awg_compile(name, awg)
+        self.awg_upload_waveforms(name, awg)
+
     def awg_upload_waveforms(self, name, awg):
         waveform_data = [w.data for w in self._devices[name].awgs[awg].waveforms]
-        self.awg_compile(name, awg)
         nodes = [f"awgs/{awg}/waveform/waves/{i}" for i in range(len(waveform_data))]
+        tok = time.time()
         self.set(name, zip(nodes, waveform_data))
-        time.sleep(0.5)  # make sure waveform uplaod finished, any other way??
+        tik = time.time()
+        print(f"Upload of {len(waveform_data)} waveforms took {tik - tok} s")
+
+    def awg_replace_waveform(self, name, awg, data=([], []), index=0):
+        if index not in range(len(self._devices[name].awgs[awg].waveforms)):
+            raise Exception("Index out of range!")
+        self._devices[name].awgs[awg].waveforms[index].replace_data(data[0], data[1])
+
+    def awg_reset_queue(self, name, awg):
         self._devices[name].awgs[awg].reset_waveforms()
 
     def awg_set_sequence_params(self, name, awg, **kwargs):
@@ -93,4 +105,6 @@ class Controller(BaseController):
             if time.time() - tik >= timeout:
                 raise Exception("Program upload timed out!")
         status = self._connection.awg_module.get_int("/elf/status")
-        print(f"{name}: Sequencer status: {'Uploaded' if status == 0 else 'FAILED!!'}")
+        print(
+            f"{name}: Sequencer status: {'ELF file uploaded' if status == 0 else 'FAILED!!'}"
+        )

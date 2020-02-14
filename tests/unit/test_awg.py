@@ -2,9 +2,9 @@ import pytest
 from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 from dataclasses import dataclass
-
-from controller.drivers.devices.awg import AWG
 import numpy as np
+
+from .context import AWG
 
 
 class Configuration:
@@ -45,8 +45,11 @@ class AWGMachine(RuleBasedStateMachine):
     @rule(p=st.text())
     def set_get_program(self, p):
         self.awg.set_program(p)
-        text = self.awg.get_program()
-        assert text == p
+        text = self.awg.program
+        if p:
+            assert text == p
+        else:
+            assert text is None
 
     @rule(w=st.integers(0, 100))
     def queue_waveform(self, w):

@@ -1,5 +1,15 @@
 import attr
-from .sequences import Sequence, SimpleSequence, RabiSequence, T1Sequence, T2Sequence
+from .sequences import (
+    Sequence,
+    SimpleSequence,
+    RabiSequence,
+    T1Sequence,
+    T2Sequence,
+    ReadoutSequence,
+    PulsedSpectroscopySequence,
+    CWSpectroscopySequence,
+    CustomSequence
+)
 
 
 class SequenceProgram(object):
@@ -54,7 +64,7 @@ class SequenceProgram(object):
         )
 
     def __set_type(self, type):
-        if type is None:
+        if type is None or type == "None":
             self.sequence_class = Sequence
         elif type == "Simple":
             self.sequence_class = SimpleSequence
@@ -64,6 +74,14 @@ class SequenceProgram(object):
             self.sequence_class = T1Sequence
         elif type == "T2*":
             self.sequence_class = T2Sequence
+        elif type == "Readout":
+            self.sequence_class = ReadoutSequence
+        elif type == "Pulsed Spectroscopy":
+            self.sequence_class = PulsedSpectroscopySequence
+        elif type == "CW Spectroscopy":
+            self.sequence_class = CWSpectroscopySequence
+        elif type == "Custom":
+            self.sequence_class = CustomSequence
         else:
             raise ValueError("Unknown Sequence Type!")
         self.__sequence_type = type

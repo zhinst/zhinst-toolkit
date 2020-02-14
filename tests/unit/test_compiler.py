@@ -1,9 +1,10 @@
 import pytest
 from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
-
-from helpers import Compiler
 import numpy as np
+
+from .context import Compiler
+
 
 
 class Device:
@@ -43,7 +44,7 @@ class CompilerHDAWGMachine(RuleBasedStateMachine):
         self.compiler = Compiler()
         self.compiler.add_device(Device(4, 1))
 
-    @rule(type=st.integers(0, 3), awg=st.integers(0, 3))
+    @rule(type=st.integers(0, 5), awg=st.integers(0, 3))
     def change_type(self, type, awg):
         if type == 0:
             t = None
@@ -53,6 +54,10 @@ class CompilerHDAWGMachine(RuleBasedStateMachine):
             t = "T1"
         elif type == 3:
             t = "T2*"
+        elif type == 4:
+            t = "Readout"
+        elif type == 5:
+            t = "Custom"
         self.compiler.set_parameter("hdawg0", awg, sequence_type=t)
         assert self.compiler.sequence_type("hdawg0", awg) == t
 
@@ -96,7 +101,7 @@ class CompilerUHFQAMachine(RuleBasedStateMachine):
         self.compiler = Compiler()
         self.compiler.add_device(Device(4, 0))
 
-    @rule(type=st.integers(0, 3), awg=st.integers(0, 3))
+    @rule(type=st.integers(0, 5), awg=st.integers(0, 3))
     def change_type(self, type, awg):
         if type == 0:
             t = None
@@ -106,6 +111,10 @@ class CompilerUHFQAMachine(RuleBasedStateMachine):
             t = "T1"
         elif type == 3:
             t = "T2*"
+        elif type == 4:
+            t = "Readout"
+        elif type == 5:
+            t = "Custom"
         self.compiler.set_parameter("hdawg0", awg, sequence_type=t)
         assert self.compiler.sequence_type("hdawg0", awg) == t
 

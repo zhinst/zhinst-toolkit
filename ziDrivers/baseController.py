@@ -2,9 +2,9 @@ import json
 import time
 import os
 
-from .drivers.connection import ZIDeviceConnection
-from .drivers.devices.factory import Factory
-from ..interface import InstrumentConfiguration
+from .connection import ZIDeviceConnection
+from .devices import Factory
+from .interface import InstrumentConfiguration
 
 
 class BaseController(object):
@@ -15,7 +15,7 @@ class BaseController(object):
 
     def setup(self, filename):
         dir = os.path.dirname(__file__)
-        instrument_config = os.path.join(dir, "../resources/", filename)
+        instrument_config = os.path.join(dir, "./resources/", filename)
         try:
             with open(instrument_config) as file:
                 data = json.load(file)
@@ -28,13 +28,14 @@ class BaseController(object):
         except IOError:
             print(f"File {instrument_config} is not accessible")
 
-    def connect_device(self, name, address):
+    def connect_device(self, name, address, interface):
         devices = self._instrument_config.instruments[0].setup
         for dev in devices:
             if self._devices is None:
                 self._devices = dict()
             if dev.name == name:
                 dev.config.serial = address
+                dev.config.interface = interface
                 self._devices[name] = Factory.configure_device(dev)
                 self._connection.connect_device(
                     serial=self._devices[name].serial,
@@ -78,6 +79,10 @@ class BaseController(object):
                 return data
         else:
             raise Exception("No device connected!")
+
+    def get_nodetree(self, prefix: str, **kwargs):
+        return json.loads(self._connection.list_nodes(prefix, **kwargs))
+
 
     def __get_value_from_dict(self, name, data):
         if not isinstance(data, dict):

@@ -3,6 +3,7 @@ from .seqCommands import SeqCommand
 import textwrap
 import attr
 import numpy as np
+from pathlib import Path
 
 
 
@@ -94,7 +95,7 @@ class SimpleSequence(Sequence):
         self.sequence = SeqCommand.header_comment(sequence_type="Simple")
         for i in range(self.n_HW_loop):
             self.sequence += SeqCommand.init_buffer_indexed(self.buffer_lengths[i], i)
-        self.sequence += self.trigger_cmd_2
+        self.sequence += SeqCommand.trigger(0)
         self.sequence += SeqCommand.repeat(self.repetitions)
         for i in range(self.n_HW_loop):    
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
@@ -105,6 +106,8 @@ class SimpleSequence(Sequence):
                 temp = self.wait_cycles - self.buffer_lengths[i]/8
             self.sequence += SeqCommand.wait(temp)
             self.sequence += self.trigger_cmd_2
+            if self.target == "uhfqa":
+                self.sequence += SeqCommand.readout_trigger()
             self.sequence += SeqCommand.play_wave_indexed(i)
             self.sequence += SeqCommand.wait_wave()
             self.sequence += SeqCommand.wait(self.dead_cycles)
@@ -215,9 +218,129 @@ class T2Sequence(T1Sequence):
             self.sequence += SeqCommand.wait(self.wait_cycles - t)
             self.sequence += self.trigger_cmd_2
             self.sequence += SeqCommand.play_wave()
-            self.sequence += SeqCommand.wait(t)
+            if t > 3:
+                self.sequence += SeqCommand.wait(t - 3) # -3 to subtract additional cycles of playWave() ...
+            else:
+                self.sequence += SeqCommand.wait(t)
             self.sequence += SeqCommand.play_wave()
             self.sequence += SeqCommand.wait_wave()
             self.sequence += SeqCommand.wait(self.dead_cycles)
         self.sequence += SeqCommand.close_bracket()  
+
+
+@attr.s
+class ReadoutSequence(Sequence):
+    readout_length = attr.ib(default=2e-6, validator=is_positive)
+    readout_amplitudes = attr.ib(default=[1])
+    readout_frequencies = attr.ib(default=[100e6])    
+    
+    def write_sequence(self):
+        self.sequence = SeqCommand.header_comment(sequence_type="Readout")
+        length = self.time_to_cycles(self.readout_length, wait_time=False) // 16 * 16  
+        self.sequence += SeqCommand.init_readout_pulse(
+            length, 
+            self.readout_amplitudes, 
+            self.readout_frequencies, 
+            clk_rate=self.clock_rate
+        )
+        self.sequence += SeqCommand.trigger(0)
+        self.sequence += SeqCommand.repeat(self.repetitions)
+        self.sequence += self.trigger_cmd_1
+        self.sequence += SeqCommand.wait(self.wait_cycles)
+        self.sequence += self.trigger_cmd_2
+        if self.target == "uhfqa":
+                self.sequence += SeqCommand.readout_trigger()
+        self.sequence += SeqCommand.play_wave()
+        self.sequence += SeqCommand.wait_wave()
+        self.sequence += SeqCommand.wait(self.dead_cycles)
+        self.sequence += SeqCommand.close_bracket()  
+
+    def update_params(self):
+        super().update_params()
+        if self.trigger_mode == "None":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+        elif self.trigger_mode == "Send Trigger":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+        elif self.trigger_mode == "External Trigger":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
+        if self.target == "uhfqa":
+            self.clock_rate = 1.8e9
+
+
+@attr.s
+class PulsedSpectroscopySequence(Sequence):
+    pulse_length = attr.ib(default=2e-6, validator=is_positive)
+    pulse_amplitude = attr.ib(default=1)
+       
+    
+    def write_sequence(self):
+        self.sequence = SeqCommand.header_comment(sequence_type="Pulsed Spectroscopy")
+        length = self.time_to_cycles(self.pulse_length, wait_time=False) // 16 * 16  
+        self.sequence += SeqCommand.init_ones(self.pulse_amplitude, length)
+        self.sequence += SeqCommand.repeat(self.repetitions)
+        self.sequence += self.trigger_cmd_1
+        self.sequence += SeqCommand.wait(self.wait_cycles)
+        self.sequence += self.trigger_cmd_2
+        self.sequence += SeqCommand.readout_trigger()
+        self.sequence += SeqCommand.play_wave()
+        self.sequence += SeqCommand.wait_wave()
+        self.sequence += SeqCommand.wait(self.dead_cycles)
+        self.sequence += SeqCommand.close_bracket()  
+
+    def update_params(self):
+        super().update_params()
+        self.target = "uhfqa"
+        temp = self.period - self.dead_time - self.pulse_length
+        if self.trigger_mode == "None":
+            self.wait_cycles = self.time_to_cycles(temp)
+        elif self.trigger_mode == "Send Trigger":
+            self.wait_cycles = self.time_to_cycles(temp)
+        elif self.trigger_mode == "External Trigger":
+            self.wait_cycles = self.time_to_cycles(temp - self.latency + self.trigger_delay)
+
+@attr.s
+class CWSpectroscopySequence(Sequence):    
+    def write_sequence(self):
+        self.sequence = SeqCommand.header_comment(sequence_type="CW Spectroscopy")
+        self.sequence += SeqCommand.repeat(self.repetitions)
+        self.sequence += self.trigger_cmd_1
+        self.sequence += SeqCommand.wait(self.wait_cycles)
+        self.sequence += self.trigger_cmd_2
+        self.sequence += SeqCommand.readout_trigger()
+        self.sequence += SeqCommand.wait(self.dead_cycles)
+        self.sequence += SeqCommand.close_bracket()  
+
+    def update_params(self):
+        super().update_params()
+        if self.trigger_mode == "None":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+        elif self.trigger_mode == "Send Trigger":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+        elif self.trigger_mode == "External Trigger":
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
+
+
+@attr.s
+class CustomSequence(Sequence):
+    path = attr.ib(default="")
+    program = attr.ib(default="")
+    custom_params = attr.ib(default=[])
+    
+    def write_sequence(self):
+        self.sequence = SeqCommand.header_comment(sequence_type="Custom")
+        self.sequence += f"// from file: {self.path}\n\n"
+        self.sequence += self.program
+
+    def update_params(self):
+        if self.path:
+            self.program = Path(self.path).read_text()
+        for i, p in enumerate(self.custom_params):
+            self.program = self.program.replace(f"$param{i+1}$", str(p))
+
+    def check_attributes(self):
+        if self.path:
+            p = Path(self.path)
+            if p.suffix != ".seqc":
+                raise ValueError("Specified file is not a .seqc file!")
+
 
