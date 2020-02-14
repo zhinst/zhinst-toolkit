@@ -263,6 +263,8 @@ class ReadoutSequence(Sequence):
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
         elif self.trigger_mode == "External Trigger":
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
+        if self.target == "uhfqa":
+            self.clock_rate = 1.8e9
 
 
 @attr.s
