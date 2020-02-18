@@ -263,7 +263,7 @@ class ReadoutSequence(Sequence):
         elif self.trigger_mode == "Send Trigger":
             self.wait_cycles = self.time_to_cycles(temp)
         elif self.trigger_mode == "External Trigger":
-            self.wait_cycles = self.time_to_cycles(temp - self.latency + self.trigger_delay)
+            self.wait_cycles = self.time_to_cycles(temp + self.readout_length - self.latency + self.trigger_delay)
         if self.target == "uhfqa":
             self.clock_rate = 1.8e9
 
@@ -297,7 +297,7 @@ class PulsedSpectroscopySequence(Sequence):
         elif self.trigger_mode == "Send Trigger":
             self.wait_cycles = self.time_to_cycles(temp)
         elif self.trigger_mode == "External Trigger":
-            self.wait_cycles = self.time_to_cycles(temp - self.latency + self.trigger_delay)
+            self.wait_cycles = self.time_to_cycles(temp + self.pulse_length - self.latency + self.trigger_delay)
         if self.target == "uhfqa":
             self.clock_rate = 1.8e9
 
