@@ -69,11 +69,6 @@ class HDAWGController(Controller):
         self.set(f"awgs/{awg}/outputs/0/gains/0", g[0])
         self.set(f"awgs/{awg}/outputs/1/gains/1", g[1])
 
-    
-
-    
-
-
     # apply device settings depending on sequence settings
     def __apply_sequence_settings(self, awg, **kwargs):
         if "sequence_type" in kwargs.keys():
@@ -89,12 +84,7 @@ class HDAWGController(Controller):
                 raise Exception(
                     f"Sequence type {t} must be one of {allowed_sequences}!"
                 )
-            #
-            #
-            #
-            #
-
-
+        # more here?
 
 
     ####################################################
