@@ -264,7 +264,7 @@ class ReadoutSequence(Sequence):
     def update_params(self):
         super().update_params()
         temp = self.period - self.dead_time
-        if self.alignment == "Start with Trigger":
+        if self.alignment == "End with Trigger":
             temp -= self.readout_length
         if self.trigger_mode == "None":
             self.wait_cycles = self.time_to_cycles(temp)
@@ -300,9 +300,9 @@ class PulsedSpectroscopySequence(Sequence):
     def update_params(self):
         super().update_params()
         self.target = "uhfqa"
-        if self.alignment == "Start with Trigger":
-            temp -= self.readout_length
         temp = self.period - self.dead_time
+        if self.alignment == "End with Trigger":
+            temp -= self.pulse_length
         if self.trigger_mode == "None":
             self.wait_cycles = self.time_to_cycles(temp)
         elif self.trigger_mode == "Send Trigger":
