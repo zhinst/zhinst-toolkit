@@ -22,6 +22,7 @@ class Sequence(object):
     period          = attr.ib(default=100e-6, validator=is_positive)
     trigger_mode    = attr.ib(default="None", validator=attr.validators.in_(["None", "Send Trigger", "External Trigger"]))
     repetitions     = attr.ib(default=1, converter=int, validator=is_positive)
+    alignment       = attr.ib(default="End with Trigger", validator=attr.validators.in_(["End with Trigger", "Start with Trigger"]))
     n_HW_loop       = attr.ib(default=1, converter=int, validator=is_positive)
     dead_time       = attr.ib(default=5e-6, validator=is_positive)
     trigger_delay   = attr.ib(default=0)
