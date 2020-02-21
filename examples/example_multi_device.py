@@ -7,7 +7,6 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from ziDrivers.controller import Controller
-from ziDrivers.helpers import Waveform
 
 
 if __name__ == "__main__":
@@ -17,8 +16,8 @@ if __name__ == "__main__":
 
     c = Controller()
     c.setup("connection-hd-qa.json")
-    c.connect_device(hd, "dev8030")
-    c.connect_device(qa, "dev2266")
+    c.connect_device(hd, "dev8030", "1GbE")
+    c.connect_device(qa, "dev2266", "1GbE")
 
     # device settings
     c.set(
@@ -67,7 +66,8 @@ if __name__ == "__main__":
         clock_rate=1.8e9,
     )
     c.awg_set_sequence_params(qa, 0, **settings)
-    c.awg_queue_waveform(qa, 0, Waveform(np.ones(2000), []))
+    c.awg_queue_waveform(qa, 0, data=(np.ones(2000), []))
+    c.awg_compile(qa, 0)
     c.awg_upload_waveforms(qa, 0)
 
     # run AWGs
