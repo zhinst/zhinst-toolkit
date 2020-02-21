@@ -157,9 +157,12 @@ class RabiSequence(Sequence):
         self.n_HW_loop = len(self.pulse_amplitudes)
         self.get_gauss_params(self.pulse_width, self.pulse_truncation)
         if self.trigger_mode in ["None", "Send Trigger"]:
-            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time) - self.gauss_params[0]/8
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
         elif self.trigger_mode == "External Trigger":
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
+        if self.alignment == "Start with Trigger":
+            self.wait_cycles -= self.gauss_params[0]/8
+        
 
     def check_attributes(self):
         super().check_attributes()
@@ -195,9 +198,11 @@ class T1Sequence(Sequence):
         self.n_HW_loop = len(self.delay_times)
         self.get_gauss_params(self.pulse_width, self.pulse_truncation)
         if self.trigger_mode in ["None", "Send Trigger"]:
-            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time) - self.gauss_params[0]/8
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
         elif self.trigger_mode == "External Trigger":
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time - self.latency + self.trigger_delay)
+        if self.alignment == "Start with Trigger":
+            self.wait_cycles -= self.gauss_params[0]/8
 
     def check_attributes(self):
         super().check_attributes()
@@ -258,15 +263,18 @@ class ReadoutSequence(Sequence):
 
     def update_params(self):
         super().update_params()
-        temp = self.period - self.dead_time - self.readout_length
+        temp = self.period - self.dead_time
+        if self.alignment == "Start with Trigger":
+            temp -= self.readout_length
         if self.trigger_mode == "None":
             self.wait_cycles = self.time_to_cycles(temp)
         elif self.trigger_mode == "Send Trigger":
             self.wait_cycles = self.time_to_cycles(temp)
         elif self.trigger_mode == "External Trigger":
-            self.wait_cycles = self.time_to_cycles(temp + self.readout_length - self.latency + self.trigger_delay)
+            self.wait_cycles = self.time_to_cycles(temp - self.latency + self.trigger_delay)
         if self.target == "uhfqa":
             self.clock_rate = 1.8e9
+        
 
 
 @attr.s
@@ -292,13 +300,15 @@ class PulsedSpectroscopySequence(Sequence):
     def update_params(self):
         super().update_params()
         self.target = "uhfqa"
-        temp = self.period - self.dead_time - self.pulse_length
+        if self.alignment == "Start with Trigger":
+            temp -= self.readout_length
+        temp = self.period - self.dead_time
         if self.trigger_mode == "None":
             self.wait_cycles = self.time_to_cycles(temp)
         elif self.trigger_mode == "Send Trigger":
             self.wait_cycles = self.time_to_cycles(temp)
         elif self.trigger_mode == "External Trigger":
-            self.wait_cycles = self.time_to_cycles(temp + self.pulse_length - self.latency + self.trigger_delay)
+            self.wait_cycles = self.time_to_cycles(temp - self.latency + self.trigger_delay)
         if self.target == "uhfqa":
             self.clock_rate = 1.8e9
 
