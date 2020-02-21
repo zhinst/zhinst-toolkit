@@ -101,9 +101,9 @@ class SimpleSequence(Sequence):
         for i in range(self.n_HW_loop):    
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
             self.sequence += self.trigger_cmd_1
-            if self.trigger_mode == "External Trigger":
+            if self.alignment == "Start with Trigger":
                 temp = self.wait_cycles
-            else:
+            elif self.alignment == "End with Trigger":
                 temp = self.wait_cycles - self.buffer_lengths[i]/8
             self.sequence += SeqCommand.wait(temp)
             self.sequence += self.trigger_cmd_2
