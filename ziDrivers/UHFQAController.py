@@ -1,5 +1,4 @@
-import json
-import time
+import numpy as np
 
 from .controller import Controller
 
@@ -17,6 +16,38 @@ class UHFQAController(Controller):
         super().connect_device(self.__name, address, interface)
 
 
+    ####################################################
+    # device specific methods
+
+    def set_outputs(self, value):
+        if value == "on": value = 1 
+        if value == "off": value = 0
+        self.set("sigouts/*/on", value)
+    
+    def write_crottalk_matrix(self, matrix):
+        rows, cols = matrix.shape
+        assert rows <= 10
+        assert cols <= 10
+        for r in range(rows):
+            for c in range(cols):
+                self.set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
+
+    def set_rotations(self, rotations):
+        assert len(rotations) <= 10
+        for i, r in enumerate(rotations):
+            c = np.exp(1j*np.deg2rad(r))
+            self.set(f"qas/0/rotations/{i}", c)
+
+    def get_rotations(self):
+        return [np.angle(self.get(f"qas/0/rotations/{i}"), deg=True) for i in range(10)]
+
+    def set_thresholds(self, thresholds):
+        assert len(thresholds) <= 10
+        for i, t in enumerate(thresholds):
+            self.set(f"qas/0/thresholds/{i}/level", t)
+
+    def get_thresholds(self):
+        return [self.get(f"qas/0/thresholds/{i}/level") for i in range(10)]
 
     # apply device settings depending on sequence settings
     def __apply_sequence_settings(self, **kwargs):
@@ -35,25 +66,65 @@ class UHFQAController(Controller):
                 )
             # apply settings depending on sequence type
             if t == "CW Spectroscopy":
-                self.set(self.__name, "sigouts/0/enables/0", 1)
-                self.set(self.__name, "sigouts/1/enables/1", 1)
-                self.set(self.__name, "sigouts/0/amplitudes/0", 1)
-                self.set(self.__name, "sigouts/1/amplitudes/1", 1)
-                self.set(self.__name, "qas/0/integration/mode", 1)
+                self.__apply_cw_settings()
             if t == "Pulsed Spectroscopy":
-                self.set(self.__name, "sigouts/*/enables/*", 0)
-                self.set(self.__name, "sigouts/*/amplitudes/*", 0)
-                self.set(self.__name, "awgs/0/outputs/*/mode", 1)
-                self.set(self.__name, "qas/0/integration/mode", 1)
+                self.__apply_pulsed_settings()
             if t == "Readout":
-                self.set(self.__name, "sigouts/*/enables/*", 0)
-                self.set(self.__name, "awgs/0/outputs/*/mode", 0)
-                self.set(self.__name, "qas/0/integration/mode", 0)
+                self.__apply_readout_settings()
+        # set demodulation weights at readout frequencies
+        if "readout_frequencies" in kwargs.keys():
+            self.__reset_int_weights()
+            self.__set_int_weights(kwargs["readout_frequencies"])
         # apply settings dependent on trigger type
         if "trigger_mode" in kwargs.keys():
             if kwargs["trigger_mode"] == "External Trigger":
-                self.set(self.__name, "/awgs/0/auxtriggers/*/channel", 0)
-                self.set(self.__name, "/awgs/0/auxtriggers/*/slope", 1)
+                self.set("/awgs/0/auxtriggers/*/channel", 0)
+                self.set("/awgs/0/auxtriggers/*/slope", 1)
+
+    def __apply_cw_settings(self):
+        self.set("sigouts/0/enables/0", 1)
+        self.set("sigouts/1/enables/1", 1)
+        self.set("sigouts/0/amplitudes/0", 1)
+        self.set("sigouts/1/amplitudes/1", 1)
+        self.set("qas/0/integration/mode", 1)
+
+    def __apply_pulsed_settings(self):
+        self.set("sigouts/*/enables/*", 0)
+        self.set("sigouts/*/amplitudes/*", 0)
+        self.set("awgs/0/outputs/*/mode", 1)
+        self.set("qas/0/integration/mode", 1)
+
+    def __apply_readout_settings(self):
+        self.set("sigouts/*/enables/*", 0)
+        self.set("awgs/0/outputs/*/mode", 0)
+        self.set("qas/0/integration/mode", 0)
+
+    def __set_int_weights(self, frequencies):
+        int_length = self.get("qas/0/integration/length")
+        for i, f in enumerate(frequencies):
+            self.__set_int_weights_channel(int_length, i, f)
+
+    def __reset_int_weights(self):
+        int_length  = self.get("qas/0/integration/length")
+        node = f"/qas/0/integration/weights/"
+        for i in range(10):
+            self.set(node + f"{i}/real", np.zeros(int_length))
+            self.set(node + f"{i}/imag", np.zeros(int_length))
+
+    def __set_int_weights_channel(self, length, ch, freq):
+        weights_real = self.__generate_demod_weights(length, freq, 0)
+        weights_imag = self.__generate_demod_weights(length, freq, 90)
+        node = f"/qas/0/integration/weights/{ch}/"
+        self.set(node + "real", weights_real)
+        self.set(node + "imag", weights_imag)
+
+    def __generate_demod_weights(self, length, freq, phase):
+        assert length <= 4096
+        assert freq > 0
+        clk_rate = 1.8e9
+        x = np.arange(0, length)
+        y = np.sin(2 * np.pi * freq * x / clk_rate + np.deg2rad(phase))
+        return y
 
 
     ##########################################################
@@ -64,7 +135,7 @@ class UHFQAController(Controller):
         super().set(self.__name, *args)
 
     def get(self, command, valueonly=True):
-        super().get(self.__name, command, valueonly=valueonly)
+        return super().get(self.__name, command, valueonly=valueonly)
 
     # overwrite parent methods for simplicity
     def awg_run(self):
@@ -102,3 +173,7 @@ class UHFQAController(Controller):
 
     def awg_list_params(self):
         return super().awg_list_params(self.__name, self.__index)
+
+
+
+
