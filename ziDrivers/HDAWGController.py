@@ -84,7 +84,13 @@ class HDAWGController(Controller):
                 raise Exception(
                     f"Sequence type {t} must be one of {allowed_sequences}!"
                 )
-        # more here?
+        if "trigger_mode" in kwargs.keys():
+            if kwargs["trigger_mode"] == "External Trigger":
+                self.__apply_trigger_settings(awg)
+
+    def __apply_trigger_settings(self, awg):
+        self.set(f"/awgs/{awg}/auxtriggers/*/channel", 2 * awg)
+        self.set(f"/awgs/{awg}/auxtriggers/*/slope", 1)            # rise
 
 
     ####################################################
