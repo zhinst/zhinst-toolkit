@@ -1,5 +1,6 @@
 import json
 import time
+from abc import ABC, abstractmethod
 
 from .baseController import BaseController
 from .helpers import Waveform, Compiler
@@ -110,47 +111,64 @@ class Controller(BaseController):
         )
 
 
-class AWGWrapper:
+class AWGWrapper(ABC):
     def __init__(self, parent, name, index):
-        self.__parent = parent
-        self.__controller = self.__parent._controller
-        self.__name = name
-        self.__index = index
+        self._parent = parent
+        self._controller = self._parent._controller
+        self._name = name
+        self._index = index
+
+    def __repr__(self):
+        params = self.sequence_params["sequence_parameters"]
+        s = f"{self._name}: {super().__repr__()}\n"
+        s += f"    parent  : {self._parent}\n"
+        s += f"    index   : {self._index}\n"
+        s += f"    sequence: \n"
+        s += f"           type: {self.sequence_params['sequence_type']}\n"
+        for i in params.items():
+            s += f"            {i}\n"
+        return s
 
     def run(self):
-        self.__controller.awg_run(self.__name, self.__index)
+        self._controller.awg_run(self._name, self._index)
 
     def stop(self):
-        self.__controller.awg_stop(self.__name, self.__index)
+        self._controller.awg_stop(self._name, self._index)
 
     def compile(self):
-        self.__controller.awg_compile(self.__name, self.__index)
+        self._controller.awg_compile(self._name, self._index)
 
     def reset_queue(self):
-        self.__controller.awg_reset_queue(self.__name, self.__index)
+        self._controller.awg_reset_queue(self._name, self._index)
 
     def queue_waveform(self, wave1, wave2):
-        self.__controller.awg_queue_waveform(
-            self.__name, self.__index, data=(wave1, wave2)
+        self._controller.awg_queue_waveform(
+            self._name, self._index, data=(wave1, wave2)
         )
 
     def replace_waveform(self, wave1, wave2, i=0):
-        self.__controller.awg_replace_waveform(
-            self.__name, self.__index, data=(wave1, wave2), index=i
+        self._controller.awg_replace_waveform(
+            self._name, self._index, data=(wave1, wave2), index=i
         )
 
     def upload_waveforms(self):
-        self.__controller.awg_upload_waveforms(self.__name, self.__index)
+        self._controller.awg_upload_waveforms(self._name, self._index)
 
     def compile_and_upload_waveforms(self):
-        self.__controller.awg_compile_and_upload_waveforms(self.__name, self.__index)
+        self._controller.awg_compile_and_upload_waveforms(self._name, self._index)
 
     def set_sequence_params(self, **kwargs):
-        self.__parent._apply_sequence_settings(**kwargs)
-        self.__controller.awg_set_sequence_params(self.__name, self.__index, **kwargs)
+        self._apply_sequence_settings(**kwargs)
+        self._controller.awg_set_sequence_params(self._name, self._index, **kwargs)
 
+    @abstractmethod
+    def _apply_sequence_settings(self, **kwargs):
+        pass
+
+    @property
     def is_running(self):
-        return self.__controller.awg_is_running(self.__name, self.__index)
+        return self._controller.awg_is_running(self._name, self._index)
 
-    def list_params(self):
-        return self.__controller.awg_list_params(self.__name, self.__index)
+    @property
+    def sequence_params(self):
+        return self._controller.awg_list_params(self._name, self._index)
