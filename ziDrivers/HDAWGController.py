@@ -23,6 +23,7 @@ class HDAWGController:
     def connect_device(self, address, interface):
         self._controller.connect_device(self.__name, address, interface)
         self.awgs = [AWG(self, self.__name, i) for i in range(4)]
+        self.__init_settings()
 
     # device specific methods
     def set_outputs(self, values):
@@ -40,6 +41,12 @@ class HDAWGController:
     def set_modulation_gains(self, gains):
         assert len(gains) <= 4
         [self.awgs[i].set_modulation_gain(g) for i, g in enumerate(gains)]
+
+    def __init_settings(self):
+        settings = [
+            ("awgs/*/single", 1),
+        ]
+        self.set(settings)
 
     # wrap around get and set of Controller
     def set(self, *args):
