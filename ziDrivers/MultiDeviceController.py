@@ -35,14 +35,14 @@ class MultiDeviceController(object):
 
     def connect_hdawg(self, name, address, interface):
         device = HDAWGController()
-        device.set_device_connection(self._shared_connection)
+        device.setup(connection=self._shared_connection)
         device.connect_device(address, interface)
         self.hdawgs[name] = device
         print(f"Added HDAWG: {name}")
 
     def connect_uhfqa(self, name, address, interface):
         device = UHFQAController()
-        device.set_device_connection(self._shared_connection)
+        device.setup(connection=self._shared_connection)
         device.connect_device(address, interface)
         self.uhfqas[name] = device
         print(f"Added UHFQA: {name}")
