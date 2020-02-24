@@ -53,7 +53,7 @@ class UHFQAController:
 
 
 """
-Device specific AWG for HDAWG.
+Device specific AWG for UHFQA.
 
 """
 
