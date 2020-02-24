@@ -1,6 +1,11 @@
+import json
+import time
+import pathlib
 import numpy as np
 
 from .controller import Controller
+from .connection import ZIDeviceConnection
+from .interface import InstrumentConfiguration
 
 
 
@@ -8,9 +13,23 @@ class UHFQAController(Controller):
     def __init__(self):
         super().__init__()
         self.__name, self.__index = ("uhfqa0", 0)
+        self.type = "uhfqa"
 
     def setup(self):
         super().setup("connection-uhfqa.json")
+
+    def set_device_connection(self, connection: ZIDeviceConnection):
+        filename = "connection-uhfqa.json"
+        dir = pathlib.Path(__file__).parent
+        instrument_config = dir / "resources" / filename
+        try:
+            with open(instrument_config) as file:
+                data = json.load(file)
+                schema = InstrumentConfiguration()
+                self._instrument_config = schema.load(data)
+            self._connection = connection
+        except IOError:
+            print(f"File {instrument_config} is not accessible")
 
     def connect_device(self, address, interface):
         super().connect_device(self.__name, address, interface)
@@ -33,21 +52,44 @@ class UHFQAController(Controller):
                 self.set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
 
     def set_rotations(self, rotations):
-        assert len(rotations) <= 10
-        for i, r in enumerate(rotations):
-            c = np.exp(1j*np.deg2rad(r))
-            self.set(f"qas/0/rotations/{i}", c)
+        assert len(rotations) in range(10)
+        for ch, rot in enumerate(rotations):
+            self.set_rotation(ch, rot)
+
+    def set_rotation(self, ch, rot):
+        assert ch in range(10)
+        c = np.exp(1j*np.deg2rad(rot))
+        self.set(f"qas/0/rotations/{ch}", c)
 
     def get_rotations(self):
-        return [np.angle(self.get(f"qas/0/rotations/{i}"), deg=True) for i in range(10)]
+        return [self.get_rotation(ch) for ch in range(10)]
+
+    def get_rotation(self, ch):
+        assert ch in range(10)
+        return np.angle(self.get(f"qas/0/rotations/{ch}"), deg=True)
 
     def set_thresholds(self, thresholds):
         assert len(thresholds) <= 10
         for i, t in enumerate(thresholds):
             self.set(f"qas/0/thresholds/{i}/level", t)
 
+    def set_threshold(self, ch, th):
+        assert ch in range(10)
+        self.set(f"qas/0/thresholds/{ch}/level", th)
+
     def get_thresholds(self):
-        return [self.get(f"qas/0/thresholds/{i}/level") for i in range(10)]
+        return [self.get_threshold(ch) for ch in range(10)]
+
+    def get_threshold(self, ch):
+        assert ch in range(10)
+        return self.get(f"qas/0/thresholds/{ch}/level")
+
+    def get_results(self):
+        return [self.get_result(ch) for ch in range(10)]
+    
+    def get_result(self, ch):
+        assert ch in range(10)
+        return self.get(f"qas/0/result/data/{ch}/wave")
 
     # apply device settings depending on sequence settings
     def __apply_sequence_settings(self, **kwargs):

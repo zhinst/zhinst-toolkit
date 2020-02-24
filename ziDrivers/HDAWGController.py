@@ -1,7 +1,11 @@
 import json
 import time
+import pathlib
+import numpy as np
 
 from .controller import Controller
+from .connection import ZIDeviceConnection
+from .interface import InstrumentConfiguration
 
 
 
@@ -9,9 +13,23 @@ class HDAWGController(Controller):
     def __init__(self):
         super().__init__()
         self.__name = "hdawg0"
+        self.type = "hdawg"
 
     def setup(self):
         super().setup("connection-hdawg.json")
+
+    def set_device_connection(self, connection: ZIDeviceConnection):
+        filename = "connection-hdawg.json"
+        dir = pathlib.Path(__file__).parent
+        instrument_config = dir / "resources" / filename
+        try:
+            with open(instrument_config) as file:
+                data = json.load(file)
+                schema = InstrumentConfiguration()
+                self._instrument_config = schema.load(data)
+            self._connection = connection
+        except IOError:
+            print(f"File {instrument_config} is not accessible")
 
     def connect_device(self, address, interface):
         super().connect_device(self.__name, address, interface)
@@ -38,8 +56,8 @@ class HDAWGController(Controller):
             settings = [
                 (f"awgs/{awg}/outputs/0/modulation/mode", 1),    # modulation: sine 11
                 (f"awgs/{awg}/outputs/1/modulation/mode", 2),    # modulation: sine 22
-                (f"sines/{2 * awg}/oscselect", awg),             # select osc N for awg N
-                (f"sines/{2 * awg + 1}/oscselect", awg),         # select osc N for awg N
+                (f"sines/{2 * awg}/oscselect", 4 * awg),             # select osc N for awg N
+                (f"sines/{2 * awg + 1}/oscselect", 4 * awg),         # select osc N for awg N
                 (f"sines/{2 * awg + 1}/phaseshift", 90),         # 90 deg phase shift on second channel
             ]
             self.set(settings)
