@@ -108,3 +108,49 @@ class Controller(BaseController):
         print(
             f"{name}: Sequencer status: {'ELF file uploaded' if status == 0 else 'FAILED!!'}"
         )
+
+
+class AWGWrapper:
+    def __init__(self, parent, name, index):
+        self.__parent = parent
+        self.__controller = self.__parent._controller
+        self.__name = name
+        self.__index = index
+
+    def run(self):
+        self.__controller.awg_run(self.__name, self.__index)
+
+    def stop(self):
+        self.__controller.awg_stop(self.__name, self.__index)
+
+    def compile(self):
+        self.__controller.awg_compile(self.__name, self.__index)
+
+    def reset_queue(self):
+        self.__controller.awg_reset_queue(self.__name, self.__index)
+
+    def queue_waveform(self, wave1, wave2):
+        self.__controller.awg_queue_waveform(
+            self.__name, self.__index, data=(wave1, wave2)
+        )
+
+    def replace_waveform(self, wave1, wave2, i=0):
+        self.__controller.awg_replace_waveform(
+            self.__name, self.__index, data=(wave1, wave2), index=i
+        )
+
+    def upload_waveforms(self):
+        self.__controller.awg_upload_waveforms(self.__name, self.__index)
+
+    def compile_and_upload_waveforms(self):
+        self.__controller.awg_compile_and_upload_waveforms(self.__name, self.__index)
+
+    def set_sequence_params(self, **kwargs):
+        self.__parent._apply_sequence_settings(**kwargs)
+        self.__controller.awg_set_sequence_params(self.__name, self.__index, **kwargs)
+
+    def is_running(self):
+        return self.__controller.awg_is_running(self.__name, self.__index)
+
+    def list_params(self):
+        return self.__controller.awg_list_params(self.__name, self.__index)
