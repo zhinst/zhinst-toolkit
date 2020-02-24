@@ -24,6 +24,7 @@ class UHFQAController:
         self._controller.connect_device(self.__name, address, interface)
         self.awg = AWG(self, self.__name, self.__index)
         self.channels = [ReadoutChannel(self, i) for i in range(10)]
+        self.__init_settings()
 
     # device specific methods
     def write_crottalk_matrix(self, matrix):
@@ -32,7 +33,7 @@ class UHFQAController:
         assert cols <= 10
         for r in range(rows):
             for c in range(cols):
-                self._controller.set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
+                self.set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
 
     def enable_readout_channels(self, channels):
         for i in channels:
@@ -43,6 +44,12 @@ class UHFQAController:
         for i in channels:
             assert i in range(10)
             self.channels[i].disable()
+
+    def __init_settings(self):
+        settings = [
+            ("awgs/0/single", 1),
+        ]
+        self.set(settings)
 
     # wrap around get and set of Controller
     def set(self, *args):
@@ -62,8 +69,7 @@ class AWG(AWGWrapper):
     def __init__(self, parent, name, index):
         super().__init__(parent, name, index)
         self._output = "off"
-        self._modulation_phase_shift = 0
-        self._modulation_gains = (1.0, 1.0)
+        self._gains = (1.0, 1.0)
 
     @property
     def output(self):
@@ -77,6 +83,19 @@ class AWG(AWGWrapper):
             value = 0
         self._output = value
         self._parent.set(f"sigouts/*/on", value)
+
+    @property
+    def gains(self):
+        return self._gains
+
+    @gains.setter
+    def gains(self, gains):
+        assert len(gains) == 2
+        for g in gains:
+            assert abs(g) <= 1
+        self._gains = gains
+        self._parent.set(f"awgs/0/outputs/0/amplitude", gains[0])
+        self._parent.set(f"awgs/0/outputs/1/amplitude", gains[1])
 
     def _apply_sequence_settings(self, **kwargs):
         if "sequence_type" in kwargs.keys():
@@ -178,7 +197,7 @@ class ReadoutChannel:
         self.__set_int_weights()
 
     def disable(self):
-        self._enable = False
+        self._enabled = False
         self.__reset_int_weights()
 
     @property
