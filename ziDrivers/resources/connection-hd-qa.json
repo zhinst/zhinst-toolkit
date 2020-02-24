@@ -96,7 +96,7 @@
         {
           "name": "uhfqa0",
           "config": {
-            "serial": "dev2266",
+            "serial": "dev####",
             "device_type": "uhfqa",
             "interface": "1gbe"
           },
