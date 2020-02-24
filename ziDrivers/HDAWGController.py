@@ -1,88 +1,87 @@
-import json
-import time
-import pathlib
 import numpy as np
 
 from .controller import Controller, AWGWrapper
 from .connection import ZIDeviceConnection
-from .interface import InstrumentConfiguration
 
 
-class HDAWGController:
-    def __init__(self):
-        super().__init__()
-        self.__name = "hdawg0"
-        self.type = "hdawg"
-        self._controller = Controller()
+class AWG(AWGWrapper):
+    def __init__(self, parent, name, index):
+        super().__init__(parent, name, index)
+        self._output = "off"
+        self._iq_modulation = False
+        self._modulation_freq = 10e6
+        self._modulation_phase_shift = 0
+        self._modulation_gains = (1.0, 1.0)
 
-    def setup(self, connection: ZIDeviceConnection = None):
-        self._controller.setup("connection-hdawg.json", connection=connection)
+    @property
+    def output(self):
+        return "on" if self._output else "off"
 
-    def connect_device(self, address, interface):
-        self._controller.connect_device(self.__name, address, interface)
-        self.awgs = []
-        for i in range(4):
-            self.awgs.append(AWGWrapper(self, self.__name, i))
-
-    ####################################################
-    # device specific methods
-
-    def set_outputs(self, values):
-        assert len(values) == 4
-        for i, v in enumerate(values):
-            self.set_output(i, v)
-
-    def set_output(self, awg, value):
+    @output.setter
+    def output(self, value):
         if value == "on":
             value = 1
         if value == "off":
             value = 0
-        self._controller.set(f"sigouts/{2 * awg}/on", value)
-        self._controller.set(f"sigouts/{2 * awg + 1}/on", value)
+        self._output = value
+        self._parent.set(f"sigouts/{2 * self._index}/on", value)
+        self._parent.set(f"sigouts/{2 * self._index + 1}/on", value)
 
-    def enable_iq_modulation(self, awg):
-        if awg == "all":
-            [self.enable_iq_modulation(i) for i in range(4)]
-        else:
-            settings = [
-                (f"awgs/{awg}/outputs/0/modulation/mode", 1),  # modulation: sine 11
-                (f"awgs/{awg}/outputs/1/modulation/mode", 2),  # modulation: sine 22
-                (f"sines/{2 * awg}/oscselect", 4 * awg),  # select osc N for awg N
-                (f"sines/{2 * awg + 1}/oscselect", 4 * awg),  # select osc N for awg N
-                (
-                    f"sines/{2 * awg + 1}/phaseshift",
-                    90,
-                ),  # 90 deg phase shift on second channel
-            ]
-            self.set(settings)
+    def enable_iq_modulation(self):
+        self._iq_modulation = True
+        i = self._index
+        settings = [
+            (f"awgs/{i}/outputs/0/modulation/mode", 1),  # modulation: sine 11
+            (f"awgs/{i}/outputs/1/modulation/mode", 2),  # modulation: sine 22
+            (f"sines/{2 * i}/oscselect", 4 * i),  # select osc N for awg N
+            (f"sines/{2 * i + 1}/oscselect", 4 * i),  # select osc N for awg N
+            (f"sines/{2 * i + 1}/phaseshift", 90,),  # 90 deg phase shift
+        ]
+        self._parent.set(settings)
 
-    def set_modulation_frequencies(self, frequencies):
-        assert len(frequencies) <= 4
-        [self.set_modulation_frequency(i, f) for i, f in enumerate(frequencies)]
+    def disable_iq_modulation(self):
+        self._iq_modulation = False
+        i = self._index
+        settings = [
+            (f"awgs/{i}/outputs/0/modulation/mode", 0),  # modulation: sine 11
+            (f"awgs/{i}/outputs/1/modulation/mode", 0),  # modulation: sine 22
+            (f"sines/{2 * i + 1}/phaseshift", 0,),  # 90 deg phase shift
+        ]
+        self._parent.set(settings)
 
-    def set_modulation_frequency(self, awg, freq):
+    @property
+    def modulation_frequency(self):
+        return self._modulation_freq
+
+    @modulation_frequency.setter
+    def modulation_frequency(self, freq):
         assert freq > 0
-        self._controller.set(f"oscs/{awg}/freq", freq)
+        self._modulation_freq = freq
+        self._parent.set(f"oscs/{self._index}/freq", freq)
 
-    def set_modulation_phases(self, phases):
-        assert len(phases) <= 4
-        for i, p in enumerate(phases):
-            self.set_modulation_phase(i, p)
+    @property
+    def modulation_phase_shift(self):
+        return self._modulation_phase_shift
 
-    def set_modulation_phase(self, awg, p):
-        self._controller.set(f"sines/{2 * awg + 1}/phaseshift", p)
+    @modulation_phase_shift.setter
+    def modulation_phase_shift(self, ph):
+        self._modulation_phase_shift = ph
+        self._parent.set(f"sines/{2 * self._index + 1}/phaseshift", 90 + ph)
 
-    def set_modulation_gains(self, gains):
-        assert len(gains) <= 4
-        [self.set_modulation_gain(i, g) for i, g in enumerate(gains)]
+    @property
+    def modulation_gains(self):
+        return self._modulation_gains
 
-    def set_modulation_gain(self, awg, g):
-        assert len(g) == 2
-        self._controller.set(f"awgs/{awg}/outputs/0/gains/0", g[0])
-        self._controller.set(f"awgs/{awg}/outputs/1/gains/1", g[1])
+    @modulation_gains.setter
+    def modulation_gains(self, gains):
+        assert len(gains) == 2
+        for g in gains:
+            assert abs(g) <= 1
+        self._modulation_gains = gains
+        self._parent.set(f"awgs/{self._index}/outputs/0/gains/0", gains[0])
+        self._parent.set(f"awgs/{self._index}/outputs/1/gains/1", gains[1])
 
-    # apply device settings depending on sequence settings
-    def __apply_sequence_settings(self, awg, **kwargs):
+    def _apply_sequence_settings(self, **kwargs):
         if "sequence_type" in kwargs.keys():
             t = kwargs["sequence_type"]
             allowed_sequences = [
@@ -98,16 +97,58 @@ class HDAWGController:
                 )
         if "trigger_mode" in kwargs.keys():
             if kwargs["trigger_mode"] == "External Trigger":
-                self.__apply_trigger_settings(awg)
+                self.__apply_trigger_settings()
 
-    def __apply_trigger_settings(self, awg):
-        self._controller.set(f"/awgs/{awg}/auxtriggers/*/channel", 2 * awg)
-        self._controller.set(f"/awgs/{awg}/auxtriggers/*/slope", 1)  # rise
+    def __apply_trigger_settings(self):
+        i = self._index
+        self._parent.set(f"/awgs/{i}/auxtriggers/*/channel", 2 * i)
+        self._parent.set(f"/awgs/{i}/auxtriggers/*/slope", 1)  # rise
+
+    def __repr__(self):
+        s = f"{super().__repr__()}"
+        if self._iq_modulation:
+            s += f"      IQ Modulation ENABLED:\n"
+            s += f"         frequency   : {self._modulation_freq}\n"
+            s += f"         phase_shift : {self._modulation_phase_shift}\n"
+            s += f"         gains       : {self._modulation_gains}\n"
+        else:
+            s += f"      IQ Modulation DISABLED\n"
+        return s
+
+
+class HDAWGController:
+    def __init__(self):
+        super().__init__()
+        self.__name = "hdawg0"
+        self.type = "hdawg"
+        self._controller = Controller()
+
+    def setup(self, connection: ZIDeviceConnection = None):
+        self._controller.setup("connection-hdawg.json", connection=connection)
+
+    def connect_device(self, address, interface):
+        self._controller.connect_device(self.__name, address, interface)
+        self.awgs = [AWG(self, self.__name, i) for i in range(4)]
 
     ####################################################
-    # overwrite old stuff
+    # device specific methods
 
-    # overwrite set and get with device name
+    def set_outputs(self, values):
+        assert len(values) == 4
+        [self.awgs[i].set_output(v) for i, v in enumerate(values)]
+
+    def set_modulation_frequencies(self, frequencies):
+        assert len(frequencies) <= 4
+        [self.awgs[i].set_modulation_frequency(f) for i, f in enumerate(frequencies)]
+
+    def set_modulation_phases(self, phases):
+        assert len(phases) <= 4
+        [self.awgs[i].set_modulation_phase(p) for i, p in enumerate(phases)]
+
+    def set_modulation_gains(self, gains):
+        assert len(gains) <= 4
+        [self.awgs[i].set_modulation_gain(g) for i, g in enumerate(gains)]
+
     def set(self, *args):
         self._controller.set(self.__name, *args)
 
