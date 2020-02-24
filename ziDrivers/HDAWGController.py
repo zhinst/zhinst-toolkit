@@ -4,6 +4,57 @@ from .controller import Controller, AWGWrapper
 from .connection import ZIDeviceConnection
 
 
+"""
+High-level controller for HDAWG.
+
+"""
+
+
+class HDAWGController:
+    def __init__(self):
+        super().__init__()
+        self.__name = "hdawg0"
+        self.type = "hdawg"
+        self._controller = Controller()
+
+    def setup(self, connection: ZIDeviceConnection = None):
+        self._controller.setup("connection-hdawg.json", connection=connection)
+
+    def connect_device(self, address, interface):
+        self._controller.connect_device(self.__name, address, interface)
+        self.awgs = [AWG(self, self.__name, i) for i in range(4)]
+
+    # device specific methods
+    def set_outputs(self, values):
+        assert len(values) == 4
+        [self.awgs[i].set_output(v) for i, v in enumerate(values)]
+
+    def set_modulation_frequencies(self, frequencies):
+        assert len(frequencies) <= 4
+        [self.awgs[i].set_modulation_frequency(f) for i, f in enumerate(frequencies)]
+
+    def set_modulation_phases(self, phases):
+        assert len(phases) <= 4
+        [self.awgs[i].set_modulation_phase(p) for i, p in enumerate(phases)]
+
+    def set_modulation_gains(self, gains):
+        assert len(gains) <= 4
+        [self.awgs[i].set_modulation_gain(g) for i, g in enumerate(gains)]
+
+    # wrap around get and set of Controller
+    def set(self, *args):
+        self._controller.set(self.__name, *args)
+
+    def get(self, command, valueonly=True):
+        return self._controller.get(self.__name, command, valueonly=valueonly)
+
+
+"""
+AWG specific to UHFQA.
+
+"""
+
+
 class AWG(AWGWrapper):
     def __init__(self, parent, name, index):
         super().__init__(parent, name, index)
@@ -114,44 +165,4 @@ class AWG(AWGWrapper):
         else:
             s += f"      IQ Modulation DISABLED\n"
         return s
-
-
-class HDAWGController:
-    def __init__(self):
-        super().__init__()
-        self.__name = "hdawg0"
-        self.type = "hdawg"
-        self._controller = Controller()
-
-    def setup(self, connection: ZIDeviceConnection = None):
-        self._controller.setup("connection-hdawg.json", connection=connection)
-
-    def connect_device(self, address, interface):
-        self._controller.connect_device(self.__name, address, interface)
-        self.awgs = [AWG(self, self.__name, i) for i in range(4)]
-
-    ####################################################
-    # device specific methods
-
-    def set_outputs(self, values):
-        assert len(values) == 4
-        [self.awgs[i].set_output(v) for i, v in enumerate(values)]
-
-    def set_modulation_frequencies(self, frequencies):
-        assert len(frequencies) <= 4
-        [self.awgs[i].set_modulation_frequency(f) for i, f in enumerate(frequencies)]
-
-    def set_modulation_phases(self, phases):
-        assert len(phases) <= 4
-        [self.awgs[i].set_modulation_phase(p) for i, p in enumerate(phases)]
-
-    def set_modulation_gains(self, gains):
-        assert len(gains) <= 4
-        [self.awgs[i].set_modulation_gain(g) for i, g in enumerate(gains)]
-
-    def set(self, *args):
-        self._controller.set(self.__name, *args)
-
-    def get(self, command, valueonly=True):
-        return self._controller.get(self.__name, command, valueonly=valueonly)
 

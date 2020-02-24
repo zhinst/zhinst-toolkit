@@ -4,6 +4,60 @@ from .controller import Controller, AWGWrapper
 from .connection import ZIDeviceConnection
 
 
+"""
+High-level controller for UHFQA.
+
+"""
+
+
+class UHFQAController:
+    def __init__(self):
+        super().__init__()
+        self.__name, self.__index = ("uhfqa0", 0)
+        self.type = "uhfqa"
+        self._controller = Controller()
+
+    def setup(self, connection: ZIDeviceConnection = None):
+        self._controller.setup("connection-uhfqa.json", connection=connection)
+
+    def connect_device(self, address, interface):
+        self._controller.connect_device(self.__name, address, interface)
+        self.awg = AWG(self, self.__name, self.__index)
+        self.channels = [ReadoutChannel(self, i) for i in range(10)]
+
+    # device specific methods
+    def write_crottalk_matrix(self, matrix):
+        rows, cols = matrix.shape
+        assert rows <= 10
+        assert cols <= 10
+        for r in range(rows):
+            for c in range(cols):
+                self._controller.set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
+
+    def enable_readout_channels(self, channels):
+        for i in channels:
+            assert i in range(10)
+            self.channels[i].enable()
+
+    def disable_readout_channels(self, channels):
+        for i in channels:
+            assert i in range(10)
+            self.channels[i].disable()
+
+    # wrap around get and set of Controller
+    def set(self, *args):
+        self._controller.set(self.__name, *args)
+
+    def get(self, command, valueonly=True):
+        return self._controller.get(self.__name, command, valueonly=valueonly)
+
+
+"""
+Device specific AWG for HDAWG.
+
+"""
+
+
 class AWG(AWGWrapper):
     def __init__(self, parent, name, index):
         super().__init__(parent, name, index)
@@ -90,6 +144,17 @@ class AWG(AWGWrapper):
                 raise Exception("No readout channels are enabled!")
         else:
             raise Exception("AWG Sequence type needs to be 'Readout'")
+
+    def compile(self):
+        if self.sequence_params["sequence_type"] == "Readout":
+            self.update_readout_params()
+        super().compile()
+
+
+"""
+Readout Channel for UHFQA.
+
+"""
 
 
 class ReadoutChannel:
@@ -197,38 +262,4 @@ class ReadoutChannel:
         else:
             s += "      DISABLED\n"
         return s
-
-
-class UHFQAController:
-    def __init__(self):
-        super().__init__()
-        self.__name, self.__index = ("uhfqa0", 0)
-        self.type = "uhfqa"
-        self._controller = Controller()
-
-    def setup(self, connection: ZIDeviceConnection = None):
-        self._controller.setup("connection-uhfqa.json", connection=connection)
-
-    def connect_device(self, address, interface):
-        self._controller.connect_device(self.__name, address, interface)
-        self.awg = AWG(self, self.__name, self.__index)
-        self.channels = [ReadoutChannel(self, i) for i in range(10)]
-
-    ####################################################
-    # device specific methods
-
-    def write_crottalk_matrix(self, matrix):
-        rows, cols = matrix.shape
-        assert rows <= 10
-        assert cols <= 10
-        for r in range(rows):
-            for c in range(cols):
-                self._controller.set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
-
-    # overwrite set and get with device name
-    def set(self, *args):
-        self._controller.set(self.__name, *args)
-
-    def get(self, command, valueonly=True):
-        return self._controller.get(self.__name, command, valueonly=valueonly)
 
