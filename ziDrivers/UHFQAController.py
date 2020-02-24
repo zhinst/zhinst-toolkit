@@ -4,79 +4,26 @@ from .controller import Controller, AWGWrapper
 from .connection import ZIDeviceConnection
 
 
-class UHFQAController:
-    def __init__(self):
-        super().__init__()
-        self.__name, self.__index = ("uhfqa0", 0)
-        self.type = "uhfqa"
-        self._controller = Controller()
+class AWG(AWGWrapper):
+    def __init__(self, parent, name, index):
+        super().__init__(parent, name, index)
+        self._output = "off"
+        self._modulation_phase_shift = 0
+        self._modulation_gains = (1.0, 1.0)
 
-    def setup(self, connection: ZIDeviceConnection = None):
-        self._controller.setup("connection-uhfqa.json", connection=connection)
+    @property
+    def output(self):
+        return "on" if self._output else "off"
 
-    def connect_device(self, address, interface):
-        self._controller.connect_device(self.__name, address, interface)
-        self.awg = AWGWrapper(self, self.__name, self.__index)
-
-    ####################################################
-    # device specific methods
-
-    def set_outputs(self, value):
+    @output.setter
+    def output(self, value):
         if value == "on":
             value = 1
         if value == "off":
             value = 0
-        self._controller.set("sigouts/*/on", value)
+        self._output = value
+        self._parent.set(f"sigouts/*/on", value)
 
-    def write_crottalk_matrix(self, matrix):
-        rows, cols = matrix.shape
-        assert rows <= 10
-        assert cols <= 10
-        for r in range(rows):
-            for c in range(cols):
-                self._controller.set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
-
-    def set_rotations(self, rotations):
-        assert len(rotations) in range(10)
-        for ch, rot in enumerate(rotations):
-            self.set_rotation(ch, rot)
-
-    def set_rotation(self, ch, rot):
-        assert ch in range(10)
-        c = np.exp(1j * np.deg2rad(rot))
-        self._controller.set(f"qas/0/rotations/{ch}", c)
-
-    def get_rotations(self):
-        return [self.get_rotation(ch) for ch in range(10)]
-
-    def get_rotation(self, ch):
-        assert ch in range(10)
-        return np.angle(self._controller.get(f"qas/0/rotations/{ch}"), deg=True)
-
-    def set_thresholds(self, thresholds):
-        assert len(thresholds) <= 10
-        for i, t in enumerate(thresholds):
-            self._controller.set(f"qas/0/thresholds/{i}/level", t)
-
-    def set_threshold(self, ch, th):
-        assert ch in range(10)
-        self._controller.set(f"qas/0/thresholds/{ch}/level", th)
-
-    def get_thresholds(self):
-        return [self.get_threshold(ch) for ch in range(10)]
-
-    def get_threshold(self, ch):
-        assert ch in range(10)
-        return self._controller.get(f"qas/0/thresholds/{ch}/level")
-
-    def get_results(self):
-        return [self.get_result(ch) for ch in range(10)]
-
-    def get_result(self, ch):
-        assert ch in range(10)
-        return self._controller.get(f"qas/0/result/data/{ch}/wave")
-
-    # apply device settings depending on sequence settings
     def _apply_sequence_settings(self, **kwargs):
         if "sequence_type" in kwargs.keys():
             t = kwargs["sequence_type"]
@@ -98,60 +45,185 @@ class UHFQAController:
                 self.__apply_pulsed_settings()
             if t == "Readout":
                 self.__apply_readout_settings()
-        # set demodulation weights at readout frequencies
-        if "readout_frequencies" in kwargs.keys():
-            self.__reset_int_weights()
-            self.__set_int_weights(kwargs["readout_frequencies"])
+
         # apply settings dependent on trigger type
         if "trigger_mode" in kwargs.keys():
             if kwargs["trigger_mode"] == "External Trigger":
-                self._controller.set("/awgs/0/auxtriggers/*/channel", 0)
-                self._controller.set("/awgs/0/auxtriggers/*/slope", 1)
+                self._parent.set("/awgs/0/auxtriggers/*/channel", 0)
+                self._parent.set("/awgs/0/auxtriggers/*/slope", 1)
 
     def __apply_cw_settings(self):
-        self._controller.set("sigouts/0/enables/0", 1)
-        self._controller.set("sigouts/1/enables/1", 1)
-        self._controller.set("sigouts/0/amplitudes/0", 1)
-        self._controller.set("sigouts/1/amplitudes/1", 1)
-        self._controller.set("qas/0/integration/mode", 1)
+        self._parent.set("sigouts/0/enables/0", 1)
+        self._parent.set("sigouts/1/enables/1", 1)
+        self._parent.set("sigouts/0/amplitudes/0", 1)
+        self._parent.set("sigouts/1/amplitudes/1", 1)
+        self._parent.set("qas/0/integration/mode", 1)
 
     def __apply_pulsed_settings(self):
-        self._controller.set("sigouts/*/enables/*", 0)
-        self._controller.set("sigouts/*/amplitudes/*", 0)
-        self._controller.set("awgs/0/outputs/*/mode", 1)
-        self._controller.set("qas/0/integration/mode", 1)
+        self._parent.set("sigouts/*/enables/*", 0)
+        self._parent.set("sigouts/*/amplitudes/*", 0)
+        self._parent.set("awgs/0/outputs/*/mode", 1)
+        self._parent.set("qas/0/integration/mode", 1)
 
     def __apply_readout_settings(self):
-        self._controller.set("sigouts/*/enables/*", 0)
-        self._controller.set("awgs/0/outputs/*/mode", 0)
-        self._controller.set("qas/0/integration/mode", 0)
+        self._parent.set("sigouts/*/enables/*", 0)
+        self._parent.set("awgs/0/outputs/*/mode", 0)
+        self._parent.set("qas/0/integration/mode", 0)
 
-    def __set_int_weights(self, frequencies):
-        int_length = self._controller.get("qas/0/integration/length")
-        for i, f in enumerate(frequencies):
-            self.__set_int_weights_channel(int_length, i, f)
+    def update_readout_params(self):
+        if self.sequence_params["sequence_type"] == "Readout":
+            if any([ch.enabled for ch in self._parent.channels]):
+                freqs = list()
+                amps = list()
+                phases = list()
+                for ch in self._parent.channels:
+                    if ch.enabled:
+                        freqs.append(ch.readout_frequency)
+                        amps.append(ch.readout_amplitude)
+                        phases.append(ch.phase_shift)
+                self.set_sequence_params(
+                    readout_frequencies=freqs,
+                    readout_amplitudes=amps,
+                    phase_shifts=phases,
+                )
+            else:
+                raise Exception("No readout channels are enabled!")
+        else:
+            raise Exception("AWG Sequence type needs to be 'Readout'")
+
+
+class ReadoutChannel:
+    def __init__(self, parent, index):
+        assert index in range(10)
+        self._index = index
+        self._parent = parent
+        self._enabled = False
+        self._readout_frequency = 100e6
+        self._readout_amplitude = 1
+        self._phase_shift = 0
+        self._rotation = 0
+        self._threshold = 0
+
+    @property
+    def enabled(self):
+        return self._enabled
+
+    def enable(self):
+        self._enabled = True
+        self.__set_int_weights()
+
+    def disable(self):
+        self._enable = False
+        self.__reset_int_weights()
+
+    @property
+    def readout_frequency(self):
+        return self._readout_frequency
+
+    @readout_frequency.setter
+    def readout_frequency(self, freq):
+        assert freq > 0
+        self._readout_frequency = freq
+        self.__set_int_weights()
+
+    @property
+    def readout_amplitude(self):
+        return self._readout_amplitude
+
+    @readout_amplitude.setter
+    def readout_amplitude(self, amp):
+        assert abs(amp) <= 1
+        self._readout_amplitude = amp
+
+    @property
+    def phase_shift(self):
+        return self._phase_shift
+
+    @phase_shift.setter
+    def phase_shift(self, ph):
+        assert abs(ph) <= 90
+        self._phase_shift = ph
+
+    @property
+    def rotation(self):
+        return np.angle(self._parent.get(f"qas/0/rotations/{self._index}"), deg=True)
+
+    @rotation.setter
+    def rotation(self, rot):
+        c = np.exp(1j * np.deg2rad(rot))
+        self._parent.set(f"qas/0/rotations/{self._index}", c)
+
+    @property
+    def threshold(self):
+        return self._parent.get(f"qas/0/thresholds/{self._index}/level")
+
+    @threshold.setter
+    def threshold(self, th):
+        self._parent.set(f"qas/0/thresholds/{self._index}/level", th)
+
+    @property
+    def result(self):
+        return self._parent.get(f"qas/0/result/data/{self._index}/wave")
 
     def __reset_int_weights(self):
-        int_length = self.get("qas/0/integration/length")
+        l = self._parent.get("qas/0/integration/length")
         node = f"/qas/0/integration/weights/"
-        for i in range(10):
-            self._controller.set(node + f"{i}/real", np.zeros(int_length))
-            self._controller.set(node + f"{i}/imag", np.zeros(int_length))
+        self._parent.set(node + f"{self._index}/real", np.zeros(l))
+        self._parent.set(node + f"{self._index}/imag", np.zeros(l))
 
-    def __set_int_weights_channel(self, length, ch, freq):
-        weights_real = self.__generate_demod_weights(length, freq, 0)
-        weights_imag = self.__generate_demod_weights(length, freq, 90)
-        node = f"/qas/0/integration/weights/{ch}/"
-        self._controller.set(node + "real", weights_real)
-        self._controller.set(node + "imag", weights_imag)
+    def __set_int_weights(self):
+        l = self._parent.get("qas/0/integration/length")
+        freq = self.readout_frequency
+        node = f"/qas/0/integration/weights/{self._index}/"
+        self._parent.set(node + "real", self.__demod_weights(l, freq, 0))
+        self._parent.set(node + "imag", self.__demod_weights(l, freq, 90))
 
-    def __generate_demod_weights(self, length, freq, phase):
+    def __demod_weights(self, length, freq, phase):
         assert length <= 4096
         assert freq > 0
         clk_rate = 1.8e9
         x = np.arange(0, length)
         y = np.sin(2 * np.pi * freq * x / clk_rate + np.deg2rad(phase))
         return y
+
+    def __repr__(self):
+        s = f"Readout Channel {self._index}:  {super().__repr__()}\n"
+        if self._enabled:
+            s += f"     readout_frequency : {self._readout_frequency}\n"
+            s += f"     readout_amplitude : {self._readout_amplitude}\n"
+            s += f"     phase_shift       : {self._phase_shift}\n"
+            s += f"     rotation          : {self._rotation}\n"
+            s += f"     threshold         : {self._threshold}\n"
+        else:
+            s += "      DISABLED\n"
+        return s
+
+
+class UHFQAController:
+    def __init__(self):
+        super().__init__()
+        self.__name, self.__index = ("uhfqa0", 0)
+        self.type = "uhfqa"
+        self._controller = Controller()
+
+    def setup(self, connection: ZIDeviceConnection = None):
+        self._controller.setup("connection-uhfqa.json", connection=connection)
+
+    def connect_device(self, address, interface):
+        self._controller.connect_device(self.__name, address, interface)
+        self.awg = AWG(self, self.__name, self.__index)
+        self.channels = [ReadoutChannel(self, i) for i in range(10)]
+
+    ####################################################
+    # device specific methods
+
+    def write_crottalk_matrix(self, matrix):
+        rows, cols = matrix.shape
+        assert rows <= 10
+        assert cols <= 10
+        for r in range(rows):
+            for c in range(cols):
+                self._controller.set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
 
     # overwrite set and get with device name
     def set(self, *args):
