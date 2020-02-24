@@ -1,4 +1,5 @@
 from datetime import datetime
+import numpy as np
 
 
 class SeqCommand(object):
@@ -121,15 +122,16 @@ class SeqCommand(object):
         )
 
     @staticmethod
-    def init_readout_pulse(length, amps, frequencies, clk_rate=1.8e9):
+    def init_readout_pulse(length, amps, frequencies, phases, clk_rate=1.8e9):
         assert len(amps) == len(frequencies)
+        assert len(phases) == len(frequencies)
         assert abs(max(amps)) <= 1.0
         n_periods = [length * f / clk_rate for f in frequencies]
         n = len(n_periods)
         s = str()
         for i in range(n):
             s += f"wave w{i+1}_I = 1/{n} * sine({int(length)}, {amps[i]}, 0, {n_periods[i]});\n"
-            s += f"wave w{i+1}_Q = 1/{n} * cosine({int(length)}, {amps[i]}, 0, {n_periods[i]});\n"
+            s += f"wave w{i+1}_Q = 1/{n} * cosine({int(length)}, {amps[i]}, {np.deg2rad(phases[i])}, {n_periods[i]});\n"
         s += "\n"
         if n > 1:
             s += (
@@ -163,5 +165,7 @@ class SeqCommand(object):
 
     @staticmethod
     def init_ones(amp, length):
-        return (f"wave w_1 = {amp} * ones({length});\n"
-                f"wave w_2 = {amp} * ones({length});\n\n")
+        return (
+            f"wave w_1 = {amp} * ones({length});\n"
+            f"wave w_2 = {amp} * ones({length});\n\n"
+        )
