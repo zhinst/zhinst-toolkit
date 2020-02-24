@@ -8,7 +8,7 @@ from .sequences import (
     ReadoutSequence,
     PulsedSpectroscopySequence,
     CWSpectroscopySequence,
-    CustomSequence
+    CustomSequence,
 )
 
 
@@ -89,4 +89,3 @@ class SequenceProgram(object):
     @property
     def sequence_type(self):
         return self.__sequence_type
-

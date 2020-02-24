@@ -10,14 +10,13 @@ from .UHFQAController import UHFQAController
 from .HDAWGController import HDAWGController
 
 
-
 class MultiDeviceController(object):
     def __init__(self):
         self._shared_connection = None
         self._instrument_config = None
         self.hdawgs = dict()
         self.uhfqas = dict()
-    
+
     def setup(self):
         filename = "connection-hd-qa.json"
         dir = pathlib.Path(__file__).parent
@@ -47,12 +46,6 @@ class MultiDeviceController(object):
         device.connect_device(address, interface)
         self.uhfqas[name] = device
         print(f"Added UHFQA: {name}")
-        
-
-
-        
-
-
 
     ####################################################
     # device specific methods
