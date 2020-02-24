@@ -50,7 +50,7 @@ class HDAWGController:
 
 
 """
-AWG specific to UHFQA.
+AWG specific to HDAWG.
 
 """
 
