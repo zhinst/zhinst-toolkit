@@ -13,7 +13,7 @@ class BaseController(object):
         self._instrument_config = None
         self._devices = None
 
-    def setup(self, filename):
+    def setup(self, filename, connection: ZIDeviceConnection = None):
         dir = pathlib.Path(__file__).parent
         instrument_config = dir / "resources" / filename
         try:
@@ -21,9 +21,12 @@ class BaseController(object):
                 data = json.load(file)
                 schema = InstrumentConfiguration()
                 self._instrument_config = schema.load(data)
-            for i in self._instrument_config.api_configs:
-                if i.provider == "zi":
-                    self._connection = ZIDeviceConnection(i.details)
+            if connection is None:
+                for i in self._instrument_config.api_configs:
+                    if i.provider == "zi":
+                        self._connection = ZIDeviceConnection(i.details)
+            else:
+                self._connection = connection
             self._connection.connect()
         except IOError:
             print(f"File {instrument_config} is not accessible")
@@ -83,7 +86,6 @@ class BaseController(object):
     def get_nodetree(self, prefix: str, **kwargs):
         return json.loads(self._connection.list_nodes(prefix, **kwargs))
 
-
     def __get_value_from_dict(self, name, data):
         if not isinstance(data, dict):
             raise Exception("Something went wrong...")
@@ -119,4 +121,3 @@ class BaseController(object):
             if self._devices[name].serial not in command:
                 command = f"/{self._devices[name].serial}" + command
         return command
-
