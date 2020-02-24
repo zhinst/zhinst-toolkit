@@ -28,4 +28,3 @@ class Compiler:
 
     def __to_key(self, dev, awg):
         return str(dev + "-" + str(awg))
-

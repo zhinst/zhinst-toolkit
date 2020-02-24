@@ -34,4 +34,3 @@ class AWG:
     @property
     def program(self):
         return None if self.__program == "" else self.__program
-
