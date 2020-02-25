@@ -63,8 +63,8 @@ class ZIDeviceConnection(DeviceConnection):
         def __init__(self, daq):
             self.__awgModule = daq.awgModule()
             self.__awgModule.execute()
-            self.__index = self.__awgModule.getInt("/index")
             self.__device = self.__awgModule.getString("/device")
+            self.__index = self.__awgModule.getInt("/index")
 
         def set(self, *args, **kwargs):
             self.update(**kwargs)
@@ -87,21 +87,21 @@ class ZIDeviceConnection(DeviceConnection):
             return self.__awgModule.getString(*args)
 
         def update(self, **kwargs):
-            if "index" in kwargs.keys():
-                self.__update_index(kwargs["index"])
             if "device" in kwargs.keys():
                 self.__update_device(kwargs["device"])
+            if "index" in kwargs.keys():
+                self.__update_index(kwargs["index"])
+
+        def __update_device(self, device):
+            if device != self.device:
+                self.__update_index(0)
+                self.__awgModule.set("/device", device)
+                self.__device = device
 
         def __update_index(self, index):
             if index != self.index:
                 self.__awgModule.set("/index", index)
                 self.__index = index
-                print(f"Updated awg index to {index}")
-
-        def __update_device(self, device):
-            if device != self.device:
-                self.__awgModule.set("/device", device)
-                self.__device = device
 
         @property
         def index(self):

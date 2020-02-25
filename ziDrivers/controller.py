@@ -18,7 +18,8 @@ class Controller(BaseController):
                 self._compiler.add_device(dev)
 
     def awg_compile(self, name, awg):
-        self._connection.awg_module.update(index=awg, device=self._devices[name].serial)
+        self._connection.awg_module.update(device=self._devices[name].serial)
+        self._connection.awg_module.update(index=awg)
         if self._compiler.sequence_type(name, awg) == "Simple":
             buffer_lengths = [
                 w.buffer_length for w in self._devices[name].awgs[awg].waveforms
