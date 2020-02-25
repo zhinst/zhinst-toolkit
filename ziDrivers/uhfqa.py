@@ -1,6 +1,6 @@
 import numpy as np
 
-from .controller import Controller, AWGWrapper
+from .awg import AWGController, AWGCore
 from .connection import ZIDeviceConnection
 
 
@@ -10,10 +10,10 @@ High-level controller for UHFQA.
 """
 
 
-class UHFQAController:
+class UHFQA:
     def __init__(self):
         self.__name, self.__index = ("uhfqa0", 0)
-        self._controller = Controller()
+        self._controller = AWGController()
 
     def setup(self, connection: ZIDeviceConnection = None):
         self._controller.setup("connection-uhfqa.json", connection=connection)
@@ -63,7 +63,7 @@ Device specific AWG for UHFQA.
 """
 
 
-class AWG(AWGWrapper):
+class AWG(AWGCore):
     def __init__(self, parent, name, index):
         super().__init__(parent, name, index)
         self._output = "off"
