@@ -141,10 +141,11 @@ class AWG(AWGWrapper):
         if "sequence_type" in kwargs.keys():
             t = kwargs["sequence_type"]
             allowed_sequences = [
+                "None",
                 "Simple",
-                "Readout",
-                "CW Spectroscopy",
-                "Pulsed Spectroscopy",
+                "Rabi",
+                "T1",
+                "T2*",
                 "Custom",
             ]
             if t not in allowed_sequences:
