@@ -12,9 +12,7 @@ High-level controller for UHFQA.
 
 class UHFQAController:
     def __init__(self):
-        super().__init__()
         self.__name, self.__index = ("uhfqa0", 0)
-        self.type = "uhfqa"
         self._controller = Controller()
 
     def setup(self, connection: ZIDeviceConnection = None):
@@ -190,6 +188,10 @@ class ReadoutChannel:
         self._phase_shift = 0
         self._rotation = 0
         self._threshold = 0
+
+    @property
+    def index(self):
+        return self._index
 
     @property
     def enabled(self):
