@@ -188,14 +188,18 @@ class RabiSequence(Sequence):
         self.get_gauss_params(self.pulse_width, self.pulse_truncation)
         if self.trigger_mode in ["None", "Send Trigger"]:
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+            if self.alignment == "End with Trigger":
+                self.wait_cycles -= self.gauss_params[0] / 8
+            elif self.alignment == "Start with Trigger":
+                self.dead_cycles -= self.gauss_params[0] / 8
         elif self.trigger_mode == "External Trigger":
             self.wait_cycles = self.time_to_cycles(
                 self.period - self.dead_time - self.latency + self.trigger_delay
             )
-        if self.alignment == "Start with Trigger":
-            self.wait_cycles -= self.gauss_params[0] / 8
-        # elif self.alignment == "End with Trigger":
-        #     # self.dead_cycles -= self.gauss_params[0] / 8
+            if self.alignment == "End with Trigger":
+                self.wait_cycles -= self.gauss_params[0] / 8
+            elif self.alignment == "Start with Trigger":
+                self.dead_cycles = 0
 
     def check_attributes(self):
         super().check_attributes()
