@@ -122,8 +122,7 @@ class AWG(AWGWrapper):
         # apply settings dependent on trigger type
         if "trigger_mode" in kwargs.keys():
             if kwargs["trigger_mode"] == "External Trigger":
-                self._parent.set("/awgs/0/auxtriggers/*/channel", 0)
-                self._parent.set("/awgs/0/auxtriggers/*/slope", 1)
+                self.__apply_trigger_settings()
 
     def __apply_cw_settings(self):
         self._parent.set("sigouts/0/enables/0", 1)
@@ -142,6 +141,10 @@ class AWG(AWGWrapper):
         self._parent.set("sigouts/*/enables/*", 0)
         self._parent.set("awgs/0/outputs/*/mode", 0)
         self._parent.set("qas/0/integration/mode", 0)
+
+    def __apply_trigger_settings(self):
+        self._parent.set("/awgs/0/auxtriggers/*/channel", 0)
+        self._parent.set("/awgs/0/auxtriggers/*/slope", 1)
 
     def update_readout_params(self):
         if self.sequence_params["sequence_type"] == "Readout":
