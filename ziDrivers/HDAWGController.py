@@ -113,7 +113,7 @@ class AWG(AWGWrapper):
     def modulation_frequency(self, freq):
         assert freq > 0
         self._modulation_freq = freq
-        self._parent.set(f"oscs/{self._index}/freq", freq)
+        self._parent.set(f"oscs/{4 * self._index}/freq", freq)
 
     @property
     def modulation_phase_shift(self):
