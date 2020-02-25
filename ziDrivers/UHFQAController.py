@@ -12,9 +12,7 @@ High-level controller for UHFQA.
 
 class UHFQAController:
     def __init__(self):
-        super().__init__()
         self.__name, self.__index = ("uhfqa0", 0)
-        self.type = "uhfqa"
         self._controller = Controller()
 
     def setup(self, connection: ZIDeviceConnection = None):

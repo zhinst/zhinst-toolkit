@@ -12,9 +12,7 @@ High-level controller for HDAWG.
 
 class HDAWGController:
     def __init__(self):
-        super().__init__()
         self.__name = "hdawg0"
-        self.type = "hdawg"
         self._controller = Controller()
 
     def setup(self, connection: ZIDeviceConnection = None):
