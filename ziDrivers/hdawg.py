@@ -1,6 +1,6 @@
 import numpy as np
 
-from .controller import Controller, AWGWrapper
+from .awg import AWGController, AWGCore
 from .connection import ZIDeviceConnection
 
 
@@ -10,10 +10,10 @@ High-level controller for HDAWG.
 """
 
 
-class HDAWGController:
+class HDAWG:
     def __init__(self):
         self.__name = "hdawg0"
-        self._controller = Controller()
+        self._controller = AWGController()
 
     def setup(self, connection: ZIDeviceConnection = None):
         self._controller.setup("connection-hdawg.json", connection=connection)
@@ -60,7 +60,7 @@ AWG specific to HDAWG.
 """
 
 
-class AWG(AWGWrapper):
+class AWG(AWGCore):
     def __init__(self, parent, name, index):
         super().__init__(parent, name, index)
         self._output = "off"

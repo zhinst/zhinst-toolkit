@@ -1,3 +1,3 @@
-from .HDAWGController import HDAWGController
-from .UHFQAController import UHFQAController
-from .MultiDeviceController import MultiDeviceController
+from .hdawg import HDAWG
+from .uhfqa import UHFQA
+from .multiDeviceController import MultiDeviceController
