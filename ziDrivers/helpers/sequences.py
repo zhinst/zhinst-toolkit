@@ -127,7 +127,14 @@ class SimpleSequence(Sequence):
                 self.sequence += SeqCommand.readout_trigger()
             self.sequence += SeqCommand.play_wave_indexed(i)
             self.sequence += SeqCommand.wait_wave()
-            self.sequence += SeqCommand.wait(self.dead_cycles)
+            if self.trigger_mode != "External Trigger":
+                if self.alignment == "Start with Trigger":
+                    temp = self.dead_cycles - self.buffer_lengths[i] / 8
+                elif self.alignment == "End with Trigger":
+                    temp = self.dead_cycles
+            else:
+                temp = 0
+            self.sequence += SeqCommand.wait(temp)
             self.sequence += SeqCommand.new_line()
         self.sequence += SeqCommand.close_bracket()
 
@@ -143,6 +150,8 @@ class SimpleSequence(Sequence):
             )
         if len(self.buffer_lengths) != self.n_HW_loop:
             self.n_HW_loop = len(self.buffer_lengths)
+        if self.target == "uhfqa":
+            self.clock_rate = 1.8e9
 
     def check_attributes(self):
         super().check_attributes()
@@ -185,6 +194,8 @@ class RabiSequence(Sequence):
             )
         if self.alignment == "Start with Trigger":
             self.wait_cycles -= self.gauss_params[0] / 8
+        # elif self.alignment == "End with Trigger":
+        #     # self.dead_cycles -= self.gauss_params[0] / 8
 
     def check_attributes(self):
         super().check_attributes()
@@ -232,8 +243,8 @@ class T1Sequence(Sequence):
             self.wait_cycles = self.time_to_cycles(
                 self.period - self.dead_time - self.latency + self.trigger_delay
             )
-        if self.alignment == "Start with Trigger":
-            self.wait_cycles -= self.gauss_params[0] / 8
+        # if self.alignment == "Start with Trigger":
+        #     self.wait_cycles -= self.gauss_params[0] / 8
 
     def check_attributes(self):
         super().check_attributes()
@@ -306,6 +317,8 @@ class ReadoutSequence(Sequence):
         temp = self.period - self.dead_time
         if self.alignment == "End with Trigger":
             temp -= self.readout_length
+        elif self.alignment == "Start with Trigger":
+            self.dead_cycles = self.time_to_cycles(self.dead_time - self.readout_length)
         if self.trigger_mode == "None":
             self.wait_cycles = self.time_to_cycles(temp)
         elif self.trigger_mode == "Send Trigger":
@@ -354,6 +367,8 @@ class PulsedSpectroscopySequence(Sequence):
         temp = self.period - self.dead_time
         if self.alignment == "End with Trigger":
             temp -= self.pulse_length
+        elif self.alignment == "Start with Trigger":
+            self.dead_cycles = self.time_to_cycles(self.dead_time - self.pulse_length)
         if self.trigger_mode == "None":
             self.wait_cycles = self.time_to_cycles(temp)
         elif self.trigger_mode == "Send Trigger":
