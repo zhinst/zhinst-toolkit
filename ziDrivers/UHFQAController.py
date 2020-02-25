@@ -190,6 +190,10 @@ class ReadoutChannel:
         self._threshold = 0
 
     @property
+    def index(self):
+        return self._index
+
+    @property
     def enabled(self):
         return self._enabled
 
