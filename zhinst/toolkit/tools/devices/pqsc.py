@@ -2,4 +2,6 @@ from .device import Device
 
 
 class PQSC(Device):
-    pass
+    @property
+    def device_type(self):
+        return "pqsc"
