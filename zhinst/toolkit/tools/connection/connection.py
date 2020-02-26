@@ -1,42 +1,31 @@
-import abc
 import zhinst.ziPython as zi
 
 
-class DeviceConnection(metaclass=abc.ABCMeta):
-    @abc.abstractmethod
-    def connect(self):
-        pass
-
-    @abc.abstractmethod
-    def connect_device(self, **kwargs):
-        pass
-
-
-class ZIDeviceConnection(DeviceConnection):
+class ZIDeviceConnection:
     def __init__(self, connection_details):
-        self.__connection_details = connection_details
-        self.__daq = None
-        self.__awg = None
+        self._connection_details = connection_details
+        self._daq = None
+        self._awg = None
 
     def connect(self):
-        self.__daq = zi.ziDAQServer(
-            self.__connection_details.host,
-            self.__connection_details.port,
-            self.__connection_details.api,
+        self._daq = zi.ziDAQServer(
+            self._connection_details.host,
+            self._connection_details.port,
+            self._connection_details.api,
         )
-        if self.__daq is not None:
+        if self._daq is not None:
             print(
                 f"Successfully connected to data server at "
-                f"{self.__connection_details.host}"
-                f"{self.__connection_details.port} "
-                f"api version: {self.__connection_details.api}"
+                f"{self._connection_details.host}"
+                f"{self._connection_details.port} "
+                f"api version: {self._connection_details.api}"
             )
-            self.__awg = self.AWGModule(self.__daq)
+            self._awg = self.AWGModule(self._daq)
         else:
             print("No connection could be established...")
 
     def connect_device(self, **kwargs):
-        if self.__daq is None:
+        if self._daq is None:
             raise Exception("No existing connection to data server")
         if not all(k for k in ["serial", "interface"]):
             raise Exception(
@@ -44,73 +33,73 @@ class ZIDeviceConnection(DeviceConnection):
             )
         serial = kwargs.get("serial")
         interface = kwargs.get("interface")
-        self.__daq.connectDevice(serial, interface)
+        self._daq.connectDevice(serial, interface)
         print(
             f"Successfully connected to device {serial.upper()} on interface {interface.upper()}"
         )
-        self.__awg.update(device=serial, index=0)
+        self._awg.update(device=serial, index=0)
 
     def set(self, *args):
-        return self.__daq.set(*args)
+        return self._daq.set(*args)
 
     def get(self, *args, **kwargs):
-        return self.__daq.get(*args, **kwargs)
+        return self._daq.get(*args, **kwargs)
 
     def list_nodes(self, *args, **kwargs):
-        return self.__daq.listNodesJSON(*args, **kwargs)
+        return self._daq.listNodesJSON(*args, **kwargs)
 
     class AWGModule:
         def __init__(self, daq):
-            self.__awgModule = daq.awgModule()
-            self.__awgModule.execute()
-            self.__device = self.__awgModule.getString("/device")
-            self.__index = self.__awgModule.getInt("/index")
+            self._awgModule = daq.awgModule()
+            self._awgModule.execute()
+            self._device = self._awgModule.getString("/device")
+            self._index = self._awgModule.getInt("/index")
 
         def set(self, *args, **kwargs):
             self.update(**kwargs)
-            self.__awgModule.set(*args)
+            self._awgModule.set(*args)
 
         def get(self, *args, **kwargs):
             self.update(**kwargs)
-            return self.__awgModule.get(*args, flat=True)
+            return self._awgModule.get(*args, flat=True)
 
         def get_int(self, *args, **kwargs):
             self.update(**kwargs)
-            return self.__awgModule.getInt(*args)
+            return self._awgModule.getInt(*args)
 
         def get_double(self, *args, **kwargs):
             self.update(**kwargs)
-            return self.__awgModule.getDouble(*args)
+            return self._awgModule.getDouble(*args)
 
         def get_string(self, *args, **kwargs):
             self.update(**kwargs)
-            return self.__awgModule.getString(*args)
+            return self._awgModule.getString(*args)
 
         def update(self, **kwargs):
             if "device" in kwargs.keys():
-                self.__update_device(kwargs["device"])
+                self._update_device(kwargs["device"])
             if "index" in kwargs.keys():
-                self.__update_index(kwargs["index"])
+                self._update_index(kwargs["index"])
 
-        def __update_device(self, device):
+        def _update_device(self, device):
             if device != self.device:
-                self.__update_index(0)
-                self.__awgModule.set("/device", device)
-                self.__device = device
+                self._update_index(0)
+                self._awgModule.set("/device", device)
+                self._device = device
 
-        def __update_index(self, index):
+        def _update_index(self, index):
             if index != self.index:
-                self.__awgModule.set("/index", index)
-                self.__index = index
+                self._awgModule.set("/index", index)
+                self._index = index
 
         @property
         def index(self):
-            return self.__index
+            return self._index
 
         @property
         def device(self):
-            return self.__device
+            return self._device
 
     @property
     def awg_module(self):
-        return self.__awg
+        return self._awg
