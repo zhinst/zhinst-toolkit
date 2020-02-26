@@ -1,7 +1,7 @@
 import numpy as np
 
-from .AWG import AWGController, AWGCore
-from .connection import ZIDeviceConnection
+from .tools.AWG import AWGController, AWGCore
+from .tools.connection import ZIDeviceConnection
 
 
 """
