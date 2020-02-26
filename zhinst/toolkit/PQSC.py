@@ -34,6 +34,9 @@ class PQSC:
     def get(self, command, valueonly=True):
         return self._controller.get(self.__name, command, valueonly=valueonly)
 
+    def get_nodetree(self, prefix, **kwargs):
+        return self._controller.get_nodetree(prefix, **kwargs)
+
 
 class PQSCController(BaseController):
     pass
