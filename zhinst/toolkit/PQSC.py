@@ -1,7 +1,6 @@
 import numpy as np
 
-from .tools import BaseController
-from .tools.connection import ZIDeviceConnection
+from .tools import BaseController, ZIDeviceConnection
 
 
 """
