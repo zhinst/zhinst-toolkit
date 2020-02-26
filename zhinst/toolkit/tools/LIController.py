@@ -1,4 +1,4 @@
-from . import BaseController
+from .BaseController import BaseController
 
 
 class LICOntroller(BaseController):
