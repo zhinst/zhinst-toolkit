@@ -5,9 +5,10 @@ import pathlib
 from .interface import InstrumentConfiguration
 from .connection import ZIDeviceConnection
 from .devices import Factory
-from .base import BaseController
-from .uhfqa import UHFQA
-from .hdawg import HDAWG
+from .Base import BaseController
+from .UHFQA import UHFQA
+from .HDAWG import HDAWG
+from .PQSC import PQSC
 
 
 class MultiDeviceController(object):
@@ -46,6 +47,13 @@ class MultiDeviceController(object):
         device.connect_device(address, interface)
         self.uhfqas[name] = device
         print(f"Added UHFQA: {name}")
+
+    def connect_pqsc(self, address, interface):
+        device = PQSC()
+        device.setup(connection=self._shared_connection)
+        device.connect_device(address, interface)
+        self.pqsc = device
+        print(f"Added PQSC")
 
     ####################################################
     # device specific methods

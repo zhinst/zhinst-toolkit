@@ -1,4 +1,4 @@
-from . import HDAWG, UHFQA
+from . import HDAWG, UHFQA, PQSC
 
 
 class Factory(object):
@@ -10,6 +10,8 @@ class Factory(object):
             dev = HDAWG(device)
         elif type_.lower() == "uhfqa":
             dev = UHFQA(device)
+        elif type_.lower() == "pqsc":
+            dev = PQSC(device)
         else:
             # should never hit this
             raise Exception(f"unsupported device type! {type_}")

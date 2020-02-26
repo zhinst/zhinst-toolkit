@@ -18,7 +18,7 @@ import sys
 requirements = [
     "numpy>=1.13",
     "setuptools>=40.1.0",
-    "zhinst",
+    "zhinst>=20.0",
     "marshmallow",
     "attrs",
 ]
@@ -40,9 +40,9 @@ with open(version_path, "r") as fd:
     version = fd.read().rstrip()
 
 setuptools.setup(
-    name="ziDrivers",
+    name="zhinst-toolkit",
     version=version,
-    description="Zurich Instrument tools for quantum information science",
+    description="Zurich Instrument tools for high level device controls.",
     url="https://gitlab.zhinst.com/labone/qccs/zi-drivers",
     author="Zurich Instruments Development Team",
     author_email="max.ruckriegel@zhinst.com",
@@ -52,18 +52,16 @@ setuptools.setup(
         "License :: Other/Proprietary License",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
-        "Operating System :: Microsoft :: Windows",
-        "Operating System :: MacOS",
-        "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Topic :: Scientific/Engineering",
     ],
     keywords="zhinst sdk quantum",
-    packages=setuptools.find_namespace_packages(exclude=["test*"]),
+    packages=setuptools.find_namespace_packages(
+        exclude=["test*"], include=["zhinst.*"]
+    ),
     install_requires=requirements,
     include_package_data=True,
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     zip_safe=False,
 )
