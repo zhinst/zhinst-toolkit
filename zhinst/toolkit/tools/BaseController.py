@@ -10,42 +10,33 @@ from .interface import InstrumentConfiguration
 class BaseController(object):
     def __init__(self):
         self._connection = None
-        self._instrument_config = None
+        self._config = None
         self._devices = None
 
-    def setup(self, filename, connection: ZIDeviceConnection = None):
-        dir = pathlib.Path(__file__).parent
-        instrument_config = dir / "resources" / filename
-        try:
-            with open(instrument_config) as file:
-                data = json.load(file)
-                schema = InstrumentConfiguration()
-                self._instrument_config = schema.load(data)
-            if connection is None:
-                for i in self._instrument_config.api_configs:
-                    if i.provider == "zi":
-                        self._connection = ZIDeviceConnection(i.details)
-            else:
-                self._connection = connection
-            self._connection.connect()
-        except IOError:
-            print(f"File {instrument_config} is not accessible")
+    def setup(self, connection: ZIDeviceConnection = None, **kwargs):
+        config = InstrumentConfiguration()
+        config.api_config.host = kwargs.get("host", "localhost")
+        config.api_config.port = kwargs.get("port", 8004)
+        config.api_config.api = kwargs.get("api", 6)
+        self._config = config
+        if connection is None:
+            details = self._config.api_config
+            self._connection = ZIDeviceConnection(details)
+        else:
+            self._connection = connection
+        self._connection.connect()
 
-    def connect_device(self, name, address, interface):
-        devices = self._instrument_config.instruments[0].setup
-        for dev in devices:
-            if self._devices is None:
-                self._devices = dict()
-            if dev.name == name:
-                dev.config.serial = address
-                dev.config.interface = interface
-                self._devices[name] = Factory.configure_device(dev)
-                self._connection.connect_device(
-                    serial=self._devices[name].serial,
-                    interface=self._devices[name].interface,
-                )
-        if name not in self._devices.keys():
-            raise Exception("Device not found in Instrument Configuration!")
+    def connect_device(self, name, device_type, serial, interface):
+        self._config.instrument.name = name
+        self._config.instrument.config.serial = serial
+        self._config.instrument.config.device_type = device_type.lower()
+        self._config.instrument.config.interface = interface
+        if self._devices is None:
+            self._devices = dict()
+        self._devices[name] = Factory.configure_device(self._config.instrument)
+        self._connection.connect_device(
+            serial=self._devices[name].serial, interface=self._devices[name].interface,
+        )
 
     def set(self, name, *args):
         if self._devices is not None:
@@ -55,7 +46,7 @@ class BaseController(object):
                 settings = args[0]
             else:
                 raise Exception("Invalid number of arguments!")
-            settings = self.__commands_to_node(name, settings)
+            settings = self._commands_to_node(name, settings)
             return self._connection.set(settings)
         else:
             raise Exception("No device connected!")
@@ -65,14 +56,14 @@ class BaseController(object):
             if isinstance(command, list):
                 paths = []
                 for c in command:
-                    paths.append(self.__command_to_node(name, c))
+                    paths.append(self._command_to_node(name, c))
                 node_string = ", ".join([p for p in paths])
             elif isinstance(command, str):
-                node_string = self.__command_to_node(name, command)
+                node_string = self._command_to_node(name, command)
             else:
                 raise Exception("Invalid argument!")
             data = self._connection.get(node_string, settingsonly=False, flat=True)
-            data = self.__get_value_from_dict(name, data)
+            data = self._get_value_from_dict(name, data)
             if valueonly:
                 if len(data) > 1:
                     return [v for v in data.values()]
@@ -86,7 +77,7 @@ class BaseController(object):
     def get_nodetree(self, prefix: str, **kwargs):
         return json.loads(self._connection.list_nodes(prefix, **kwargs))
 
-    def __get_value_from_dict(self, name, data):
+    def _get_value_from_dict(self, name, data):
         if not isinstance(data, dict):
             raise Exception("Something went wrong...")
         if not len(data):
@@ -102,7 +93,7 @@ class BaseController(object):
                 new_data[key] = data_dict["vector"]
         return new_data
 
-    def __commands_to_node(self, name, settings):
+    def _commands_to_node(self, name, settings):
         new_settings = []
         for args in settings:
             try:
@@ -110,10 +101,10 @@ class BaseController(object):
                     raise Exception("node/value must be specified as pairs!")
             except TypeError:
                 raise Exception("node/value must be specified as pairs!")
-            new_settings.append((self.__command_to_node(name, args[0]), args[1]))
+            new_settings.append((self._command_to_node(name, args[0]), args[1]))
         return new_settings
 
-    def __command_to_node(self, name, command):
+    def _command_to_node(self, name, command):
         command = command.lower()
         if command[0] != "/":
             command = "/" + command
