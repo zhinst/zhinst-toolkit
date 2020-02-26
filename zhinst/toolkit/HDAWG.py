@@ -10,17 +10,21 @@ High-level controller for HDAWG.
 
 
 class HDAWG:
-    def __init__(self):
-        self.__name = "hdawg0"
+    def __init__(self, name):
+        self._name = name
         self._controller = AWGController()
 
     def setup(self, connection: ZIDeviceConnection = None):
-        self._controller.setup("connection-hdawg.json", connection=connection)
+        self._controller.setup(connection=connection)
 
     def connect_device(self, address, interface):
-        self._controller.connect_device(self.__name, address, interface)
-        self.awgs = [AWG(self, self.__name, i) for i in range(4)]
-        self.__init_settings()
+        self._controller.connect_device(self.name, "hdawg", address, interface)
+        self.awgs = [AWG(self, self.name, i) for i in range(4)]
+        self._init_settings()
+
+    @property
+    def name(self):
+        return self._name
 
     # device specific methods
     def set_outputs(self, values):
@@ -39,7 +43,7 @@ class HDAWG:
         assert len(gains) <= 4
         [self.awgs[i].set_modulation_gain(g) for i, g in enumerate(gains)]
 
-    def __init_settings(self):
+    def _init_settings(self):
         settings = [
             ("awgs/*/single", 1),
         ]
@@ -47,10 +51,10 @@ class HDAWG:
 
     # wrap around get and set of Controller
     def set(self, *args):
-        self._controller.set(self.__name, *args)
+        self._controller.set(self.name, *args)
 
     def get(self, command, valueonly=True):
-        return self._controller.get(self.__name, command, valueonly=valueonly)
+        return self._controller.get(self.name, command, valueonly=valueonly)
 
     def get_nodetree(self, prefix, **kwargs):
         return self._controller.get_nodetree(prefix, **kwargs)
@@ -156,9 +160,9 @@ class AWG(AWGCore):
                 )
         if "trigger_mode" in kwargs.keys():
             if kwargs["trigger_mode"] == "External Trigger":
-                self.__apply_trigger_settings()
+                self._apply_trigger_settings()
 
-    def __apply_trigger_settings(self):
+    def _apply_trigger_settings(self):
         i = self._index
         self._parent.set(f"/awgs/{i}/auxtriggers/*/channel", 2 * i)
         self._parent.set(f"/awgs/{i}/auxtriggers/*/slope", 1)  # rise

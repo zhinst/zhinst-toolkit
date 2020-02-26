@@ -10,18 +10,22 @@ High-level controller for UHFQA.
 
 
 class UHFQA:
-    def __init__(self):
-        self.__name, self.__index = ("uhfqa0", 0)
+    def __init__(self, name):
+        self._name = name
         self._controller = AWGController()
 
     def setup(self, connection: ZIDeviceConnection = None):
-        self._controller.setup("connection-uhfqa.json", connection=connection)
+        self._controller.setup(connection=connection)
 
     def connect_device(self, address, interface):
-        self._controller.connect_device(self.__name, address, interface)
-        self.awg = AWG(self, self.__name, self.__index)
+        self._controller.connect_device(self.name, "uhfqa", address, interface)
+        self.awg = AWG(self, self.name, 0)
         self.channels = [ReadoutChannel(self, i) for i in range(10)]
-        self.__init_settings()
+        self._init_settings()
+
+    @property
+    def name(self):
+        return self._name
 
     # device specific methods
     def write_crottalk_matrix(self, matrix):
@@ -42,7 +46,7 @@ class UHFQA:
             assert i in range(10)
             self.channels[i].disable()
 
-    def __init_settings(self):
+    def _init_settings(self):
         settings = [
             ("awgs/0/single", 1),
         ]
@@ -50,10 +54,10 @@ class UHFQA:
 
     # wrap around get and set of Controller
     def set(self, *args):
-        self._controller.set(self.__name, *args)
+        self._controller.set(self.name, *args)
 
     def get(self, command, valueonly=True):
-        return self._controller.get(self.__name, command, valueonly=valueonly)
+        return self._controller.get(self.name, command, valueonly=valueonly)
 
     def get_nodetree(self, prefix, **kwargs):
         return self._controller.get_nodetree(prefix, **kwargs)
@@ -113,36 +117,36 @@ class AWG(AWGCore):
                 )
             # apply settings depending on sequence type
             if t == "CW Spectroscopy":
-                self.__apply_cw_settings()
+                self._apply_cw_settings()
             if t == "Pulsed Spectroscopy":
-                self.__apply_pulsed_settings()
+                self._apply_pulsed_settings()
             if t == "Readout":
-                self.__apply_readout_settings()
+                self._apply_readout_settings()
 
         # apply settings dependent on trigger type
         if "trigger_mode" in kwargs.keys():
             if kwargs["trigger_mode"] == "External Trigger":
-                self.__apply_trigger_settings()
+                self._apply_trigger_settings()
 
-    def __apply_cw_settings(self):
+    def _apply_cw_settings(self):
         self._parent.set("sigouts/0/enables/0", 1)
         self._parent.set("sigouts/1/enables/1", 1)
         self._parent.set("sigouts/0/amplitudes/0", 1)
         self._parent.set("sigouts/1/amplitudes/1", 1)
         self._parent.set("qas/0/integration/mode", 1)
 
-    def __apply_pulsed_settings(self):
+    def _apply_pulsed_settings(self):
         self._parent.set("sigouts/*/enables/*", 0)
         self._parent.set("sigouts/*/amplitudes/*", 0)
         self._parent.set("awgs/0/outputs/*/mode", 1)
         self._parent.set("qas/0/integration/mode", 1)
 
-    def __apply_readout_settings(self):
+    def _apply_readout_settings(self):
         self._parent.set("sigouts/*/enables/*", 0)
         self._parent.set("awgs/0/outputs/*/mode", 0)
         self._parent.set("qas/0/integration/mode", 0)
 
-    def __apply_trigger_settings(self):
+    def _apply_trigger_settings(self):
         self._parent.set("/awgs/0/auxtriggers/*/channel", 0)
         self._parent.set("/awgs/0/auxtriggers/*/slope", 1)
 
@@ -201,11 +205,11 @@ class ReadoutChannel:
 
     def enable(self):
         self._enabled = True
-        self.__set_int_weights()
+        self._set_int_weights()
 
     def disable(self):
         self._enabled = False
-        self.__reset_int_weights()
+        self._reset_int_weights()
 
     @property
     def readout_frequency(self):
@@ -215,7 +219,7 @@ class ReadoutChannel:
     def readout_frequency(self, freq):
         assert freq > 0
         self._readout_frequency = freq
-        self.__set_int_weights()
+        self._set_int_weights()
 
     @property
     def readout_amplitude(self):
@@ -256,20 +260,20 @@ class ReadoutChannel:
     def result(self):
         return self._parent.get(f"qas/0/result/data/{self._index}/wave")
 
-    def __reset_int_weights(self):
+    def _reset_int_weights(self):
         l = self._parent.get("qas/0/integration/length")
         node = f"/qas/0/integration/weights/"
         self._parent.set(node + f"{self._index}/real", np.zeros(l))
         self._parent.set(node + f"{self._index}/imag", np.zeros(l))
 
-    def __set_int_weights(self):
+    def _set_int_weights(self):
         l = self._parent.get("qas/0/integration/length")
         freq = self.readout_frequency
         node = f"/qas/0/integration/weights/{self._index}/"
-        self._parent.set(node + "real", self.__demod_weights(l, freq, 0))
-        self._parent.set(node + "imag", self.__demod_weights(l, freq, 90))
+        self._parent.set(node + "real", self._demod_weights(l, freq, 0))
+        self._parent.set(node + "imag", self._demod_weights(l, freq, 90))
 
-    def __demod_weights(self, length, freq, phase):
+    def _demod_weights(self, length, freq, phase):
         assert length <= 4096
         assert freq > 0
         clk_rate = 1.8e9
