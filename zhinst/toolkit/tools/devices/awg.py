@@ -1,36 +1,21 @@
-from dataclasses import dataclass
-
-
-@dataclass
-class AWGChannel:
-    wave: str
-    trig: str
-    marker: str
-
-
 class AWG:
-    def __init__(self, configuration, parent):
+    def __init__(self, id, parent):
 
-        self.id = configuration.awg
-        self._iq = configuration.config.iq
-        self._channels = [
-            AWGChannel(i.wave, i.trig, i.marker)
-            for i in (configuration.ch0, configuration.ch1)
-        ]
+        self.id = id
         self.parent = parent
-        self.__waveforms = list()
-        self.__program = str()
+        self._waveforms = list()
+        self._program = str()
 
     def set_program(self, program):
-        self.__program = program
+        self._program = program
 
     def reset_waveforms(self):
-        self.__waveforms = list()
+        self._waveforms = list()
 
     @property
     def waveforms(self):
-        return self.__waveforms
+        return self._waveforms
 
     @property
     def program(self):
-        return None if self.__program == "" else self.__program
+        return None if self._program == "" else self._program

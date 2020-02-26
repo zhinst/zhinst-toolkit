@@ -5,5 +5,8 @@ from .awg import AWG
 class UHFQA(Device):
     def __init__(self, device):
         super().__init__(device)
-        for i in self._connectivity.awgs:
-            self._awgs[i.awg] = AWG(i, self)
+        self._awgs[0] = AWG(0, self)
+
+    @property
+    def device_type(self):
+        return "uhfqa"
