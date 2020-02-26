@@ -9,46 +9,51 @@ from . import UHFQA, HDAWG, PQSC
 class MultiDeviceController(object):
     def __init__(self):
         self._shared_connection = None
-        self._instrument_config = None
-        self.hdawgs = dict()
-        self.uhfqas = dict()
+        self._config = None
+        self._hdawgs = dict()
+        self._uhfqas = dict()
+        self._pqsc = None
 
-    def setup(self):
-        filename = "connection-hd-qa.json"
-        dir = pathlib.Path(__file__).parent
-        instrument_config = dir / "resources" / filename
-        try:
-            with open(instrument_config) as file:
-                data = json.load(file)
-                schema = InstrumentConfiguration()
-                self._instrument_config = schema.load(data)
-            for i in self._instrument_config.api_configs:
-                if i.provider == "zi":
-                    self._shared_connection = ZIDeviceConnection(i.details)
-            self._shared_connection.connect()
-        except IOError:
-            print(f"File {instrument_config} is not accessible")
+    def setup(self, **kwargs):
+        config = InstrumentConfiguration()
+        config.api_config.host = kwargs.get("host", "localhost")
+        config.api_config.port = kwargs.get("port", 8004)
+        config.api_config.api = kwargs.get("api", 6)
+        self._config = config
+        details = self._config.api_config
+        self._shared_connection = ZIDeviceConnection(details)
+        self._shared_connection.connect()
 
     def connect_hdawg(self, name, address, interface):
-        device = HDAWG()
+        device = HDAWG(name)
         device.setup(connection=self._shared_connection)
         device.connect_device(address, interface)
-        self.hdawgs[name] = device
+        self._hdawgs[name] = device
         print(f"Added HDAWG: {name}")
 
     def connect_uhfqa(self, name, address, interface):
-        device = UHFQA()
+        device = UHFQA(name)
         device.setup(connection=self._shared_connection)
         device.connect_device(address, interface)
-        self.uhfqas[name] = device
+        self._uhfqas[name] = device
         print(f"Added UHFQA: {name}")
 
-    def connect_pqsc(self, address, interface):
-        device = PQSC()
+    def connect_pqsc(self, name, address, interface):
+        device = PQSC(name)
         device.setup(connection=self._shared_connection)
         device.connect_device(address, interface)
-        self.pqsc = device
+        self._pqsc = device
         print(f"Added PQSC")
 
-    ####################################################
-    # device specific methods
+    @property
+    def hdawgs(self):
+        return self._hdawgs
+
+    @property
+    def uhfqas(self):
+        return self._uhfqas
+
+    @property
+    def pqsc(self):
+        return self._pqsc
+
