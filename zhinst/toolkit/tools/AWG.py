@@ -2,7 +2,7 @@ import json
 import time
 from abc import ABC, abstractmethod
 
-from .Base import BaseController
+from .BaseController import BaseController
 from .helpers import Waveform, Compiler
 
 

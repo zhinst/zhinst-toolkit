@@ -21,6 +21,7 @@ requirements = [
     "zhinst>=20.0",
     "marshmallow",
     "attrs",
+    "json",
 ]
 
 

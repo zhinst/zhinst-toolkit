@@ -2,10 +2,10 @@ import numpy as np
 import json
 import pathlib
 
-from .interface import InstrumentConfiguration
-from .connection import ZIDeviceConnection
-from .devices import Factory
-from .Base import BaseController
+from .tools.interface import InstrumentConfiguration
+from .tools.connection import ZIDeviceConnection
+from .tools.devices import Factory
+from .tools import BaseController
 from .UHFQA import UHFQA
 from .HDAWG import HDAWG
 from .PQSC import PQSC
