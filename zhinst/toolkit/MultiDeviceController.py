@@ -2,13 +2,8 @@ import numpy as np
 import json
 import pathlib
 
-from .tools.interface import InstrumentConfiguration
-from .tools.connection import ZIDeviceConnection
-from .tools.devices import Factory
-from .tools import BaseController
-from .UHFQA import UHFQA
-from .HDAWG import HDAWG
-from .PQSC import PQSC
+from .tools import InstrumentConfiguration, ZIDeviceConnection
+from . import UHFQA, HDAWG, PQSC
 
 
 class MultiDeviceController(object):
