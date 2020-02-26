@@ -26,6 +26,10 @@ class AWGCore(ABC):
         self._name = name
         self._index = index
 
+    @property
+    def name(self):
+        return self._name + str(self._index)
+
     def __repr__(self):
         params = self.sequence_params["sequence_parameters"]
         s = f"{self._name}: {super().__repr__()}\n"
@@ -95,11 +99,10 @@ class AWGController(BaseController):
         super().__init__()
         self._compiler = Compiler()
 
-    def connect_device(self, name, address, interface):
-        super().connect_device(name, address, interface)
-        for dev in self._instrument_config.instruments[0].setup:
-            if dev.name == name:
-                self._compiler.add_device(dev)
+    def connect_device(self, name, device_type, address, interface):
+        super().connect_device(name, device_type, address, interface)
+        for name, dev in self._devices.items():
+            self._compiler.add_device(dev)
 
     def awg_compile(self, name, awg):
         self._connection.awg_module.update(device=self._devices[name].serial)
