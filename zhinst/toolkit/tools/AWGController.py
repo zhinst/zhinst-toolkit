@@ -22,7 +22,6 @@ Wrapper around AWGController with specific attributes for an AWG Core:
 class AWGCore(ABC):
     def __init__(self, parent, name, index):
         self._parent = parent
-        self._controller = self._parent._controller
         self._name = name
         self._index = index
 
@@ -42,36 +41,36 @@ class AWGCore(ABC):
         return s
 
     def run(self):
-        self._controller.awg_run(self._name, self._index)
+        self._parent._controller.awg_run(self._name, self._index)
 
     def stop(self):
-        self._controller.awg_stop(self._name, self._index)
+        self._parent._controller.awg_stop(self._name, self._index)
 
     def compile(self):
-        self._controller.awg_compile(self._name, self._index)
+        self._parent._controller.awg_compile(self._name, self._index)
 
     def reset_queue(self):
-        self._controller.awg_reset_queue(self._name, self._index)
+        self._parent._controller.awg_reset_queue(self._name, self._index)
 
     def queue_waveform(self, wave1, wave2):
-        self._controller.awg_queue_waveform(
+        self._parent._controller.awg_queue_waveform(
             self._name, self._index, data=(wave1, wave2)
         )
 
     def replace_waveform(self, wave1, wave2, i=0):
-        self._controller.awg_replace_waveform(
+        self._parent._controller.awg_replace_waveform(
             self._name, self._index, data=(wave1, wave2), index=i
         )
 
     def upload_waveforms(self):
-        self._controller.awg_upload_waveforms(self._name, self._index)
+        self._parent._controller.awg_upload_waveforms(self._name, self._index)
 
     def compile_and_upload_waveforms(self):
-        self._controller.awg_compile_and_upload_waveforms(self._name, self._index)
+        self._parent._controller.awg_compile_and_upload_waveforms(self._name, self._index)
 
     def set_sequence_params(self, **kwargs):
         self._apply_sequence_settings(**kwargs)
-        self._controller.awg_set_sequence_params(self._name, self._index, **kwargs)
+        self._parent._controller.awg_set_sequence_params(self._name, self._index, **kwargs)
 
     @abstractmethod
     def _apply_sequence_settings(self, **kwargs):
@@ -79,11 +78,11 @@ class AWGCore(ABC):
 
     @property
     def is_running(self):
-        return self._controller.awg_is_running(self._name, self._index)
+        return self._parent._controller.awg_is_running(self._name, self._index)
 
     @property
     def sequence_params(self):
-        return self._controller.awg_list_params(self._name, self._index)
+        return self._parent._controller.awg_list_params(self._name, self._index)
 
 
 """
@@ -112,7 +111,7 @@ class AWGController(BaseController):
                 w.buffer_length for w in self._devices[name].awgs[awg].waveforms
             ]
             self._compiler.set_parameter(name, awg, buffer_lengths=buffer_lengths)
-        self.__update_awg_program(name, awg)
+        self._update_awg_program(name, awg)
         program = self._devices[name].awgs[awg].program
         # if program == self._connection.awg_module.get_string("compiler/sourcestring"):
         #     print("Same program! Did nothing...")
@@ -132,7 +131,7 @@ class AWGController(BaseController):
             )
         if self._connection.awg_module.get_int("compiler/status") == 0:
             print("Compilation successful")
-        self.__wait_upload_done(name, awg)
+        self._wait_upload_done(name, awg)
 
     def awg_run(self, name, awg):
         self.set(name, f"/awgs/{awg}/enable", 1)
@@ -176,16 +175,16 @@ class AWGController(BaseController):
 
     def awg_set_sequence_params(self, name, awg, **kwargs):
         self._compiler.set_parameter(name, awg, **kwargs)
-        self.__update_awg_program(name, awg)
+        self._update_awg_program(name, awg)
 
     def awg_list_params(self, name, awg):
         return self._compiler.list_params(name, awg)
 
-    def __update_awg_program(self, name, awg):
+    def _update_awg_program(self, name, awg):
         program = self._compiler.get_program(name, awg)
         self._devices[name].awgs[awg].set_program(program)
 
-    def __wait_upload_done(self, name, awg, timeout=10):
+    def _wait_upload_done(self, name, awg, timeout=10):
         time.sleep(0.01)
         self._connection.awg_module.update(device=self._devices[name].serial, index=awg)
         tik = time.time()
