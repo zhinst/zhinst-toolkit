@@ -2,7 +2,7 @@ from .device import Device
 from .awg import AWG
 
 
-class UHFQA(Device):
+class UHFLI(Device):
     def __init__(self, device):
         super().__init__(device)
         self._awgs[0] = AWG(0, self)
