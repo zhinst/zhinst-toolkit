@@ -18,7 +18,7 @@ class UHFLI:
         self._controller.setup(connection=connection)
 
     def connect_device(self, address, interface):
-        self._controller.connect_device(self.name, "uhfli", address, interface)
+        self._controller.connect_device(self.name, "uhfqa", address, interface)
         self.awg = AWG(self, self.name, 0)
         self._init_settings()
 
