@@ -45,6 +45,7 @@ class HDAWG:
 
     def _init_settings(self):
         settings = [
+            ("/dev8030/system/clocks/referenceclock/source", 1,),
             ("awgs/*/single", 1),
         ]
         self.set(settings)
@@ -128,7 +129,7 @@ class AWG(AWGCore):
     @modulation_phase_shift.setter
     def modulation_phase_shift(self, ph):
         self._modulation_phase_shift = ph
-        self._parent.set(f"sines/{2 * self._index + 1}/phaseshift", 90 + ph)
+        self._parent.set(f"sines/{2 * self._index + 1}/phaseshift", ph)
 
     @property
     def modulation_gains(self):
@@ -164,6 +165,7 @@ class AWG(AWGCore):
 
     def _apply_trigger_settings(self):
         i = self._index
+        self._parent.set(f"/trigger/in/{2*i}/level", 0.5)
         self._parent.set(f"/awgs/{i}/auxtriggers/*/channel", 2 * i)
         self._parent.set(f"/awgs/{i}/auxtriggers/*/slope", 1)  # rise
 
