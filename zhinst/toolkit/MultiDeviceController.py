@@ -6,7 +6,7 @@ from .tools import InstrumentConfiguration, ZIDeviceConnection
 from . import UHFQA, HDAWG, PQSC
 
 
-class MultiDeviceController(object):
+class MultiDeviceController:
     def __init__(self):
         self._shared_connection = None
         self._config = None

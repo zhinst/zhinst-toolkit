@@ -44,26 +44,26 @@ class SequenceProgram(object):
     """
 
     def __init__(self, sequence_type=None, **kwargs):
-        self.__set_type(sequence_type)
-        self.__sequence = self.sequence_class(**kwargs)
+        self._set_type(sequence_type)
+        self._sequence = self.sequence_class(**kwargs)
 
     def get(self):
-        return self.__sequence.get()
+        return self._sequence.get()
 
     def set(self, **settings):
         if "sequence_type" in settings:
-            current_params = attr.asdict(self.__sequence)
+            current_params = attr.asdict(self._sequence)
             self.__init__(sequence_type=settings["sequence_type"])
-            self.__sequence.set(**current_params)
-        self.__sequence.set(**settings)
+            self._sequence.set(**current_params)
+        self._sequence.set(**settings)
 
     def list_params(self):
         return dict(
-            sequence_type=self.__sequence_type,
-            sequence_parameters=attr.asdict(self.__sequence),
+            sequence_type=self._sequence_type,
+            sequence_parameters=attr.asdict(self._sequence),
         )
 
-    def __set_type(self, type):
+    def _set_type(self, type):
         if type is None or type == "None":
             self.sequence_class = Sequence
         elif type == "Simple":
@@ -84,8 +84,8 @@ class SequenceProgram(object):
             self.sequence_class = CustomSequence
         else:
             raise ValueError("Unknown Sequence Type!")
-        self.__sequence_type = type
+        self._sequence_type = type
 
     @property
     def sequence_type(self):
-        return self.__sequence_type
+        return self._sequence_type

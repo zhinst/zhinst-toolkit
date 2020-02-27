@@ -3,40 +3,40 @@ import numpy as np
 
 class Waveform(object):
     def __init__(self, wave1, wave2, granularity=16, align_start=True):
-        self.__granularity = granularity
-        self.__align_start = align_start
-        self.__waves = [wave1, wave2]
-        self.__update()
+        self._granularity = granularity
+        self._align_start = align_start
+        self._waves = [wave1, wave2]
+        self._update()
 
     def add_wave(self, ch, wave):
         if ch not in [0, 1]:
             raise Exception("Waveform index out of range!")
-        self.__waves[ch] = wave
-        self.__update()
+        self._waves[ch] = wave
+        self._update()
 
     def replace_data(self, wave1, wave2):
-        new_buffer_length = self.__round_up(max(len(wave1), len(wave2), 32))
+        new_buffer_length = self._round_up(max(len(wave1), len(wave2), 32))
         if new_buffer_length == self.buffer_length:
-            self.__waves = [wave1, wave2]
-            self.__update()
+            self._waves = [wave1, wave2]
+            self._update()
         else:
             raise Exception("Waveform lengths don't match!")
 
     @property
     def data(self):
-        return self.__data
+        return self._data
 
     @property
     def buffer_length(self):
-        return self.__buffer_length
+        return self._buffer_length
 
-    def __update(self):
-        self.__buffer_length = self.__round_up(
-            max(len(self.__waves[0]), len(self.__waves[1]), 32)
+    def _update(self):
+        self._buffer_length = self._round_up(
+            max(len(self._waves[0]), len(self._waves[1]), 32)
         )
-        self.__data = self.__interleave_waveforms(self.__waves[0], self.__waves[1])
+        self._data = self._interleave_waveforms(self._waves[0], self._waves[1])
 
-    def __interleave_waveforms(self, x1, x2):
+    def _interleave_waveforms(self, x1, x2):
         if len(x1) == 0:
             x1 = np.zeros(1)
         if len(x2) == 0:
@@ -47,7 +47,7 @@ class Waveform(object):
         m1, m2 = np.max(np.abs(x1)), np.max(np.abs(x2))
         data = np.zeros((2, self.buffer_length))
 
-        if self.__align_start:
+        if self._align_start:
             if len(x1) > n:
                 data[0, :n] = x1[:n] / m1 if m1 >= 1 else x1[:n]
             else:
@@ -72,6 +72,6 @@ class Waveform(object):
         )
         return interleaved_data
 
-    def __round_up(self, n):
-        m, rest = divmod(n, self.__granularity)
-        return n if not rest else (m + 1) * self.__granularity
+    def _round_up(self, n):
+        m, rest = divmod(n, self._granularity)
+        return n if not rest else (m + 1) * self._granularity
