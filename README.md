@@ -34,11 +34,16 @@ classDiagram
     hdawg *-- awg
     uhfqa --|> Device
     uhfqa *-- awg
+    uhfli --|> Device
+    uhfli *-- awg
+    pqsc --|> Device
     BaseController *-- Device
     BaseController *-- ZIDeviceConnection
     BaseController *-- InstrumentConfiguration
     AWGController --|> BaseController
     AWGController *-- Compiler
+    PQSCController --|> BaseController
+    LIController --|> BaseController
     Compiler *-- SequenceProgram
     SequenceProgram *-- Sequence
     SimpleSequence --|> Sequence
@@ -49,9 +54,13 @@ classDiagram
     AWGCore_for_UHFQA --|> AWGCore
     AWGCore_for_HDAWG --|> AWGCore
     AWGCore .. AWGController
+    HDAWG *-- AWGController
+    UHFQA *-- AWGController
     HDAWG *-- AWGCore_for_HDAWG
     UHFQA *-- AWGCore_for_UHFQA
     UHFQA *-- ReadoutChannel
+    UHFLI *-- UHFLIController
+    PQSC *-- PQSCController
     
 
     
@@ -70,6 +79,10 @@ classDiagram
         +awgs
     }
     class uhfqa{
+        +awg
+    }
+    class pqsc
+    class uhfli{
         +awg
     }
     class BaseController{
@@ -104,8 +117,10 @@ classDiagram
         +awg_queue_waveform()
         +awg_set_sequence_parameter()
     }
+    class PQSCController
+    class LIController
     class Compiler{
-        -List~SequenceProgram~sequences
+        -sequences
         -device
         +add_device()
         +set_parameter()
@@ -134,14 +149,30 @@ classDiagram
         -name
         -controller
         +awgs
+        +get()
+        +set()
     }
     class UHFQA{
         -name
         -controller
         +awg
         +channels
+        +get()
+        +set()
     }
-
+    class UHFLI{
+        -name
+        -controller
+        +awg
+        +get()
+        +set()
+    }
+    class PQSC{
+        -name
+        -controller
+        +get()
+        +set()
+    }
     class ReadoutChannel{
         +enabled
         +rotation
