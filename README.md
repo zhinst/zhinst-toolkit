@@ -66,6 +66,7 @@ classDiagram
     MultiDeviceController *-- UHFQA
     MultiDeviceController *-- PQSC
     MultiDeviceController *-- ZIDeviceConnection
+    MultiDeviceController *-- InstrumentConfiguration
     
 
     
@@ -203,6 +204,7 @@ classDiagram
     }
     class MultiDeviceController{
         -shared_connection
+        -config
         +hdawgs
         +uhfqas
         +pqsc
