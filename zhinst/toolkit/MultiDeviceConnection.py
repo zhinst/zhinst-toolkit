@@ -6,7 +6,7 @@ from .tools import InstrumentConfiguration, ZIDeviceConnection
 from . import UHFQA, HDAWG, PQSC
 
 
-class MultiDeviceController:
+class MultiDeviceConnection:
     def __init__(self):
         self._shared_connection = None
         self._config = None
@@ -24,26 +24,16 @@ class MultiDeviceController:
         self._shared_connection = ZIDeviceConnection(details)
         self._shared_connection.connect()
 
-    def connect_hdawg(self, name, address, interface):
-        device = HDAWG(name)
+    def connect_device(self, device):
+        assert isinstance(device, (HDAWG, UHFQA, PQSC))
         device.setup(connection=self._shared_connection)
-        device.connect_device(address, interface)
-        self._hdawgs[name] = device
-        print(f"Added HDAWG: {name}")
-
-    def connect_uhfqa(self, name, address, interface):
-        device = UHFQA(name)
-        device.setup(connection=self._shared_connection)
-        device.connect_device(address, interface)
-        self._uhfqas[name] = device
-        print(f"Added UHFQA: {name}")
-
-    def connect_pqsc(self, name, address, interface):
-        device = PQSC(name)
-        device.setup(connection=self._shared_connection)
-        device.connect_device(address, interface)
-        self._pqsc = device
-        print(f"Added PQSC")
+        device.connect_device()
+        if isinstance(device, HDAWG):
+            self._hdawgs[device.name] = device
+        if isinstance(device, UHFQA):
+            self._uhfqas[device.name] = device
+        if isinstance(device, PQSC):
+            self._pqsc = device
 
     @property
     def hdawgs(self):
