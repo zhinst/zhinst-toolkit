@@ -50,7 +50,7 @@ classDiagram
     SimpleSequence --|> Sequence
     RabiSequence --|> Sequence
     T1Sequence --|> Sequence
-    T2Sequence --|> Sequence
+    T2Sequence --|> T1Sequence
     Sequence --> SeqCommands
     AWGCore_for_UHFQA --|> AWGCore
     AWGCore_for_HDAWG --|> AWGCore
