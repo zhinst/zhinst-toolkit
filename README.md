@@ -54,6 +54,7 @@ classDiagram
     Sequence --> SeqCommands
     AWGCore_for_UHFQA --|> AWGCore
     AWGCore_for_HDAWG --|> AWGCore
+    AWGCore .. AWGController
     HDAWG *-- AWGController
     UHFQA *-- AWGController
     HDAWG *-- AWGCore_for_HDAWG
