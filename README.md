@@ -39,6 +39,7 @@ classDiagram
     pqsc --|> Device
     BaseController *-- Device
     BaseController *-- ZIDeviceConnection
+    ZIDeviceConnection --> ziPython
     BaseController *-- InstrumentConfiguration
     AWGController --|> BaseController
     AWGController *-- Compiler
@@ -59,7 +60,7 @@ classDiagram
     HDAWG *-- AWGCore_for_HDAWG
     UHFQA *-- AWGCore_for_UHFQA
     UHFQA *-- ReadoutChannel
-    UHFLI *-- UHFLIController
+    UHFLI *-- LIController
     PQSC *-- PQSCController
     
 
