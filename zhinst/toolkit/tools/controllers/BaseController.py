@@ -2,23 +2,26 @@ import json
 import time
 import pathlib
 
-from .connection import ZIDeviceConnection
-from .devices import Factory
-from .interface import InstrumentConfiguration
+from ..connection import ZIDeviceConnection
+from ..devices import Factory
+from ..interface import InstrumentConfiguration
 
 
 class BaseController(object):
-    def __init__(self):
+    def __init__(self, name, device_type, serial, **kwargs):
         self._connection = None
-        self._config = None
-        self._device = None
-
-    def setup(self, connection: ZIDeviceConnection = None, **kwargs):
         config = InstrumentConfiguration()
+        config.instrument.name = name
+        config.instrument.config.serial = serial
+        config.instrument.config.device_type = device_type
+        config.instrument.config.interface = kwargs.get("interface", "1GbE")
         config.api_config.host = kwargs.get("host", "localhost")
         config.api_config.port = kwargs.get("port", 8004)
         config.api_config.api = kwargs.get("api", 6)
         self._config = config
+        self._device = Factory.configure_device(self._config.instrument)
+
+    def setup(self, connection: ZIDeviceConnection = None):
         if connection is None:
             details = self._config.api_config
             self._connection = ZIDeviceConnection(details)
@@ -27,15 +30,6 @@ class BaseController(object):
         self._connection.connect()
 
     def connect_device(self, name, device_type, serial, interface):
-        self._config.instrument.name = name
-        self._config.instrument.config.serial = serial
-        self._config.instrument.config.device_type = device_type.lower()
-        self._config.instrument.config.interface = interface
-        if self._device is not None:
-            raise Exception(
-                f"This controller already has a device: {self._device} ({self._device.serial})"
-            )
-        self._device = Factory.configure_device(self._config.instrument)
         self._connection.connect_device(
             serial=self._device.serial, interface=self._device.interface,
         )

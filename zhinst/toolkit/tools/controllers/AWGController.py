@@ -1,86 +1,8 @@
 import json
 import time
-from abc import ABC, abstractmethod
 
 from .BaseController import BaseController
-from .helpers import Waveform, Compiler
-
-
-"""
-AWG Core representation.
-
-Wrapper around AWGController with specific attributes for an AWG Core:
-- a parent instrument
-- an index
-- a name (of the controller, e.g. "hdawg0")
-- pretty __repr__() method
-- wrap around controller methods with name and index for onvenience
-
-"""
-
-
-class AWGCore(ABC):
-    def __init__(self, parent, name, index):
-        self._parent = parent
-        self._name = name
-        self._index = index
-
-    @property
-    def name(self):
-        return self._name + str(self._index)
-
-    def __repr__(self):
-        params = self.sequence_params["sequence_parameters"]
-        s = f"{self._name}: {super().__repr__()}\n"
-        s += f"    parent  : {self._parent}\n"
-        s += f"    index   : {self._index}\n"
-        s += f"    sequence: \n"
-        s += f"           type: {self.sequence_params['sequence_type']}\n"
-        for i in params.items():
-            s += f"            {i}\n"
-        return s
-
-    def run(self):
-        self._parent._controller.awg_run(self._index)
-
-    def stop(self):
-        self._parent._controller.awg_stop(self._index)
-
-    def compile(self):
-        self._parent._controller.awg_compile(self._index)
-
-    def reset_queue(self):
-        self._parent._controller.awg_reset_queue(self._index)
-
-    def queue_waveform(self, wave1, wave2):
-        self._parent._controller.awg_queue_waveform(self._index, data=(wave1, wave2))
-
-    def replace_waveform(self, wave1, wave2, i=0):
-        self._parent._controller.awg_replace_waveform(
-            self._index, data=(wave1, wave2), index=i
-        )
-
-    def upload_waveforms(self):
-        self._parent._controller.awg_upload_waveforms(self._index)
-
-    def compile_and_upload_waveforms(self):
-        self._parent._controller.awg_compile_and_upload_waveforms(self._index)
-
-    def set_sequence_params(self, **kwargs):
-        self._apply_sequence_settings(**kwargs)
-        self._parent._controller.awg_set_sequence_params(self._index, **kwargs)
-
-    @abstractmethod
-    def _apply_sequence_settings(self, **kwargs):
-        pass
-
-    @property
-    def is_running(self):
-        return self._parent._controller.awg_is_running(self._index)
-
-    @property
-    def sequence_params(self):
-        return self._parent._controller.awg_list_params(self._index)
+from ..helpers import Waveform, Compiler
 
 
 """
@@ -92,12 +14,9 @@ Controller for all devices that have at least one AWG (i.e. HDAWG, UHFQA, UHFAWG
 
 
 class AWGController(BaseController):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, name, device_type, serial, **kwargs):
+        super().__init__(name, device_type, serial, **kwargs)
         self._compiler = Compiler()
-
-    def connect_device(self, name, device_type, address, interface):
-        super().connect_device(name, device_type, address, interface)
         self._compiler.add_device(self._device)
 
     def awg_compile(self, awg):
