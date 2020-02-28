@@ -54,7 +54,6 @@ classDiagram
     Sequence --> SeqCommands
     AWGCore_for_UHFQA --|> AWGCore
     AWGCore_for_HDAWG --|> AWGCore
-    AWGCore .. AWGController
     HDAWG *-- AWGController
     UHFQA *-- AWGController
     HDAWG *-- AWGCore_for_HDAWG
@@ -62,6 +61,10 @@ classDiagram
     UHFQA *-- ReadoutChannel
     UHFLI *-- LIController
     PQSC *-- PQSCController
+    MultiDeviceController *-- HDAWG
+    MultiDeviceController *-- UHFQA
+    MultiDeviceController *-- PQSC
+    MultiDeviceController *-- ZIDeviceConnection
     
 
     
@@ -196,6 +199,14 @@ classDiagram
         +mod_gains
         +update_readout_params()
         -apply_sequence_settings()
+    }
+    class MultiDeviceController{
+        -shared_connection
+        +hdawgs
+        +uhfqas
+        +pqsc
+        +setup()
+        +connect_device()
     }
 
 ```
