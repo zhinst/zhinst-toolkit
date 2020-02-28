@@ -30,10 +30,10 @@ In "Simple" mode: queue waveforms and upload them all at once.
 
 classDiagram
 
-    HDAWG --|> Device
-    HDAWG *-- AWG
-    UHFQA --|> Device
-    UHFQA *-- AWG
+    hdawg --|> Device
+    hdawg *-- awg
+    uhfqa --|> Device
+    uhfqa *-- awg
     BaseController *-- Device
     BaseController *-- ZIDeviceConnection
     BaseController *-- InstrumentConfiguration
@@ -45,6 +45,14 @@ classDiagram
     RabiSequence --|> Sequence
     T1Sequence --|> Sequence
     T2Sequence --|> Sequence
+    Sequence --> SeqCommands
+    AWGCore_for_UHFQA --|> AWGCore
+    AWGCore_for_HDAWG --|> AWGCore
+    AWGCore .. AWGController
+    HDAWG *-- AWGCore_for_HDAWG
+    UHFQA *-- AWGCore_for_UHFQA
+    UHFQA *-- ReadoutChannel
+    
 
     
     class Device{
@@ -52,19 +60,18 @@ classDiagram
         +serial
         +interface
     }
-    class HDAWG{
-        +List~AWG~awgs
-    }
-    class UHFQA{
-        +~AWG~awg
-    }
-    class AWG{
+    class awg{
         +parent
         +index
         +waveforms
         +program
     }
-
+    class hdawg{
+        +awgs
+    }
+    class uhfqa{
+        +awg
+    }
     class BaseController{
         -connection
         -config
@@ -75,7 +82,6 @@ classDiagram
         +get()
         +get_nodetree()  
     }
-    
     class ZIDeviceConnection{
         -details
         -daq
@@ -90,7 +96,6 @@ classDiagram
         +api_config
         +instrument_config
     }
-
     class AWGController{
         -compiler
         +awg_compile()
@@ -99,26 +104,67 @@ classDiagram
         +awg_queue_waveform()
         +awg_set_sequence_parameter()
     }
-
     class Compiler{
         -List~SequenceProgram~sequences
-        -~Device~device
+        -device
         +add_device()
         +set_parameter()
         +get_program()
     }
-    
     class SequenceProgram{
         -sequence_type
-        -~Sequence~sequence
+        -sequence
     }
-
     class Sequence
     class SimpleSequence
     class RabiSequence
     class T1Sequence
     class T2Sequence
+    class SeqCommands
+    class AWGCore{
+        -parent
+        -index
+        +compile()
+        +run()
+        +stop()
+        +queue_waveform()
+        +set_sequence_params()
+    }
+    class HDAWG{
+        -name
+        -controller
+        +awgs
+    }
+    class UHFQA{
+        -name
+        -controller
+        +awg
+        +channels
+    }
 
+    class ReadoutChannel{
+        +enabled
+        +rotation
+        +threshold
+        +enable()
+        +disable()
+    }
+
+    class AWGCore_for_HDAWG{
+        +output
+        +iq_modulation
+        +mod_freq
+        +mod_phase
+        +mod_gains
+        -apply_sequence_settings()
+    }
+
+    class AWGCore_for_UHFQA{
+        +output
+        +mod_gains
+        +update_readout_params()
+        -apply_sequence_settings()
+    }
 
 ```
 
