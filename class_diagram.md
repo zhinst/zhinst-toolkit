@@ -22,14 +22,14 @@ classDiagram
     LIController --|> BaseController
     Compiler *-- SequenceProgram
     SequenceProgram *-- Sequence
-    SimpleSequence --|> Sequence
-    RabiSequence --|> Sequence
-    T1Sequence --|> Sequence
-    T2Sequence --|> T1Sequence
     Sequence --> SeqCommands
     AWGCore_for_UHFQA --|> AWGCore
     AWGCore_for_HDAWG --|> AWGCore
     AWGCore .. AWGController
+    HDAWG --|> BaseInstrument
+    UHFQA --|> BaseInstrument
+    UHFLI --|> BaseInstrument
+    PQSC --|> BaseInstrument
     HDAWG *-- AWGController
     UHFQA *-- AWGController
     HDAWG *-- AWGCore_for_HDAWG
@@ -113,10 +113,6 @@ classDiagram
         -sequence
     }
     class Sequence
-    class SimpleSequence
-    class RabiSequence
-    class T1Sequence
-    class T2Sequence
     class SeqCommands
     class AWGCore{
         -parent
@@ -127,33 +123,29 @@ classDiagram
         +queue_waveform()
         +set_sequence_params()
     }
-    class HDAWG{
+    class BaseInstrument{
         -name
+        -serial
+        -interface
         -controller
-        +awgs
         +get()
         +set()
+    }
+    class HDAWG{
+        +awgs
+        -init_settings()
     }
     class UHFQA{
-        -name
-        -controller
         +awg
         +channels
-        +get()
-        +set()
+        -init_settings()
     }
     class UHFLI{
-        -name
-        -controller
         +awg
-        +get()
-        +set()
+        -init_settings()
     }
     class PQSC{
-        -name
-        -controller
-        +get()
-        +set()
+        -init_settings()
     }
     class ReadoutChannel{
         +enabled
@@ -171,7 +163,6 @@ classDiagram
         +mod_gains
         -apply_sequence_settings()
     }
-
     class AWGCore_for_UHFQA{
         +output
         +mod_gains
