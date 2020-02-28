@@ -36,10 +36,10 @@ class UHFLI:
 
     # wrap around get and set of Controller
     def set(self, *args):
-        self._controller.set(self.name, *args)
+        self._controller.set(*args)
 
     def get(self, command, valueonly=True):
-        return self._controller.get(self.name, command, valueonly=valueonly)
+        return self._controller.get(command, valueonly=valueonly)
 
     def get_nodetree(self, prefix, **kwargs):
         return self._controller.get_nodetree(prefix, **kwargs)
