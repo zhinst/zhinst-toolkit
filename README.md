@@ -64,6 +64,7 @@ classDiagram
     PQSC *-- PQSCController
     MultiDeviceController *-- HDAWG
     MultiDeviceController *-- UHFQA
+    MultiDeviceController *-- UHFLI
     MultiDeviceController *-- PQSC
     MultiDeviceController *-- ZIDeviceConnection
     MultiDeviceController *-- InstrumentConfiguration
