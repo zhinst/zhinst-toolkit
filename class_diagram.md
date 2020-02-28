@@ -4,39 +4,23 @@
 ```mermaid
 
 classDiagram
-
-    hdawg --|> Device
-    hdawg *-- awg
-    uhfqa --|> Device
-    uhfqa *-- awg
-    uhfli --|> Device
-    uhfli *-- awg
-    pqsc --|> Device
-    BaseController *-- Device
     BaseController *-- ZIDeviceConnection
     ZIDeviceConnection --> ziPython
     BaseController *-- InstrumentConfiguration
-    AWGController --|> BaseController
-    AWGController *-- Compiler
-    PQSCController --|> BaseController
-    LIController --|> BaseController
-    Compiler *-- SequenceProgram
+    AWGCore *-- SequenceProgram
+    AWGCore .. ZIDeviceConnection
     SequenceProgram *-- Sequence
     Sequence --> SeqCommands
-    AWGCore_for_UHFQA --|> AWGCore
     AWGCore_for_HDAWG --|> AWGCore
-    AWGCore .. AWGController
+    AWGCore_for_UHFQA --|> AWGCore
     HDAWG --|> BaseInstrument
     UHFQA --|> BaseInstrument
     UHFLI --|> BaseInstrument
     PQSC --|> BaseInstrument
-    HDAWG *-- AWGController
-    UHFQA *-- AWGController
+    BaseInstrument *-- BaseController
     HDAWG *-- AWGCore_for_HDAWG
     UHFQA *-- AWGCore_for_UHFQA
     UHFQA *-- ReadoutChannel
-    UHFLI *-- LIController
-    PQSC *-- PQSCController
     MultiDeviceController *-- HDAWG
     MultiDeviceController *-- UHFQA
     MultiDeviceController *-- UHFLI
@@ -46,27 +30,6 @@ classDiagram
     
 
     
-    class Device{
-        +name
-        +serial
-        +interface
-    }
-    class awg{
-        +parent
-        +index
-        +waveforms
-        +program
-    }
-    class hdawg{
-        +awgs
-    }
-    class uhfqa{
-        +awg
-    }
-    class pqsc
-    class uhfli{
-        +awg
-    }
     class BaseController{
         -connection
         -config
@@ -91,23 +54,6 @@ classDiagram
         +api_config
         +instrument_config
     }
-    class AWGController{
-        -compiler
-        +awg_compile()
-        +awg_run()
-        +awg_stop()
-        +awg_queue_waveform()
-        +awg_set_sequence_parameter()
-    }
-    class PQSCController
-    class LIController
-    class Compiler{
-        -sequences
-        -device
-        +add_device()
-        +set_parameter()
-        +get_program()
-    }
     class SequenceProgram{
         -sequence_type
         -sequence
@@ -117,6 +63,8 @@ classDiagram
     class AWGCore{
         -parent
         -index
+        -waveforms
+        -program
         +compile()
         +run()
         +stop()

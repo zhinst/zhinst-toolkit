@@ -47,10 +47,10 @@ class SequenceProgram(object):
         self._set_type(sequence_type)
         self._sequence = self.sequence_class(**kwargs)
 
-    def get(self):
+    def get_seqc(self):
         return self._sequence.get()
 
-    def set(self, **settings):
+    def set_params(self, **settings):
         if "sequence_type" in settings:
             current_params = attr.asdict(self._sequence)
             self.__init__(sequence_type=settings["sequence_type"])

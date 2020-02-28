@@ -13,7 +13,7 @@ High-level controller for UHFQA.
 class UHFLI(BaseInstrument):
     def __init__(self, name, serial, **kwargs):
         super().__init__(name, "uhfli", serial, **kwargs)
-        self.awg = AWG(self, self.name, 0)
+        self.awg = AWG(self, 0)
 
     def _init_settings(self):
         settings = [

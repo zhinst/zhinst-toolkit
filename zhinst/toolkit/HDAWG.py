@@ -1,7 +1,8 @@
 import numpy as np
 
-from .BaseInstrument import BaseInstrument, AWGCore
-from .tools import AWGController, ZIDeviceConnection
+from .BaseInstrument import BaseInstrument
+from .AWGCore import AWGCore
+from .tools import ZIDeviceConnection
 
 
 """
@@ -13,7 +14,7 @@ High-level controller for HDAWG.
 class HDAWG(BaseInstrument):
     def __init__(self, name, serial, **kwargs):
         super().__init__(name, "hdawg", serial, **kwargs)
-        self.awgs = [AWG(self, self.name, i) for i in range(4)]
+        self.awgs = [AWG(self, i) for i in range(4)]
 
     def set_outputs(self, values):
         assert len(values) == 4
@@ -46,8 +47,8 @@ AWG specific to HDAWG.
 
 
 class AWG(AWGCore):
-    def __init__(self, parent, name, index):
-        super().__init__(parent, name, index)
+    def __init__(self, parent, index):
+        super().__init__(parent, index)
         self._output = "off"
         self._iq_modulation = False
         self._modulation_freq = 10e6
