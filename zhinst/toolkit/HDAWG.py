@@ -1,6 +1,7 @@
 import numpy as np
 
-from .tools import AWGController, AWGCore, ZIDeviceConnection
+from .BaseInstrument import BaseInstrument, AWGCore
+from .tools import AWGController, ZIDeviceConnection
 
 
 """
@@ -9,24 +10,11 @@ High-level controller for HDAWG.
 """
 
 
-class HDAWG:
-    def __init__(self, name):
-        self._name = name
-        self._controller = AWGController()
-
-    def setup(self, connection: ZIDeviceConnection = None):
-        self._controller.setup(connection=connection)
-
-    def connect_device(self, address, interface):
-        self._controller.connect_device(self.name, "hdawg", address, interface)
+class HDAWG(BaseInstrument):
+    def __init__(self, name, serial, **kwargs):
+        super().__init__(name, "hdawg", serial, **kwargs)
         self.awgs = [AWG(self, self.name, i) for i in range(4)]
-        self._init_settings()
 
-    @property
-    def name(self):
-        return self._name
-
-    # device specific methods
     def set_outputs(self, values):
         assert len(values) == 4
         [self.awgs[i].set_output(v) for i, v in enumerate(values)]
@@ -49,16 +37,6 @@ class HDAWG:
             ("awgs/*/single", 1),
         ]
         self.set(settings)
-
-    # wrap around get and set of Controller
-    def set(self, *args):
-        self._controller.set(*args)
-
-    def get(self, command, valueonly=True):
-        return self._controller.get(command, valueonly=valueonly)
-
-    def get_nodetree(self, prefix, **kwargs):
-        return self._controller.get_nodetree(prefix, **kwargs)
 
 
 """
