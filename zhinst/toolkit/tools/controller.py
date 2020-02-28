@@ -2,50 +2,37 @@ import json
 import time
 import pathlib
 
-from ..connection import ZIDeviceConnection
-from ..devices import Factory
-from ..interface import InstrumentConfiguration
+from .connection import ZIDeviceConnection
+from .interface import InstrumentConfiguration
 
 
-class BaseController(object):
-    def __init__(self, name, device_type, serial, **kwargs):
+class Controller(object):
+    def __init__(self, device, **kwargs):
         self._connection = None
-        config = InstrumentConfiguration()
-        config.instrument.name = name
-        config.instrument.config.serial = serial
-        config.instrument.config.device_type = device_type
-        config.instrument.config.interface = kwargs.get("interface", "1GbE")
-        config.api_config.host = kwargs.get("host", "localhost")
-        config.api_config.port = kwargs.get("port", 8004)
-        config.api_config.api = kwargs.get("api", 6)
-        self._config = config
-        self._device = Factory.configure_device(self._config.instrument)
+        self._device = device
 
     def setup(self, connection: ZIDeviceConnection = None):
         if connection is None:
-            details = self._config.api_config
+            details = self._device._config._api_config
             self._connection = ZIDeviceConnection(details)
         else:
             self._connection = connection
         self._connection.connect()
 
-    def connect_device(self, name, device_type, serial, interface):
+    def connect_device(self):
         self._connection.connect_device(
             serial=self._device.serial, interface=self._device.interface,
         )
 
     def set(self, *args):
-        if self._device is not None:
-            if len(args) == 2:
-                settings = [(args[0], args[1])]
-            elif len(args) == 1:
-                settings = args[0]
-            else:
-                raise Exception("Invalid number of arguments!")
-            settings = self._commands_to_node(settings)
-            return self._connection.set(settings)
+        if len(args) == 2:
+            settings = [(args[0], args[1])]
+        elif len(args) == 1:
+            settings = args[0]
         else:
-            raise Exception("No device connected!")
+            raise Exception("Invalid number of arguments!")
+        settings = self._commands_to_node(settings)
+        return self._connection.set(settings)
 
     def get(self, command, valueonly=True):
         if self._device is not None:

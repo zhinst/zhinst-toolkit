@@ -1,7 +1,8 @@
 import numpy as np
 
-from .BaseInstrument import BaseInstrument, AWGCore
-from .tools import AWGController, ZIDeviceConnection
+from .BaseInstrument import BaseInstrument
+from .AWGCore import AWGCore
+from .tools import ZIDeviceConnection
 
 
 """
@@ -13,7 +14,7 @@ High-level controller for UHFQA.
 class UHFQA(BaseInstrument):
     def __init__(self, name, serial, **kwargs):
         super().__init__(name, "uhfqa", serial, **kwargs)
-        self.awg = AWG(self, self.name, 0)
+        self.awg = AWG(self, 0)
         self.channels = [ReadoutChannel(self, i) for i in range(10)]
 
     # device specific methods
@@ -49,8 +50,8 @@ Device specific AWG for UHFQA.
 
 
 class AWG(AWGCore):
-    def __init__(self, parent, name, index):
-        super().__init__(parent, name, index)
+    def __init__(self, parent, index):
+        super().__init__(parent, index)
         self._output = "off"
         self._gains = (1.0, 1.0)
 

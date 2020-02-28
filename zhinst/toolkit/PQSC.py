@@ -1,7 +1,7 @@
 import numpy as np
 
 from .BaseInstrument import BaseInstrument
-from .tools import PQSCController, ZIDeviceConnection
+from .tools import ZIDeviceConnection
 
 
 """
