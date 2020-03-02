@@ -1,41 +1,77 @@
 # Class Diagram
 
+    
+    
+    
+    
+    
+    AWGCore .. ZIConnection
+    
+    
+
+    
+    
+   
+    
+    MultiDeviceConnection *-- UHFLI
+    MultiDeviceConnection *-- PQSC
+    PQSC --|> BaseInstrument
+    UHFLI --|> BaseInstrument
+    UHFLI *-- AWGCore_for_UHFQA
+
+    
+
+    MultiDeviceConnection -- InstrumentConfiguration
+
+    class UHFLI{
+        +awg
+        -init_settings()
+    }
+    class PQSC{
+        -init_settings()
+    }
+
 
 ```mermaid
 
 classDiagram
-    Controller *-- ZIDeviceConnection
-    ZIDeviceConnection --> ziPython
-    Controller *-- InstrumentConfiguration
-    AWGCore *-- SequenceProgram
-    AWGCore .. ZIDeviceConnection
-    SequenceProgram *-- Sequence
-    Sequence --> SeqCommands
+    MultiDeviceConnection *-- HDAWG
+    MultiDeviceConnection *-- UHFQA
+    
+    MultiDeviceConnection *-- ZIConnection
+    
+
+    HDAWG --|> BaseInstrument
+    HDAWG *-- AWGCore_for_HDAWG
+    UHFQA --|> BaseInstrument
+    UHFQA *-- ReadoutChannel
+    UHFQA *-- AWGCore_for_UHFQA
+    
+    
+    
     AWGCore_for_HDAWG --|> AWGCore
     AWGCore_for_UHFQA --|> AWGCore
-    HDAWG --|> BaseInstrument
-    UHFQA --|> BaseInstrument
-    UHFLI --|> BaseInstrument
-    PQSC --|> BaseInstrument
-    BaseInstrument *-- Controller
-    HDAWG *-- AWGCore_for_HDAWG
-    UHFQA *-- AWGCore_for_UHFQA
-    UHFQA *-- ReadoutChannel
-    MultiDeviceController *-- HDAWG
-    MultiDeviceController *-- UHFQA
-    MultiDeviceController *-- UHFLI
-    MultiDeviceController *-- PQSC
-    MultiDeviceController *-- ZIDeviceConnection
-    MultiDeviceController *-- InstrumentConfiguration
+    AWGCore *-- SequenceProgram
+    SequenceProgram *-- Sequence
+    Sequence --> SeqCommands
+    
+    
+    BaseInstrument *-- DeviceConnection
+    BaseInstrument *-- InstrumentConfiguration
+    BaseInstrument *-- ZINodetree
+
     ZINodetree *-- ZINode
     ZINode *-- ZINode
     ZINode *-- ZIParameter
-    BaseInstrument *-- ZINodetree
-    
+
+    DeviceConnection *-- ZIConnection
+    ZIConnection --> ziPython
+
+
     
 
     
-    class Controller{
+    class DeviceConnection{
         -connection
         -config
         -device
@@ -45,7 +81,7 @@ classDiagram
         +get()
         +get_nodetree()  
     }
-    class ZIDeviceConnection{
+    class ZIConnection{
         -details
         -daq
         -awg_module
@@ -93,13 +129,6 @@ classDiagram
         +channels
         -init_settings()
     }
-    class UHFLI{
-        +awg
-        -init_settings()
-    }
-    class PQSC{
-        -init_settings()
-    }
     class ReadoutChannel{
         +enabled
         +rotation
@@ -122,7 +151,7 @@ classDiagram
         +update_readout_params()
         -apply_sequence_settings()
     }
-    class MultiDeviceController{
+    class MultiDeviceConnection{
         -shared_connection
         -config
         +hdawgs
