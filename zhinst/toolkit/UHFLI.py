@@ -1,7 +1,7 @@
 import numpy as np
 
-from .BaseInstrument import BaseInstrument
-from .UHFQA import AWG
+from .base import BaseInstrument
+from .uhfqa import AWG
 
 
 """
@@ -19,5 +19,5 @@ class UHFLI(BaseInstrument):
         settings = [
             ("awgs/0/single", 1),
         ]
-        self.set(settings)
+        self._set(settings)
 
