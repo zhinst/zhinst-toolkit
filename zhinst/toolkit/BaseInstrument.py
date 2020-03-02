@@ -1,6 +1,12 @@
 import numpy as np
 
-from .tools import DeviceConnection, ZIConnection, InstrumentConfiguration, ZINodetree
+from .tools import (
+    DeviceConnection,
+    ZIConnection,
+    InstrumentConfiguration,
+    ZINodetree,
+    ZHTKException,
+)
 
 
 """
@@ -57,7 +63,7 @@ class BaseInstrument:
     # wrap around get and set of Controller
     def _set(self, *args):
         if not self.is_connected:
-            raise Exception(
+            raise ZHTKException(
                 f"The device {self.name} ({self.serial}) is not connected to a Data Server!"
             )
         self._controller.set(*args)
@@ -70,7 +76,7 @@ class BaseInstrument:
     def _awg_connection(self):
         self._check_connected()
         if self.device_type not in ["hdawg", "uhfqa", "uhfli"]:
-            raise Exception("You cannot access AWG module of the Data Server!")
+            raise ZHTKException("You cannot access AWG module of the Data Server!")
         else:
             return self._controller._connection.awg_module
 
@@ -80,6 +86,6 @@ class BaseInstrument:
 
     def _check_connected(self):
         if not self.is_connected:
-            raise Exception(
+            raise ZHTKException(
                 f"The device {self.name} ({self.serial}) is not connected to a Data Server!"
             )

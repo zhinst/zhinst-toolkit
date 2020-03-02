@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class ZINodetreeException(Exception):
+class ZHTKNodetreeException(Exception):
     pass
 
 
@@ -21,7 +21,7 @@ class ZIParameter:
             self._cached_value = self._device.get(self._path)
             return self._cached_value
         else:
-            raise ZINodetreeException("This parameter is not gettable!")
+            raise ZHTKNodetreeException("This parameter is not gettable!")
 
     def set(self, value):
         if "Write" in self._properties:
@@ -30,7 +30,7 @@ class ZIParameter:
                 self._cached_value = value
             return self._cached_value
         else:
-            raise ZINodetreeException("This parameter is not settable!")
+            raise ZHTKNodetreeException("This parameter is not settable!")
 
     @property
     def help(self):
