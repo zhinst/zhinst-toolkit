@@ -58,7 +58,9 @@ class Controller(object):
             raise Exception("No device connected!")
 
     def get_nodetree(self, prefix: str, **kwargs):
-        return json.loads(self._connection.list_nodes(prefix, **kwargs))
+        return json.loads(
+            self._connection.list_nodes(f"{self._device.serial}/" + prefix, **kwargs)
+        )
 
     def _get_value_from_dict(self, data):
         if not isinstance(data, dict):
