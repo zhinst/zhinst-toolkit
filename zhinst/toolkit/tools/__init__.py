@@ -1,5 +1,5 @@
-from .connection import ZIDeviceConnection
-from .interface import InstrumentConfiguration
-from .controller import Controller
+from .connection import ZIConnection
+from .connection import DeviceConnection
 from .nodetree import ZINodetree
+from .interface import InstrumentConfiguration
 

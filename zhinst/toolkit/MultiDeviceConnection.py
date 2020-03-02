@@ -2,7 +2,7 @@ import numpy as np
 import json
 import pathlib
 
-from .tools import InstrumentConfiguration, ZIDeviceConnection
+from .tools import InstrumentConfiguration, ZIConnection
 from . import UHFQA, HDAWG, PQSC
 
 
@@ -21,7 +21,7 @@ class MultiDeviceConnection:
         config.api_config.api = kwargs.get("api", 6)
         self._config = config
         details = self._config.api_config
-        self._shared_connection = ZIDeviceConnection(details)
+        self._shared_connection = ZIConnection(details)
         self._shared_connection.connect()
 
     def connect_device(self, device):
