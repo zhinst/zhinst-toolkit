@@ -1,6 +1,6 @@
 import numpy as np
 
-from .BaseInstrument import BaseInstrument
+from .base import BaseInstrument
 
 
 """

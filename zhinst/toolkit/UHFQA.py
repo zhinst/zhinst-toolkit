@@ -1,7 +1,7 @@
 import numpy as np
 
-from .BaseInstrument import BaseInstrument
-from .AWGCore import AWGCore
+from .base import BaseInstrument
+from .awg_core import AWGCore
 from .tools import ZHTKException
 
 

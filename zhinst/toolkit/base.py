@@ -28,9 +28,10 @@ class BaseInstrument:
     def setup(self, connection: ZIConnection = None):
         self._controller.setup(connection=connection)
 
-    def connect_device(self):
+    def connect_device(self, nodetree=True):
         self._controller.connect_device()
-        self._nodetree = ZINodetree(self)
+        if nodetree:
+            self._nodetree = ZINodetree(self)
         self._init_settings()
 
     @property
