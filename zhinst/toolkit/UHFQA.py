@@ -2,6 +2,7 @@ import numpy as np
 
 from .BaseInstrument import BaseInstrument
 from .AWGCore import AWGCore
+from .tools import ZHTKException
 
 
 """
@@ -91,7 +92,7 @@ class AWG(AWGCore):
                 "Custom",
             ]
             if t not in allowed_sequences:
-                raise Exception(
+                raise ZHTKException(
                     f"Sequence type {t} must be one of {allowed_sequences}!"
                 )
             # apply settings depending on sequence type
@@ -158,9 +159,9 @@ class AWG(AWGCore):
                     phase_shifts=phases,
                 )
             else:
-                raise Exception("No readout channels are enabled!")
+                raise ZHTKException("No readout channels are enabled!")
         else:
-            raise Exception("AWG Sequence type needs to be 'Readout'")
+            raise ZHTKException("AWG Sequence type needs to be 'Readout'")
 
     def compile(self):
         if self.sequence_params["sequence_type"] == "Readout":

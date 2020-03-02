@@ -2,6 +2,7 @@ import numpy as np
 
 from .BaseInstrument import BaseInstrument
 from .AWGCore import AWGCore
+from .tools import ZHTKException
 
 
 """
@@ -134,7 +135,7 @@ class AWG(AWGCore):
                 "Custom",
             ]
             if t not in allowed_sequences:
-                raise Exception(
+                raise ZHTKException(
                     f"Sequence type {t} must be one of {allowed_sequences}!"
                 )
         if "trigger_mode" in kwargs.keys():

@@ -3,6 +3,10 @@ import json
 import zhinst.ziPython as zi
 
 
+class ZHTKConnectionException(Exception):
+    pass
+
+
 class ZIConnection:
     def __init__(self, connection_details):
         self._connection_details = connection_details
@@ -28,9 +32,9 @@ class ZIConnection:
 
     def connect_device(self, **kwargs):
         if self._daq is None:
-            raise Exception("No existing connection to data server")
+            raise ZHTKConnectionException("No existing connection to data server")
         if not all(k for k in ["serial", "interface"]):
-            raise Exception(
+            raise ZHTKConnectionException(
                 "To connect a Zurich Instruments' device, youd need a serial and an interface [1gbe or usb]"
             )
         serial = kwargs.get("serial")
@@ -131,7 +135,7 @@ class DeviceConnection(object):
         elif len(args) == 1:
             settings = args[0]
         else:
-            raise Exception("Invalid number of arguments!")
+            raise ZHTKConnectionException("Invalid number of arguments!")
         settings = self._commands_to_node(settings)
         return self._connection.set(settings)
 
@@ -145,7 +149,7 @@ class DeviceConnection(object):
             elif isinstance(command, str):
                 node_string = self._command_to_node(command)
             else:
-                raise Exception("Invalid argument!")
+                raise ZHTKConnectionException("Invalid argument!")
             data = self._connection.get(node_string, settingsonly=False, flat=True)
             data = self._get_value_from_dict(data)
             if valueonly:
@@ -156,7 +160,7 @@ class DeviceConnection(object):
             else:
                 return data
         else:
-            raise Exception("No device connected!")
+            raise ZHTKConnectionException("No device connected!")
 
     def get_nodetree(self, prefix: str, **kwargs):
         return json.loads(
@@ -165,9 +169,9 @@ class DeviceConnection(object):
 
     def _get_value_from_dict(self, data):
         if not isinstance(data, dict):
-            raise Exception("Something went wrong...")
+            raise ZHTKConnectionException("Something went wrong...")
         if not len(data):
-            raise Exception("No data returned... does the node exist?")
+            raise ZHTKConnectionException("No data returned... does the node exist?")
         new_data = dict()
         for key, data_dict in data.items():
             key = key.replace(f"/{self._device.serial}/", "")
@@ -184,9 +188,11 @@ class DeviceConnection(object):
         for args in settings:
             try:
                 if len(args) != 2:
-                    raise Exception("node/value must be specified as pairs!")
+                    raise ZHTKConnectionException(
+                        "node/value must be specified as pairs!"
+                    )
             except TypeError:
-                raise Exception("node/value must be specified as pairs!")
+                raise ZHTKConnectionException("node/value must be specified as pairs!")
             new_settings.append((self._command_to_node(args[0]), args[1]))
         return new_settings
 
