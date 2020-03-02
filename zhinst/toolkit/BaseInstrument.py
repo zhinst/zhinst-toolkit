@@ -1,10 +1,6 @@
 import numpy as np
 
-from .tools import (
-    Controller,
-    ZIDeviceConnection,
-    InstrumentConfiguration,
-)
+from .tools import Controller, ZIDeviceConnection, InstrumentConfiguration, ZINodetree
 
 
 """
@@ -21,13 +17,19 @@ class BaseInstrument:
         self._config._instrument._config._serial = serial
         self._config._instrument._config._interface = kwargs.get("interface", "1GbE")
         self._controller = Controller(self, **kwargs)
+        self._nodetree = None
 
     def setup(self, connection: ZIDeviceConnection = None):
         self._controller.setup(connection=connection)
 
     def connect_device(self):
         self._controller.connect_device()
+        self._nodetree = ZINodetree(self)
         self._init_settings()
+
+    @property
+    def nodetree(self):
+        return self._nodetree
 
     @property
     def name(self):
