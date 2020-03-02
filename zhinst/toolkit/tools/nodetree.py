@@ -1,6 +1,10 @@
 import numpy as np
 
 
+class ZINodetreeException(Exception):
+    pass
+
+
 class ZIParameter:
     def __init__(self, parent, params):
         self._parent = parent
@@ -17,7 +21,7 @@ class ZIParameter:
             self._cached_value = self._device.get(self._path)
             return self._cached_value
         else:
-            raise Exception("This parameter is not gettable!")
+            raise ZINodetreeException("This parameter is not gettable!")
 
     def set(self, value):
         if "Write" in self._properties:
@@ -26,7 +30,16 @@ class ZIParameter:
                 self._cached_value = value
             return self._cached_value
         else:
-            raise Exception("This parameter is not settable!")
+            raise ZINodetreeException("This parameter is not settable!")
+
+    @property
+    def help(self):
+        s = f"Node: {self._path}\n"
+        s += f"Description: {self._description}\n"
+        s += f"Type: {self._type}\n"
+        s += f"Properties: {self._properties}\n"
+        s += f"Unit: {self._unit}\n"
+        print(s)
 
 
 class ZINode:
@@ -45,17 +58,26 @@ class ZINode:
     def _init_subnodes_recursively(self, parent, nodetree_dict: dict):
         for key, value in nodetree_dict.items():
             if all(isinstance(k, int) for k in value.keys()):
-                if "Node" in value[0].keys():
-                    for k in value.keys():
+                # if "Node" in value[0].keys():
+                #     pass
+                #     # for k in value.keys():
+                #     #     param = ZIParameter(parent, value[k])
+                #     #     setattr(parent, f"{key}{k}", param)
+                # else:
+                lst = ZINodeList()
+                for k in value.keys():
+                    if "Node" in value[k].keys():
                         param = ZIParameter(parent, value[k])
-                        setattr(parent, f"{key}{k}", param)
+                        lst.append(param)
+                    else:
+                        node = ZINode(parent)
+                        lst.append(node)
+                        self._init_subnodes_recursively(node, value[k])
+                if len(lst) == 1:
+                    key = key[:-1]
+                    setattr(parent, key, lst[0])
                 else:
-                    channel_list = []
-                    for k in value.keys():
-                        ch = ZINode(parent)
-                        channel_list.append(ch)
-                        self._init_subnodes_recursively(ch, value[k])
-                    setattr(parent, key, channel_list)
+                    setattr(parent, key, lst)
             else:
                 if "Node" in value.keys():
                     param = ZIParameter(parent, value)
@@ -65,6 +87,27 @@ class ZINode:
                     setattr(parent, key, node)
                     self._init_subnodes_recursively(node, value)
 
+    def __repr__(self):
+        s = super().__repr__()
+        s += f"\n"
+        s += f"nodes:\n"
+        for n in self.nodes:
+            if n != "_parent":
+                s += f" - {n}\n"
+        s += f"parameters:\n"
+        for p in self.parameters:
+            s += f" - {p}\n"
+        return s
+
+
+class ZINodeList(list):
+    def __repr__(self):
+        s = f"Iterable node with {len(self)} items: \n"
+        for i in range(len(self)):
+            s += f"\nNode {i+1}:\n"
+            s += f"{self.__getitem__(i)}\n"
+        return s
+
 
 class ZINodetree(ZINode):
     def __init__(self, device):
@@ -73,7 +116,7 @@ class ZINodetree(ZINode):
         self._init_subnodes_recursively(self, self._nodetree_dict)
 
     def _get_nodetree_dict(self):
-        tree = self._device.get_nodetree("*")
+        tree = self._device._get_nodetree("*")
         nodetree = dict()
         for key, value in tree.items():
             key = key.replace(f"/{self._device.serial.upper()}/", "")
@@ -108,12 +151,3 @@ def dictify(data, keys, val):
             data[key] = dictify({}, keys[1:], val)
     return data
 
-
-def dict_to_doc(d):
-    """
-    Turn dictionary into pretty doc string.
-    """
-    s = ""
-    for k, v in d.items():
-        s += f"* {k}:\n\t{v}\n\n"
-    return s
