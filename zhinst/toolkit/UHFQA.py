@@ -2,7 +2,6 @@ import numpy as np
 
 from .BaseInstrument import BaseInstrument
 from .AWGCore import AWGCore
-from .tools import ZIDeviceConnection
 
 
 """
@@ -24,7 +23,7 @@ class UHFQA(BaseInstrument):
         assert cols <= 10
         for r in range(rows):
             for c in range(cols):
-                self.set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
+                self._set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
 
     def enable_readout_channels(self, channels):
         for i in channels:
@@ -40,7 +39,7 @@ class UHFQA(BaseInstrument):
         settings = [
             ("awgs/0/single", 1),
         ]
-        self.set(settings)
+        self._set(settings)
 
 
 """
@@ -66,7 +65,7 @@ class AWG(AWGCore):
         if value == "off":
             value = 0
         self._output = value
-        self._parent.set(f"sigouts/*/on", value)
+        self._parent._set(f"sigouts/*/on", value)
 
     @property
     def gains(self):
@@ -78,8 +77,8 @@ class AWG(AWGCore):
         for g in gains:
             assert abs(g) <= 1
         self._gains = gains
-        self._parent.set(f"awgs/0/outputs/0/amplitude", gains[0])
-        self._parent.set(f"awgs/0/outputs/1/amplitude", gains[1])
+        self._parent._set(f"awgs/0/outputs/0/amplitude", gains[0])
+        self._parent._set(f"awgs/0/outputs/1/amplitude", gains[1])
 
     def _apply_sequence_settings(self, **kwargs):
         if "sequence_type" in kwargs.keys():
@@ -109,26 +108,38 @@ class AWG(AWGCore):
                 self._apply_trigger_settings()
 
     def _apply_cw_settings(self):
-        self._parent.set("sigouts/0/enables/0", 1)
-        self._parent.set("sigouts/1/enables/1", 1)
-        self._parent.set("sigouts/0/amplitudes/0", 1)
-        self._parent.set("sigouts/1/amplitudes/1", 1)
-        self._parent.set("qas/0/integration/mode", 1)
+        settings = [
+            ("sigouts/0/enables/0", 1),
+            ("sigouts/1/enables/1", 1),
+            ("sigouts/0/amplitudes/0", 1),
+            ("sigouts/1/amplitudes/1", 1),
+            ("qas/0/integration/mode", 1),
+        ]
+        self._parent._set(settings)
 
     def _apply_pulsed_settings(self):
-        self._parent.set("sigouts/*/enables/*", 0)
-        self._parent.set("sigouts/*/amplitudes/*", 0)
-        self._parent.set("awgs/0/outputs/*/mode", 1)
-        self._parent.set("qas/0/integration/mode", 1)
+        settings = [
+            ("sigouts/*/enables/*", 0),
+            ("sigouts/*/amplitudes/*", 0),
+            ("awgs/0/outputs/*/mode", 1),
+            ("qas/0/integration/mode", 1),
+        ]
+        self._parent._set(settings)
 
     def _apply_readout_settings(self):
-        self._parent.set("sigouts/*/enables/*", 0)
-        self._parent.set("awgs/0/outputs/*/mode", 0)
-        self._parent.set("qas/0/integration/mode", 0)
+        settings = [
+            ("sigouts/*/enables/*", 0),
+            ("awgs/0/outputs/*/mode", 0),
+            ("qas/0/integration/mode", 0),
+        ]
+        self._parent._set(settings)
 
     def _apply_trigger_settings(self):
-        self._parent.set("/awgs/0/auxtriggers/*/channel", 0)
-        self._parent.set("/awgs/0/auxtriggers/*/slope", 1)
+        settings = [
+            ("/awgs/0/auxtriggers/*/channel", 0),
+            ("/awgs/0/auxtriggers/*/slope", 1),
+        ]
+        self._parent._set(settings)
 
     def update_readout_params(self):
         if self.sequence_params["sequence_type"] == "Readout":
@@ -221,37 +232,37 @@ class ReadoutChannel:
 
     @property
     def rotation(self):
-        return np.angle(self._parent.get(f"qas/0/rotations/{self._index}"), deg=True)
+        return np.angle(self._parent._get(f"qas/0/rotations/{self._index}"), deg=True)
 
     @rotation.setter
     def rotation(self, rot):
         c = np.exp(1j * np.deg2rad(rot))
-        self._parent.set(f"qas/0/rotations/{self._index}", c)
+        self._parent._set(f"qas/0/rotations/{self._index}", c)
 
     @property
     def threshold(self):
-        return self._parent.get(f"qas/0/thresholds/{self._index}/level")
+        return self._parent._get(f"qas/0/thresholds/{self._index}/level")
 
     @threshold.setter
     def threshold(self, th):
-        self._parent.set(f"qas/0/thresholds/{self._index}/level", th)
+        self._parent._set(f"qas/0/thresholds/{self._index}/level", th)
 
     @property
     def result(self):
-        return self._parent.get(f"qas/0/result/data/{self._index}/wave")
+        return self._parent._get(f"qas/0/result/data/{self._index}/wave")
 
     def _reset_int_weights(self):
-        l = self._parent.get("qas/0/integration/length")
+        l = self._parent._get("qas/0/integration/length")
         node = f"/qas/0/integration/weights/"
-        self._parent.set(node + f"{self._index}/real", np.zeros(l))
-        self._parent.set(node + f"{self._index}/imag", np.zeros(l))
+        self._parent._set(node + f"{self._index}/real", np.zeros(l))
+        self._parent._set(node + f"{self._index}/imag", np.zeros(l))
 
     def _set_int_weights(self):
         l = self._parent.get("qas/0/integration/length")
         freq = self.readout_frequency
         node = f"/qas/0/integration/weights/{self._index}/"
-        self._parent.set(node + "real", self._demod_weights(l, freq, 0))
-        self._parent.set(node + "imag", self._demod_weights(l, freq, 90))
+        self._parent._set(node + "real", self._demod_weights(l, freq, 0))
+        self._parent._set(node + "imag", self._demod_weights(l, freq, 90))
 
     def _demod_weights(self, length, freq, phase):
         assert length <= 4096
