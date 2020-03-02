@@ -4,9 +4,9 @@
 ```mermaid
 
 classDiagram
-    BaseController *-- ZIDeviceConnection
+    Controller *-- ZIDeviceConnection
     ZIDeviceConnection --> ziPython
-    BaseController *-- InstrumentConfiguration
+    Controller *-- InstrumentConfiguration
     AWGCore *-- SequenceProgram
     AWGCore .. ZIDeviceConnection
     SequenceProgram *-- Sequence
@@ -17,7 +17,7 @@ classDiagram
     UHFQA --|> BaseInstrument
     UHFLI --|> BaseInstrument
     PQSC --|> BaseInstrument
-    BaseInstrument *-- BaseController
+    BaseInstrument *-- Controller
     HDAWG *-- AWGCore_for_HDAWG
     UHFQA *-- AWGCore_for_UHFQA
     UHFQA *-- ReadoutChannel
@@ -27,10 +27,15 @@ classDiagram
     MultiDeviceController *-- PQSC
     MultiDeviceController *-- ZIDeviceConnection
     MultiDeviceController *-- InstrumentConfiguration
+    ZINodetree *-- ZINode
+    ZINode *-- ZINode
+    ZINode *-- ZIParameter
+    BaseInstrument *-- ZINodetree
+    
     
 
     
-    class BaseController{
+    class Controller{
         -connection
         -config
         -device
@@ -125,6 +130,28 @@ classDiagram
         +pqsc
         +setup()
         +connect_device()
+    }
+    class ZINodetree{
+        -device
+        -nodetree_dict
+        +nodes
+        +parameters
+    }
+    class ZINode{
+        -parent
+        +nodes
+        +parameters
+        -init_subnodes_recursively()
+    }
+    class ZIParameter{
+        -parent
+        -device
+        -path
+        -description
+        -cached_value
+        -properties
+        +get()
+        +set()
     }
 
 ```
