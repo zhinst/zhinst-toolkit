@@ -29,21 +29,12 @@ class AWGCore:
         return self._parent.name + "-" + str(self._index)
 
     @property
-    def program(self):
-        return self._program
-
-    @property
     def waveforms(self):
         return self._waveforms
 
-    # @property
-    # def seqc(self):
-    #     seqc = self.program.get_seqc()
-    #     return None if seqc == "" else seqc
-
     @property
     def is_running(self):
-        return self._parent.get(f"/awgs/{self._index}/enable")
+        return self._parent._get(f"/awgs/{self._index}/enable")
 
     @property
     def sequence_params(self):
@@ -61,21 +52,21 @@ class AWGCore:
         return s
 
     def run(self):
-        self._parent.set(f"/awgs/{self._index}/enable", 1)
+        self._parent._set(f"/awgs/{self._index}/enable", 1)
         print(f"Started AWG {self.name}!")
 
     def stop(self):
-        self._parent.set(f"/awgs/{self._index}/enable", 0)
+        self._parent._set(f"/awgs/{self._index}/enable", 0)
         print(f"Stopped AWG {self.name}!")
 
     def compile(self):
-        awg_module = self._parent.awg_connection
+        awg_module = self._parent._awg_connection
         awg_module.update(device=self._parent.serial)
         awg_module.update(index=self._index)
-        if self.program.sequence_type == "Simple":
+        if self._program.sequence_type == "Simple":
             buffer_lengths = [w.buffer_length for w in self._waveforms]
-            self.program.set_params(buffer_lengths=buffer_lengths)
-        awg_module.set("compiler/sourcestring", self.program.get_seqc())
+            self.set_sequence_params(buffer_lengths=buffer_lengths)
+        awg_module.set("compiler/sourcestring", self._program.get_seqc())
         while awg_module.get_int("compiler/status") == -1:
             time.sleep(0.1)
         if awg_module.get_int("compiler/status") == 1:
@@ -95,7 +86,7 @@ class AWGCore:
         self._waveforms = list()
 
     def queue_waveform(self, wave1, wave2):
-        if self.program.sequence_type != "Simple":
+        if self._program.sequence_type != "Simple":
             raise Exception(
                 "Waveform upload only possible for 'Simple' sequence program!"
             )
@@ -113,7 +104,7 @@ class AWGCore:
             f"awgs/{self._index}/waveform/waves/{i}" for i in range(len(waveform_data))
         ]
         tok = time.time()
-        self._parent.set(zip(nodes, waveform_data))
+        self._parent._set(zip(nodes, waveform_data))
         tik = time.time()
         print(f"Upload of {len(waveform_data)} waveforms took {tik - tok} s")
 
@@ -123,7 +114,7 @@ class AWGCore:
 
     def _wait_upload_done(self, timeout=10):
         time.sleep(0.01)
-        awg_module = self._parent.awg_connection
+        awg_module = self._parent._awg_connection
         awg_module.update(device=self._parent.serial, index=self._index)
         tik = time.time()
         while awg_module.get_int("/elf/status") == 2:
@@ -134,4 +125,11 @@ class AWGCore:
         print(
             f"{self.name}: Sequencer status: {'ELF file uploaded' if status == 0 else 'FAILED!!'}"
         )
+
+    def set_sequence_params(self, **kwargs):
+        self._program.set_params(**kwargs)
+        self._apply_sequence_settings(**kwargs)
+
+    def _apply_sequence_settings(self, **kwargs):
+        pass
 

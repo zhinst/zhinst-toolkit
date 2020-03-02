@@ -2,7 +2,6 @@ import numpy as np
 
 from .BaseInstrument import BaseInstrument
 from .AWGCore import AWGCore
-from .tools import ZIDeviceConnection
 
 
 """
@@ -37,7 +36,7 @@ class HDAWG(BaseInstrument):
             ("/dev8030/system/clocks/referenceclock/source", 1,),
             ("awgs/*/single", 1),
         ]
-        self.set(settings)
+        self._set(settings)
 
 
 """
@@ -66,8 +65,8 @@ class AWG(AWGCore):
         if value == "off":
             value = 0
         self._output = value
-        self._parent.set(f"sigouts/{2 * self._index}/on", value)
-        self._parent.set(f"sigouts/{2 * self._index + 1}/on", value)
+        self._parent._set(f"sigouts/{2 * self._index}/on", value)
+        self._parent._set(f"sigouts/{2 * self._index + 1}/on", value)
 
     def enable_iq_modulation(self):
         self._iq_modulation = True
@@ -79,7 +78,7 @@ class AWG(AWGCore):
             (f"sines/{2 * i + 1}/oscselect", 4 * i),  # select osc N for awg N
             (f"sines/{2 * i + 1}/phaseshift", 90,),  # 90 deg phase shift
         ]
-        self._parent.set(settings)
+        self._parent._set(settings)
 
     def disable_iq_modulation(self):
         self._iq_modulation = False
@@ -89,7 +88,7 @@ class AWG(AWGCore):
             (f"awgs/{i}/outputs/1/modulation/mode", 0),  # modulation: sine 22
             (f"sines/{2 * i + 1}/phaseshift", 0,),  # 90 deg phase shift
         ]
-        self._parent.set(settings)
+        self._parent._set(settings)
 
     @property
     def modulation_frequency(self):
@@ -99,7 +98,7 @@ class AWG(AWGCore):
     def modulation_frequency(self, freq):
         assert freq > 0
         self._modulation_freq = freq
-        self._parent.set(f"oscs/{4 * self._index}/freq", freq)
+        self._parent._set(f"oscs/{4 * self._index}/freq", freq)
 
     @property
     def modulation_phase_shift(self):
@@ -108,7 +107,7 @@ class AWG(AWGCore):
     @modulation_phase_shift.setter
     def modulation_phase_shift(self, ph):
         self._modulation_phase_shift = ph
-        self._parent.set(f"sines/{2 * self._index + 1}/phaseshift", ph)
+        self._parent._set(f"sines/{2 * self._index + 1}/phaseshift", ph)
 
     @property
     def modulation_gains(self):
@@ -120,8 +119,8 @@ class AWG(AWGCore):
         for g in gains:
             assert abs(g) <= 1
         self._modulation_gains = gains
-        self._parent.set(f"awgs/{self._index}/outputs/0/gains/0", gains[0])
-        self._parent.set(f"awgs/{self._index}/outputs/1/gains/1", gains[1])
+        self._parent._set(f"awgs/{self._index}/outputs/0/gains/0", gains[0])
+        self._parent._set(f"awgs/{self._index}/outputs/1/gains/1", gains[1])
 
     def _apply_sequence_settings(self, **kwargs):
         if "sequence_type" in kwargs.keys():
@@ -144,9 +143,9 @@ class AWG(AWGCore):
 
     def _apply_trigger_settings(self):
         i = self._index
-        self._parent.set(f"/trigger/in/{2*i}/level", 0.5)
-        self._parent.set(f"/awgs/{i}/auxtriggers/*/channel", 2 * i)
-        self._parent.set(f"/awgs/{i}/auxtriggers/*/slope", 1)  # rise
+        self._parent._set(f"/trigger/in/{2*i}/level", 0.5)
+        self._parent._set(f"/awgs/{i}/auxtriggers/*/channel", 2 * i)
+        self._parent._set(f"/awgs/{i}/auxtriggers/*/slope", 1)  # rise
 
     def __repr__(self):
         s = f"{super().__repr__()}"

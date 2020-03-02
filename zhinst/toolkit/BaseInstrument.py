@@ -1,6 +1,6 @@
 import numpy as np
 
-from .tools import Controller, ZIDeviceConnection, InstrumentConfiguration, ZINodetree
+from .tools import DeviceConnection, ZIConnection, InstrumentConfiguration, ZINodetree
 
 
 """
@@ -16,10 +16,10 @@ class BaseInstrument:
         self._config._instrument._config._device_type = device_type
         self._config._instrument._config._serial = serial
         self._config._instrument._config._interface = kwargs.get("interface", "1GbE")
-        self._controller = Controller(self, **kwargs)
+        self._controller = DeviceConnection(self, **kwargs)
         self._nodetree = None
 
-    def setup(self, connection: ZIDeviceConnection = None):
+    def setup(self, connection: ZIConnection = None):
         self._controller.setup(connection=connection)
 
     def connect_device(self):
@@ -55,26 +55,26 @@ class BaseInstrument:
         pass
 
     # wrap around get and set of Controller
-    def set(self, *args):
+    def _set(self, *args):
         if not self.is_connected:
             raise Exception(
                 f"The device {self.name} ({self.serial}) is not connected to a Data Server!"
             )
         self._controller.set(*args)
 
-    def get(self, command, valueonly=True):
+    def _get(self, command, valueonly=True):
         self._check_connected()
         return self._controller.get(command, valueonly=valueonly)
 
     @property
-    def awg_connection(self):
+    def _awg_connection(self):
         self._check_connected()
         if self.device_type not in ["hdawg", "uhfqa", "uhfli"]:
             raise Exception("You cannot access AWG module of the Data Server!")
         else:
             return self._controller._connection.awg_module
 
-    def get_nodetree(self, prefix, **kwargs):
+    def _get_nodetree(self, prefix, **kwargs):
         self._check_connected()
         return self._controller.get_nodetree(prefix, **kwargs)
 
