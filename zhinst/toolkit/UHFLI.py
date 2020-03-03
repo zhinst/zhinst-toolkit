@@ -5,16 +5,21 @@ from .uhfqa import AWG
 from .tools import ZHTKException
 
 
-"""
-High-level controller for UHFQA.
-
-"""
-
-
 class UHFLI(BaseInstrument):
+    """
+    High-level controller for UHFLI. Inherits from BaseInstrument and overrides 
+    the _init-settings(...) method. The property awg_connection accesses the 
+    connection's awg module and is used in the AWG core as 
+    awg._parent._awg_module. 
+    
+    Reuses the device specific AWG from the UHFQA. Might want to define a 
+    device-specific AWG for the UHFLI isntead.
+
+    """
+
     def __init__(self, name, serial, **kwargs):
         super().__init__(name, "uhfli", serial, **kwargs)
-        self.awg = AWG(self, 0)
+        self._awg = AWG(self, 0)
 
     def _init_settings(self):
         settings = [
@@ -23,10 +28,11 @@ class UHFLI(BaseInstrument):
         self._set(settings)
 
     @property
+    def awg(self):
+        return self._awg
+
+    @property
     def _awg_connection(self):
         self._check_connected()
-        if self.device_type not in ["hdawg", "uhfqa", "uhfli"]:
-            raise ZHTKException("You cannot access AWG module of the Data Server!")
-        else:
-            return self._controller._connection.awg_module
+        return self._controller._connection.awg_module
 
