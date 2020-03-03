@@ -51,6 +51,9 @@ class ZIConnection:
     def get(self, *args, **kwargs):
         return self._daq.get(*args, **kwargs)
 
+    def get_sample(self, *args, **kwargs):
+        return self._daq.getSample(*args, **kwargs)
+
     def list_nodes(self, *args, **kwargs):
         return self._daq.listNodesJSON(*args, **kwargs)
 
@@ -150,7 +153,12 @@ class DeviceConnection(object):
                 node_string = self._command_to_node(command)
             else:
                 raise ZHTKConnectionException("Invalid argument!")
-            data = self._connection.get(node_string, settingsonly=False, flat=True)
+
+            if self._device.device_type == "mfli" and "sample" in command.lower():
+                data = self._connection.get_sample(node_string)
+                return self._get_value_from_streamingnode(data)
+            else:
+                data = self._connection.get(node_string, settingsonly=False, flat=True)
             data = self._get_value_from_dict(data)
             if valueonly:
                 if len(data) > 1:
@@ -180,6 +188,15 @@ class DeviceConnection(object):
             if "vector" in data_dict.keys():
                 new_data[key] = data_dict["vector"]
         return new_data
+
+    def _get_value_from_streamingnode(self, data):
+        if not isinstance(data, dict):
+            raise ZHTKConnectionException("Something went wrong...")
+        if not len(data):
+            raise ZHTKConnectionException("No data returned... does the node exist?")
+        if "x" not in data.keys() or "y" not in data.keys():
+            raise ZHTKConnectionException("No 'x' or 'y' in streaming node data!")
+        return data["x"][0] + 1j * data["y"][0]
 
     def _commands_to_node(self, settings):
         new_settings = []
