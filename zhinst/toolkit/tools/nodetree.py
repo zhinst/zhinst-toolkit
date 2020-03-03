@@ -16,14 +16,18 @@ class ZIParameter:
         self._unit = params.get("Unit", None)
         self._cached_value = None
 
-    def get(self):
+    def _getter(self):
         if "Read" in self._properties:
-            self._cached_value = self._device._get(self._path)
+            value = self._device._get(self._path)
+            # if "Stream" in self._properties:
+            #     self._cached_value = value["x"][0] + 1j * value["y"][0]
+            # else:
+            self._cached_value = value
             return self._cached_value
         else:
             raise ZHTKNodetreeException("This parameter is not gettable!")
 
-    def set(self, value):
+    def _setter(self, value):
         if "Write" in self._properties:
             if value != self._cached_value:
                 self._device._set(self._path, value)
@@ -31,6 +35,12 @@ class ZIParameter:
             return self._cached_value
         else:
             raise ZHTKNodetreeException("This parameter is not settable!")
+
+    def __call__(self, value=None):
+        if value is None:
+            return self._getter()
+        else:
+            return self._setter(value)
 
     @property
     def help(self):
