@@ -259,7 +259,7 @@ class ReadoutChannel:
         self._parent._set(node + f"{self._index}/imag", np.zeros(l))
 
     def _set_int_weights(self):
-        l = self._parent.get("qas/0/integration/length")
+        l = self._parent._get("qas/0/integration/length")
         freq = self.readout_frequency
         node = f"/qas/0/integration/weights/{self._index}/"
         self._parent._set(node + "real", self._demod_weights(l, freq, 0))

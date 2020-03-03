@@ -18,7 +18,7 @@ class ZIParameter:
 
     def get(self):
         if "Read" in self._properties:
-            self._cached_value = self._device.get(self._path)
+            self._cached_value = self._device._get(self._path)
             return self._cached_value
         else:
             raise ZHTKNodetreeException("This parameter is not gettable!")
@@ -26,7 +26,7 @@ class ZIParameter:
     def set(self, value):
         if "Write" in self._properties:
             if value != self._cached_value:
-                self._device.set(self._path, value)
+                self._device._set(self._path, value)
                 self._cached_value = value
             return self._cached_value
         else:
@@ -58,12 +58,6 @@ class ZINode:
     def _init_subnodes_recursively(self, parent, nodetree_dict: dict):
         for key, value in nodetree_dict.items():
             if all(isinstance(k, int) for k in value.keys()):
-                # if "Node" in value[0].keys():
-                #     pass
-                #     # for k in value.keys():
-                #     #     param = ZIParameter(parent, value[k])
-                #     #     setattr(parent, f"{key}{k}", param)
-                # else:
                 lst = ZINodeList()
                 for k in value.keys():
                     if "Node" in value[k].keys():
@@ -116,7 +110,7 @@ class ZINodetree(ZINode):
         self._init_subnodes_recursively(self, self._nodetree_dict)
 
     def _get_nodetree_dict(self):
-        tree = self._device._get_nodetree("*")
+        tree = self._device._get_nodetree(f"{self._device.serial}/*")
         nodetree = dict()
         for key, value in tree.items():
             key = key.replace(f"/{self._device.serial.upper()}/", "")
