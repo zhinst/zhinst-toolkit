@@ -1,6 +1,6 @@
 from .connection import ZIConnection
 from .connection import DeviceConnection
-from .nodetree import ZINodetree
+from .nodetree import Nodetree
 from .interface import InstrumentConfiguration
 
 

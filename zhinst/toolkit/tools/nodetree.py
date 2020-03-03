@@ -5,7 +5,7 @@ class ZHTKNodetreeException(Exception):
     pass
 
 
-class ZIParameter:
+class Parameter:
     def __init__(self, parent, params):
         self._parent = parent
         self._device = parent._device
@@ -52,29 +52,29 @@ class ZIParameter:
         print(s)
 
 
-class ZINode:
+class Node:
     def __init__(self, parent):
         self._parent = parent
         self._device = parent._device
 
     @property
     def nodes(self):
-        return [k for k, v in self.__dict__.items() if isinstance(v, (ZINode, list))]
+        return [k for k, v in self.__dict__.items() if isinstance(v, (Node, list))]
 
     @property
     def parameters(self):
-        return [k for k, v in self.__dict__.items() if isinstance(v, ZIParameter)]
+        return [k for k, v in self.__dict__.items() if isinstance(v, Parameter)]
 
     def _init_subnodes_recursively(self, parent, nodetree_dict: dict):
         for key, value in nodetree_dict.items():
             if all(isinstance(k, int) for k in value.keys()):
-                lst = ZINodeList()
+                lst = NodeList()
                 for k in value.keys():
                     if "Node" in value[k].keys():
-                        param = ZIParameter(parent, value[k])
+                        param = Parameter(parent, value[k])
                         lst.append(param)
                     else:
-                        node = ZINode(parent)
+                        node = Node(parent)
                         lst.append(node)
                         self._init_subnodes_recursively(node, value[k])
                 if len(lst) == 1:
@@ -84,10 +84,10 @@ class ZINode:
                     setattr(parent, key, lst)
             else:
                 if "Node" in value.keys():
-                    param = ZIParameter(parent, value)
+                    param = Parameter(parent, value)
                     setattr(parent, key, param)
                 else:
-                    node = ZINode(parent)
+                    node = Node(parent)
                     setattr(parent, key, node)
                     self._init_subnodes_recursively(node, value)
 
@@ -104,7 +104,7 @@ class ZINode:
         return s
 
 
-class ZINodeList(list):
+class NodeList(list):
     def __repr__(self):
         s = f"Iterable node with {len(self)} items: \n"
         for i in range(len(self)):
@@ -113,7 +113,7 @@ class ZINodeList(list):
         return s
 
 
-class ZINodetree(ZINode):
+class Nodetree(Node):
     def __init__(self, device):
         self._device = device
         self._nodetree_dict = self._get_nodetree_dict()

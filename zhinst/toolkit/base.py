@@ -4,7 +4,7 @@ from .tools import (
     DeviceConnection,
     ZIConnection,
     InstrumentConfiguration,
-    ZINodetree,
+    Nodetree,
     ZHTKException,
 )
 
@@ -31,7 +31,7 @@ class BaseInstrument:
     def connect_device(self, nodetree=True):
         self._controller.connect_device()
         if nodetree:
-            self._nodetree = ZINodetree(self)
+            self._nodetree = Nodetree(self)
         self._init_settings()
 
     @property
