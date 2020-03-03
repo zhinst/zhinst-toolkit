@@ -6,6 +6,13 @@ class ZHTKNodetreeException(Exception):
 
 
 class Parameter:
+    """
+    Implements a callable parameter as leaves in the nodetree with a parent node 
+    and a device. It holds the information from the daq.listNodesJSON(...) 
+    method such as the node path, the description, properties, etc. The 'help' 
+    property prints a string with a summary of the parameter.
+    """
+
     def __init__(self, parent, params):
         self._parent = parent
         self._device = parent._device
@@ -19,9 +26,6 @@ class Parameter:
     def _getter(self):
         if "Read" in self._properties:
             value = self._device._get(self._path)
-            # if "Stream" in self._properties:
-            #     self._cached_value = value["x"][0] + 1j * value["y"][0]
-            # else:
             self._cached_value = value
             return self._cached_value
         else:
@@ -53,6 +57,13 @@ class Parameter:
 
 
 class Node:
+    """
+    Implements a node in the nodetree of a device. A node has a parent node 
+    and a device it is associated with. It can hold other nodes as well as 
+    parameters. The data structure of the device nodetree is recreated by 
+    recursively adding either nodes or parameters as attributes to the node.
+    """
+
     def __init__(self, parent):
         self._parent = parent
         self._device = parent._device
@@ -105,6 +116,11 @@ class Node:
 
 
 class NodeList(list):
+    """
+    Implements a list of nodes. Simply inherits from List and overrides 
+    the __repr__() method to make it look nice in the console.
+    """
+
     def __repr__(self):
         s = f"Iterable node with {len(self)} items: \n"
         for i in range(len(self)):
@@ -114,6 +130,27 @@ class NodeList(list):
 
 
 class Nodetree(Node):
+    """
+    Implements a Nodetree data structure used to access the settings (nodes) 
+    of any ZI device. A nodetree is created for every instrument when it is 
+    connected to the data server. In this way the available settings always 
+    directly correspond to the ndoes that are available on the device.
+
+    Inherits from the Node class. On initialization the nodetree gets a nested 
+    dictionary representing the nodetree hirarchy and then recursively adds 
+    Node and Parameter objects as attributes to the node.
+    
+    Args:
+        device: reference to the instrument the nodetree 
+            belong to. Used for getting and setting of each parameter.
+    
+    Attributes:
+        device (BaseInstrument)
+        nodetree_dict (dict): a nested dictionary created from the dict 
+            returned by daq.listNodesJSON(...) in zhinst.ziPython. 
+
+    """
+
     def __init__(self, device):
         self._device = device
         self._nodetree_dict = self._get_nodetree_dict()
@@ -127,11 +164,6 @@ class Nodetree(Node):
             hirarchy = key.split("/")
             dictify(nodetree, hirarchy, value)
         return nodetree
-
-
-"""
-Helper functions used to process the nodetree dictionary in ZIBaseInstrument.
-"""
 
 
 def dictify(data, keys, val):

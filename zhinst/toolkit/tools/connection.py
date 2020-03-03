@@ -1,19 +1,41 @@
 import json
-
 import zhinst.ziPython as zi
 
 
 class ZHTKConnectionException(Exception):
+    """
+    Exception specific to the zhinst.toolkit ZIConnection class.
+    """
+
     pass
 
 
 class ZIConnection:
+    """
+    Connection to a Zurich Instruments data server object. wraps around the 
+    basic functionality of connecting to the dataserver, connecting a device 
+    to the server, and setting and getting node values. It also holds an 
+    awg module object that implements the daq.awgModule module.
+    
+    Args:
+        connection_details: Part of the instrument config.
+    
+    Attributes:
+        connection_details (ZIAPI)
+        daq (zi.ziDAQServer): data server object from zhinst.ziPython
+        awg_module (AWGModule): awg module of the data server 
+
+    """
+
     def __init__(self, connection_details):
         self._connection_details = connection_details
         self._daq = None
         self._awg = None
 
     def connect(self):
+        """
+        Established a connection to the data server.
+        """
         self._daq = zi.ziDAQServer(
             self._connection_details.host,
             self._connection_details.port,
@@ -31,6 +53,9 @@ class ZIConnection:
             print("No connection could be established...")
 
     def connect_device(self, **kwargs):
+        """
+        Connects a device to the data server. 
+        """
         if self._daq is None:
             raise ZHTKConnectionException("No existing connection to data server")
         if not all(k for k in ["serial", "interface"]):
@@ -52,12 +77,23 @@ class ZIConnection:
         return self._daq.get(*args, **kwargs)
 
     def get_sample(self, *args, **kwargs):
+        """
+        Wraps around the daq.getSample(...) method in zhinst.ziPython. Used only 
+        for certain streaming nodes on the UHFLI or MFLI devices.
+        
+        """
         return self._daq.getSample(*args, **kwargs)
 
     def list_nodes(self, *args, **kwargs):
         return self._daq.listNodesJSON(*args, **kwargs)
 
     class AWGModule:
+        """
+        Implements an awg module as daq.awgModule(...) in zhinst.ziPython with 
+        get and set methods of the module. Allows to address different awgs on 
+        different devices with the same awg module using the update(...) method. 
+        """
+
         def __init__(self, daq):
             self._awgModule = daq.awgModule()
             self._awgModule.execute()
@@ -115,11 +151,37 @@ class ZIConnection:
 
 
 class DeviceConnection(object):
+    """
+    Implements a connection to the data server for a single device. Wraps around 
+    the data server connection (ZIConnection) for a single device with a 
+    specified serial number and type. This class allows it to call get(...) and 
+    set(...) for any node in the nodetree without having to specify the device 
+    address. In contrast to zhinst.ziPython the get(...) method returns only the
+    value of the node as a scalar or numpy array.
+    
+    Args:
+        device (BaseInstrument): Associated device that the device connection 
+            is used for.
+
+    Attributes:
+        connection (ZIConnection): Data server connection (common for more 
+            than one isntrument).
+        device (BaseInstrument): Associated instrument that is addressed.
+    
+    """
+
     def __init__(self, device, **kwargs):
         self._connection = None
         self._device = device
 
     def setup(self, connection: ZIConnection = None):
+        """
+        Establishes the connection to the data server (ZIConnection). 
+        Optionally, an existing connection can also be passed as an argument.
+        
+        Args:
+            connection (ZIConnection): defaults to None
+        """
         if connection is None:
             details = self._device._config._api_config
             self._connection = ZIConnection(details)
@@ -128,11 +190,19 @@ class DeviceConnection(object):
         self._connection.connect()
 
     def connect_device(self):
+        """
+        Connects the device to the data server.
+        """
         self._connection.connect_device(
             serial=self._device.serial, interface=self._device.interface,
         )
 
     def set(self, *args):
+        """
+        Sets the node of the connected device. Parses the input arguments to 
+        either set a single node/value pair or a list of node/value pair tuples.
+        Eventually wraps around the daq.set(...) of zhinst.ziPython.
+        """
         if len(args) == 2:
             settings = [(args[0], args[1])]
         elif len(args) == 1:
@@ -143,6 +213,11 @@ class DeviceConnection(object):
         return self._connection.set(settings)
 
     def get(self, command, valueonly=True):
+        """
+        Gets the node of the connected device. Parses the returned dictionary 
+        from the data server to output only the actual value in a nice format.
+        Wraps around the daq.get(...) of zhinst.ziPython.
+        """
         if self._device is not None:
             if isinstance(command, list):
                 paths = []
@@ -153,8 +228,7 @@ class DeviceConnection(object):
                 node_string = self._command_to_node(command)
             else:
                 raise ZHTKConnectionException("Invalid argument!")
-
-            if self._device.device_type == "mfli" and "sample" in command.lower():
+            if self._device.device_type.endswith("li") and "sample" in command.lower():
                 data = self._connection.get_sample(node_string)
                 return self._get_value_from_streamingnode(data)
             else:
@@ -171,6 +245,10 @@ class DeviceConnection(object):
             raise ZHTKConnectionException("No device connected!")
 
     def get_nodetree(self, prefix: str, **kwargs):
+        """
+        Gets the entire nodetree of the connected device. Wraps around the 
+        daq.listNodesJSON(...) method in zhinst.ziPython.
+        """
         return json.loads(self._connection.list_nodes(prefix, **kwargs))
 
     def _get_value_from_dict(self, data):
