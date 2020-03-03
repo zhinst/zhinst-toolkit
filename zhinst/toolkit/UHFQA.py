@@ -42,6 +42,14 @@ class UHFQA(BaseInstrument):
         ]
         self._set(settings)
 
+    @property
+    def _awg_connection(self):
+        self._check_connected()
+        if self.device_type not in ["hdawg", "uhfqa", "uhfli"]:
+            raise ZHTKException("You cannot access AWG module of the Data Server!")
+        else:
+            return self._controller._connection.awg_module
+
 
 """
 Device specific AWG for UHFQA.
