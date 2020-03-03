@@ -5,19 +5,23 @@ from .awg_core import AWGCore
 from .tools import ZHTKException
 
 
-"""
-High-level controller for UHFQA.
-
-"""
-
-
 class UHFQA(BaseInstrument):
+    """
+    High-level controller for UHFQA. Inherits from BaseInstrument and defines 
+    UHFQA specific methods. The property awg_connection accesses the 
+    connection's awg module and is used in the AWG core as 
+    awg._parent._awg_module
+
+    The UHFQA has one awg core and ten ReadoutChannels that can  be accessed as 
+    properties of the object.
+
+    """
+
     def __init__(self, name, serial, **kwargs):
         super().__init__(name, "uhfqa", serial, **kwargs)
-        self.awg = AWG(self, 0)
-        self.channels = [ReadoutChannel(self, i) for i in range(10)]
+        self._awg = AWG(self, 0)
+        self._channels = [ReadoutChannel(self, i) for i in range(10)]
 
-    # device specific methods
     def write_crottalk_matrix(self, matrix):
         rows, cols = matrix.shape
         assert rows <= 10
@@ -43,21 +47,26 @@ class UHFQA(BaseInstrument):
         self._set(settings)
 
     @property
+    def awg(self):
+        return self._awg
+
+    @property
+    def channels(self):
+        return self._channels
+
+    @property
     def _awg_connection(self):
         self._check_connected()
-        if self.device_type not in ["hdawg", "uhfqa", "uhfli"]:
-            raise ZHTKException("You cannot access AWG module of the Data Server!")
-        else:
-            return self._controller._connection.awg_module
-
-
-"""
-Device specific AWG for UHFQA.
-
-"""
+        return self._controller._connection.awg_module
 
 
 class AWG(AWGCore):
+    """
+    Device-specific AWG for UHFQA with properties like ouput or gains and 
+    sequence specific settings for the UHFQA. Inherits from AWGCore.
+
+    """
+
     def __init__(self, parent, index):
         super().__init__(parent, index)
         self._output = "off"

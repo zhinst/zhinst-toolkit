@@ -5,16 +5,28 @@ from .awg_core import AWGCore
 from .tools import ZHTKException
 
 
-"""
-High-level controller for HDAWG.
-
-"""
-
-
 class HDAWG(BaseInstrument):
+    """
+    High-level controller for HDAWG. Inherits from BaseInstrument and defines 
+    device specific methods. The property awg_connection accesses the 
+    connection's awg module and is used in the AWG core as 
+    awg._parent._awg_module. 
+
+    The device has four awg cores that can be used as
+
+        import zhinst.toolkit as tk
+        hd = tk.HDAWG("hd", "dev2916")
+        hd.setup()
+        hd.connect_device()
+        
+        hd.awgs[0].run()
+        ...
+
+    """
+
     def __init__(self, name, serial, **kwargs):
         super().__init__(name, "hdawg", serial, **kwargs)
-        self.awgs = [AWG(self, i) for i in range(4)]
+        self._awgs = [AWG(self, i) for i in range(4)]
 
     def set_outputs(self, values):
         assert len(values) == 4
@@ -40,21 +52,22 @@ class HDAWG(BaseInstrument):
         self._set(settings)
 
     @property
+    def awgs(self):
+        return self._awgs
+
+    @property
     def _awg_connection(self):
         self._check_connected()
-        if self.device_type not in ["hdawg", "uhfqa", "uhfli"]:
-            raise ZHTKException("You cannot access AWG module of the Data Server!")
-        else:
-            return self._controller._connection.awg_module
-
-
-"""
-AWG specific to HDAWG.
-
-"""
+        return self._controller._connection.awg_module
 
 
 class AWG(AWGCore):
+    """
+    Device-specific AWG for HDAWG with properties like ouput, modulation frequency or gains and 
+    sequence specific settings for the HDAWG. Inherits from AWGCore.
+
+    """
+
     def __init__(self, parent, index):
         super().__init__(parent, index)
         self._output = "off"

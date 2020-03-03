@@ -4,20 +4,20 @@ import time
 from .tools.helpers import SequenceProgram, Waveform
 
 
-"""
-AWG Core representation.
-
-Wrapper around AWGController with specific attributes for an AWG Core:
-- a parent instrument
-- an index
-- a name (of the controller, e.g. "hdawg0")
-- pretty __repr__() method
-- wrap around controller methods with name and index for onvenience
-
-"""
-
-
 class AWGCore:
+    """
+    Implements an AWG Core representation.
+
+    Attributes:
+        parent (BaseInstrument): reference to the parent instrument
+        index (int): integer specifying the index in the parent instrument
+        waveforms (list): list of waveforms that represent the queued up waves
+        program (SequenceProgram): a sequence program object used to program 
+            certain seqC sequences onto the device
+    
+
+    """
+
     def __init__(self, parent, index):
         self._parent = parent
         self._index = index

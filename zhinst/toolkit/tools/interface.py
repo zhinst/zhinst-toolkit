@@ -28,6 +28,11 @@ class ZIAPI:
 
 
 class InstrumentConfiguration:
+    """
+    Implements a data structure used to represent the instrument and 
+    api configuration.
+    """
+
     def __init__(self):
         self._api_config = ZIAPI()
         self._instrument = ZIDevice()
