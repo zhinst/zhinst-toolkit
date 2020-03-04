@@ -27,6 +27,7 @@ class Parameter:
         self._description = params.get("Description", "")
         self._type = params.get("Type", None)
         self._properties = params.get("Properties", None)
+        self._options = params.get("Options", None)
         self._unit = params.get("Unit", None)
         self._cached_value = None
         self._get_parser = get_parser
@@ -56,15 +57,15 @@ class Parameter:
         else:
             return self._setter(value)
 
-    @property
-    def help(self):
+    def __repr__(self):
         s = f"Node: {self._path}\n"
         s += f"Description: {self._description}\n"
         s += f"Type: {self._type}\n"
         s += f"Properties: {self._properties}\n"
+        s += f"Options: {self._options}\n"
         s += f"Unit: {self._unit}\n"
         s += f"Value: {self._cached_value}\n"
-        print(s)
+        return s
 
 
 class Node:
