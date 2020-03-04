@@ -23,6 +23,7 @@ class AWGCore:
         self._index = index
         self._waveforms = list()
         self._program = SequenceProgram()
+        self.set_sequence_params(target=self._parent.device_type)
 
     @property
     def name(self):
@@ -106,7 +107,7 @@ class AWGCore:
         tok = time.time()
         self._parent._set(zip(nodes, waveform_data))
         tik = time.time()
-        print(f"Upload of {len(waveform_data)} waveforms took {tik - tok} s")
+        print(f"Upload of {len(waveform_data)} waveforms took {tik - tok:.} s")
 
     def compile_and_upload_waveforms(self):
         self.compile()
