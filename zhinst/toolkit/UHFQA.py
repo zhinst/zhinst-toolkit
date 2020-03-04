@@ -2,7 +2,8 @@ import numpy as np
 
 from .base import BaseInstrument
 from .awg_core import AWGCore
-from .tools import ZHTKException
+from .tools import ZHTKException, Parameter
+import tools.parsers as parse
 
 
 class UHFQA(BaseInstrument):
@@ -21,6 +22,19 @@ class UHFQA(BaseInstrument):
         super().__init__(name, "uhfqa", serial, **kwargs)
         self._awg = AWG(self, 0)
         self._channels = [ReadoutChannel(self, i) for i in range(10)]
+        self.integration_time = Parameter(
+            self,
+            dict(
+                Node="qas/0/integration/length",
+                Description="The integration time of the QA Integration unit",
+                Type="Double",
+                Properties="Read, Write",
+                Unit="s",
+            ),
+            device=self,
+            set_parser=parse.qa_time2samples,
+            get_parser=parse.qa_samples2time,
+        )
 
     def write_crottalk_matrix(self, matrix):
         rows, cols = matrix.shape
@@ -69,34 +83,56 @@ class AWG(AWGCore):
 
     def __init__(self, parent, index):
         super().__init__(parent, index)
-        self._output = "off"
-        self._gains = (1.0, 1.0)
-
-    @property
-    def output(self):
-        return "on" if self._output else "off"
-
-    @output.setter
-    def output(self, value):
-        if value == "on":
-            value = 1
-        if value == "off":
-            value = 0
-        self._output = value
-        self._parent._set(f"sigouts/*/on", value)
-
-    @property
-    def gains(self):
-        return self._gains
-
-    @gains.setter
-    def gains(self, gains):
-        assert len(gains) == 2
-        for g in gains:
-            assert abs(g) <= 1
-        self._gains = gains
-        self._parent._set(f"awgs/0/outputs/0/amplitude", gains[0])
-        self._parent._set(f"awgs/0/outputs/1/amplitude", gains[1])
+        self.output1 = Parameter(
+            self,
+            dict(
+                Node="sigouts/0/on",
+                Description="Enables or disables both ouputs of the AWG. Either can be {'1', '0'} or {'on', 'off'}.",
+                Type="Integer",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self._parent,
+            set_parser=parse.set_on_off,
+            get_parser=parse.get_on_off,
+        )
+        self.output2 = Parameter(
+            self,
+            dict(
+                Node="sigouts/1/on",
+                Description="Enables or disables both ouputs of the AWG. Either can be {'1', '0'} or {'on', 'off'}.",
+                Type="Integer",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self._parent,
+            set_parser=parse.set_on_off,
+            get_parser=parse.get_on_off,
+        )
+        self.gain1 = Parameter(
+            self,
+            dict(
+                Node="awgs/0/outputs/0/amplitude",
+                Description="Sets the gain of the first output channel.",
+                Type="Double",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self._parent,
+            set_parser=parse.amp1,
+        )
+        self.gain2 = Parameter(
+            self,
+            dict(
+                Node="awgs/0/outputs/1/amplitude",
+                Description="Sets the gain of the second output channel.",
+                Type="Double",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self._parent,
+            set_parser=parse.amp1,
+        )
 
     def _apply_sequence_settings(self, **kwargs):
         if "sequence_type" in kwargs.keys():
@@ -159,17 +195,24 @@ class AWG(AWGCore):
         ]
         self._parent._set(settings)
 
+    def outputs(self, value=None):
+        if value is None:
+            return self.output1(), self.output2()
+        else:
+            self.output1(value)
+            self.output2(value)
+
     def update_readout_params(self):
         if self.sequence_params["sequence_type"] == "Readout":
-            if any([ch.enabled for ch in self._parent.channels]):
-                freqs = list()
-                amps = list()
-                phases = list()
+            if any([ch.enabled() for ch in self._parent.channels]):
+                freqs = []
+                amps = []
+                phases = []
                 for ch in self._parent.channels:
-                    if ch.enabled:
-                        freqs.append(ch.readout_frequency)
-                        amps.append(ch.readout_amplitude)
-                        phases.append(ch.phase_shift)
+                    if ch.enabled():
+                        freqs.append(ch.readout_frequency())
+                        amps.append(ch.readout_amplitude())
+                        phases.append(ch.phase_shift())
                 self.set_sequence_params(
                     readout_frequencies=freqs,
                     readout_amplitudes=amps,
@@ -201,14 +244,41 @@ class ReadoutChannel:
         self._readout_frequency = 100e6
         self._readout_amplitude = 1
         self._phase_shift = 0
-        self._rotation = 0
-        self._threshold = 0
+        props = dict(
+            Node=f"qas/0/rotations/{self._index}",
+            Description="Sets the rotation of the readout channel in degrees.",
+            Type="Double",
+            Properties="Read, Write",
+            Unit="Degrees",
+        )
+        self.rotation = Parameter(
+            self,
+            props,
+            device=self._parent,
+            set_parser=parse.deg2complex,
+            get_parser=parse.complex2deg,
+        )
+        props = dict(
+            Node=f"qas/0/thresholds/{self._index}/level",
+            Description="Sets the threshold of the readout channel.",
+            Type="Double",
+            Properties="Read, Write",
+            Unit="None",
+        )
+        self.threshold = Parameter(self, props, device=self._parent)
+        props = dict(
+            Node=f"qas/0/result/data/{self._index}/wave",
+            Description="Returns the result vector of the readout channel.",
+            Type="Numpy array",
+            Properties="Read",
+            Unit="None",
+        )
+        self.result = Parameter(self, props, device=self._parent)
 
     @property
     def index(self):
         return self._index
 
-    @property
     def enabled(self):
         return self._enabled
 
@@ -220,64 +290,37 @@ class ReadoutChannel:
         self._enabled = False
         self._reset_int_weights()
 
-    @property
-    def readout_frequency(self):
-        return self._readout_frequency
+    def readout_frequency(self, freq=None):
+        if freq is None:
+            return self._readout_frequency
+        else:
+            parse.greater0(freq)
+            self._readout_frequency = freq
+            self._reset_int_weights()
+            self._set_int_weights()
 
-    @readout_frequency.setter
-    def readout_frequency(self, freq):
-        assert freq > 0
-        self._readout_frequency = freq
-        self._set_int_weights()
+    def readout_amplitude(self, amp=None):
+        if amp is None:
+            return self._readout_amplitude
+        else:
+            parse.amp1(amp)
+            self._readout_amplitude = amp
 
-    @property
-    def readout_amplitude(self):
-        return self._readout_amplitude
-
-    @readout_amplitude.setter
-    def readout_amplitude(self, amp):
-        assert abs(amp) <= 1
-        self._readout_amplitude = amp
-
-    @property
-    def phase_shift(self):
-        return self._phase_shift
-
-    @phase_shift.setter
-    def phase_shift(self, ph):
-        assert abs(ph) <= 90
-        self._phase_shift = ph
-
-    @property
-    def rotation(self):
-        return np.angle(self._parent._get(f"qas/0/rotations/{self._index}"), deg=True)
-
-    @rotation.setter
-    def rotation(self, rot):
-        c = np.exp(1j * np.deg2rad(rot))
-        self._parent._set(f"qas/0/rotations/{self._index}", c)
-
-    @property
-    def threshold(self):
-        return self._parent._get(f"qas/0/thresholds/{self._index}/level")
-
-    @threshold.setter
-    def threshold(self, th):
-        self._parent._set(f"qas/0/thresholds/{self._index}/level", th)
-
-    @property
-    def result(self):
-        return self._parent._get(f"qas/0/result/data/{self._index}/wave")
+    def phase_shift(self, ph=None):
+        if ph is None:
+            return self._phase_shift
+        else:
+            parse.abs90(ph)
+            self._phase_shift = ph
 
     def _reset_int_weights(self):
-        l = self._parent._get("qas/0/integration/length")
         node = f"/qas/0/integration/weights/"
-        self._parent._set(node + f"{self._index}/real", np.zeros(l))
-        self._parent._set(node + f"{self._index}/imag", np.zeros(l))
+        self._parent._set(node + f"{self._index}/real", np.zeros(4096))
+        self._parent._set(node + f"{self._index}/imag", np.zeros(4096))
 
     def _set_int_weights(self):
         l = self._parent._get("qas/0/integration/length")
-        freq = self.readout_frequency
+        freq = self.readout_frequency()
         node = f"/qas/0/integration/weights/{self._index}/"
         self._parent._set(node + "real", self._demod_weights(l, freq, 0))
         self._parent._set(node + "imag", self._demod_weights(l, freq, 90))
@@ -293,11 +336,11 @@ class ReadoutChannel:
     def __repr__(self):
         s = f"Readout Channel {self._index}:  {super().__repr__()}\n"
         if self._enabled:
-            s += f"     readout_frequency : {self._readout_frequency}\n"
-            s += f"     readout_amplitude : {self._readout_amplitude}\n"
-            s += f"     phase_shift       : {self._phase_shift}\n"
-            s += f"     rotation          : {self._rotation}\n"
-            s += f"     threshold         : {self._threshold}\n"
+            s += f"     readout_frequency : {self.readout_frequency()}\n"
+            s += f"     readout_amplitude : {self.readout_amplitude()}\n"
+            s += f"     phase_shift       : {self.phase_shift()}\n"
+            s += f"     rotation          : {self.rotation()}\n"
+            s += f"     threshold         : {self.threshold()}\n"
         else:
             s += "      DISABLED\n"
         return s

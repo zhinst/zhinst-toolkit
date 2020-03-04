@@ -13,20 +13,29 @@ class Parameter:
     property prints a string with a summary of the parameter.
     """
 
-    def __init__(self, parent, params):
+    def __init__(
+        self,
+        parent,
+        params,
+        device=None,
+        set_parser=lambda v: v,
+        get_parser=lambda v: v,
+    ):
         self._parent = parent
-        self._device = parent._device
+        self._device = parent._device if device is None else device
         self._path = params["Node"]
         self._description = params.get("Description", "")
         self._type = params.get("Type", None)
         self._properties = params.get("Properties", None)
         self._unit = params.get("Unit", None)
         self._cached_value = None
+        self._get_parser = get_parser
+        self._set_parser = set_parser
 
     def _getter(self):
         if "Read" in self._properties:
             value = self._device._get(self._path)
-            self._cached_value = value
+            self._cached_value = self._get_parser(value)
             return self._cached_value
         else:
             raise ZHTKNodetreeException("This parameter is not gettable!")
@@ -34,6 +43,7 @@ class Parameter:
     def _setter(self, value):
         if "Write" in self._properties:
             if value != self._cached_value:
+                value = self._set_parser(value)
                 self._device._set(self._path, value)
                 self._cached_value = value
             return self._cached_value
@@ -53,6 +63,7 @@ class Parameter:
         s += f"Type: {self._type}\n"
         s += f"Properties: {self._properties}\n"
         s += f"Unit: {self._unit}\n"
+        s += f"Value: {self._cached_value}\n"
         print(s)
 
 

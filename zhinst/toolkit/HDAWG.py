@@ -2,7 +2,8 @@ import numpy as np
 
 from .base import BaseInstrument
 from .awg_core import AWGCore
-from .tools import ZHTKException
+from .tools import ZHTKException, Parameter
+import tools.parsers as parse
 
 
 class HDAWG(BaseInstrument):
@@ -70,25 +71,88 @@ class AWG(AWGCore):
 
     def __init__(self, parent, index):
         super().__init__(parent, index)
-        self._output = "off"
         self._iq_modulation = False
-        self._modulation_freq = 10e6
-        self._modulation_phase_shift = 0
-        self._modulation_gains = (1.0, 1.0)
+        self.output1 = Parameter(
+            self,
+            dict(
+                Node=f"sigouts/{2*self._index}/on",
+                Description="Enables or disables both ouputs of the AWG. Either can be {'1', '0'} or {'on', 'off'}.",
+                Type="Integer",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self._parent,
+            set_parser=parse.set_on_off,
+            get_parser=parse.get_on_off,
+        )
+        self.output2 = Parameter(
+            self,
+            dict(
+                Node=f"sigouts/{2*self._index+1}/on",
+                Description="Enables or disables both ouputs of the AWG. Either can be {'1', '0'} or {'on', 'off'}.",
+                Type="Integer",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self._parent,
+            set_parser=parse.set_on_off,
+            get_parser=parse.get_on_off,
+        )
+        self.modulation_freq = Parameter(
+            self,
+            dict(
+                Node=f"oscs/{4 * self._index}/freq",
+                Description="Sets the modulation frequency of the AWG output channels.",
+                Type="Double",
+                Properties="Read, Write",
+                Unit="Hz",
+            ),
+            device=self._parent,
+            set_parser=parse.greater0,
+        )
+        self.modulation_phase_shift = Parameter(
+            self,
+            dict(
+                Node=f"sines/{2 * self._index + 1}/phaseshift",
+                Description="Sets the modulation phase shift between the two AWG output channels.",
+                Type="Double",
+                Properties="Read, Write",
+                Unit="Degrees",
+            ),
+            device=self._parent,
+            set_parser=parse.abs90,
+        )
+        self.gain1 = Parameter(
+            self,
+            dict(
+                Node=f"awgs/{self._index}/outputs/0/gains/0",
+                Description="Sets the gain of the first output channel.",
+                Type="Double",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self._parent,
+            set_parser=parse.amp1,
+        )
+        self.gain2 = Parameter(
+            self,
+            dict(
+                Node=f"awgs/{self._index}/outputs/1/gains/1",
+                Description="Sets the gain of the second output channel.",
+                Type="Double",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self._parent,
+            set_parser=parse.amp1,
+        )
 
-    @property
-    def output(self):
-        return "on" if self._output else "off"
-
-    @output.setter
-    def output(self, value):
-        if value == "on":
-            value = 1
-        if value == "off":
-            value = 0
-        self._output = value
-        self._parent._set(f"sigouts/{2 * self._index}/on", value)
-        self._parent._set(f"sigouts/{2 * self._index + 1}/on", value)
+    def outputs(self, value=None):
+        if value is None:
+            return self.output1(), self.output2()
+        else:
+            self.output1(value)
+            self.output2(value)
 
     def enable_iq_modulation(self):
         self._iq_modulation = True
@@ -111,38 +175,6 @@ class AWG(AWGCore):
             (f"sines/{2 * i + 1}/phaseshift", 0,),  # 90 deg phase shift
         ]
         self._parent._set(settings)
-
-    @property
-    def modulation_frequency(self):
-        return self._modulation_freq
-
-    @modulation_frequency.setter
-    def modulation_frequency(self, freq):
-        assert freq > 0
-        self._modulation_freq = freq
-        self._parent._set(f"oscs/{4 * self._index}/freq", freq)
-
-    @property
-    def modulation_phase_shift(self):
-        return self._modulation_phase_shift
-
-    @modulation_phase_shift.setter
-    def modulation_phase_shift(self, ph):
-        self._modulation_phase_shift = ph
-        self._parent._set(f"sines/{2 * self._index + 1}/phaseshift", ph)
-
-    @property
-    def modulation_gains(self):
-        return self._modulation_gains
-
-    @modulation_gains.setter
-    def modulation_gains(self, gains):
-        assert len(gains) == 2
-        for g in gains:
-            assert abs(g) <= 1
-        self._modulation_gains = gains
-        self._parent._set(f"awgs/{self._index}/outputs/0/gains/0", gains[0])
-        self._parent._set(f"awgs/{self._index}/outputs/1/gains/1", gains[1])
 
     def _apply_sequence_settings(self, **kwargs):
         if "sequence_type" in kwargs.keys():
@@ -173,9 +205,9 @@ class AWG(AWGCore):
         s = f"{super().__repr__()}"
         if self._iq_modulation:
             s += f"      IQ Modulation ENABLED:\n"
-            s += f"         frequency   : {self._modulation_freq}\n"
-            s += f"         phase_shift : {self._modulation_phase_shift}\n"
-            s += f"         gains       : {self._modulation_gains}\n"
+            s += f"         frequency   : {self.modulation_freq()}\n"
+            s += f"         phase_shift : {self.modulation_phase_shift()}\n"
+            s += f"         gains       : {self.gain1()}, {self.gain2()}\n"
         else:
             s += f"      IQ Modulation DISABLED\n"
         return s
