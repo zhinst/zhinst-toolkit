@@ -26,7 +26,7 @@ class UHFQA(BaseInstrument):
             self,
             dict(
                 Node="qas/0/integration/length",
-                Description="The integration time of the QA Integration unit",
+                Description="The integration time of the QA Integration unit.",
                 Type="Double",
                 Properties="Read, Write",
                 Unit="s",
@@ -34,6 +34,19 @@ class UHFQA(BaseInstrument):
             device=self,
             set_parser=parse.qa_time2samples,
             get_parser=parse.qa_samples2time,
+        )
+        self.result_source = Parameter(
+            self,
+            dict(
+                Node="qas/0/result/source",
+                Description="The signal source for the QA Results unit. One of {'Crosstalk', 'Threshold', 'Rotation', 'Crosstalk Correlation', 'Threshold Correlation', 'Integration'}.",
+                Type="Integer",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self,
+            set_parser=parse.set_result_source,
+            get_parser=parse.get_result_source,
         )
 
     def write_crottalk_matrix(self, matrix):
