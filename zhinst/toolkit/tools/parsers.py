@@ -18,7 +18,6 @@ def set_on_off(v):
 
 
 def get_on_off(v):
-
     v = int(v)
     assert v in [0, 1]
     map = {1: "on", 0: "off"}
@@ -56,4 +55,32 @@ def qa_time2samples(v):
 def qa_samples2time(v):
     greater0(v)
     return v / 1.8e9
+
+
+def get_result_source(v):
+    map = {
+        0: "Crosstalk",
+        1: "Threshold",
+        2: "Rotation",
+        4: "Crosstalk Correlation",
+        5: "Threshold Correlation",
+        7: "Integration",
+    }
+    v = int(v)
+    assert v in map.keys(), "Unknown value returned from the instrument!"
+    return map[v]
+
+
+def set_result_source(v):
+    v = v.lower()
+    map = {
+        "crosstalk": 0,
+        "threshold": 1,
+        "rotation": 2,
+        "crosstalk correlation": 4,
+        "threshold correlation": 5,
+        "integration": 7,
+    }
+    assert v in map.keys(), f"Unknown value entered! The value must be in {map.keys()}"
+    return map[v]
 
