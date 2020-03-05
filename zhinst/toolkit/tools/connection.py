@@ -52,6 +52,10 @@ class ZIConnection:
         else:
             print("No connection could be established...")
 
+    @property
+    def established(self):
+        return self._daq is not None
+
     def connect_device(self, **kwargs):
         """
         Connects a device to the data server. 
@@ -187,7 +191,8 @@ class DeviceConnection(object):
             self._connection = ZIConnection(details)
         else:
             self._connection = connection
-        self._connection.connect()
+        if not self._connection.established:
+            self._connection.connect()
 
     def connect_device(self):
         """
