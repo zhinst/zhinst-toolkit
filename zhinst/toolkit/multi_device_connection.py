@@ -10,8 +10,8 @@ class MultiDeviceConnection:
     def __init__(self):
         self._shared_connection = None
         self._config = None
-        self._hdawgs = dict()
-        self._uhfqas = dict()
+        self._hdawgs = {}
+        self._uhfqas = {}
         self._pqsc = None
 
     def setup(self, **kwargs):

@@ -3,7 +3,7 @@ from .sequence_program import SequenceProgram
 
 class Compiler:
     def __init__(self, **kwargs):
-        self._sequencers = dict()
+        self._sequencers = {}
         self._device = None
 
     def add_device(self, device):
