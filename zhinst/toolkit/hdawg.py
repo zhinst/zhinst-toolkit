@@ -2,8 +2,7 @@ import numpy as np
 
 from .base import BaseInstrument
 from .awg_core import AWGCore
-from .tools import ZHTKException, Parameter
-import tools.parsers as parse
+from .tools import ZHTKException, Parameter, Parse
 
 
 class HDAWG(BaseInstrument):
@@ -84,8 +83,8 @@ class AWG(AWGCore):
                 Unit="None",
             ),
             device=self._parent,
-            set_parser=parse.set_on_off,
-            get_parser=parse.get_on_off,
+            set_parser=Parse.set_on_off,
+            get_parser=Parse.get_on_off,
         )
         self.output2 = Parameter(
             self,
@@ -97,8 +96,8 @@ class AWG(AWGCore):
                 Unit="None",
             ),
             device=self._parent,
-            set_parser=parse.set_on_off,
-            get_parser=parse.get_on_off,
+            set_parser=Parse.set_on_off,
+            get_parser=Parse.get_on_off,
         )
         self.modulation_freq = Parameter(
             self,
@@ -110,7 +109,7 @@ class AWG(AWGCore):
                 Unit="Hz",
             ),
             device=self._parent,
-            set_parser=parse.greater0,
+            set_parser=Parse.greater0,
         )
         self.modulation_phase_shift = Parameter(
             self,
@@ -122,7 +121,7 @@ class AWG(AWGCore):
                 Unit="Degrees",
             ),
             device=self._parent,
-            set_parser=parse.abs90,
+            set_parser=Parse.abs90,
         )
         self.gain1 = Parameter(
             self,
@@ -134,7 +133,7 @@ class AWG(AWGCore):
                 Unit="None",
             ),
             device=self._parent,
-            set_parser=parse.amp1,
+            set_parser=Parse.amp1,
         )
         self.gain2 = Parameter(
             self,
@@ -146,7 +145,7 @@ class AWG(AWGCore):
                 Unit="None",
             ),
             device=self._parent,
-            set_parser=parse.amp1,
+            set_parser=Parse.amp1,
         )
 
     def outputs(self, value=None):
