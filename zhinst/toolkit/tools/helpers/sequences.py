@@ -108,6 +108,7 @@ class Sequence(object):
 @attr.s
 class SimpleSequence(Sequence):
     buffer_lengths = attr.ib(default=[800], validator=attr.validators.instance_of(list))
+    delay_times = attr.ib(default=[0])
 
     def write_sequence(self):
         self.sequence = SeqCommand.header_comment(sequence_type="Simple")
@@ -124,7 +125,9 @@ class SimpleSequence(Sequence):
                 temp = self.wait_cycles
             elif self.alignment == "End with Trigger":
                 temp = self.wait_cycles - self.buffer_lengths[i] / 8
-            self.sequence += SeqCommand.wait(temp)
+            self.sequence += SeqCommand.wait(
+                temp - self.time_to_cycles(self.delay_times[i])
+            )
             self.sequence += self.trigger_cmd_2
             if self.target == "uhfqa":
                 self.sequence += SeqCommand.readout_trigger()
@@ -137,7 +140,9 @@ class SimpleSequence(Sequence):
                     temp = self.dead_cycles
             else:
                 temp = 0
-            self.sequence += SeqCommand.wait(temp)
+            self.sequence += SeqCommand.wait(
+                temp + self.time_to_cycles(self.delay_times[i])
+            )
             self.sequence += SeqCommand.new_line()
         self.sequence += SeqCommand.close_bracket()
 
@@ -153,6 +158,12 @@ class SimpleSequence(Sequence):
             )
         if len(self.buffer_lengths) != self.n_HW_loop:
             self.n_HW_loop = len(self.buffer_lengths)
+
+        if len(self.buffer_lengths) < len(self.delay_times):
+            self.delay_times = self.delay_times[: len(self.buffer_lengths)]
+        if len(self.buffer_lengths) > len(self.delay_times):
+            n = len(self.buffer_lengths) - len(self.delay_times)
+            self.delay_times = np.append(self.delay_times, np.zeros(n))
         if self.target == "uhfqa":
             self.clock_rate = 1.8e9
 
