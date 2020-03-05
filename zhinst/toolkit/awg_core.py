@@ -21,7 +21,7 @@ class AWGCore:
     def __init__(self, parent, index):
         self._parent = parent
         self._index = index
-        self._waveforms = list()
+        self._waveforms = []
         self._program = SequenceProgram()
         self.set_sequence_params(target=self._parent.device_type)
 
@@ -84,7 +84,7 @@ class AWGCore:
         self._wait_upload_done()
 
     def reset_queue(self):
-        self._waveforms = list()
+        self._waveforms = []
 
     def queue_waveform(self, wave1, wave2):
         if self._program.sequence_type != "Simple":

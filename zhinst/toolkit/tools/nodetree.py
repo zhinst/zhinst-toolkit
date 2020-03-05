@@ -170,7 +170,7 @@ class Nodetree(Node):
 
     def _get_nodetree_dict(self):
         tree = self._device._get_nodetree(f"{self._device.serial}/*")
-        nodetree = dict()
+        nodetree = {}
         for key, value in tree.items():
             key = key.replace(f"/{self._device.serial.upper()}/", "")
             hirarchy = key.split("/")
