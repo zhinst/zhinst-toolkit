@@ -54,11 +54,20 @@ class AWGCore:
 
     def run(self):
         self._parent._set(f"/awgs/{self._index}/enable", 1)
-        print(f"Started AWG {self.name}!")
+        # print(f"Started AWG {self.name}!")
 
     def stop(self):
         self._parent._set(f"/awgs/{self._index}/enable", 0)
-        print(f"Stopped AWG {self.name}!")
+        # print(f"Stopped AWG {self.name}!")
+
+    def wait_done(self, timeout=10):
+        tok = time.time()
+        while self.is_running:
+            tik = time.time()
+            time.sleep(0.1)
+            if tik - tok > timeout:
+                break
+        return
 
     def compile(self):
         awg_module = self._parent._awg_connection
@@ -107,7 +116,7 @@ class AWGCore:
         tok = time.time()
         self._parent._set(zip(nodes, waveform_data))
         tik = time.time()
-        print(f"Upload of {len(waveform_data)} waveforms took {tik - tok:.} s")
+        print(f"Upload of {len(waveform_data)} waveforms took {tik - tok:.5} s")
 
     def compile_and_upload_waveforms(self):
         self.compile()
