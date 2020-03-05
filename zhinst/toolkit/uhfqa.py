@@ -182,6 +182,7 @@ class AWG(AWGCore):
             ("qas/0/integration/mode", 1),
         ]
         self._parent._set(settings)
+        self._parent.disable_readout_channels(range(10))
 
     def _apply_pulsed_settings(self):
         settings = [
@@ -191,6 +192,7 @@ class AWG(AWGCore):
             ("qas/0/integration/mode", 1),
         ]
         self._parent._set(settings)
+        self._parent.disable_readout_channels(range(10))
 
     def _apply_readout_settings(self):
         settings = [
