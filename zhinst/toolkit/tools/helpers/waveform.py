@@ -2,10 +2,11 @@ import numpy as np
 
 
 class Waveform(object):
-    def __init__(self, wave1, wave2, granularity=16, align_start=True):
+    def __init__(self, wave1, wave2, delay=0, granularity=16, align_start=True):
         self._granularity = granularity
         self._align_start = align_start
         self._waves = [wave1, wave2]
+        self._delay = delay
         self._update()
 
     def add_wave(self, ch, wave):
@@ -14,8 +15,9 @@ class Waveform(object):
         self._waves[ch] = wave
         self._update()
 
-    def replace_data(self, wave1, wave2):
+    def replace_data(self, wave1, wave2, delay=0):
         new_buffer_length = self._round_up(max(len(wave1), len(wave2), 32))
+        self._delay = delay
         if new_buffer_length == self.buffer_length:
             self._waves = [wave1, wave2]
             self._update()
@@ -25,6 +27,10 @@ class Waveform(object):
     @property
     def data(self):
         return self._data
+
+    @property
+    def delay(self):
+        return self._delay
 
     @property
     def buffer_length(self):
