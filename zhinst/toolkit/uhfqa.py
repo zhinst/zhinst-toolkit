@@ -256,36 +256,41 @@ class ReadoutChannel:
         self._readout_frequency = 100e6
         self._readout_amplitude = 1
         self._phase_shift = 0
-        props = dict(
-            Node=f"qas/0/rotations/{self._index}",
-            Description="Sets the rotation of the readout channel in degrees.",
-            Type="Double",
-            Properties="Read, Write",
-            Unit="Degrees",
-        )
         self.rotation = Parameter(
             self,
-            props,
+            dict(
+                Node=f"qas/0/rotations/{self._index}",
+                Description="Sets the rotation of the readout channel in degrees.",
+                Type="Double",
+                Properties="Read, Write",
+                Unit="Degrees",
+            ),
             device=self._parent,
             set_parser=Parse.deg2complex,
             get_parser=Parse.complex2deg,
         )
-        props = dict(
-            Node=f"qas/0/thresholds/{self._index}/level",
-            Description="Sets the threshold of the readout channel.",
-            Type="Double",
-            Properties="Read, Write",
-            Unit="None",
+        self.threshold = Parameter(
+            self,
+            dict(
+                Node=f"qas/0/thresholds/{self._index}/level",
+                Description="Sets the threshold of the readout channel.",
+                Type="Double",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self._parent,
         )
-        self.threshold = Parameter(self, props, device=self._parent)
-        props = dict(
-            Node=f"qas/0/result/data/{self._index}/wave",
-            Description="Returns the result vector of the readout channel.",
-            Type="Numpy array",
-            Properties="Read",
-            Unit="None",
+        self.result = Parameter(
+            self,
+            dict(
+                Node=f"qas/0/result/data/{self._index}/wave",
+                Description="Returns the result vector of the readout channel.",
+                Type="Numpy array",
+                Properties="Read",
+                Unit="None",
+            ),
+            device=self._parent,
         )
-        self.result = Parameter(self, props, device=self._parent)
 
     @property
     def index(self):
@@ -296,6 +301,8 @@ class ReadoutChannel:
 
     def enable(self):
         self._enabled = True
+        self._parent._set("qas/0/integration/mode", 0)
+        self._parent.integration_time(2e-6)
         self._set_int_weights()
 
     def disable(self):
@@ -347,13 +354,13 @@ class ReadoutChannel:
 
     def __repr__(self):
         s = f"Readout Channel {self._index}:  {super().__repr__()}\n"
+        s += f"     rotation          : {self.rotation()}\n"
+        s += f"     threshold         : {self.threshold()}\n"
         if self._enabled:
             s += f"     readout_frequency : {self.readout_frequency()}\n"
             s += f"     readout_amplitude : {self.readout_amplitude()}\n"
             s += f"     phase_shift       : {self.phase_shift()}\n"
-            s += f"     rotation          : {self.rotation()}\n"
-            s += f"     threshold         : {self.threshold()}\n"
         else:
-            s += "      DISABLED\n"
+            s += "      Weighted Integration Disabled\n"
         return s
 
