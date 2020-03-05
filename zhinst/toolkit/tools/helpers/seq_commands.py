@@ -169,3 +169,7 @@ class SeqCommand(object):
             f"wave w_1 = {amp} * ones({length});\n"
             f"wave w_2 = {amp} * ones({length});\n\n"
         )
+
+    @staticmethod
+    def reset_osc_phase():
+        return f"resetOscPhase();\n"
