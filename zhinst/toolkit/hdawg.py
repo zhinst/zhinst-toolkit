@@ -48,7 +48,7 @@ class HDAWG(BaseInstrument):
 
     def _init_settings(self):
         settings = [
-            ("/dev8030/system/clocks/referenceclock/source", 1,),
+            ("system/clocks/referenceclock/source", 1,),
             ("awgs/*/single", 1),
         ]
         self._set(settings)
