@@ -75,7 +75,8 @@ class AWGCore:
         awg_module.update(index=self._index)
         if self._program.sequence_type == "Simple":
             buffer_lengths = [w.buffer_length for w in self._waveforms]
-            self.set_sequence_params(buffer_lengths=buffer_lengths)
+            delays = [w.delay for w in self._waveforms]
+            self.set_sequence_params(buffer_lengths=buffer_lengths, delay_times=delays)
         awg_module.set("compiler/sourcestring", self._program.get_seqc())
         while awg_module.get_int("compiler/status") == -1:
             time.sleep(0.1)
@@ -95,18 +96,18 @@ class AWGCore:
     def reset_queue(self):
         self._waveforms = []
 
-    def queue_waveform(self, wave1, wave2):
+    def queue_waveform(self, wave1, wave2, delay=0):
         if self._program.sequence_type != "Simple":
             raise Exception(
                 "Waveform upload only possible for 'Simple' sequence program!"
             )
-        self._waveforms.append(Waveform(wave1, wave2))
+        self._waveforms.append(Waveform(wave1, wave2, delay=delay))
         print(f"Current length of queue: {len(self._waveforms)}")
 
-    def replace_waveform(self, wave1, wave2, i=0):
+    def replace_waveform(self, wave1, wave2, i=0, delay=0):
         if i not in range(len(self._waveforms)):
             raise Exception("Index out of range!")
-        self._waveforms[i].replace_data(wave1, wave2)
+        self._waveforms[i].replace_data(wave1, wave2, delay=delay)
 
     def upload_waveforms(self):
         waveform_data = [w.data for w in self._waveforms]
