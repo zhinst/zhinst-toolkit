@@ -2,8 +2,7 @@ import numpy as np
 
 from .base import BaseInstrument
 from .awg_core import AWGCore
-from .tools import ZHTKException, Parameter
-import tools.parsers as parse
+from .tools import ZHTKException, Parameter, Parse
 
 
 class UHFQA(BaseInstrument):
@@ -32,8 +31,8 @@ class UHFQA(BaseInstrument):
                 Unit="s",
             ),
             device=self,
-            set_parser=parse.qa_time2samples,
-            get_parser=parse.qa_samples2time,
+            set_parser=Parse.qa_time2samples,
+            get_parser=Parse.qa_samples2time,
         )
         self.result_source = Parameter(
             self,
@@ -45,8 +44,8 @@ class UHFQA(BaseInstrument):
                 Unit="None",
             ),
             device=self,
-            set_parser=parse.set_result_source,
-            get_parser=parse.get_result_source,
+            set_parser=Parse.set_result_source,
+            get_parser=Parse.get_result_source,
         )
 
     def write_crottalk_matrix(self, matrix):
@@ -106,8 +105,8 @@ class AWG(AWGCore):
                 Unit="None",
             ),
             device=self._parent,
-            set_parser=parse.set_on_off,
-            get_parser=parse.get_on_off,
+            set_parser=Parse.set_on_off,
+            get_parser=Parse.get_on_off,
         )
         self.output2 = Parameter(
             self,
@@ -119,8 +118,8 @@ class AWG(AWGCore):
                 Unit="None",
             ),
             device=self._parent,
-            set_parser=parse.set_on_off,
-            get_parser=parse.get_on_off,
+            set_parser=Parse.set_on_off,
+            get_parser=Parse.get_on_off,
         )
         self.gain1 = Parameter(
             self,
@@ -132,7 +131,7 @@ class AWG(AWGCore):
                 Unit="None",
             ),
             device=self._parent,
-            set_parser=parse.amp1,
+            set_parser=Parse.amp1,
         )
         self.gain2 = Parameter(
             self,
@@ -144,7 +143,7 @@ class AWG(AWGCore):
                 Unit="None",
             ),
             device=self._parent,
-            set_parser=parse.amp1,
+            set_parser=Parse.amp1,
         )
 
     def _apply_sequence_settings(self, **kwargs):
@@ -268,8 +267,8 @@ class ReadoutChannel:
             self,
             props,
             device=self._parent,
-            set_parser=parse.deg2complex,
-            get_parser=parse.complex2deg,
+            set_parser=Parse.deg2complex,
+            get_parser=Parse.complex2deg,
         )
         props = dict(
             Node=f"qas/0/thresholds/{self._index}/level",
@@ -307,23 +306,22 @@ class ReadoutChannel:
         if freq is None:
             return self._readout_frequency
         else:
-            parse.greater0(freq)
+            Parse.greater0(freq)
             self._readout_frequency = freq
-            self._reset_int_weights()
             self._set_int_weights()
 
     def readout_amplitude(self, amp=None):
         if amp is None:
             return self._readout_amplitude
         else:
-            parse.amp1(amp)
+            Parse.amp1(amp)
             self._readout_amplitude = amp
 
     def phase_shift(self, ph=None):
         if ph is None:
             return self._phase_shift
         else:
-            parse.abs90(ph)
+            Parse.abs90(ph)
             self._phase_shift = ph
 
     def _reset_int_weights(self):
@@ -332,6 +330,7 @@ class ReadoutChannel:
         self._parent._set(node + f"{self._index}/imag", np.zeros(4096))
 
     def _set_int_weights(self):
+        self._reset_int_weights()
         l = self._parent._get("qas/0/integration/length")
         freq = self.readout_frequency()
         node = f"/qas/0/integration/weights/{self._index}/"
