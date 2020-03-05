@@ -38,6 +38,7 @@ class Sequence(object):
     trigger_cmd_2 = attr.ib(default="//")
     wait_cycles = attr.ib(default=0)
     dead_cycles = attr.ib(default=0)
+    reset_phase = attr.ib(default=False)
 
     def set(self, **settings):
         for key in settings:
@@ -117,6 +118,8 @@ class SimpleSequence(Sequence):
         for i in range(self.n_HW_loop):
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
             self.sequence += self.trigger_cmd_1
+            if self.target == "hdawg" and self.reset_phase:
+                self.sequence += SeqCommand.reset_osc_phase()
             if self.alignment == "Start with Trigger":
                 temp = self.wait_cycles
             elif self.alignment == "End with Trigger":
@@ -175,6 +178,8 @@ class RabiSequence(Sequence):
         for i, amp in enumerate(self.pulse_amplitudes):
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
             self.sequence += self.trigger_cmd_1
+            if self.reset_phase:
+                self.sequence += SeqCommand.reset_osc_phase()
             self.sequence += SeqCommand.wait(self.wait_cycles)
             self.sequence += self.trigger_cmd_2
             self.sequence += SeqCommand.play_wave_scaled(amp, amp)
@@ -230,6 +235,8 @@ class T1Sequence(Sequence):
         for i, t in enumerate([self.time_to_cycles(t) for t in (self.delay_times)]):
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
             self.sequence += self.trigger_cmd_1
+            if self.reset_phase:
+                self.sequence += SeqCommand.reset_osc_phase()
             self.sequence += SeqCommand.wait(self.wait_cycles - t)
             self.sequence += self.trigger_cmd_2
             self.sequence += SeqCommand.play_wave()
@@ -272,6 +279,8 @@ class T2Sequence(T1Sequence):
         for i, t in enumerate([self.time_to_cycles(t) for t in (self.delay_times)]):
             self.sequence += SeqCommand.count_waveform(i, self.n_HW_loop)
             self.sequence += self.trigger_cmd_1
+            if self.reset_phase:
+                self.sequence += SeqCommand.reset_osc_phase()
             self.sequence += SeqCommand.wait(self.wait_cycles - t)
             self.sequence += self.trigger_cmd_2
             self.sequence += SeqCommand.play_wave()
