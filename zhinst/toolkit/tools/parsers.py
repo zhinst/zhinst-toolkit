@@ -50,12 +50,12 @@ class Parse:
 
     @staticmethod
     def qa_time2samples(v):
-        greater0(v)
+        Parse.greater0(v)
         return int(v * 1.8e9)
 
     @staticmethod
     def qa_samples2time(v):
-        greater0(v)
+        Parse.greater0(v)
         return v / 1.8e9
 
     @staticmethod
