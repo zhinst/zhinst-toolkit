@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 from .base import BaseInstrument
 from .awg_core import AWGCore
@@ -48,7 +49,7 @@ class HDAWG(BaseInstrument):
 
     def _init_settings(self):
         settings = [
-            ("system/clocks/referenceclock/source", 1,),
+            ("/system/clocks/referenceclock/source", 1),
             ("awgs/*/single", 1),
         ]
         self._set(settings)
@@ -166,6 +167,8 @@ class AWG(AWGCore):
             (f"sines/{2 * i + 1}/phaseshift", 90,),  # 90 deg phase shift
         ]
         self._parent._set(settings)
+        self.set_sequence_params(reset_phase=True)
+        self._parent._set("system/awg/oscillatorcontrol", 1)
 
     def disable_iq_modulation(self):
         self._iq_modulation = False
@@ -176,6 +179,8 @@ class AWG(AWGCore):
             (f"sines/{2 * i + 1}/phaseshift", 0,),  # 90 deg phase shift
         ]
         self._parent._set(settings)
+        self.set_sequence_params(reset_phase=False)
+        self._parent._set("system/awg/oscillatorcontrol", 0)
 
     def _apply_sequence_settings(self, **kwargs):
         if "sequence_type" in kwargs.keys():
