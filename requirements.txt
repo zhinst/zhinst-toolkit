@@ -1,4 +1,0 @@
-attrs
-marshmallow
-numpy
-zhinst
