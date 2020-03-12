@@ -28,7 +28,10 @@ class AWGCore:
         self._index = index
         self._waveforms = []
         self._program = SequenceProgram()
-        self.set_sequence_params(target=self._parent.device_type)
+        target = self._parent.device_type
+        if target == "uhfli":
+            target = "uhfqa"
+        self.set_sequence_params(target=target)
 
     @property
     def name(self):
