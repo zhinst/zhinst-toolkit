@@ -29,8 +29,8 @@ class AWGCore:
         self._waveforms = []
         self._program = SequenceProgram()
         target = self._parent.device_type
-        if target == "uhfli":
-            target = "uhfqa"
+        if target.startswith("uhf"):
+            target = "uhf"
         self.set_sequence_params(target=target)
 
     @property

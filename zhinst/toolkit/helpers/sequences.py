@@ -23,7 +23,7 @@ def amp_smaller_1(self, attribute, value):
 
 @attr.s
 class Sequence(object):
-    target = attr.ib(default="hdawg", validator=attr.validators.in_(["hdawg", "uhfqa"]))
+    target = attr.ib(default="hdawg", validator=attr.validators.in_(["hdawg", "uhf"]))
     clock_rate = attr.ib(default=2.4e9, validator=is_positive)
     period = attr.ib(default=100e-6, validator=is_positive)
     trigger_mode = attr.ib(
@@ -72,7 +72,7 @@ class Sequence(object):
             self.dead_cycles = self.time_to_cycles(self.dead_time)
         elif self.trigger_mode == "External Trigger":
             self.trigger_cmd_1 = SeqCommand.wait_dig_trigger(
-                index=int(self.target == "uhfqa")
+                index=int(self.target == "uhf")
             )
             self.trigger_cmd_2 = SeqCommand.comment_line()
             self.dead_cycles = 0
@@ -134,7 +134,7 @@ class SimpleSequence(Sequence):
                 temp - self.time_to_cycles(self.delay_times[i])
             )
             self.sequence += self.trigger_cmd_2
-            if self.target == "uhfqa":
+            if self.target == "uhf":
                 self.sequence += SeqCommand.readout_trigger()
             self.sequence += SeqCommand.play_wave_indexed(i)
             self.sequence += SeqCommand.wait_wave()
@@ -169,7 +169,7 @@ class SimpleSequence(Sequence):
         if len(self.buffer_lengths) > len(self.delay_times):
             n = len(self.buffer_lengths) - len(self.delay_times)
             self.delay_times = np.append(self.delay_times, np.zeros(n))
-        if self.target == "uhfqa":
+        if self.target == "uhf":
             self.clock_rate = 1.8e9
 
     def check_attributes(self):
@@ -334,7 +334,7 @@ class ReadoutSequence(Sequence):
         self.sequence += self.trigger_cmd_1
         self.sequence += SeqCommand.wait(self.wait_cycles)
         self.sequence += self.trigger_cmd_2
-        if self.target == "uhfqa":
+        if self.target == "uhf":
             self.sequence += SeqCommand.readout_trigger()
         self.sequence += SeqCommand.play_wave()
         self.sequence += SeqCommand.wait_wave()
@@ -356,7 +356,7 @@ class ReadoutSequence(Sequence):
             self.wait_cycles = self.time_to_cycles(
                 temp - self.latency + self.trigger_delay
             )
-        if self.target == "uhfqa":
+        if self.target == "uhf":
             self.clock_rate = 1.8e9
         len_f = len(self.readout_frequencies)
         len_a = len(self.readout_amplitudes)
@@ -392,7 +392,7 @@ class PulsedSpectroscopySequence(Sequence):
 
     def update_params(self):
         super().update_params()
-        self.target = "uhfqa"
+        self.target = "uhf"
         temp = self.period - self.dead_time
         if self.alignment == "End with Trigger":
             temp -= self.pulse_length
@@ -406,7 +406,7 @@ class PulsedSpectroscopySequence(Sequence):
             self.wait_cycles = self.time_to_cycles(
                 temp - self.latency + self.trigger_delay
             )
-        if self.target == "uhfqa":
+        if self.target == "uhf":
             self.clock_rate = 1.8e9
 
 
