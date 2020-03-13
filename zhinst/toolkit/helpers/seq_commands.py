@@ -20,6 +20,8 @@ class SeqCommand(object):
 
     @staticmethod
     def repeat(i):
+        if i == "inf":
+            return f"\nwhile(true){{\n\n"
         if i < 0:
             raise ValueError("Invalid number of repetitions!")
         return f"\nrepeat({int(i)}){{\n\n"

@@ -30,7 +30,7 @@ class Sequence(object):
         default="None",
         validator=attr.validators.in_(["None", "Send Trigger", "External Trigger"]),
     )
-    repetitions = attr.ib(default=1, converter=int, validator=is_positive)
+    repetitions = attr.ib(default=1)
     alignment = attr.ib(
         default="End with Trigger",
         validator=attr.validators.in_(["End with Trigger", "Start with Trigger"]),
