@@ -62,20 +62,24 @@ class UHFQA(BaseInstrument):
             return m
         else:
             rows, cols = matrix.shape
-            assert rows <= 10
-            assert cols <= 10
+            if rows > 10 or cols > 10:
+                raise ValueError(
+                    f"The shape of the given matrix is {rows} x {cols}. The maximum size is 10 x 10."
+                )
             for r in range(rows):
                 for c in range(cols):
                     self._set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
 
-    def enable_readout_channels(self, channels):
+    def enable_readout_channels(self, channels=range(10)):
         for i in channels:
-            assert i in range(10)
+            if i not in range(10):
+                raise ValueError(f"The channel index {i} is out of range!")
             self.channels[i].enable()
 
-    def disable_readout_channels(self, channels):
+    def disable_readout_channels(self, channels=range(10)):
         for i in channels:
-            assert i in range(10)
+            if i not in range(10):
+                raise ValueError(f"The channel index {i} is out of range!")
             self.channels[i].disable()
 
     def _init_settings(self):
@@ -225,9 +229,15 @@ class AWG(AWGCore):
         if value is None:
             return self.output1(), self.output2()
         else:
-            assert len(value) == 2, "Two values must be specified fot the output!"
-            self.output1(value[0])
-            self.output2(value[1])
+            if isinstance(value, tuple) or isinstance(value, list):
+                if len(value) != 2:
+                    raise ZHTKException(
+                        "The values should be specified as a tuple, e.g. ('on', 'off')."
+                    )
+                self.output1(value[0])
+                self.output2(value[1])
+            else:
+                raise ZHTKException("The value must be a tuple or list of length 2!")
 
     def update_readout_params(self):
         if self.sequence_params["sequence_type"] == "Readout":
@@ -264,7 +274,8 @@ Readout Channel for UHFQA.
 
 class ReadoutChannel:
     def __init__(self, parent, index):
-        assert index in range(10)
+        if index not in range(10):
+            raise ValueError(f"The channel index {index} is out of range!")
         self._index = index
         self._parent = parent
         self._enabled = False
@@ -360,8 +371,12 @@ class ReadoutChannel:
         self._parent._set(node + "imag", self._demod_weights(l, freq, 90))
 
     def _demod_weights(self, length, freq, phase):
-        assert length <= 4096
-        assert freq > 0
+        if length > 4096:
+            raise ValueError(
+                "The maximum length of the integration weights is 4096 samples."
+            )
+        if freq <= 0:
+            raise ValueError("This frequency must be positive.")
         clk_rate = 1.8e9
         x = np.arange(0, length)
         y = np.sin(2 * np.pi * freq * x / clk_rate + np.deg2rad(phase))
