@@ -5,7 +5,7 @@
 
 import numpy as np
 
-from .base import BaseInstrument
+from control.drivers.base import BaseInstrument
 
 
 """

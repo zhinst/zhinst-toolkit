@@ -5,9 +5,8 @@
 
 import numpy as np
 
-from .base import BaseInstrument
-from .uhfqa import AWG
-from .tools import ZHTKException
+from control.drivers.base import BaseInstrument, ZHTKException
+from control.drivers.uhfqa import AWG
 
 
 class UHFLI(BaseInstrument):

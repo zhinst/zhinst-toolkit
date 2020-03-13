@@ -6,7 +6,7 @@
 import numpy as np
 import time
 
-from .tools.helpers import SequenceProgram, Waveform
+from helpers import SequenceProgram, Waveform
 
 
 class AWGCore:

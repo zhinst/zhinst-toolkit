@@ -7,8 +7,9 @@ import numpy as np
 import json
 import pathlib
 
-from .tools import InstrumentConfiguration, ZIConnection
-from . import UHFQA, HDAWG, PQSC
+from interface import InstrumentConfiguration
+from control.connection import ZIConnection
+from control.drivers import UHFQA, HDAWG, PQSC
 
 
 class MultiDeviceConnection:
