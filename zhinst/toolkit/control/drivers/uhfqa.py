@@ -5,9 +5,9 @@
 
 import numpy as np
 
-from .base import BaseInstrument
-from .awg_core import AWGCore
-from .tools import ZHTKException, Parameter, Parse
+from control.drivers.base import BaseInstrument, AWGCore, ZHTKException
+from control.nodetree import Parameter
+from control.parsers import Parse
 
 
 class UHFQA(BaseInstrument):

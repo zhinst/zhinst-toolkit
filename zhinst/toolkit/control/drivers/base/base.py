@@ -5,13 +5,13 @@
 
 import numpy as np
 
-from .tools import (
-    DeviceConnection,
-    ZIConnection,
-    InstrumentConfiguration,
-    Nodetree,
-    ZHTKException,
-)
+from control.connection import DeviceConnection, ZIConnection
+from control.nodetree import Nodetree
+from interface import InstrumentConfiguration
+
+
+class ZHTKException(Exception):
+    pass
 
 
 class BaseInstrument:
