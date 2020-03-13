@@ -140,9 +140,15 @@ class AWG(AWGCore):
         if value is None:
             return self.output1(), self.output2()
         else:
-            assert len(value) == 2, "Two values must be specified fot the output!"
-            self.output1(value[0])
-            self.output2(value[1])
+            if isinstance(value, tuple) or isinstance(value, list):
+                if len(value) != 2:
+                    raise ZHTKException(
+                        "The values should be specified as a tuple, e.g. ('on', 'off')."
+                    )
+                self.output1(value[0])
+                self.output2(value[1])
+            else:
+                raise ZHTKException("The value must be a tuple or list of length 2!")
 
     def enable_iq_modulation(self):
         self._iq_modulation = True
