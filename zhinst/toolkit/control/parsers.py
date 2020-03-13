@@ -18,31 +18,36 @@ class Parse:
     @staticmethod
     def set_on_off(v):
         if isinstance(v, str):
-            assert v.lower() in ["on", "off"]
             map = {"on": 1, "off": 0}
+            if v.lower() not in map.keys():
+                raise ValueError(f"The input value must be in {map.keys()}.")
             v = map[v]
         return v
 
     @staticmethod
     def get_on_off(v):
         v = int(v)
-        assert v in [0, 1]
         map = {1: "on", 0: "off"}
+        if v not in map.keys():
+            raise ValueError("Invalid value returned from the instrument!")
         return map[v]
 
     @staticmethod
     def amp1(v):
-        assert abs(v) <= 1
+        if abs(v) > 1:
+            raise ValueError(f"The given value {v} must be within -1 and +1.")
         return v
 
     @staticmethod
     def abs90(v):
-        assert abs(v) <= 90, "This value can only be between -90 and 90."
+        if abs(v) >= 90:
+            raise ValueError(f"The given value {v} must be within -90 to +90.")
         return v
 
     @staticmethod
     def greater0(v):
-        assert v > 0, "This value must be positive!"
+        if v <= 0:
+            raise ValueError("This value must be positive!")
         return v
 
     @staticmethod
@@ -74,7 +79,8 @@ class Parse:
             7: "Integration",
         }
         v = int(v)
-        assert v in map.keys(), "Unknown value returned from the instrument!"
+        if v not in map.keys():
+            raise ValueError("Unknown value returned from the instrument!")
         return map[v]
 
     @staticmethod
@@ -88,8 +94,9 @@ class Parse:
             "threshold correlation": 5,
             "integration": 7,
         }
-        assert (
-            v in map.keys()
-        ), f"Unknown value entered! The value must be in {map.keys()}"
+        if v not in map.keys():
+            raise ValueError(
+                f"Unknown value entered! The value must be one of {map.keys()}."
+            )
         return map[v]
 
