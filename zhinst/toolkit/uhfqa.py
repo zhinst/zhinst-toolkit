@@ -53,13 +53,20 @@ class UHFQA(BaseInstrument):
             get_parser=Parse.get_result_source,
         )
 
-    def write_crottalk_matrix(self, matrix):
-        rows, cols = matrix.shape
-        assert rows <= 10
-        assert cols <= 10
-        for r in range(rows):
-            for c in range(cols):
-                self._set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
+    def crosstalk_matrix(self, matrix=None):
+        if matrix is None:
+            m = np.zeros((10, 10))
+            for r in range(10):
+                for c in range(10):
+                    m[r, c] = self._get(f"qas/0/crosstalk/rows/{r}/cols/{c}")
+            return m
+        else:
+            rows, cols = matrix.shape
+            assert rows <= 10
+            assert cols <= 10
+            for r in range(rows):
+                for c in range(cols):
+                    self._set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
 
     def enable_readout_channels(self, channels):
         for i in channels:
@@ -218,8 +225,9 @@ class AWG(AWGCore):
         if value is None:
             return self.output1(), self.output2()
         else:
-            self.output1(value)
-            self.output2(value)
+            assert len(value) == 2, "Two values must be specified fot the output!"
+            self.output1(value[0])
+            self.output2(value[1])
 
     def update_readout_params(self):
         if self.sequence_params["sequence_type"] == "Readout":
