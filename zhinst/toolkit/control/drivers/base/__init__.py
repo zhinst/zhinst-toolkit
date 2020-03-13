@@ -1,2 +1,2 @@
-from .awg_core import AWGCore
+from .awg import AWGCore
 from .base import BaseInstrument, ZHTKException
