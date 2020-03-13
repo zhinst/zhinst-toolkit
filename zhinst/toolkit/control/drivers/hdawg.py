@@ -61,6 +61,7 @@ class AWG(AWGCore):
     def __init__(self, parent, index):
         super().__init__(parent, index)
         self._iq_modulation = False
+        self._trigger_level = 0.5
         self.output1 = Parameter(
             self,
             dict(
@@ -197,7 +198,7 @@ class AWG(AWGCore):
 
     def _apply_trigger_settings(self):
         i = self._index
-        self._parent._set(f"/trigger/in/{2*i}/level", 0.5)
+        self._parent._set(f"/triggers/in/{2*i}/level", self._trigger_level)
         self._parent._set(f"/awgs/{i}/auxtriggers/*/channel", 2 * i)
         self._parent._set(f"/awgs/{i}/auxtriggers/*/slope", 1)  # rise
 
