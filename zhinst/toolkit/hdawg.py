@@ -34,24 +34,6 @@ class HDAWG(BaseInstrument):
         super().__init__(name, "hdawg", serial, **kwargs)
         self._awgs = [AWG(self, i) for i in range(4)]
 
-    # not sure if these are neccessary ....
-
-    # def set_outputs(self, values):
-    #     assert len(values) == 4
-    #     [self.awgs[i].set_output(v) for i, v in enumerate(values)]
-
-    # def set_modulation_frequencies(self, frequencies):
-    #     assert len(frequencies) <= 4
-    #     [self.awgs[i].set_modulation_frequency(f) for i, f in enumerate(frequencies)]
-
-    # def set_modulation_phases(self, phases):
-    #     assert len(phases) <= 4
-    #     [self.awgs[i].set_modulation_phase(p) for i, p in enumerate(phases)]
-
-    # def set_modulation_gains(self, gains):
-    #     assert len(gains) <= 4
-    #     [self.awgs[i].set_modulation_gain(g) for i, g in enumerate(gains)]
-
     def _init_settings(self):
         settings = [
             ("/system/clocks/referenceclock/source", 1),
