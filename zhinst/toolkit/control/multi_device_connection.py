@@ -9,7 +9,8 @@ import pathlib
 
 from interface import InstrumentConfiguration
 from control.connection import ZIConnection
-from control.drivers import UHFQA, HDAWG, PQSC
+from control.drivers import UHFQA, HDAWG, PQSC, UHFLI, MFLI
+from control.drivers.base import ZHTKException
 
 
 class MultiDeviceConnection:
@@ -18,6 +19,8 @@ class MultiDeviceConnection:
         self._config = None
         self._hdawgs = {}
         self._uhfqas = {}
+        self._uhflis = {}
+        self._mflis = {}
         self._pqsc = None
 
     def setup(self, **kwargs):
@@ -31,15 +34,20 @@ class MultiDeviceConnection:
         self._shared_connection.connect()
 
     def connect_device(self, device):
-        assert isinstance(device, (HDAWG, UHFQA, PQSC))
-        device.setup(connection=self._shared_connection)
-        device.connect_device()
         if isinstance(device, HDAWG):
             self._hdawgs[device.name] = device
-        if isinstance(device, UHFQA):
+        elif isinstance(device, UHFQA):
             self._uhfqas[device.name] = device
-        if isinstance(device, PQSC):
+        elif isinstance(device, PQSC):
             self._pqsc = device
+        elif isinstance(device, UHFLI):
+            self._uhflis = device
+        elif isinstance(device, MFLI):
+            self._mflis = device
+        else:
+            raise ZHTKException("This device is not recognized!")
+        device.setup(connection=self._shared_connection)
+        device.connect_device()
 
     @property
     def hdawgs(self):
@@ -52,4 +60,12 @@ class MultiDeviceConnection:
     @property
     def pqsc(self):
         return self._pqsc
+
+    @property
+    def uhflis(self):
+        return self._uhflis
+
+    @property
+    def mflis(self):
+        return self._mflis
 
