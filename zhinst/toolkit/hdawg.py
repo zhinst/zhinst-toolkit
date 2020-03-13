@@ -158,8 +158,9 @@ class AWG(AWGCore):
         if value is None:
             return self.output1(), self.output2()
         else:
-            self.output1(value)
-            self.output2(value)
+            assert len(value) == 2, "Two values must be specified fot the output!"
+            self.output1(value[0])
+            self.output2(value[1])
 
     def enable_iq_modulation(self):
         self._iq_modulation = True
