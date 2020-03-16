@@ -9,8 +9,10 @@ import attr
 @attr.s
 class ZIDeviceConfig:
     serial: str = attr.ib(default="dev#####")
+    # for some readon this validator does not work...
     device_type: str = attr.ib(
-        default="hdawg", validator=attr.validators.in_(["hdawg", "uhfqa", "pqsc"])
+        default="hdawg",
+        validator=attr.validators.in_(["hdawg", "uhfqa", "uhfli", "mfli", "pqsc"]),
     )
     interface: str = attr.ib(default="1GbE")
 
