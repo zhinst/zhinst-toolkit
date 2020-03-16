@@ -5,8 +5,15 @@
 
 
 from zhinst.toolkit import HDAWG, UHFQA, UHFLI, MFLI, PQSC, MultiDeviceConnection
-from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore
-from zhinst.toolkit.control.nodetree import Nodetree, Parameter, NodeList, Node
+from zhinst.toolkit.control.drivers.base import BaseInstrument, ZHTKException, AWGCore
+from zhinst.toolkit.control.nodetree import (
+    Nodetree,
+    Parameter,
+    NodeList,
+    Node,
+    ZHTKNodetreeException,
+)
+from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.helpers import Waveform
 from zhinst.toolkit.helpers import SeqCommand
 from zhinst.toolkit.helpers import SequenceProgram

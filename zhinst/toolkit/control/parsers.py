@@ -21,7 +21,9 @@ class Parse:
             map = {"on": 1, "off": 0}
             if v.lower() not in map.keys():
                 raise ValueError(f"The input value must be in {map.keys()}.")
-            v = map[v]
+            v = map[v.lower()]
+        elif not isinstance(v, int):
+            raise ValueError("This value must be either 'on' or 'off' or an integer.")
         return v
 
     @staticmethod

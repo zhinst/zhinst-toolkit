@@ -85,6 +85,7 @@ class BaseInstrument:
             nodetree (bool): If True the nodetree object will be initialized 
                 after connecting the device, otherwise not. Defaults to True.
         """
+        self._check_connected()
         self._controller.connect_device()
         if nodetree:
             self._nodetree = Nodetree(self)
@@ -106,10 +107,7 @@ class BaseInstrument:
         Raises ZHTKException if called and the device in not yet connected to 
         the data server.
         """
-        if not self.is_connected:
-            raise ZHTKException(
-                f"The device {self.name} ({self.serial}) is not connected to a Data Server!"
-            )
+        self._check_connected()
         self._controller.set(*args)
 
     def _get(self, command, valueonly=True):
@@ -143,7 +141,7 @@ class BaseInstrument:
         """
         if not self.is_connected:
             raise ZHTKException(
-                f"The device {self.name} ({self.serial}) is not connected to a Data Server!"
+                f"The device {self.name} ({self.serial}) is not connected to a Data Server! Use device.setup() to establish a data server connection."
             )
 
     @property
