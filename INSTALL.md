@@ -39,5 +39,8 @@ Then move to the root of repository and install it with
 ```shell script
 python setup.py install
 ```
-
-Please not that the installation in editable mode (i.e. setuptools "develop mode") is not supported, so the commands `pip install -e .` or `python setup.py develop` will create a non-working installation. This is a restriction of the namespace Python package as defined in PEP420 (see also [https://github.com/pypa/pip/issues/7265]).
+Optionally it can be installed in development mode, so you can modify the original files without having to reinstall the package between edits. It can be done with 
+```shell script
+python setup.py develop
+```
+instead of the normal installation command.
