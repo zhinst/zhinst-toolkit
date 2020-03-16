@@ -4,5 +4,5 @@
 # of the MIT license. See the LICENSE file for details.
 
 from .waveform import Waveform
-from .compiler import Compiler
 from .sequence_program import SequenceProgram
+from .seq_commands import SeqCommand
