@@ -4,9 +4,6 @@
 # of the MIT license. See the LICENSE file for details.
 
 
-import sys
-
-
 from zhinst.toolkit import HDAWG, UHFQA, UHFLI, MFLI, PQSC, MultiDeviceConnection
 from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore
 from zhinst.toolkit.control.nodetree import Nodetree, Parameter, NodeList, Node
