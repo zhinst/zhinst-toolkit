@@ -29,3 +29,19 @@ def test_set_api_config():
     assert api.port == 8001
     assert api.api == 1
 
+
+def test_set_instr_config():
+    config = InstrumentConfiguration()
+    dev = config.instrument
+    assert dev.name == "device0"
+    conf = dev.config
+    assert conf.serial == "dev#####"
+    assert conf.device_type == "hdawg"
+    assert conf.interface == "1GbE"
+    conf.serial = "dev1111"
+    conf.device_type = "uhfqa"
+    conf.interface = "usb"
+    assert conf.serial == "dev1111"
+    assert conf.device_type == "uhfqa"
+    assert conf.interface == "usb"
+
