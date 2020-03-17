@@ -39,6 +39,19 @@ class Parameter:
         self._set_parser = set_parser
 
     def _getter(self):
+        """
+        Implements a getter for the parameter, if 'Read' is in the parameter 
+        properties (from listNodesJSON), this will call the '_get' method of the 
+        associated device with 'path' as attribute.
+        
+        Raises:
+            ZHTKNodetreeException: if the parameter is not gettable, i.e. if 
+                'Read' not in properties
+        
+        Returns:
+            the gotten value
+            
+        """
         if "Read" in self._properties:
             value = self._device._get(self._path)
             self._cached_value = self._get_parser(value)
@@ -47,6 +60,22 @@ class Parameter:
             raise ZHTKNodetreeException("This parameter is not gettable!")
 
     def _setter(self, value):
+        """
+        Implements a setter for the parameter, if 'Write' is in the parameter 
+        properties (from listNodesJSON), this will call the '_set' method of the 
+        associated device with 'path' and 'value' as attributes.
+        
+        Arguments:
+            value: value to be set
+        
+        Raises:
+            ZHTKNodetreeException: if the parameter is not settable, i.e. if 
+                'Write' not in properties
+        
+        Returns:
+            the set value
+
+        """
         if "Write" in self._properties:
             if value != self._cached_value:
                 value = self._set_parser(value)
@@ -57,6 +86,20 @@ class Parameter:
             raise ZHTKNodetreeException("This parameter is not settable!")
 
     def __call__(self, value=None):
+        """
+        Override the __call__ method for setting and getting the Parameter 
+        value. The Parameter can then be gotten by calling it with no arguments. 
+        It is set by calling it with the value as an argument. This works
+        similarly to parameters in QCoDeS.
+        
+        Arguments:
+            value:  optional value to call the parameter with if it is set, 
+                leaving the argumetn out gets the parameter(default: None)
+
+        Returns:
+            either the set or gotten value
+        
+        """
         if value is None:
             return self._getter()
         else:
@@ -94,6 +137,26 @@ class Node:
         return [k for k, v in self.__dict__.items() if isinstance(v, Parameter)]
 
     def _init_subnodes_recursively(self, parent, nodetree_dict: dict):
+        """
+        Recursively goes through a nested nodetree dictionary. Adds a Node 
+        object as attribute to the parent node if the leave of the nodetree has 
+        not yet been reached. Adds a Parameter as attribute to the parent node
+        if the leave has been reached (i.e. when 'Node' is in keys of the 
+        remaining dict and the remaining dict is the same as the one return 
+        from listNodesJSON describing the parameter).
+
+        If a layer in the nodetree is enumerated and the keys of the dict are 
+        integer values (e.g. 'sigouts/0/..', 'sigouts/1/..', 'sigouts/2/..', ...) 
+        a NodeList is created instead. In case the NodeList has only one entry 
+        (e.g. for 'qas/0/..') only a single node is added and the plural of 
+        'qas' is turned into 'qa'.
+        
+        Arguments:
+            parent (Node): parent node that the Nodes or Parameters are added 
+                to as attributes
+            nodetree_dict (dict): (sub-)dictionary containing the next Nodes 
+                and/or Parameters as dicts 
+        """
         for key, value in nodetree_dict.items():
             if all(isinstance(k, int) for k in value.keys()):
                 lst = NodeList()
@@ -174,6 +237,14 @@ class Nodetree(Node):
         self._init_subnodes_recursively(self, self._nodetree_dict)
 
     def _get_nodetree_dict(self):
+        """
+        Retrieves the nodetree from the device as a flat dictionary and 
+        converts it to a nested dictionary using dictify(). For every device 
+        node returned from the instrument this method splits the node string 
+        into its parts and sorts the value (dict with node, description, unit, 
+        etc.) into a nested dict that recreates the hirarchy of the nodetree.
+
+        """
         tree = self._device._get_nodetree(f"{self._device.serial}/*")
         nodetree = {}
         for key, value in tree.items():
@@ -189,9 +260,9 @@ def dictify(data, keys, val):
     Calls itself recursively.
     
     Arguments:
-        data  -- dictionary to add value to with keys
-        keys  -- list of keys to traverse along tree and place value
-        val   -- value for innermost layer of nested dict
+        data (dict): dictionary to add value to with keys
+        keys (list): list of keys to traverse along tree and place value
+        val (dict): value for innermost layer of nested dict
     """
     key = keys[0]
     key = int(key) if key.isdecimal() else key.lower()
