@@ -7,6 +7,7 @@ import numpy as np
 import time
 
 from helpers import SequenceProgram, Waveform
+from .base import ZHTKException
 
 
 class AWGCore:
