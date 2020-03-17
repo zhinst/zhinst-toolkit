@@ -41,11 +41,17 @@ class ZIConnection:
         """
         Established a connection to the data server.
         """
-        self._daq = zi.ziDAQServer(
-            self._connection_details.host,
-            self._connection_details.port,
-            self._connection_details.api,
-        )
+        try:
+            self._daq = zi.ziDAQServer(
+                self._connection_details.host,
+                self._connection_details.port,
+                self._connection_details.api,
+            )
+        except RuntimeError:
+            raise ZHTKConnectionException(
+                f"No connection could be established with the connection details:"
+                f"{self._connection_details}"
+            )
         if self._daq is not None:
             print(
                 f"Successfully connected to data server at "
@@ -55,7 +61,10 @@ class ZIConnection:
             )
             self._awg = self.AWGModule(self._daq)
         else:
-            print("No connection could be established...")
+            raise ZHTKConnectionException(
+                f"No connection could be established with the connection details:"
+                f"{self._connection_details}"
+            )
 
     @property
     def established(self):
@@ -80,9 +89,13 @@ class ZIConnection:
         self._awg.update(device=serial, index=0)
 
     def set(self, *args):
+        if not self.established:
+            raise ZHTKConnectionException("The connection is not yet established.")
         return self._daq.set(*args)
 
     def get(self, *args, **kwargs):
+        if not self.established:
+            raise ZHTKConnectionException("The connection is not yet established.")
         return self._daq.get(*args, **kwargs)
 
     def get_sample(self, *args, **kwargs):
@@ -91,9 +104,13 @@ class ZIConnection:
         for certain streaming nodes on the UHFLI or MFLI devices.
         
         """
+        if not self.established:
+            raise ZHTKConnectionException("The connection is not yet established.")
         return self._daq.getSample(*args, **kwargs)
 
     def list_nodes(self, *args, **kwargs):
+        if not self.established:
+            raise ZHTKConnectionException("The connection is not yet established.")
         return self._daq.listNodesJSON(*args, **kwargs)
 
     class AWGModule:

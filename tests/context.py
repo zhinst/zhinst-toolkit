@@ -5,6 +5,11 @@
 
 
 from zhinst.toolkit import HDAWG, UHFQA, UHFLI, MFLI, PQSC, MultiDeviceConnection
+from zhinst.toolkit.control.connection import (
+    ZIConnection,
+    DeviceConnection,
+    ZHTKConnectionException,
+)
 from zhinst.toolkit.control.drivers.base import BaseInstrument, ZHTKException, AWGCore
 from zhinst.toolkit.control.nodetree import (
     Nodetree,
