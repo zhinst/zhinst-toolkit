@@ -5,6 +5,8 @@
 
 
 from zhinst.toolkit import HDAWG, UHFQA, UHFLI, MFLI, PQSC, MultiDeviceConnection
+from zhinst.toolkit.control.drivers.uhfqa import AWG as UHFQA_AWG, ReadoutChannel
+from zhinst.toolkit.control.drivers.hdawg import AWG as HDAWG_AWG
 from zhinst.toolkit.control.connection import (
     ZIConnection,
     DeviceConnection,
