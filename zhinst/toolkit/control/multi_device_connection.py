@@ -14,6 +14,26 @@ from zhinst.toolkit.control.drivers.base import ZHTKException
 
 
 class MultiDeviceConnection:
+    """
+    A container for devices that ensures a single instrument connection 
+    (Data Server) is shared between multiple devices. The MultiDeviceConnection 
+    holds dictionaries of different device types. The devices are identified by 
+    the name they are given.
+    The MultiDeviceConnection connects to a Data Server 'with mdc.setup()' and 
+    individual devices are added with 'mdc.connect_device()'.
+
+    Properties:
+        hdawgs (dict): dict of HDAWGs
+        uhfqas (dict): dict of UHFQAs
+        uhflis (dict): dict of UHFLIs
+        mflis (dict): dict of MFLIs
+        pqsc: a PQSC if one is added, otherwise None
+    
+    Raises:
+        ZHTKException: if an unknown device is added
+    
+    """
+
     def __init__(self):
         self._shared_connection = None
         self._config = None
@@ -24,6 +44,15 @@ class MultiDeviceConnection:
         self._pqsc = None
 
     def setup(self, **kwargs):
+        """
+        Establishes a connection to the Data Server. The connection details can 
+        be specified as keyword arguments, they default to:
+        
+        host = "localhost"
+        port = "8004"
+        api = 6
+
+        """
         config = InstrumentConfiguration()
         config.api_config.host = kwargs.get("host", "localhost")
         config.api_config.port = kwargs.get("port", 8004)
@@ -34,6 +63,19 @@ class MultiDeviceConnection:
         self._shared_connection.connect()
 
     def connect_device(self, device):
+        """
+        Adds a device to the MultiDeviceConnection and connects the device to 
+        the shared Data Server. Depending on the device type, the device is 
+        added to respective dictionary and can then be accessed from there.
+        
+        Arguments:
+            device (BaseInstrument): the device to be added to the 
+                MultiDeviceConnection, has to be one of 
+                {HDAWG, UHFQA, PQSC, UHFLI, MFLI}
+        
+        Raises:
+            ZHTKException: if the device is not recognized
+        """
         if isinstance(device, HDAWG):
             self._hdawgs[device.name] = device
         elif isinstance(device, UHFQA):
