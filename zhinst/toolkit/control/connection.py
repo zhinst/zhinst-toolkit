@@ -40,7 +40,13 @@ class ZIConnection:
 
     def connect(self):
         """
-        Established a connection to the data server.
+        Established a connection to the data server. Uses the connection details 
+        (host, port, api level) specified in the 'connection_details'.
+
+        Raises:
+            ZHTKConnectionException: if connection to the Data Server could not 
+                be established
+
         """
         try:
             self._daq = zi.ziDAQServer(
@@ -71,18 +77,22 @@ class ZIConnection:
     def established(self):
         return self._daq is not None
 
-    def connect_device(self, **kwargs):
+    def connect_device(self, serial=None, interface=None):
         """
-        Connects a device to the data server. 
+        Connects a device to the data server. The details of the device 
+        (serial, interface) must be specified as keyword arguments.
+
+        Arguments:
+            serial (str): the serial number of the device, e.g. 'dev8030'
+            interface (str): the type of interface, must be either '1gbe' or 'usb'
+
         """
         if self._daq is None:
             raise ZHTKConnectionException("No existing connection to data server")
-        if not all(k for k in ["serial", "interface"]):
+        if not any(k is None for k in [serial, interface]):
             raise ZHTKConnectionException(
                 "To connect a Zurich Instruments' device, youd need a serial and an interface [1gbe or usb]"
             )
-        serial = kwargs.get("serial")
-        interface = kwargs.get("interface")
         self._daq.connectDevice(serial, interface)
         print(
             f"Successfully connected to device {serial.upper()} on interface {interface.upper()}"
@@ -90,19 +100,48 @@ class ZIConnection:
         self._awg.update(device=serial, index=0)
 
     def set(self, *args):
+        """
+        Wraps around the 'zi.ziDAQServer.set()' method and passes all arguments 
+        to it.
+        
+        Raises:
+            ZHTKConnectionException: is the connection is not yet established
+        
+        Returns:
+            the value returned from 'daq.set(...)'
+        
+        """
         if not self.established:
             raise ZHTKConnectionException("The connection is not yet established.")
         return self._daq.set(*args)
 
     def get(self, *args, **kwargs):
+        """
+        Wraps around the 'zi.ziDAQServer.get(...)' method and passes all 
+        arguments and keyword arguments to it.
+        
+        Raises:
+            ZHTKConnectionException: is the connection is not yet established
+        
+        Returns:
+            the value returned from 'daq.get(...)'
+        
+        """
         if not self.established:
             raise ZHTKConnectionException("The connection is not yet established.")
         return self._daq.get(*args, **kwargs)
 
     def get_sample(self, *args, **kwargs):
         """
-        Wraps around the daq.getSample(...) method in zhinst.ziPython. Used only 
-        for certain streaming nodes on the UHFLI or MFLI devices.
+        Wraps around the 'daq.getSample(...)' method in zhinst.ziPython. Passes 
+        all arguments and keyword arguemnts to it. Used only for certain 
+        streaming nodes on the UHFLI or MFLI devices.
+
+        Raises:
+            ZHTKConnectionException: is the connection is not yet established
+        
+        Returns:
+            the value returned from 'daq.getSample(...)'
         
         """
         if not self.established:
@@ -110,6 +149,17 @@ class ZIConnection:
         return self._daq.getSample(*args, **kwargs)
 
     def list_nodes(self, *args, **kwargs):
+        """
+        Wraps around the 'daq.listNodesJSON(...)' method in zhinst.ziPython. Passes 
+        all arguments and keyword arguemnts to it.
+
+        Raises:
+            ZHTKConnectionException: is the connection is not yet established
+        
+        Returns:
+            the value returned from 'daq.listNodesJSON(...)'
+        
+        """
         if not self.established:
             raise ZHTKConnectionException("The connection is not yet established.")
         return self._daq.listNodesJSON(*args, **kwargs)
@@ -119,6 +169,7 @@ class ZIConnection:
         Implements an awg module as daq.awgModule(...) in zhinst.ziPython with 
         get and set methods of the module. Allows to address different awgs on 
         different devices with the same awg module using the update(...) method. 
+
         """
 
         def __init__(self, daq):
@@ -148,6 +199,12 @@ class ZIConnection:
             return self._awgModule.getString(*args)
 
         def update(self, **kwargs):
+            """
+            Changes the 'device' and 'index' parameter of the awg module to 
+            address different awgs using the same awg module. The 'device' and 
+            'index' are specified as keyword arguemnts.
+
+            """
             if "device" in kwargs.keys():
                 self._update_device(kwargs["device"])
             if "index" in kwargs.keys():
@@ -155,7 +212,9 @@ class ZIConnection:
 
         def _update_device(self, device):
             if device != self.device:
-                self._update_index(0)
+                self._update_index(
+                    0
+                )  # set index to 0 before changing to different device!
                 self._awgModule.set("/device", device)
                 self._device = device
 
@@ -192,7 +251,7 @@ class DeviceConnection(object):
 
     Attributes:
         connection (ZIConnection): Data server connection (common for more 
-            than one isntrument).
+            than one instrument).
         device (BaseInstrument): Associated instrument that is addressed.
     
     """
@@ -208,6 +267,7 @@ class DeviceConnection(object):
         
         Args:
             connection (ZIConnection): defaults to None
+
         """
         if connection is None:
             details = self._device._config._api_config
@@ -220,6 +280,7 @@ class DeviceConnection(object):
     def connect_device(self):
         """
         Connects the device to the data server.
+
         """
         self._connection.connect_device(
             serial=self._device.serial, interface=self._device.interface,
@@ -228,8 +289,9 @@ class DeviceConnection(object):
     def set(self, *args):
         """
         Sets the node of the connected device. Parses the input arguments to 
-        either set a single node/value pair or a list of node/value pair tuples.
+        either set a single node/value pair or a list of node/value tuples.
         Eventually wraps around the daq.set(...) of zhinst.ziPython.
+
         """
         if len(args) == 2:
             settings = [(args[0], args[1])]
@@ -245,6 +307,15 @@ class DeviceConnection(object):
         Gets the node of the connected device. Parses the returned dictionary 
         from the data server to output only the actual value in a nice format.
         Wraps around the daq.get(...) of zhinst.ziPython.
+
+        Arguments:
+            command (str): node string of the value to get
+            valueonly (bool): a flag specifying if the entire dict should be 
+                returned as from the API or only the actual value (default: True)
+
+        Raises:
+            ZHTKConnectionException: if no device is connected
+
         """
         if self._device is not None:
             if isinstance(command, list):
@@ -279,10 +350,31 @@ class DeviceConnection(object):
         """
         Gets the entire nodetree of the connected device. Wraps around the 
         daq.listNodesJSON(...) method in zhinst.ziPython.
+
+        Arguments:
+            prefix (str): a partial node string that is passed to 
+                'listNodesJSON(...)' to specify which part of the nodetree 
+                to return
+
         """
         return json.loads(self._connection.list_nodes(prefix, **kwargs))
 
     def _get_value_from_dict(self, data):
+        """
+        Parses the dict returned from the Python API into a nicer format. 
+        Removes the device serial from the node string to be used as a key in 
+        the returned dict. The corresponding value is the returned value from 
+        the Python API, can be a scalar or vector.
+        
+        Arguments:
+            data (dict): a dictionary as returned from the Python API
+        
+        Raises:
+            ZHTKConnectionException: if no data is returned from the API
+        
+        Returns:
+            a dictionary with node/value as key and value
+        """
         if not isinstance(data, dict):
             raise ZHTKConnectionException("Something went wrong...")
         if not len(data):
@@ -299,6 +391,18 @@ class DeviceConnection(object):
         return new_data
 
     def _get_value_from_streamingnode(self, data):
+        """
+        Gets the (complex) data only for specific demod sample nodes.
+        
+        Arguments:
+            data (dict): a dictionary as returned from the Python API
+        
+        Raises:
+            ZHTKConnectionException: if no data is returned from the API
+        
+        Returns:
+            the complex demod sample value
+        """
         if not isinstance(data, dict):
             raise ZHTKConnectionException("Something went wrong...")
         if not len(data):
@@ -308,6 +412,22 @@ class DeviceConnection(object):
         return data["x"][0] + 1j * data["y"][0]
 
     def _commands_to_node(self, settings):
+        """
+        Parses a list of command and value pairs into a a list of node value 
+        pairs that can be passed to 'ziDAQServer.set(...)'. E.g. adds the 
+        device serial in front of every command.
+        
+        Arguments:
+            settings (list): list of command/value pairs
+        
+        Raises:
+            ZHTKConnectionException: if the command/value pairs are not 
+                specified as pairs/tuples
+        
+        Returns:
+            the parsed list
+
+        """
         new_settings = []
         for args in settings:
             try:
@@ -321,6 +441,19 @@ class DeviceConnection(object):
         return new_settings
 
     def _command_to_node(self, command):
+        """
+        Parses a single command into a node string that can be passed 
+        to 'ziDAQServer.set(...)'. Checks if the command starts with a '/' and 
+        adds the right device serial if the command 
+        does not start with '/zi/'.
+        
+        Arguments:
+            command (str): command to be parsed
+        
+        Returns:
+            the parsed command
+            
+        """
         command = command.lower()
         if command[0] != "/":
             command = "/" + command

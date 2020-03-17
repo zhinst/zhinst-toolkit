@@ -16,6 +16,7 @@ class Parameter:
     and a device. It holds the information from the daq.listNodesJSON(...) 
     method such as the node path, the description, properties, etc. The 'help' 
     property prints a string with a summary of the parameter.
+
     """
 
     def __init__(
@@ -50,7 +51,7 @@ class Parameter:
         
         Returns:
             the gotten value
-            
+
         """
         if "Read" in self._properties:
             value = self._device._get(self._path)
@@ -122,6 +123,7 @@ class Node:
     and a device it is associated with. It can hold other nodes as well as 
     parameters. The data structure of the device nodetree is recreated by 
     recursively adding either nodes or parameters as attributes to the node.
+
     """
 
     def __init__(self, parent):
@@ -156,6 +158,7 @@ class Node:
                 to as attributes
             nodetree_dict (dict): (sub-)dictionary containing the next Nodes 
                 and/or Parameters as dicts 
+
         """
         for key, value in nodetree_dict.items():
             if all(isinstance(k, int) for k in value.keys()):
@@ -198,7 +201,8 @@ class Node:
 class NodeList(list):
     """
     Implements a list of nodes. Simply inherits from List and overrides 
-    the __repr__() method to make it look nice in the console.
+    the __repr__() method to make it look nice in the console or in a notebook.
+
     """
 
     def __repr__(self):
@@ -263,6 +267,7 @@ def dictify(data, keys, val):
         data (dict): dictionary to add value to with keys
         keys (list): list of keys to traverse along tree and place value
         val (dict): value for innermost layer of nested dict
+
     """
     key = keys[0]
     key = int(key) if key.isdecimal() else key.lower()
