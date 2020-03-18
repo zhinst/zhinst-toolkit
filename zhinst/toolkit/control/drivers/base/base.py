@@ -8,7 +8,10 @@ import numpy as np
 from zhinst.toolkit.control.connection import DeviceConnection, ZIConnection
 from zhinst.toolkit.control.nodetree import Nodetree
 from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes
-from . import ZHTKException
+
+
+class ZHTKException(Exception):
+    pass
 
 
 class BaseInstrument:

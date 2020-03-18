@@ -1,3 +1,6 @@
+from .base import ZHTKException
+
+
 class DAQModule:
     def __init__(self, parent):
         self._parent = parent

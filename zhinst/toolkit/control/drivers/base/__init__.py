@@ -1,7 +1,4 @@
 from .awg import AWGCore
 from .daq import DAQModule
-from .base import BaseInstrument
+from .base import BaseInstrument, ZHTKException
 
-
-class ZHTKException(Exception):
-    pass
