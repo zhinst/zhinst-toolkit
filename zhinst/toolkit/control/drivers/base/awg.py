@@ -8,6 +8,7 @@ import time
 
 from zhinst.toolkit.helpers import SequenceProgram, Waveform
 from .base import ZHTKException
+from . import ZHTKException
 
 
 class AWGCore:
@@ -27,9 +28,13 @@ class AWGCore:
     def __init__(self, parent, index):
         self._parent = parent
         self._index = index
+        self._module = None
         self._waveforms = []
         self._program = SequenceProgram()
         self.set_sequence_params(target=self._parent.device_type)
+
+    def _setup(self):
+        self._module = self._parent._controller._connection.awg_module
 
     @property
     def name(self):
@@ -76,26 +81,27 @@ class AWGCore:
         return
 
     def compile(self):
-        awg_module = self._parent._awg_connection
-        awg_module.update(device=self._parent.serial)
-        awg_module.update(index=self._index)
+        if self._module is None:
+            raise ZHTKException("This AWG is not connected to a awgModule!")
+        self._module.update(device=self._parent.serial)
+        self._module.update(index=self._index)
         if self._program.sequence_type == "Simple":
             buffer_lengths = [w.buffer_length for w in self._waveforms]
             delays = [w.delay for w in self._waveforms]
             self.set_sequence_params(buffer_lengths=buffer_lengths, delay_times=delays)
-        awg_module.set("compiler/sourcestring", self._program.get_seqc())
-        while awg_module.get_int("compiler/status") == -1:
+        self._module.set("compiler/sourcestring", self._program.get_seqc())
+        while self._module.get_int("compiler/status") == -1:
             time.sleep(0.1)
-        if awg_module.get_int("compiler/status") == 1:
+        if self._module.get_int("compiler/status") == 1:
             raise Exception(
-                "Upload failed: \n" + awg_module.get_string("compiler/statusstring")
+                "Upload failed: \n" + self._module.get_string("compiler/statusstring")
             )
-        if awg_module.get_int("compiler/status") == 2:
+        if self._module.get_int("compiler/status") == 2:
             raise Warning(
                 "Compiled with warning: \n"
-                + awg_module.get_string("compiler/statusstring")
+                + self._module.get_string("compiler/statusstring")
             )
-        if awg_module.get_int("compiler/status") == 0:
+        if self._module.get_int("compiler/status") == 0:
             print("Compilation successful")
         self._wait_upload_done()
 
@@ -130,15 +136,17 @@ class AWGCore:
         self.upload_waveforms()
 
     def _wait_upload_done(self, timeout=10):
+        if self._module is None:
+            raise ZHTKException("This AWG is not connected to a awgModule!")
         time.sleep(0.01)
-        awg_module = self._parent._awg_connection
-        awg_module.update(device=self._parent.serial, index=self._index)
+        self._module = self._parent._awg_connection
+        self._module.update(device=self._parent.serial, index=self._index)
         tik = time.time()
-        while awg_module.get_int("/elf/status") == 2:
+        while self._module.get_int("/elf/status") == 2:
             time.sleep(0.01)
             if time.time() - tik >= timeout:
                 raise Exception("Program upload timed out!")
-        status = awg_module.get_int("/elf/status")
+        status = self._module.get_int("/elf/status")
         print(
             f"{self.name}: Sequencer status: {'ELF file uploaded' if status == 0 else 'FAILED!!'}"
         )
