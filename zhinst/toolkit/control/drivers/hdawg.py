@@ -35,6 +35,10 @@ class HDAWG(BaseInstrument):
         super().__init__(name, DeviceTypes.HDAWG, serial, **kwargs)
         self._awgs = [AWG(self, i) for i in range(4)]
 
+    def connect_device(self, nodetree=True):
+        super().connect_device(nodetree=nodetree)
+        [awg._setup() for awg in self.awgs]
+
     def _init_settings(self):
         settings = [
             ("/system/clocks/referenceclock/source", 1),

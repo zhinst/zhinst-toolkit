@@ -54,6 +54,10 @@ class UHFQA(BaseInstrument):
             get_parser=Parse.get_result_source,
         )
 
+    def connect_device(self, nodetree=True):
+        super().connect_device(nodetree=nodetree)
+        self.awg._setup()
+
     def crosstalk_matrix(self, matrix=None):
         if matrix is None:
             m = np.zeros((10, 10))
