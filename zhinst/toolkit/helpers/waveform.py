@@ -7,6 +7,27 @@ import numpy as np
 
 
 class Waveform(object):
+    """
+    Implements a waveform for two channels. The 'data' attribute holds the 
+    waveform samples with the proper scaling, granularity and minimal length.
+    The 'data' attribute holds the actual waveform array that can be sent to 
+    the instrument. 
+
+    Arguments:
+        wave1 (array): list or numpy array for the waveform on channel 1, will 
+            be scaled to have a maximum amplitude of 1
+        wave2 (array): list or numpy array for the waveform on channel 2, will 
+            be scaled to have a maximum amplitude of 1
+        delay (float): individual waveform delay in seconds with respect to the 
+            time origin of the sequence, a positive value shifts the start of 
+            the waveform forward in time (default: 0)
+        granularity (int): granularity that the number of samples are aligned 
+            to (default: 16)
+        align_start (bool): the waveform will be padded with zeros to match the 
+            granularity, either before or after the samples (default: True)
+
+    """
+
     def __init__(self, wave1, wave2, delay=0, granularity=16, align_start=True):
         self._granularity = granularity
         self._align_start = align_start
@@ -14,13 +35,11 @@ class Waveform(object):
         self._delay = delay
         self._update()
 
-    def add_wave(self, ch, wave):
-        if ch not in [0, 1]:
-            raise Exception("Waveform index out of range!")
-        self._waves[ch] = wave
-        self._update()
-
     def replace_data(self, wave1, wave2, delay=0):
+        """
+        Replaces the data in the waveform.
+
+        """
         new_buffer_length = self._round_up(max(len(wave1), len(wave2), 32))
         self._delay = delay
         if new_buffer_length == self.buffer_length:
@@ -48,6 +67,11 @@ class Waveform(object):
         self._data = self._interleave_waveforms(self._waves[0], self._waves[1])
 
     def _interleave_waveforms(self, x1, x2):
+        """
+        Interleaves the waveforms of both channels and adjusts the scaling. 
+        The data is actually sent as values in the range of +/- (2^15 - 1).
+        
+        """
         if len(x1) == 0:
             x1 = np.zeros(1)
         if len(x2) == 0:
