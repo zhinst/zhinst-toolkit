@@ -5,6 +5,7 @@
 
 import json
 import zhinst.ziPython as zi
+from control.modules import AWGModule, DAQModule
 from zhinst.toolkit.interface import DeviceTypes
 
 
@@ -24,6 +25,7 @@ class ZIConnection:
     awg module object that implements the daq.awgModule module.
     
     Args:
+        connection_details: Part of the instrument config.
         connection_details: Part of the instrument config.
     
     Attributes:
@@ -66,7 +68,8 @@ class ZIConnection:
                 f"{self._connection_details.port} "
                 f"api version: {self._connection_details.api}"
             )
-            self._awg = self.AWGModule(self._daq)
+            self._awg = AWGModule(self._daq)
+            self._daq_module = DAQModule(self._daq)
         else:
             raise ZHTKConnectionException(
                 f"No connection could be established with the connection details:"
@@ -235,6 +238,10 @@ class ZIConnection:
     def awg_module(self):
         return self._awg
 
+    @property
+    def daq_module(self):
+        return self._daq_module
+
 
 class DeviceConnection(object):
     """
@@ -256,7 +263,7 @@ class DeviceConnection(object):
     
     """
 
-    def __init__(self, device, **kwargs):
+    def __init__(self, device):
         self._connection = None
         self._device = device
 
