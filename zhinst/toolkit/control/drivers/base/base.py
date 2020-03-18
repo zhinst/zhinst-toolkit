@@ -60,7 +60,10 @@ class BaseInstrument:
         self._config._instrument._config._device_type = device_type
         self._config._instrument._config._serial = serial
         self._config._instrument._config._interface = kwargs.get("interface", "1GbE")
-        self._controller = DeviceConnection(self, **kwargs)
+        self._config._api_config.host = kwargs.get("host", "localhost")
+        self._config._api_config.port = kwargs.get("port", 8004)
+        self._config._api_config.api = kwargs.get("api", 6)
+        self._controller = DeviceConnection(self)
         self._nodetree = None
 
     def setup(self, connection: ZIConnection = None):
