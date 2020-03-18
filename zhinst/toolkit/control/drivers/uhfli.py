@@ -5,7 +5,7 @@
 
 import numpy as np
 
-from zhinst.toolkit.control.drivers.base import BaseInstrument, ZHTKException
+from zhinst.toolkit.control.drivers.base import BaseInstrument, ZHTKException, DAQModule
 from zhinst.toolkit.control.drivers.uhfqa import AWG
 from zhinst.toolkit.interface import DeviceTypes
 
@@ -25,6 +25,11 @@ class UHFLI(BaseInstrument):
     def __init__(self, name, serial, **kwargs):
         super().__init__(name, DeviceTypes.UHFLI, serial, **kwargs)
         self._awg = AWG(self, 0)
+        self._daq_module = DAQModule(self)
+
+    def connect_device(self, nodetree=True):
+        super().connect_device(nodetree=nodetree)
+        self.daq._setup()
 
     def _init_settings(self):
         settings = [
@@ -40,3 +45,8 @@ class UHFLI(BaseInstrument):
     def _awg_connection(self):
         self._check_connected()
         return self._controller._connection.awg_module
+
+    @property
+    def daq(self):
+        return self._daq_module
+
