@@ -29,6 +29,7 @@ class UHFLI(BaseInstrument):
 
     def connect_device(self, nodetree=True):
         super().connect_device(nodetree=nodetree)
+        self.awg._setup()
         self.daq._setup()
 
     def _init_settings(self):
