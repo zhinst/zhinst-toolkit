@@ -18,33 +18,11 @@ from .sequences import (
 
 
 class SequenceProgram(object):
-    """SequenceProgram class that holds information about an AWG sequence.
+    """
+    SequenceProgram class that holds information about an AWG sequence.
     The class holds a Sequence object, depending on the set type of the sequence.
     the get() method returns the generated string for the seqC program that can 
     be downloaded to the AWG.
-    
-    Typical Usage:
-
-        s = SequenceProgram()
-        s.set(sequence_type="T1")
-        s.set(delay_times=np.linspace(0, 10e-6, 11), period=20e-6, trigger_mode="Send Trigger")
-        s.set(period=-1)
-            > ValueError("Period must be positive!")
-        
-        s.list_params()
-            > {'sequence_type': 'T1',
-            >  'sequence_parameters': {'clock_rate': 2400000000.0,
-            >  'period': 2e-05,
-            >   ...
-
-        print(s.get())
-            > // Zurich Instruments sequencer program
-            > // sequence type:              T1
-            > // automatically generated:    20/12/2019 @10:47
-            >
-            > wave w_1 = 1 * gauss(720, 360, 120);
-            > wave w_2 = 1 * drag(720, 360, 120);
-            > ...
     
     """
 
@@ -53,6 +31,10 @@ class SequenceProgram(object):
         self._sequence = self.sequence_class(**kwargs)
 
     def get_seqc(self):
+        """
+        Returns the sequence C code for of the current program as a string.
+    
+        """
         return self._sequence.get()
 
     def set_params(self, **settings):
