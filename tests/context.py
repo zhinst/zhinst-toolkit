@@ -12,7 +12,12 @@ from zhinst.toolkit.control.connection import (
     DeviceConnection,
     ZHTKConnectionException,
 )
-from zhinst.toolkit.control.drivers.base import BaseInstrument, ZHTKException, AWGCore
+from zhinst.toolkit.control.drivers.base import (
+    BaseInstrument,
+    ZHTKException,
+    AWGCore,
+    DAQModule,
+)
 from zhinst.toolkit.control.nodetree import (
     Nodetree,
     Parameter,
