@@ -10,9 +10,13 @@ class DAQModule:
         self._module = self._parent._controller._connection.daq_module
 
     def _set(self, *args):
+        if self._module is None:
+            raise ZHTKException("This DAQ is not connected to a dataAcquisitionModule!")
         self._module.set(*args, device=self._parent.serial)
 
     def _get(self, *args, valueonly=True):
+        if self._module is None:
+            raise ZHTKException("This DAQ is not connected to a dataAcquisitionModule!")
         data = self._module.get(*args, device=self._parent.serial)
         return list(data.values())[0][0] if valueonly else data
 
