@@ -8,7 +8,7 @@ import time
 
 from zhinst.toolkit.helpers import SequenceProgram, Waveform
 from .base import ZHTKException
-from . import ZHTKException
+from .base import ZHTKException
 
 
 class AWGCore:
