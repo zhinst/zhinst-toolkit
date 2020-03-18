@@ -57,6 +57,15 @@ class AWG(AWGCore):
     Device-specific AWG for HDAWG with properties like ouput, modulation frequency or gains and 
     sequence specific settings for the HDAWG. Inherits from AWGCore.
 
+    Prameters:
+        output1
+        output2
+        outputs
+        modulation_freq
+        modulation_phase_shift
+        gain1
+        gain2
+
     """
 
     def __init__(self, parent, index):

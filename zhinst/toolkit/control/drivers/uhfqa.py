@@ -268,7 +268,17 @@ class AWG(AWGCore):
 
 
 """
-Readout Channel for UHFQA.
+Implements a Readout Channel for UHFQA. 
+
+Parameters:
+    rotation
+    threshold
+    result
+    index
+    enabled
+    readout_frequency
+    readout_amplitude
+    phase_shift
 
 """
 

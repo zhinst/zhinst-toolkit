@@ -6,7 +6,8 @@
 import numpy as np
 
 """
-Parameter validators.
+Input and output parsers for Parameters to validate and parse values. 
+
 """
 
 
