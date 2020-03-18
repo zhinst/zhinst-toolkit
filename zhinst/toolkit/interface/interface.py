@@ -44,6 +44,7 @@ class InstrumentConfiguration:
     """
     Implements a data structure used to represent the instrument and 
     api configuration.
+    
     """
 
     def __init__(self):
