@@ -2,6 +2,36 @@ from .base import ZHTKException
 from control.nodetree import Parameter
 
 
+MAPPINGS = {
+    "edge": {1: "rising", 2: "falling", 3: "both",},
+    "eventcount_mode": {0: "sample", 1: "increment"},
+    "fft_window": {
+        0: "rectangular",
+        1: "hann",
+        2: "hamming",
+        3: "blackman",
+        16: "exponential",
+        17: "cosine",
+        17: "sine",
+        18: "cosine squared",
+    },
+    "grid_direction": {0: "forward", 1: "reverse", 2: "bidirectional",},
+    "grid_mode": {1: "nearest", 2: "linear", 4: "exact",},
+    "save_fileformat": {0: "matlab", 1: "csv", 2: "zview", 3: "sxm", 4: "hdf5",},
+    "type": {
+        0: "continuous",
+        1: "",
+        2: "zview",
+        3: "sxm",
+        4: "hdf5",
+        5: "csv",
+        6: "zview",
+        7: "sxm",
+        8: "hdf5",
+    },
+}
+
+
 class DAQModule:
     def __init__(self, parent):
         self._parent = parent
@@ -13,7 +43,8 @@ class DAQModule:
         nodetree = self._module.get_nodetree("*")
         for k, v in nodetree.items():
             name = k[1:].replace("/", "_")
-            setattr(self, name, Parameter(self, v, device=self))
+            mapping = MAPPINGS[name] if name in MAPPINGS.keys() else None
+            setattr(self, name, Parameter(self, v, device=self, mapping=mapping))
         self._init_settings()
 
     def _set(self, *args):
