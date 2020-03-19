@@ -71,35 +71,3 @@ class Parse:
         Parse.greater0(v)
         return v / 1.8e9
 
-    @staticmethod
-    def get_result_source(v):
-        map = {
-            0: "Crosstalk",
-            1: "Threshold",
-            2: "Rotation",
-            4: "Crosstalk Correlation",
-            5: "Threshold Correlation",
-            7: "Integration",
-        }
-        v = int(v)
-        if v not in map.keys():
-            raise ValueError("Unknown value returned from the instrument!")
-        return map[v]
-
-    @staticmethod
-    def set_result_source(v):
-        v = v.lower()
-        map = {
-            "crosstalk": 0,
-            "threshold": 1,
-            "rotation": 2,
-            "crosstalk correlation": 4,
-            "threshold correlation": 5,
-            "integration": 7,
-        }
-        if v not in map.keys():
-            raise ValueError(
-                f"Unknown value entered! The value must be one of {map.keys()}."
-            )
-        return map[v]
-
