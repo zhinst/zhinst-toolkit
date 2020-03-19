@@ -11,6 +11,18 @@ from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.interface import DeviceTypes
 
 
+MAPPINGS = {
+    "result_source": {
+        0: "Crosstalk",
+        1: "Threshold",
+        2: "Rotation",
+        4: "Crosstalk Correlation",
+        5: "Threshold Correlation",
+        7: "Integration",
+    }
+}
+
+
 class UHFQA(BaseInstrument):
     """
     High-level controller for UHFQA. Inherits from BaseInstrument and defines 
@@ -50,8 +62,7 @@ class UHFQA(BaseInstrument):
                 Unit="None",
             ),
             device=self,
-            set_parser=Parse.set_result_source,
-            get_parser=Parse.get_result_source,
+            mapping=MAPPINGS["result_source"],
         )
 
     def connect_device(self, nodetree=True):
