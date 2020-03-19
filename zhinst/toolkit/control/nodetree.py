@@ -26,6 +26,7 @@ class Parameter:
         device=None,
         set_parser=lambda v: v,
         get_parser=lambda v: v,
+        mapping: dict = None,
     ):
         self._parent = parent
         self._device = parent._device if device is None else device
@@ -38,6 +39,7 @@ class Parameter:
         self._cached_value = None
         self._get_parser = get_parser
         self._set_parser = set_parser
+        self._map = mapping
 
     def _getter(self):
         """
@@ -55,6 +57,12 @@ class Parameter:
         """
         if "Read" in self._properties:
             value = self._device._get(self._path)
+            if self._map is not None:
+                if value not in self._map.keys():
+                    raise ZHTKNodetreeException(
+                        f"The value '{value}' is not in {list(self._map.keys())}."
+                    )
+                value = self._map[value]
             self._cached_value = self._get_parser(value)
             return self._cached_value
         else:
@@ -79,6 +87,14 @@ class Parameter:
         """
         if "Write" in self._properties:
             if value != self._cached_value:
+                if self._map is not None and isinstance(value, str):
+                    value = value.lower()
+                    if value not in self._map.values():
+                        raise ZHTKNodetreeException(
+                            f"The value '{value}' is not in {list(self._map.values())}."
+                        )
+                    inv_map = {v: k for k, v in self._map.items()}
+                    value = inv_map[value]
                 value = self._set_parser(value)
                 self._device._set(self._path, value)
                 self._cached_value = value
@@ -108,12 +124,20 @@ class Parameter:
 
     def __repr__(self):
         s = f"Node: {self._path}\n"
-        s += f"Description: {self._description}\n"
-        s += f"Type: {self._type}\n"
-        s += f"Properties: {self._properties}\n"
-        s += f"Options: {self._options}\n"
-        s += f"Unit: {self._unit}\n"
-        s += f"Value: {self._cached_value}\n"
+        if self._description is not None:
+            s += f"Description: {self._description}\n"
+        if self._type is not None:
+            s += f"Type: {self._type}\n"
+        if self._properties is not None:
+            s += f"Properties: {self._properties}\n"
+        if self._options is not None:
+            s += f"Options: {self._options}\n"
+        if self._map is not None:
+            s += f"Mapping: {self._map}\n"
+        if self._unit is not None:
+            s += f"Unit: {self._unit}\n"
+        if self._cached_value is not None:
+            s += f"Value: {self._cached_value}\n"
         return s
 
 
