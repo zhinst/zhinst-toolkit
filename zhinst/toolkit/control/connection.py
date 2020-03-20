@@ -316,6 +316,11 @@ class DAQModuleConnection:
             self.update_device(device)
         self._module.finish()
 
+    def finished(self, device=None):
+        if device is not None:
+            self.update_device(device)
+        return self._module.finished()
+
     def progress(self, device=None):
         if device is not None:
             self.update_device(device)
@@ -326,10 +331,10 @@ class DAQModuleConnection:
             self.update_device(device)
         self._module.trigger()
 
-    def read(self, device=None):
+    def read(self, device=None, **kwargs):
         if device is not None:
             self.update_device(device)
-        return self._module.read()
+        return self._module.read(**kwargs)
 
     def subscribe(self, *args, device=None):
         if device is not None:
