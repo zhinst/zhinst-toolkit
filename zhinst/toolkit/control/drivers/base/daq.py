@@ -1,4 +1,5 @@
 import time
+import numpy as np
 
 from .base import ZHTKException
 from control.nodetree import Parameter
@@ -199,11 +200,16 @@ class DAQResult:
     def __init__(self, path, result_dict, clk_rate=60e6):
         self._path = path
         self._clk_rate = clk_rate
+        self._is_fft = "fft" in self._path
         self._result_dict = result_dict
         self._header = self._result_dict.get("header", {})
-        timestamp = self._result_dict["timestamp"]
-        self._time = (timestamp[0] - timestamp[0][0]) / self._clk_rate
         self._value = self._result_dict.get("value")
+        self._time = None
+        self._frequencies = None
+        if not self._is_fft:
+            self._time = self._claculate_time()
+        else:
+            raise NotImplementedError()  # self._frequencies = self._claculate_freqs()
 
     @property
     def value(self):
@@ -218,42 +224,36 @@ class DAQResult:
         return self._time
 
     @property
+    def frequencies(self):
+        return self._frequencies
+
+    @property
     def shape(self):
         return self._value.shape
+
+    def _claculate_time(self):
+        timestamp = self._result_dict["timestamp"]
+        return (timestamp[0] - timestamp[0][0]) / self._clk_rate
+
+    # def _claculate_freqs(self):
+    #     bin_count = len(self.value[0])
+    #     bin_resolution = self.header["gridcoldelta"]
+    #     frequencies = np.arange(bin_count)
+    #     bandwidth = bin_resolution * len(frequencies)
+    #     frequencies = (
+    #         frequencies * bin_resolution - bandwidth / 2.0 + bin_resolution / 2.0
+    #     )
+    #     return frequencies
 
     def __repr__(self):
         s = super().__repr__()
         s += "\n\n"
-        s += f"path:   {self._path}\n"
-        s += f"shape:  {self.shape}\n"
-        s += f"value:  {self._value}\n"
-        s += f"time:   {self._time}\n"
+        s += f"path:        {self._path}\n"
+        s += f"shape:       {self.shape}\n"
+        s += f"value:       {self._value}\n"
+        if self._is_fft:
+            s += f"frequencies: {self._frequencies}\n"
+        else:
+            s += f"time:        {self._time}\n"
         return s
 
-    # here have some higher level 'measure()' mthod?? that combines subscribe read unsubscribe
-
-    # def execute(self):
-    #     self._module.execute(device=self._parent.serial)
-
-    # def finish(self):
-    #     self._module.finish(device=self._parent.serial)
-
-    # def progress(self):
-    #     return self._module.progress(device=self._parent.serial)
-
-    # def trigger(self):
-    #     self._module.trigger(device=self._parent.serial)
-
-    # def read(self):
-    #     data = self._module.read(device=self._parent.serial)
-    #     # parse the data here!!!
-    #     return data
-
-    # def subscribe(self, path):
-    #     self._module.subscribe(path, device=self._parent.serial)
-
-    # def unsubscribe(self, path):
-    #     self._module.unsubscribe(path, device=self._parent.serial)
-
-    # def save(self):
-    #     self._module.save(device=self._parent.serial)
