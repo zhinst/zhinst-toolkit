@@ -28,35 +28,34 @@ MAPPINGS = {
         4: "tracking",
         5: "change",
         6: "hardware",
-        7: "tracking pulse",
+        7: "tracking_pulse",
         8: "eventcount",
     },
-    "signals": {
-        "demod 1 r": "/demods/0/sample.R",
-        "demod 1 x": "/demods/0/sample.X",
-        "demod 1 y": "/demods/0/sample.Y",
-        "demod 1 theta": "/demods/0/sample.Theta",
-        "frequency 1": "/demods/0/sample.Frequency",
-        "demod 1 aux input 1": "/demods/0/sample.AuxIn0",
-        "demod 1 aux input 2": "/demods/0/sample.AuxIn1",
-        "dio 1": "/demods/0/sample.Dio",
-        "demod 2 r": "/demods/1/sample.R",
-        "demod 2 x": "/demods/1/sample.X",
-        "demod 2 y": "/demods/1/sample.Y",
-        "demod 2 theta": "/demods/1/sample.Theta",
-        "frequency 2": "/demods/1/sample.Frequency",
-        "demod 2 aux input 1": "/demods/1/sample.AuxIn0",
-        "demod 2 aux input 2": "/demods/1/sample.AuxIn1",
-        "dio 2": "/demods/1/sample.Dio",
-        "imp real": "/imps/0/sample.RealZ",
-        "imp imag": "/imps/0/sample.ImagZ",
-        "imp abs": "/imps/0/sample.AbsZ",
-        "imp theta": "/imps/0/sample.PhaseZ",
-        "imp frequency": "/imps/0/sample.Frequency",
-        "imp param 1": "/imps/0/sample.Param0",
-        "imp param 2": "/imps/0/sample.Param1",
-        "imp drive": "/imps/0/sample.Drive",
-        "imp bias": "/imps/0/sample.Bias",
+    "signal_sources": {
+        "demod1": "/demods/0/sample",
+        "demod2": "/demods/1/sample",
+        "imp": "/demods/1/sample",
+    },
+    "signal_types_demod": {
+        "x": "X",
+        "y": "Y",
+        "r": "R",
+        "theta": "Theta",
+        "frequency": "Frequency",
+        "auxin1": "AuxIn0",
+        "auxin2": "AuxIn1",
+        "dio": "Dio",
+    },
+    "signal_types_imp": {
+        "real": "RealZ",
+        "imag": "ImagZ",
+        "abs": "AbsZ",
+        "theta": "PhaseZ",
+        "frequency": "Frequency",
+        "param1": "Param0",
+        "param2": "Param1",
+        "drive": "Drive",
+        "bias": "Bias",
     },
 }
 
@@ -65,8 +64,9 @@ class DAQModule:
     def __init__(self, parent):
         self._parent = parent
         self._module = None
-        self._signals = {}
+        self._signals = []
         self._results = {}
+        self._clk_rate = 60e6
 
     def _setup(self):
         self._module = self._parent._controller._connection.daq_module
@@ -98,36 +98,55 @@ class DAQModule:
         self._set("clearhistory", 1)
         self._set("bandwidth", 0)
 
-    def signals_add(self, signal, operation="avg"):
-        if operation not in ["replace", "avg", "std"]:
-            raise Exception()
+    def signals_add(
+        self,
+        signal_source,
+        signal_type,
+        operation="avg",
+        fft=False,
+        complex_selector="abs",
+    ):
+        sources = MAPPINGS["signal_sources"]
+        if signal_source.lower() not in sources.keys():
+            raise ZHTKException(f"Signal source must be in {sources.keys()}")
+        if signal_source.lower() == "imp":
+            types = MAPPINGS["signal_types_imp"]
+        else:
+            types = MAPPINGS["signal_types_demod"]
+        if signal_type.lower() not in types.keys():
+            raise ZHTKException(f"Signal type must be in {types.keys()}")
+        operations = ["replace", "avg", "std"]
+        if operation.lower() not in operations:
+            raise ZHTKException(f"Operation must be in {operations}")
         if operation == "replace":
             operation = ""
-        mapping = MAPPINGS["signals"]
-        if signal not in mapping.keys():
-            raise ZHTKException(
-                f"Unknown signal. Avalable signals are {list(mapping.keys())}"
-            )
+        if fft:
+            selectors = ["real", "imag", "phase", "abs"]
+            if complex_selector.lower() not in selectors:
+                raise ZHTKException(f"Complex selector must be in {selectors}")
         signal_node = "/"
         signal_node += self._parent.serial
-        signal_node += mapping[signal]
+        signal_node += f"{sources[signal_source]}"
+        signal_node += f".{types[signal_type]}"
+        if fft:
+            signal_node += ".fft"
+            signal_node += f".{complex_selector}"
         signal_node += f".{operation}"
-        signal_name = f"{signal} {operation}"
-        if signal_node not in self.signals.values():
-            self._signals[signal_name] = signal_node
+        signal_node = signal_node.lower()
+        if signal_node not in self.signals:
+            self._signals.append(signal_node)
+        return signal_node
 
     def signals_clear(self):
-        self._signals = {}
+        self._signals = []
 
     def signals_list(self):
-        print("available signals:")
-        for signal in MAPPINGS["signals"]:
-            print(f" - '{signal}'")
+        pass
 
     def measure(self, single=True, verbose=True, timeout=20):
         self._set("endless", int(not single))
         self._set("clearhistory", 1)
-        for path in self.signals.values():
+        for path in self.signals:
             self._module.subscribe(path)
             if verbose:
                 print(f"subscribed to: {path}")
@@ -140,6 +159,7 @@ class DAQModule:
             tok = time.time()
             if tok - tik > timeout:
                 raise TimeoutError()
+        print("Finished")
         result = self._module.read(flat=True)
         self._module.finish()
         self._module.unsubscribe("*")
@@ -155,15 +175,27 @@ class DAQModule:
 
     def _get_result_from_dict(self, result):
         self._results = {}
-        for name, path in self.signals.items():
-            path = path.lower()
-            if path not in result.keys():
+        for node in self.signals:
+            node = node.lower()
+            if node not in result.keys():
                 raise ZHTKException()
-            self._results[name] = {
-                "header": result[path][0]["header"],
-                "timestamp": result[path][0]["timestamp"],
-                "value": result[path][0]["value"],
+            timestamp = result[node][0]["timestamp"]
+            self._results[node] = {
+                "header": result[node][0]["header"],
+                "time": (timestamp[0] - timestamp[0][0]) / self._clk_rate,
+                "value": result[node][0]["value"],
             }
+
+    def __repr__(self):
+        s = super().__repr__()
+        s += "signals:"
+        for signal, node in self.signals:
+            s += f" - {signal}: '{node}'\n"
+        s += "parameters:\n"
+        for key, value in self.__dict__.items():
+            if isinstance(value, Parameter):
+                s += f" - {key}\n"
+        return s
 
     # here have some higher level 'measure()' mthod?? that combines subscribe read unsubscribe
 
