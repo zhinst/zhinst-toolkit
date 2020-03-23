@@ -179,12 +179,9 @@ class DAQModule:
             node = node.lower()
             if node not in result.keys():
                 raise ZHTKException()
-            timestamp = result[node][0]["timestamp"]
-            self._results[node] = {
-                "header": result[node][0]["header"],
-                "time": (timestamp[0] - timestamp[0][0]) / self._clk_rate,
-                "value": result[node][0]["value"],
-            }
+            self._results[node] = DAQResult(
+                node, result[node][0], clk_rate=self._clk_rate
+            )
 
     def __repr__(self):
         s = super().__repr__()
@@ -195,6 +192,42 @@ class DAQModule:
         for key, value in self.__dict__.items():
             if isinstance(value, Parameter):
                 s += f" - {key}\n"
+        return s
+
+
+class DAQResult:
+    def __init__(self, path, result_dict, clk_rate=60e6):
+        self._path = path
+        self._clk_rate = clk_rate
+        self._result_dict = result_dict
+        self._header = self._result_dict.get("header", {})
+        timestamp = self._result_dict["timestamp"]
+        self._time = (timestamp[0] - timestamp[0][0]) / self._clk_rate
+        self._value = self._result_dict.get("value")
+
+    @property
+    def value(self):
+        return self._value
+
+    @property
+    def header(self):
+        return self._header
+
+    @property
+    def time(self):
+        return self._time
+
+    @property
+    def shape(self):
+        return self._value.shape
+
+    def __repr__(self):
+        s = super().__repr__()
+        s += "\n\n"
+        s += f"path:   {self._path}\n"
+        s += f"shape:  {self.shape}\n"
+        s += f"value:  {self._value}\n"
+        s += f"time:   {self._time}\n"
         return s
 
     # here have some higher level 'measure()' mthod?? that combines subscribe read unsubscribe
