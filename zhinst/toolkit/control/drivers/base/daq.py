@@ -41,6 +41,7 @@ MAPPINGS = {
         "x": "X",
         "y": "Y",
         "r": "R",
+        "xiy": "xiy",
         "theta": "Theta",
         "frequency": "Frequency",
         "auxin1": "AuxIn0",
@@ -187,8 +188,8 @@ class DAQModule:
     def __repr__(self):
         s = super().__repr__()
         s += "signals:"
-        for signal, node in self.signals:
-            s += f" - {signal}: '{node}'\n"
+        for signal in self.signals:
+            s += f" - '{signal}'\n"
         s += "parameters:\n"
         for key, value in self.__dict__.items():
             if isinstance(value, Parameter):
@@ -209,7 +210,7 @@ class DAQResult:
         if not self._is_fft:
             self._time = self._claculate_time()
         else:
-            raise NotImplementedError()  # self._frequencies = self._claculate_freqs()
+            self._frequencies = self._calculate_freqs()
 
     @property
     def value(self):
@@ -235,15 +236,15 @@ class DAQResult:
         timestamp = self._result_dict["timestamp"]
         return (timestamp[0] - timestamp[0][0]) / self._clk_rate
 
-    # def _claculate_freqs(self):
-    #     bin_count = len(self.value[0])
-    #     bin_resolution = self.header["gridcoldelta"]
-    #     frequencies = np.arange(bin_count)
-    #     bandwidth = bin_resolution * len(frequencies)
-    #     frequencies = (
-    #         frequencies * bin_resolution - bandwidth / 2.0 + bin_resolution / 2.0
-    #     )
-    #     return frequencies
+    def _calculate_freqs(self):
+        bin_count = len(self.value[0])
+        bin_resolution = self.header["gridcoldelta"]
+        frequencies = np.arange(bin_count)
+        bandwidth = bin_resolution * len(frequencies)
+        frequencies = frequencies * bin_resolution
+        if "xiy" in self._path:
+            frequencies = frequencies - bandwidth / 2.0 + bin_resolution / 2.0
+        return frequencies
 
     def __repr__(self):
         s = super().__repr__()
