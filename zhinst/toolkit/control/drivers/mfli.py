@@ -19,10 +19,12 @@ class MFLI(BaseInstrument):
     def __init__(self, name, serial, **kwargs):
         super().__init__(name, DeviceTypes.MFLI, serial, **kwargs)
         self._daq_module = DAQModule(self)
+        self._sweeper_module = SweeperModule(self)
 
     def connect_device(self, nodetree=True):
         super().connect_device(nodetree=nodetree)
         self.daq._setup()
+        self.sweeper._setup()
 
     def _init_settings(self):
         pass
@@ -31,3 +33,6 @@ class MFLI(BaseInstrument):
     def daq(self):
         return self._daq_module
 
+    @property
+    def sweeper(self):
+        return self._sweeper_module
