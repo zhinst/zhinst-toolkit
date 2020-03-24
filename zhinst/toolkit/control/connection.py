@@ -69,6 +69,7 @@ class ZIConnection:
             )
             self._awg_module = AWGModuleConnection(self._daq)
             self._daq_module = DAQModuleConnection(self._daq)
+            self._sweeper_module = SweeperModuleConnection(self._daq)
         else:
             raise ZHTKConnectionException(
                 f"No connection could be established with the connection details:"
@@ -241,6 +242,10 @@ class ZIConnection:
     def daq_module(self):
         return self._daq_module
 
+    @property
+    def sweeper_module(self):
+        return self._sweeper_module
+
 
 class AWGModuleConnection:
     """
@@ -395,6 +400,12 @@ class DAQModuleConnection:
     @property
     def device(self):
         return self._device
+
+
+class SweeperModuleConnection(DAQModuleConnection):
+    def __init__(self, daq):
+        self._module = daq.sweep()
+        self._device = self._module.getString("/device")
 
 
 class DeviceConnection(object):
