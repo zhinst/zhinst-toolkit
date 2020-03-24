@@ -32,7 +32,7 @@ class UHFLI(BaseInstrument):
         super().connect_device(nodetree=nodetree)
         self.awg._setup()
         self.daq._setup()
-        self._sweeper._setup()
+        self.sweeper._setup()
 
     def _init_settings(self):
         settings = [
