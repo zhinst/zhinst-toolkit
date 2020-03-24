@@ -215,7 +215,7 @@ class DAQModule:
 
     def __repr__(self):
         s = super().__repr__()
-        s += "signals:"
+        s += "\n\nsignals:\n"
         for signal in self.signals:
             s += f" - '{signal}'\n"
         s += "parameters:\n"
