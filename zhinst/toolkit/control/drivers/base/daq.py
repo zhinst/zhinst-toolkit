@@ -100,6 +100,34 @@ class DAQModule:
         self._set("clearhistory", 1)
         self._set("bandwidth", 0)
 
+    def trigger(self, trigger_source, trigger_type):
+        sources = MAPPINGS["signal_sources"]
+        if trigger_source.lower() not in sources.keys():
+            raise ZHTKException(f"Signal source must be in {sources.keys()}")
+        if trigger_source.lower() == "imp":
+            types = MAPPINGS["signal_types_imp"]
+        else:
+            types = MAPPINGS["signal_types_demod"]
+            types.update(
+                {"demod2phase": "TrigDemod1Phase",}
+            )
+        types.update(
+            {
+                "trigin1": "TrigIn1",
+                "trigin2": "TrigIn2",
+                "trigout1": "TrigOut1",
+                "trigout2": "TrigOut2",
+            }
+        )
+        if trigger_type.lower() not in types.keys():
+            raise ZHTKException(f"Signal type must be in {types.keys()}")
+        trigger_node = "/"
+        trigger_node += self._parent.serial
+        trigger_node += f"{sources[trigger_source]}"
+        trigger_node += f".{types[trigger_type]}"
+        self._set("/triggernode", trigger_node)
+        print(f"set trigger node to '{trigger_node}'")
+
     def signals_add(
         self,
         signal_source,
@@ -257,4 +285,3 @@ class DAQResult:
         else:
             s += f"time:        {self._time}\n"
         return s
-
