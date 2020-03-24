@@ -25,12 +25,14 @@ class UHFLI(BaseInstrument):
     def __init__(self, name, serial, **kwargs):
         super().__init__(name, DeviceTypes.UHFLI, serial, **kwargs)
         self._awg = AWG(self, 0)
-        self._daq_module = DAQModule(self)
+        self._daq = DAQModule(self)
+        self._sweeper = SweeperModule(self)
 
     def connect_device(self, nodetree=True):
         super().connect_device(nodetree=nodetree)
         self.awg._setup()
         self.daq._setup()
+        self._sweeper._setup()
 
     def _init_settings(self):
         settings = [
@@ -43,11 +45,9 @@ class UHFLI(BaseInstrument):
         return self._awg
 
     @property
-    def _awg_connection(self):
-        self._check_connected()
-        return self._controller._connection.awg_module
+    def daq(self):
+        return self._daq
 
     @property
-    def daq(self):
-        return self._daq_module
-
+    def sweeper(self):
+        return self._sweeper
