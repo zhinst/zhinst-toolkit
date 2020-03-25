@@ -5,9 +5,9 @@
 
 import numpy as np
 
-from control.connection import DeviceConnection, ZIConnection
-from control.nodetree import Nodetree
-from interface import InstrumentConfiguration
+from zhinst.toolkit.control.connection import DeviceConnection, ZIConnection
+from zhinst.toolkit.control.nodetree import Nodetree
+from zhinst.toolkit.interface import InstrumentConfiguration
 
 
 class ZHTKException(Exception):

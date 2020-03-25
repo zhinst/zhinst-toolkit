@@ -5,7 +5,7 @@
 
 import numpy as np
 
-from control.drivers.base import BaseInstrument
+from zhinst.toolkit.control.drivers.base import BaseInstrument
 
 
 """
@@ -16,4 +16,3 @@ High-level controller for PQSC.
 
 class PQSC(BaseInstrument):
     pass
-

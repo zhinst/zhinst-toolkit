@@ -5,9 +5,9 @@
 
 import numpy as np
 
-from control.drivers.base import BaseInstrument, AWGCore, ZHTKException
-from control.nodetree import Parameter
-from control.parsers import Parse
+from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ZHTKException
+from zhinst.toolkit.control.nodetree import Parameter
+from zhinst.toolkit.control.parsers import Parse
 
 
 class UHFQA(BaseInstrument):
@@ -393,4 +393,3 @@ class ReadoutChannel:
         else:
             s += "      Weighted Integration Disabled\n"
         return s
-

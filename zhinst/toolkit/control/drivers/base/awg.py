@@ -6,7 +6,7 @@
 import numpy as np
 import time
 
-from helpers import SequenceProgram, Waveform
+from zhinst.toolkit.helpers import SequenceProgram, Waveform
 from .base import ZHTKException
 
 
@@ -152,4 +152,3 @@ class AWGCore:
 
     def _apply_sequence_settings(self, **kwargs):
         pass
-
