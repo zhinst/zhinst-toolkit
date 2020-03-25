@@ -47,47 +47,25 @@ class SweeperModule:
         data = self._module.get(*args, device=self._parent.serial)
         return list(data.values())[0][0] if valueonly else data
 
-    def _init_settings(self):
-        self._set("device", "dev3337")
-        self._set("historylength", 100)
-        self._set("settling/inaccuracy", 0.0001)
-        self._set("averaging/sample", 1)
-        self._set("bandwidth", 1000)
-        self._set("maxbandwidth", 1250000)
-        self._set("omegasuppression", 40)
-        self._set("order", 4)
-        self._set("gridnode", "/dev3337/oscs/0/freq")
-        self._set("save/directory", "/data/LabOne/WebServer")
-        self._set("averaging/tc", 0)
-        self._set("averaging/time", 0)
-        self._set("bandwidth", 1000)
-        self._set("start", 1000)
-        self._set("stop", 1000000)
-        self._set("omegasuppression", 40)
-        self._set("order", 4)
-        self._set("settling/inaccuracy", 0.0001)
-        self._set("stop", 1000000)
-        self._set("start", 1000)
-        self._set("stop", 510000)
-        self._set("endless", 0)
-
-    def signals_add(self, signal_source):
-        sources = MAPPINGS["signal_sources"]
-        if signal_source.lower() not in sources.keys():
-            raise ZHTKException(f"Signal source must be in {sources.keys()}")
-        signal_node = "/"
-        signal_node += self._parent.serial
-        signal_node += f"{sources[signal_source]}"
-        signal_node = signal_node.lower()
+    def signals_add(self, signal_source, **kwargs):
+        signal_node = self._parse_signals(signal_source, **kwargs)
         if signal_node not in self.signals:
             self._signals.append(signal_node)
         return signal_node
+
+    def _parse_signals(self, signal_source, **kwargs):
+        raise NotImplementedError()
 
     def signals_clear(self):
         self._signals = []
 
     def signals_list(self):
         return list(MAPPINGS["signal_sources"].keys())
+
+    def sweep_parameter(self, param):
+        node = self._parse_sweep_param(param)
+        self._set("/gridnode", node)
+        print(f"set sweep parameter to '{param}': '{node}'")
 
     def measure(self, single=True, verbose=True, timeout=20):
         self._set("endless", int(not single))
@@ -96,6 +74,8 @@ class SweeperModule:
             self._module.subscribe(path)
             if verbose:
                 print(f"subscribed to: {path}")
+        if verbose:
+            print(f"Sweeping '{self.gridnode()}' from {self.start()} to {self.stop()}")
         self._module.execute()
         while not self._module.finished():
             if verbose:
@@ -111,6 +91,78 @@ class SweeperModule:
         self._module.unsubscribe("*")
         return self._get_result_from_dict(result)
 
+    def application(self, application):
+        if application == "parameter_sweep":
+            settings = [
+                ("settling/time", 0),
+                ("averaging/sample", 1),
+                ("averaging/tc", 0),
+                ("averaging/time", 0),
+                ("bandwidth", 1000),
+                ("maxbandwidth", 1250000),
+                ("bandwidthoverlap", 0),
+                ("order", 4),
+            ]
+        elif application == "parameter_sweep_avg":
+            settings = [
+                ("averaging/sample", 20),
+                ("averaging/tc", 15),
+                ("averaging/time", 0.02),
+            ]
+        elif application == "noise_amplitude_sweep":
+            settings = [
+                ("settling/inaccuracy", 1e-07),
+                ("averaging/sample", 1000),
+                ("averaging/tc", 50),
+                ("averaging/time", 0.1),
+                ("bandwidth", 10),
+                ("omegasuppression", 60),
+            ]
+        elif application == "frequency_response_analyzer":
+            settings = [
+                ("settling/time", 0.01),
+                ("settling/inaccuracy", 0.0001),
+                ("averaging/sample", 20),
+                ("averaging/tc", 15),
+                ("averaging/time", 0.02),
+                ("bandwidth", 100),
+                ("maxbandwidth", 100),
+                ("bandwidthoverlap", 1),
+                ("omegasuppression", 40),
+                ("order", 8),
+            ]
+        elif application == "3-omega_sweep":
+            settings = [
+                ("averaging/sample", 20),
+                ("averaging/tc", 15),
+                ("averaging/time", 0.02),
+                ("bandwidth", 100),
+                ("omegasuppression", 100),
+                ("order", 8),
+            ]
+        elif application == "fra_sinc_filter":
+            settings = [
+                ("settling/time", 0.01),
+                ("averaging/tc", 0),
+                ("maxbandwidth", 100),
+                ("bandwidthoverlap", 1),
+                ("omegasuppression", 40),
+                ("sincfilter", 1),
+            ]
+        elif application == "impedance":
+            settings = [
+                ("settling/time", 0),
+                ("settling/inaccuracy", 0.01),
+                ("averaging/tc", 15),
+                ("averaging/time", 0.1),
+                ("bandwidth", 10),
+                ("omegasuppression", 80),
+                ("sincfilter", 0),
+            ]
+        self._set(settings)
+        for setting, value in settings:
+            print(f"setting '{setting}' to {value}")
+
     @property
     def signals(self):
         return self._signals
@@ -118,6 +170,9 @@ class SweeperModule:
     @property
     def results(self):
         return self._results
+
+    def _parse_sweep_param(self, param):
+        raise NotImplementedError()
 
     def _get_result_from_dict(self, result):
         self._results = {}
@@ -128,6 +183,33 @@ class SweeperModule:
             result = SweeperResult(node, result[node][0][0])
             self._results[node] = result
         return result
+
+    def _init_settings(self):
+        settings = [
+            ("device", "dev3337"),
+            ("historylength", 100),
+            ("settling/inaccuracy", 0.0001),
+            ("averaging/sample", 1),
+            ("bandwidth", 1000),
+            ("maxbandwidth", 1250000),
+            ("omegasuppression", 40),
+            ("order", 4),
+            ("gridnode", "/dev3337/oscs/0/freq"),
+            ("save/directory", "/data/LabOne/WebServer"),
+            ("averaging/tc", 0),
+            ("averaging/time", 0),
+            ("bandwidth", 1000),
+            ("start", 1000),
+            ("stop", 1000000),
+            ("omegasuppression", 40),
+            ("order", 4),
+            ("settling/inaccuracy", 0.0001),
+            ("stop", 1000000),
+            ("start", 1000),
+            ("stop", 510000),
+            ("endless", 0),
+        ]
+        self._set(settings)
 
     def __repr__(self):
         s = super().__repr__()
