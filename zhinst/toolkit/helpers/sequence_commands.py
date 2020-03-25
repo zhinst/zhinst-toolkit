@@ -7,7 +7,7 @@ from datetime import datetime
 import numpy as np
 
 
-class SeqCommand(object):
+class SequenceCommand(object):
     @staticmethod
     def header_comment(sequence_type="None"):
         now = datetime.now()
