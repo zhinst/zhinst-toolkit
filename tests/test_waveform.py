@@ -63,4 +63,3 @@ class TestWaveform:
         w = Waveform(np.zeros(8000), np.zeros(8000))
         w.replace_data(np.ones(8000), np.ones(8000))
         assert np.array_equal(w.data, np.ones(16000) * (2 ** 15 - 1))
-

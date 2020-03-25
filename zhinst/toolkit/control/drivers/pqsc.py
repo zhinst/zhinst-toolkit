@@ -6,6 +6,7 @@
 import numpy as np
 
 from zhinst.toolkit.control.drivers.base import BaseInstrument
+from zhinst.toolkit.interface import DeviceTypes
 
 
 """
@@ -15,4 +16,5 @@ High-level controller for PQSC.
 
 
 class PQSC(BaseInstrument):
-    pass
+    def __init__(self, name, serial, **kwargs):
+        super().__init__(name, DeviceTypes.PQSC, serial, **kwargs)

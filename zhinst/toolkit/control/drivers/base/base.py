@@ -7,7 +7,7 @@ import numpy as np
 
 from zhinst.toolkit.control.connection import DeviceConnection, ZIConnection
 from zhinst.toolkit.control.nodetree import Nodetree
-from zhinst.toolkit.interface import InstrumentConfiguration
+from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes
 
 
 class ZHTKException(Exception):
@@ -54,7 +54,7 @@ class BaseInstrument:
         is_connected (bool)
     """
 
-    def __init__(self, name: str, device_type: str, serial: str, **kwargs):
+    def __init__(self, name: str, device_type: DeviceTypes, serial: str, **kwargs):
         self._config = InstrumentConfiguration()
         self._config._instrument._name = name
         self._config._instrument._config._device_type = device_type

@@ -7,6 +7,7 @@ import numpy as np
 
 from zhinst.toolkit.control.drivers.base import BaseInstrument, ZHTKException
 from zhinst.toolkit.control.drivers.uhfqa import AWG
+from zhinst.toolkit.interface import DeviceTypes
 
 
 class UHFLI(BaseInstrument):
@@ -22,7 +23,7 @@ class UHFLI(BaseInstrument):
     """
 
     def __init__(self, name, serial, **kwargs):
-        super().__init__(name, "uhfli", serial, **kwargs)
+        super().__init__(name, DeviceTypes.UHFLI, serial, **kwargs)
         self._awg = AWG(self, 0)
 
     def _init_settings(self):

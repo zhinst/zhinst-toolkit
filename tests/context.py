@@ -24,4 +24,4 @@ from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.helpers import Waveform
 from zhinst.toolkit.helpers import SequenceCommand
 from zhinst.toolkit.helpers import SequenceProgram
-from zhinst.toolkit.interface import InstrumentConfiguration
+from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes

@@ -1,1 +1,1 @@
-from .interface import InstrumentConfiguration
+from .interface import InstrumentConfiguration, DeviceTypes

@@ -5,6 +5,7 @@
 
 import json
 import zhinst.ziPython as zi
+from zhinst.toolkit.interface import DeviceTypes
 
 
 class ZHTKConnectionException(Exception):
@@ -255,7 +256,10 @@ class DeviceConnection(object):
                 node_string = self._command_to_node(command)
             else:
                 raise ZHTKConnectionException("Invalid argument!")
-            if self._device.device_type.endswith("li") and "sample" in command.lower():
+            if (
+                self._device.device_type in [DeviceTypes.UHFLI, DeviceTypes.MFLI]
+                and "sample" in command.lower()
+            ):
                 data = self._connection.get_sample(node_string)
                 return self._get_value_from_streamingnode(data)
             else:

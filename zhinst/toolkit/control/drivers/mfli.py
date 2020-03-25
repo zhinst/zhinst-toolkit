@@ -6,6 +6,7 @@
 import numpy as np
 
 from zhinst.toolkit.control.drivers.base import BaseInstrument
+from zhinst.toolkit.interface import DeviceTypes
 
 
 """
@@ -16,7 +17,7 @@ High-level controller for MFLI.
 
 class MFLI(BaseInstrument):
     def __init__(self, name, serial, **kwargs):
-        super().__init__(name, "mfli", serial, **kwargs)
+        super().__init__(name, DeviceTypes.MFLI, serial, **kwargs)
 
     def _init_settings(self):
         pass

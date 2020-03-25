@@ -9,6 +9,7 @@ import time
 from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ZHTKException
 from zhinst.toolkit.control.nodetree import Parameter
 from zhinst.toolkit.control.parsers import Parse
+from zhinst.toolkit.interface import DeviceTypes
 
 
 class HDAWG(BaseInstrument):
@@ -31,7 +32,7 @@ class HDAWG(BaseInstrument):
     """
 
     def __init__(self, name, serial, **kwargs):
-        super().__init__(name, "hdawg", serial, **kwargs)
+        super().__init__(name, DeviceTypes.HDAWG, serial, **kwargs)
         self._awgs = [AWG(self, i) for i in range(4)]
 
     def _init_settings(self):

@@ -4,16 +4,22 @@
 # of the MIT license. See the LICENSE file for details.
 
 import attr
+from enum import Enum
+
+
+class DeviceTypes(Enum):
+    HDAWG = "hdawg"
+    UHFQA = "uhfqa"
+    UHFLI = "uhfli"
+    MFLI = "mfli"
+    PQSC = "pqsc"
 
 
 @attr.s
 class ZIDeviceConfig:
     serial: str = attr.ib(default="dev#####")
     # for some readon this validator does not work...
-    device_type: str = attr.ib(
-        default="hdawg",
-        validator=attr.validators.in_(["hdawg", "uhfqa", "uhfli", "mfli", "pqsc"]),
-    )
+    device_type: str = attr.ib(default=DeviceTypes.HDAWG)
     interface: str = attr.ib(default="1GbE")
 
 
