@@ -1,0 +1,3 @@
+zhinst
+numpy
+attrs
