@@ -5,7 +5,7 @@
 
 import numpy as np
 
-from control.drivers.base import BaseInstrument
+from zhinst.toolkit.control.drivers.base import BaseInstrument
 
 
 """
@@ -20,4 +20,3 @@ class MFLI(BaseInstrument):
 
     def _init_settings(self):
         pass
-

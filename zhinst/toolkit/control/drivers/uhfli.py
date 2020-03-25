@@ -5,8 +5,8 @@
 
 import numpy as np
 
-from control.drivers.base import BaseInstrument, ZHTKException
-from control.drivers.uhfqa import AWG
+from zhinst.toolkit.control.drivers.base import BaseInstrument, ZHTKException
+from zhinst.toolkit.control.drivers.uhfqa import AWG
 
 
 class UHFLI(BaseInstrument):
@@ -39,4 +39,3 @@ class UHFLI(BaseInstrument):
     def _awg_connection(self):
         self._check_connected()
         return self._controller._connection.awg_module
-

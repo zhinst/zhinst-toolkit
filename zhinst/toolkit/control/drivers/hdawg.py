@@ -6,9 +6,9 @@
 import numpy as np
 import time
 
-from control.drivers.base import BaseInstrument, AWGCore, ZHTKException
-from control.nodetree import Parameter
-from control.parsers import Parse
+from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ZHTKException
+from zhinst.toolkit.control.nodetree import Parameter
+from zhinst.toolkit.control.parsers import Parse
 
 
 class HDAWG(BaseInstrument):
@@ -212,4 +212,3 @@ class AWG(AWGCore):
         else:
             s += f"      IQ Modulation DISABLED\n"
         return s
-
