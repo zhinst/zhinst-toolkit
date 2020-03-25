@@ -1,3 +1,4 @@
 zhinst
 numpy
 attrs
+pytest
