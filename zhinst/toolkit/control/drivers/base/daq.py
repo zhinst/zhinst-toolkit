@@ -32,43 +32,16 @@ MAPPINGS = {
         7: "tracking_pulse",
         8: "eventcount",
     },
-    "signal_sources": {
-        "demod1": "/demods/0/sample",
-        "demod2": "/demods/1/sample",
-        "imp": "/demods/1/sample",
-    },
-    "signal_types_demod": {
-        "x": "X",
-        "y": "Y",
-        "r": "R",
-        "xiy": "xiy",
-        "theta": "Theta",
-        "frequency": "Frequency",
-        "auxin1": "AuxIn0",
-        "auxin2": "AuxIn1",
-        "dio": "Dio",
-    },
-    "signal_types_imp": {
-        "real": "RealZ",
-        "imag": "ImagZ",
-        "abs": "AbsZ",
-        "theta": "PhaseZ",
-        "frequency": "Frequency",
-        "param1": "Param0",
-        "param2": "Param1",
-        "drive": "Drive",
-        "bias": "Bias",
-    },
 }
 
 
 class DAQModule:
-    def __init__(self, parent):
+    def __init__(self, parent, clk_rate=60e6):
         self._parent = parent
         self._module = None
         self._signals = []
         self._results = {}
-        self._clk_rate = 60e6
+        self._clk_rate = clk_rate
 
     def _setup(self):
         self._module = self._parent._controller._connection.daq_module
@@ -101,68 +74,21 @@ class DAQModule:
         self._set("bandwidth", 0)
 
     def trigger(self, trigger_source, trigger_type):
-        sources = MAPPINGS["signal_sources"]
-        if trigger_source.lower() not in sources.keys():
-            raise ZHTKException(f"Signal source must be in {sources.keys()}")
-        if trigger_source.lower() == "imp":
-            types = MAPPINGS["signal_types_imp"]
-        else:
-            types = MAPPINGS["signal_types_demod"]
-            types.update(
-                {"demod2phase": "TrigDemod1Phase",}
-            )
-        types.update(
-            {
-                "trigin1": "TrigIn1",
-                "trigin2": "TrigIn2",
-                "trigout1": "TrigOut1",
-                "trigout2": "TrigOut2",
-            }
-        )
-        if trigger_type.lower() not in types.keys():
-            raise ZHTKException(f"Signal type must be in {types.keys()}")
-        trigger_node = "/"
-        trigger_node += self._parent.serial
-        trigger_node += f"{sources[trigger_source]}"
-        trigger_node += f".{types[trigger_type]}"
+        trigger_node = self._parse_trigger(trigger_source, trigger_type)
         self._set("/triggernode", trigger_node)
         print(f"set trigger node to '{trigger_node}'")
 
     def signals_add(
         self,
         signal_source,
-        signal_type,
+        signal_type="",
         operation="avg",
         fft=False,
         complex_selector="abs",
     ):
-        sources = MAPPINGS["signal_sources"]
-        if signal_source.lower() not in sources.keys():
-            raise ZHTKException(f"Signal source must be in {sources.keys()}")
-        if signal_source.lower() == "imp":
-            types = MAPPINGS["signal_types_imp"]
-        else:
-            types = MAPPINGS["signal_types_demod"]
-        if signal_type.lower() not in types.keys():
-            raise ZHTKException(f"Signal type must be in {types.keys()}")
-        operations = ["replace", "avg", "std"]
-        if operation.lower() not in operations:
-            raise ZHTKException(f"Operation must be in {operations}")
-        if operation == "replace":
-            operation = ""
-        if fft:
-            selectors = ["real", "imag", "phase", "abs"]
-            if complex_selector.lower() not in selectors:
-                raise ZHTKException(f"Complex selector must be in {selectors}")
-        signal_node = "/"
-        signal_node += self._parent.serial
-        signal_node += f"{sources[signal_source]}"
-        signal_node += f".{types[signal_type]}"
-        if fft:
-            signal_node += ".fft"
-            signal_node += f".{complex_selector}"
-        signal_node += f".{operation}"
-        signal_node = signal_node.lower()
+        signal_node = self._parse_signals(
+            signal_source, signal_type, operation, fft, complex_selector
+        )
         if signal_node not in self.signals:
             self._signals.append(signal_node)
         return signal_node
@@ -203,10 +129,19 @@ class DAQModule:
     def results(self):
         return self._results
 
+    def _parse_signals(
+        self, signal_source, signal_type, operation, fft, complex_selector,
+    ):
+        raise NotImplementedError()
+
+    def _parse_trigger(self, trigger_source, trigger_type):
+        raise NotImplementedError()
+
     def _get_result_from_dict(self, result):
         self._results = {}
         for node in self.signals:
             node = node.lower()
+            print(f"getting result from: {node}")
             if node not in result.keys():
                 raise ZHTKException()
             self._results[node] = DAQResult(
