@@ -5,4 +5,4 @@
 
 from .waveform import Waveform
 from .sequence_program import SequenceProgram
-from .seq_commands import SeqCommand
+from .sequence_commands import SequenceCommand
