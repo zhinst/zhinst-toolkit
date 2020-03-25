@@ -92,6 +92,7 @@ class BaseInstrument:
         self._controller.connect_device()
         if nodetree:
             self._nodetree = Nodetree(self)
+        self._options = self._get("/features/options").split("\n")
         self._init_settings()
 
     def _init_settings(self):
@@ -166,6 +167,10 @@ class BaseInstrument:
     @property
     def interface(self):
         return self._config._instrument._config._interface
+
+    @property
+    def options(self):
+        return self._options
 
     @property
     def is_connected(self):
