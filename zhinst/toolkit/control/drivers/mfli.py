@@ -14,6 +14,35 @@ from zhinst.toolkit.control.drivers.base import (
 from zhinst.toolkit.interface import DeviceTypes
 
 
+"""
+High-level controller for MFLI.
+
+"""
+
+
+class MFLI(BaseInstrument):
+    def __init__(self, name, serial, **kwargs):
+        super().__init__(name, "mfli", serial, **kwargs)
+
+    def connect_device(self, nodetree=True):
+        super().connect_device(nodetree=nodetree)
+        self._daq_module = DAQModule(self, clk_rate=60e6)
+        self._daq_module._setup()
+        self._sweeper_module = SweeperModule(self)
+        self._sweeper_module._setup()
+
+    def _init_settings(self):
+        pass
+
+    @property
+    def daq(self):
+        return self._daq_module
+
+    @property
+    def sweeper(self):
+        return self._sweeper_module
+
+
 MAPPINGS = {
     "signal_sources": {
         "demod1": "/demods/0/sample",
@@ -134,32 +163,3 @@ class DAQModule(DAQ):
         trigger_node += f"{sources[trigger_source]}"
         trigger_node += f".{types[trigger_type]}"
         return trigger_node
-
-
-"""
-High-level controller for MFLI.
-
-"""
-
-
-class MFLI(BaseInstrument):
-    def __init__(self, name, serial, **kwargs):
-        super().__init__(name, DeviceTypes.MFLI, serial, **kwargs)
-        self._daq_module = DAQModule(self, clk_rate=60e6)
-        self._sweeper_module = SweeperModule(self)
-
-    def connect_device(self, nodetree=True):
-        super().connect_device(nodetree=nodetree)
-        self.daq._setup()
-        self.sweeper._setup()
-
-    def _init_settings(self):
-        pass
-
-    @property
-    def daq(self):
-        return self._daq_module
-
-    @property
-    def sweeper(self):
-        return self._sweeper_module

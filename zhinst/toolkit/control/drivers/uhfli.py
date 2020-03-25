@@ -15,6 +15,53 @@ from control.drivers.uhfqa import AWG
 from zhinst.toolkit.interface import DeviceTypes
 
 
+class UHFLI(BaseInstrument):
+    """
+    High-level controller for UHFLI. Inherits from BaseInstrument and overrides 
+    the _init-settings(...) method. The property awg_connection accesses the 
+    connection's awg module and is used in the AWG core as 
+    awg._parent._awg_module. 
+    
+    Reuses the device specific AWG from the UHFQA. Might want to define a 
+    device-specific AWG for the UHFLI isntead.
+
+    """
+
+    def __init__(self, name, serial, **kwargs):
+        super().__init__(name, "uhfli", serial, **kwargs)
+
+    def connect_device(self, nodetree=True):
+        super().connect_device(nodetree=nodetree)
+        if "AWG" in self._options:
+            self._awg = AWG(self, 0)
+            self._awg._setup()
+        self._daq = DAQModule(self, clk_rate=1.8e9)
+        self._daq._setup()
+        self._sweeper = SweeperModule(self)
+        self._sweeper._setup()
+
+    def _init_settings(self):
+        pass
+        # settings = [
+        #     ("awgs/0/single", 1),
+        # ]
+        # self._set(settings)
+
+    @property
+    def awg(self):
+        if "AWG" not in self._options:
+            raise ZHTKException("The AWG option is not installed.")
+        return self._awg
+
+    @property
+    def daq(self):
+        return self._daq
+
+    @property
+    def sweeper(self):
+        return self._sweeper
+
+
 MAPPINGS = {
     "signal_sources": {
         "demod1": "/demods/0/sample",
@@ -170,46 +217,3 @@ class DAQModule(DAQ):
         trigger_node += f"{sources[trigger_source]}"
         trigger_node += f".{types[trigger_type]}"
         return trigger_node
-
-
-class UHFLI(BaseInstrument):
-    """
-    High-level controller for UHFLI. Inherits from BaseInstrument and overrides 
-    the _init-settings(...) method. The property awg_connection accesses the 
-    connection's awg module and is used in the AWG core as 
-    awg._parent._awg_module. 
-    
-    Reuses the device specific AWG from the UHFQA. Might want to define a 
-    device-specific AWG for the UHFLI isntead.
-
-    """
-
-    def __init__(self, name, serial, **kwargs):
-        super().__init__(name, DeviceTypes.UHFLI, serial, **kwargs)
-        self._awg = AWG(self, 0)
-        self._daq = DAQModule(self, clk_rate=1.8e9)
-        self._sweeper = SweeperModule(self)
-
-    def connect_device(self, nodetree=True):
-        super().connect_device(nodetree=nodetree)
-        self.awg._setup()
-        self.daq._setup()
-        self.sweeper._setup()
-
-    def _init_settings(self):
-        settings = [
-            ("awgs/0/single", 1),
-        ]
-        self._set(settings)
-
-    @property
-    def awg(self):
-        return self._awg
-
-    @property
-    def daq(self):
-        return self._daq
-
-    @property
-    def sweeper(self):
-        return self._sweeper
