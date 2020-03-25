@@ -8,6 +8,7 @@ import numpy as np
 from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ZHTKException
 from zhinst.toolkit.control.nodetree import Parameter
 from zhinst.toolkit.control.parsers import Parse
+from zhinst.toolkit.interface import DeviceTypes
 
 
 class UHFQA(BaseInstrument):
@@ -23,7 +24,7 @@ class UHFQA(BaseInstrument):
     """
 
     def __init__(self, name, serial, **kwargs):
-        super().__init__(name, "uhfqa", serial, **kwargs)
+        super().__init__(name, DeviceTypes.UHFQA, serial, **kwargs)
         self._awg = AWG(self, 0)
         self._channels = [ReadoutChannel(self, i) for i in range(10)]
         self.integration_time = Parameter(

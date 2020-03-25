@@ -3,7 +3,7 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import AWGCore, HDAWG, UHFQA, UHFLI, SequenceProgram
+from .context import AWGCore, HDAWG, UHFQA, UHFLI, SequenceProgram, DeviceTypes
 
 
 @given(st.integers(0, 3), st.integers(0, 2))
@@ -23,9 +23,11 @@ def test_init_awg(i, j):
     assert awg._program is not None
     params = awg.sequence_params["sequence_parameters"]
     if j == 0:
-        assert params["target"] == "hdawg"
-    else:
-        assert params["target"] == "uhf"
+        assert params["target"] == DeviceTypes.HDAWG
+    elif j == 1:
+        assert params["target"] == DeviceTypes.UHFQA
+    elif j == 2:
+        assert params["target"] == DeviceTypes.UHFLI
     strings = ["parent", "index", "sequence", "type"]
     assert any(s in awg.__repr__() for s in strings)
 

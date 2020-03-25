@@ -3,7 +3,12 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import ZIConnection, DeviceConnection, ZHTKConnectionException
+from .context import (
+    ZIConnection,
+    DeviceConnection,
+    ZHTKConnectionException,
+    DeviceTypes,
+)
 
 
 class Details:
@@ -20,7 +25,7 @@ class Device:
     _config = Config()
     serial = "dev###"
     interface = "usb"
-    device_type = "hdawg"
+    device_type = DeviceTypes.HDAWG
 
 
 def test_init_zi_connection():
@@ -65,4 +70,3 @@ def test_device_connection_connect():
         c.set("tests/test", 1)
     with pytest.raises(ZHTKConnectionException):
         c.get_nodetree("*")
-

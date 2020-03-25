@@ -7,7 +7,7 @@ import pytest
 from hypothesis import given, assume, strategies as st
 import json
 
-from .context import InstrumentConfiguration
+from .context import InstrumentConfiguration, DeviceTypes
 
 
 def test_init():
@@ -36,12 +36,11 @@ def test_set_instr_config():
     assert dev.name == "device0"
     conf = dev.config
     assert conf.serial == "dev#####"
-    assert conf.device_type == "hdawg"
+    assert conf.device_type == DeviceTypes.HDAWG
     assert conf.interface == "1GbE"
     conf.serial = "dev1111"
-    conf.device_type = "uhfqa"
+    conf.device_type = DeviceTypes.UHFQA
     conf.interface = "usb"
     assert conf.serial == "dev1111"
-    assert conf.device_type == "uhfqa"
+    assert conf.device_type == DeviceTypes.UHFQA
     assert conf.interface == "usb"
-

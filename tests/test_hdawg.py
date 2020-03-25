@@ -3,13 +3,13 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import HDAWG, HDAWG_AWG
+from .context import HDAWG, HDAWG_AWG, DeviceTypes
 
 
 def test_init_hdawg():
     hd = HDAWG("name", "dev1234")
     assert len(hd._awgs) == 4
-    assert hd.device_type == "hdawg"
+    assert hd.device_type == DeviceTypes.HDAWG
     with pytest.raises(Exception):
         hd._awg_connection
     with pytest.raises(Exception):

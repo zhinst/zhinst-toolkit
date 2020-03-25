@@ -3,12 +3,12 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import UHFQA, UHFQA_AWG, ReadoutChannel
+from .context import UHFQA, UHFQA_AWG, ReadoutChannel, DeviceTypes
 
 
 def test_init_uhfqa():
     qa = UHFQA("name", "dev1234")
-    assert qa.device_type == "uhfqa"
+    assert qa.device_type == DeviceTypes.UHFQA
     assert qa._awg is not None
     assert len(qa.channels) == 10
     assert qa.integration_time is not None
