@@ -84,6 +84,12 @@ MAPPINGS = {
 
 
 class SweeperModule(Sweeper):
+    def signals_list(self):
+        return list(MAPPINGS["signal_sources"].keys())
+
+    def sweep_parameter_list(self):
+        return list(MAPPINGS["sweep_parameters"].keys())
+
     def _parse_signals(self, signal_source):
         sources = MAPPINGS["signal_sources"]
         if signal_source.lower() not in sources.keys():
@@ -103,6 +109,9 @@ class SweeperModule(Sweeper):
 
 
 class DAQModule(DAQ):
+    def signals_list(self):
+        return list(MAPPINGS["signal_sources"].keys())
+
     def _parse_signals(
         self, signal_source, signal_type, operation, fft, complex_selector,
     ):

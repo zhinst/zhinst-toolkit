@@ -67,8 +67,8 @@ class SweeperModule:
         self._set("/gridnode", node)
         print(f"set sweep parameter to '{param}': '{node}'")
 
-    def measure(self, single=True, verbose=True, timeout=20):
-        self._set("endless", int(not single))
+    def measure(self, verbose=True, timeout=20):
+        self._set("endless", 0)
         self._set("clearhistory", 1)
         for path in self.signals:
             self._module.subscribe(path)
@@ -77,10 +77,10 @@ class SweeperModule:
         if verbose:
             print(f"Sweeping '{self.gridnode()}' from {self.start()} to {self.stop()}")
         self._module.execute()
+        tik = time.time()
         while not self._module.finished():
             if verbose:
                 print(f"Progress: {(self._module.progress()[0] * 100):.1f}%")
-            tik = time.time()
             time.sleep(0.5)
             tok = time.time()
             if tok - tik > timeout:
@@ -92,8 +92,8 @@ class SweeperModule:
         return self._get_result_from_dict(result)
 
     def application(self, application):
-        if application == "parameter_sweep":
-            settings = [
+        applications = {
+            "parameter_sweep": [
                 ("settling/time", 0),
                 ("averaging/sample", 1),
                 ("averaging/tc", 0),
@@ -102,24 +102,21 @@ class SweeperModule:
                 ("maxbandwidth", 1250000),
                 ("bandwidthoverlap", 0),
                 ("order", 4),
-            ]
-        elif application == "parameter_sweep_avg":
-            settings = [
+            ],
+            "parameter_sweep_avg": [
                 ("averaging/sample", 20),
                 ("averaging/tc", 15),
                 ("averaging/time", 0.02),
-            ]
-        elif application == "noise_amplitude_sweep":
-            settings = [
+            ],
+            "noise_amplitude_sweep": [
                 ("settling/inaccuracy", 1e-07),
                 ("averaging/sample", 1000),
                 ("averaging/tc", 50),
                 ("averaging/time", 0.1),
                 ("bandwidth", 10),
                 ("omegasuppression", 60),
-            ]
-        elif application == "frequency_response_analyzer":
-            settings = [
+            ],
+            "frequency_response_analyzer": [
                 ("settling/time", 0.01),
                 ("settling/inaccuracy", 0.0001),
                 ("averaging/sample", 20),
@@ -130,27 +127,24 @@ class SweeperModule:
                 ("bandwidthoverlap", 1),
                 ("omegasuppression", 40),
                 ("order", 8),
-            ]
-        elif application == "3-omega_sweep":
-            settings = [
+            ],
+            "3-omega_sweep": [
                 ("averaging/sample", 20),
                 ("averaging/tc", 15),
                 ("averaging/time", 0.02),
                 ("bandwidth", 100),
                 ("omegasuppression", 100),
                 ("order", 8),
-            ]
-        elif application == "fra_sinc_filter":
-            settings = [
+            ],
+            "fra_sinc_filter": [
                 ("settling/time", 0.01),
                 ("averaging/tc", 0),
                 ("maxbandwidth", 100),
                 ("bandwidthoverlap", 1),
                 ("omegasuppression", 40),
                 ("sincfilter", 1),
-            ]
-        elif application == "impedance":
-            settings = [
+            ],
+            "impedance": [
                 ("settling/time", 0),
                 ("settling/inaccuracy", 0.01),
                 ("averaging/tc", 15),
@@ -158,7 +152,13 @@ class SweeperModule:
                 ("bandwidth", 10),
                 ("omegasuppression", 80),
                 ("sincfilter", 0),
-            ]
+            ],
+        }
+        if application not in applications.keys():
+            raise ZHTKException(
+                f"Application must be one of {list(applications.keys())}."
+            )
+        settings = applications[application]
         self._set(settings)
         for setting, value in settings:
             print(f"setting '{setting}' to {value}")
