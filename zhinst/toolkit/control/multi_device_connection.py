@@ -36,14 +36,11 @@ class MultiDeviceConnection:
 
     def __init__(self):
         self._shared_connection = None
-        self._config = None
         self._hdawgs = {}
         self._uhfqas = {}
         self._uhflis = {}
         self._mflis = {}
         self._pqsc = None
-
-    def setup(self, **kwargs):
         """
         Establishes a connection to the Data Server. The connection details can 
         be specified as keyword arguments, they default to:
@@ -58,6 +55,8 @@ class MultiDeviceConnection:
         config.api_config.port = kwargs.get("port", 8004)
         config.api_config.api = kwargs.get("api", 6)
         self._config = config
+
+    def setup(self):
         details = self._config.api_config
         self._shared_connection = ZIConnection(details)
         self._shared_connection.connect()

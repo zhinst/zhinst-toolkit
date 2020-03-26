@@ -96,21 +96,18 @@ class DAQModule:
     def signals_clear(self):
         self._signals = []
 
-    def signals_list(self):
-        pass
-
-    def measure(self, single=True, verbose=True, timeout=20):
-        self._set("endless", int(not single))
+    def measure(self, verbose=True, timeout=20):
+        self._set("endless", 0)
         self._set("clearhistory", 1)
         for path in self.signals:
             self._module.subscribe(path)
             if verbose:
                 print(f"subscribed to: {path}")
         self._module.execute()
+        tik = time.time()
         while not self._module.finished():
             if verbose:
                 print(f"Progress: {(self._module.progress()[0] * 100):.1f}%")
-            tik = time.time()
             time.sleep(0.5)
             tok = time.time()
             if tok - tik > timeout:
