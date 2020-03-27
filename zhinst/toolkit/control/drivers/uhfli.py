@@ -11,7 +11,7 @@ from control.drivers.base import (
     SweeperModule as Sweeper,
     ZHTKException,
 )
-from control.drivers.uhfqa import AWG
+from zhinst.toolkit.control.drivers.uhfqa import AWG
 from zhinst.toolkit.interface import DeviceTypes
 
 
