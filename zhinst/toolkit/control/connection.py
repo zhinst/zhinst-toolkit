@@ -92,7 +92,7 @@ class ZIConnection:
         """
         if self._daq is None:
             raise ZHTKConnectionException("No existing connection to data server")
-        if not any(k is None for k in [serial, interface]):
+        if any(k is None for k in [serial, interface]):
             raise ZHTKConnectionException(
                 "To connect a Zurich Instruments' device, youd need a serial and an interface [1gbe or usb]"
             )
