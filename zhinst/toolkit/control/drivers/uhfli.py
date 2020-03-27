@@ -5,13 +5,13 @@
 
 import numpy as np
 
-from control.drivers.base import (
+from zhinst.toolkit.control.drivers.base import (
     BaseInstrument,
     DAQModule as DAQ,
     SweeperModule as Sweeper,
     ZHTKException,
 )
-from control.drivers.uhfqa import AWG
+from zhinst.toolkit.control.drivers.uhfqa import AWG
 from zhinst.toolkit.interface import DeviceTypes
 
 
