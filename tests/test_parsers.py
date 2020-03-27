@@ -54,42 +54,6 @@ def test_greater0(v):
         assert Parse.greater0(v) > 0
 
 
-@given(st.integers(0, 8))
-def test_get_result_source(n):
-    allowed = {
-        0: "Crosstalk",
-        1: "Threshold",
-        2: "Rotation",
-        4: "Crosstalk Correlation",
-        5: "Threshold Correlation",
-        7: "Integration",
-    }
-    if n not in allowed.keys():
-        with pytest.raises(ValueError):
-            Parse.get_result_source(n)
-    else:
-        v = Parse.get_result_source(n)
-        assert v == allowed[n]
-
-
-@given(st.integers(0, 8))
-def test_set_result_source(n):
-    allowed = {
-        0: "Crosstalk",
-        1: "Threshold",
-        2: "Rotation",
-        4: "Crosstalk Correlation",
-        5: "Threshold Correlation",
-        7: "Integration",
-    }
-    if n not in allowed.keys():
-        with pytest.raises(ValueError):
-            Parse.set_result_source("kjasdf")
-    else:
-        v = Parse.set_result_source(allowed[n])
-        assert allowed[v] == allowed[n]
-
-
 @given(st.floats(0.0001, 1.0))
 def test_samples2time_and_back(t):
     samples = Parse.qa_time2samples(t)
@@ -102,4 +66,3 @@ def test_complex2deg_and_back(deg):
     complex = Parse.deg2complex(deg)
     d = Parse.complex2deg(complex)
     assert abs(d - deg) < 1e-5
-
