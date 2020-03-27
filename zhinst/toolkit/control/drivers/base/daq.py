@@ -2,7 +2,7 @@ import time
 import numpy as np
 
 from .base import ZHTKException
-from control.nodetree import Parameter
+from zhinst.toolkit.control.nodetree import Parameter
 
 
 MAPPINGS = {
