@@ -5,7 +5,7 @@
 
 import numpy as np
 
-from control.drivers.base import (
+from zhinst.toolkit.control.drivers.base import (
     BaseInstrument,
     DAQModule as DAQ,
     SweeperModule as Sweeper,
