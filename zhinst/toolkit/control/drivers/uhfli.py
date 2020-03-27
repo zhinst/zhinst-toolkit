@@ -28,7 +28,7 @@ class UHFLI(BaseInstrument):
     """
 
     def __init__(self, name, serial, **kwargs):
-        super().__init__(name, "uhfli", serial, **kwargs)
+        super().__init__(name, DeviceTypes.UHFLI, serial, **kwargs)
 
     def connect_device(self, nodetree=True):
         super().connect_device(nodetree=nodetree)
@@ -119,7 +119,7 @@ MAPPINGS = {
 class SweeperModule(Sweeper):
     def signals_list(self):
         return list(MAPPINGS["signal_sources"].keys())
-    
+
     def sweep_parameter_list(self):
         return list(MAPPINGS["sweep_parameters"].keys())
 
