@@ -83,34 +83,18 @@ MAPPINGS = {
 }
 
 
-class SweeperModule(Sweeper):
-    def signals_list(self):
-        return list(MAPPINGS["signal_sources"].keys())
-
-    def sweep_parameter_list(self):
-        return list(MAPPINGS["sweep_parameters"].keys())
-
-    def _parse_signals(self, signal_source):
-        sources = MAPPINGS["signal_sources"]
-        if signal_source.lower() not in sources.keys():
-            raise ZHTKException(f"Signal source must be in {list(sources.keys())}")
-        signal_node = "/"
-        signal_node += self._parent.serial
-        signal_node += f"{sources[signal_source]}"
-        return signal_node.lower()
-
-    def _parse_sweep_param(self, param):
-        mapping = MAPPINGS["sweep_parameters"]
-        if param not in mapping.keys():
-            raise ZHTKException(
-                f"The parameter {param} must be one of {list(mapping.keys())}"
-            )
-        return mapping[param]
-
-
 class DAQModule(DAQ):
-    def signals_list(self):
-        return list(MAPPINGS["signal_sources"].keys())
+    def signals_list(self, source=None):
+        if source is None:
+            return list(MAPPINGS["signal_sources"].keys())
+        else:
+            sources = MAPPINGS["signal_sources"]
+            if source.lower() not in sources.keys():
+                raise ZHTKException(f"Signal source must be in {list(sources.keys())}")
+            if "demod" in source:
+                return list(MAPPINGS["signal_types_demod"].keys())
+            else:
+                return list(MAPPINGS["signal_types_imp"].keys())
 
     def _parse_signals(
         self, signal_source, signal_type, operation, fft, complex_selector,
@@ -172,3 +156,28 @@ class DAQModule(DAQ):
         trigger_node += f"{sources[trigger_source]}"
         trigger_node += f".{types[trigger_type]}"
         return trigger_node
+
+
+class SweeperModule(Sweeper):
+    def signals_list(self):
+        return list(MAPPINGS["signal_sources"].keys())
+
+    def sweep_parameter_list(self):
+        return list(MAPPINGS["sweep_parameters"].keys())
+
+    def _parse_signals(self, signal_source):
+        sources = MAPPINGS["signal_sources"]
+        if signal_source.lower() not in sources.keys():
+            raise ZHTKException(f"Signal source must be in {list(sources.keys())}")
+        signal_node = "/"
+        signal_node += self._parent.serial
+        signal_node += f"{sources[signal_source]}"
+        return signal_node.lower()
+
+    def _parse_sweep_param(self, param):
+        mapping = MAPPINGS["sweep_parameters"]
+        if param not in mapping.keys():
+            raise ZHTKException(
+                f"The parameter {param} must be one of {list(mapping.keys())}"
+            )
+        return mapping[param]
