@@ -17,6 +17,69 @@ MAPPINGS = {
     },
 }
 
+APPLICATIONS = {
+    "parameter_sweep": [
+        ("settling/time", 0),
+        ("averaging/sample", 1),
+        ("averaging/tc", 0),
+        ("averaging/time", 0),
+        ("bandwidth", 1000),
+        ("maxbandwidth", 1250000),
+        ("bandwidthoverlap", 0),
+        ("order", 4),
+    ],
+    "parameter_sweep_avg": [
+        ("averaging/sample", 20),
+        ("averaging/tc", 15),
+        ("averaging/time", 0.02),
+    ],
+    "noise_amplitude_sweep": [
+        ("settling/inaccuracy", 1e-07),
+        ("averaging/sample", 1000),
+        ("averaging/tc", 50),
+        ("averaging/time", 0.1),
+        ("bandwidth", 10),
+        ("omegasuppression", 60),
+    ],
+    "frequency_response_analyzer": [
+        ("settling/time", 0.01),
+        ("settling/inaccuracy", 0.0001),
+        ("averaging/sample", 20),
+        ("averaging/tc", 15),
+        ("averaging/time", 0.02),
+        ("bandwidth", 100),
+        ("maxbandwidth", 100),
+        ("bandwidthoverlap", 1),
+        ("omegasuppression", 40),
+        ("order", 8),
+    ],
+    "3-omega_sweep": [
+        ("averaging/sample", 20),
+        ("averaging/tc", 15),
+        ("averaging/time", 0.02),
+        ("bandwidth", 100),
+        ("omegasuppression", 100),
+        ("order", 8),
+    ],
+    "fra_sinc_filter": [
+        ("settling/time", 0.01),
+        ("averaging/tc", 0),
+        ("maxbandwidth", 100),
+        ("bandwidthoverlap", 1),
+        ("omegasuppression", 40),
+        ("sincfilter", 1),
+    ],
+    "impedance": [
+        ("settling/time", 0),
+        ("settling/inaccuracy", 0.01),
+        ("averaging/tc", 15),
+        ("averaging/time", 0.1),
+        ("bandwidth", 10),
+        ("omegasuppression", 80),
+        ("sincfilter", 0),
+    ],
+}
+
 
 class SweeperModule:
     def __init__(self, parent):
@@ -91,74 +154,15 @@ class SweeperModule:
         self._module.unsubscribe("*")
         return self._get_result_from_dict(result)
 
+    def application_list(self):
+        return list(APPLICATIONS.keys())
+
     def application(self, application):
-        applications = {
-            "parameter_sweep": [
-                ("settling/time", 0),
-                ("averaging/sample", 1),
-                ("averaging/tc", 0),
-                ("averaging/time", 0),
-                ("bandwidth", 1000),
-                ("maxbandwidth", 1250000),
-                ("bandwidthoverlap", 0),
-                ("order", 4),
-            ],
-            "parameter_sweep_avg": [
-                ("averaging/sample", 20),
-                ("averaging/tc", 15),
-                ("averaging/time", 0.02),
-            ],
-            "noise_amplitude_sweep": [
-                ("settling/inaccuracy", 1e-07),
-                ("averaging/sample", 1000),
-                ("averaging/tc", 50),
-                ("averaging/time", 0.1),
-                ("bandwidth", 10),
-                ("omegasuppression", 60),
-            ],
-            "frequency_response_analyzer": [
-                ("settling/time", 0.01),
-                ("settling/inaccuracy", 0.0001),
-                ("averaging/sample", 20),
-                ("averaging/tc", 15),
-                ("averaging/time", 0.02),
-                ("bandwidth", 100),
-                ("maxbandwidth", 100),
-                ("bandwidthoverlap", 1),
-                ("omegasuppression", 40),
-                ("order", 8),
-            ],
-            "3-omega_sweep": [
-                ("averaging/sample", 20),
-                ("averaging/tc", 15),
-                ("averaging/time", 0.02),
-                ("bandwidth", 100),
-                ("omegasuppression", 100),
-                ("order", 8),
-            ],
-            "fra_sinc_filter": [
-                ("settling/time", 0.01),
-                ("averaging/tc", 0),
-                ("maxbandwidth", 100),
-                ("bandwidthoverlap", 1),
-                ("omegasuppression", 40),
-                ("sincfilter", 1),
-            ],
-            "impedance": [
-                ("settling/time", 0),
-                ("settling/inaccuracy", 0.01),
-                ("averaging/tc", 15),
-                ("averaging/time", 0.1),
-                ("bandwidth", 10),
-                ("omegasuppression", 80),
-                ("sincfilter", 0),
-            ],
-        }
-        if application not in applications.keys():
+        if application not in APPLICATIONS.keys():
             raise ZHTKException(
-                f"Application must be one of {list(applications.keys())}."
+                f"Application must be one of {list(APPLICATIONS.keys())}."
             )
-        settings = applications[application]
+        settings = APPLICATIONS[application]
         self._set(settings)
         for setting, value in settings:
             print(f"setting '{setting}' to {value}")
