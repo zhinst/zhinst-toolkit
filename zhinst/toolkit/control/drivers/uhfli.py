@@ -148,8 +148,17 @@ class SweeperModule(Sweeper):
 
 
 class DAQModule(DAQ):
-    def signals_list(self):
-        return list(MAPPINGS["signal_sources"].keys())
+    def signals_list(self, source=None):
+        if source is None:
+            return list(MAPPINGS["signal_sources"].keys())
+        else:
+            sources = MAPPINGS["signal_sources"]
+            if source.lower() not in sources.keys():
+                raise ZHTKException(f"Signal source must be in {list(sources.keys())}")
+            if "demod" in source:
+                return list(MAPPINGS["signal_types_demod"].keys())
+            else:
+                return list(MAPPINGS["signal_types_imp"].keys())
 
     def _parse_signals(
         self, signal_source, signal_type, operation, fft, complex_selector,
