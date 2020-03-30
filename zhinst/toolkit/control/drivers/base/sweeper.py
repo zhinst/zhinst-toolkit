@@ -138,7 +138,9 @@ class SweeperModule:
             if verbose:
                 print(f"subscribed to: {path}")
         if verbose:
-            print(f"Sweeping '{self.gridnode()}' from {self.start()} to {self.stop()}")
+            print(
+                f"Sweeping {self._get('/gridnode')} from {self._get('/start')} to {self._get('/stop')}"
+            )
         self._module.execute()
         tik = time.time()
         while not self._module.finished():
