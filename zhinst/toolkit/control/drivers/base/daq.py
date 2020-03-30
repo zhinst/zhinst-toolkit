@@ -16,7 +16,7 @@ MAPPINGS = {
         16: "exponential",
         17: "cosine",
         17: "sine",
-        18: "cosine squared",
+        18: "cosine_squared",
     },
     "grid_direction": {0: "forward", 1: "reverse", 2: "bidirectional",},
     "grid_mode": {1: "nearest", 2: "linear", 4: "exact",},
@@ -170,7 +170,7 @@ class DAQResult:
         if not self._is_fft:
             self._time = self._claculate_time()
         else:
-            self._frequencies = self._calculate_freqs()
+            self._frequency = self._calculate_freqs()
 
     @property
     def value(self):
@@ -185,8 +185,8 @@ class DAQResult:
         return self._time
 
     @property
-    def frequencies(self):
-        return self._frequencies
+    def frequency(self):
+        return self._frequency
 
     @property
     def shape(self):
@@ -210,10 +210,9 @@ class DAQResult:
         s = super().__repr__()
         s += "\n\n"
         s += f"path:        {self._path}\n"
-        s += f"shape:       {self.shape}\n"
-        s += f"value:       {self._value}\n"
+        s += f"value:       {self._value.shape}\n"
         if self._is_fft:
-            s += f"frequencies: {self._frequencies}\n"
+            s += f"frequency:   {self._frequency.shape}\n"
         else:
-            s += f"time:        {self._time}\n"
+            s += f"time:        {self._time.shape}\n"
         return s
