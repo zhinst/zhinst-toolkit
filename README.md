@@ -1,4 +1,4 @@
-# Zurich Instruents Toolkit (zhinst-toolkit)
+# Zurich Instruments Toolkit (zhinst-toolkit)
 The Zurich Instruments Toolkit (zhinst-toolkit) is a collection of Python tools for high level device control. Based on the native interface to [Zurich Instruents LabOne](https://www.zhinst.com/labone), they offer an easier and more user-friendly interface. It's tailord for the control of multiple instruments togheter, especially for device managment and multiple AWG distributed control.
 It comes in the form of a package compatible with Python 3.6+
 
