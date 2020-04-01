@@ -89,7 +89,7 @@ class SweeperModule:
         self._results = {}
         self._clk_rate = clk_rate
         # the `streaming_nodes` are used as all available signal sources for the data acquisition
-        self._signal_sources = self._parent._streaming_nodes
+        self._signal_sources = self._parent._get_streamingnodes()
         self._sweep_params = {}
 
     def _setup(self):
