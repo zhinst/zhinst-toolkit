@@ -42,6 +42,8 @@ class DAQModule:
         self._signals = []
         self._results = {}
         self._clk_rate = clk_rate
+        # the `streaming_nodes` are used as all available signal sources for the data acquisition
+        self._signal_sources = self._parent._streaming_nodes
         self._signal_types = {
             "auxin": {"auxin1": ".Auxin0", "auxin2": ".Auxin1",},
             "demod": {
@@ -116,7 +118,7 @@ class DAQModule:
         print(f"set trigger node to '{trigger_node}'")
 
     def signals_list(self, source=None):
-        sources = list(self._parent._streaming_nodes.keys())
+        sources = list(self._signal_sources.keys())
         if source is None:
             return sources
         else:
@@ -167,14 +169,6 @@ class DAQModule:
         self._module.unsubscribe("*")
         self._get_result_from_dict(result)
 
-    @property
-    def signals(self):
-        return self._signals
-
-    @property
-    def results(self):
-        return self._results
-
     def _parse_signals(
         self, signal_source, signal_type, operation, fft, complex_selector,
     ):
@@ -187,10 +181,11 @@ class DAQModule:
 
     def _parse_signal_source(self, source):
         source = source.lower()
-        sources = self._parent._streaming_nodes
-        if source not in sources:
-            raise ZHTKException(f"Signal source must be in {sources.keys()}")
-        return sources[source]
+        if source not in self._signal_sources:
+            raise ZHTKException(
+                f"Signal source must be in {self._signal_sources.keys()}"
+            )
+        return self._signal_sources[source]
 
     def _parse_signal_type(self, signal_type, signal_source):
         signal_source = signal_source.lower()
@@ -262,6 +257,14 @@ class DAQModule:
             if isinstance(value, Parameter):
                 s += f" - {key}\n"
         return s
+
+    @property
+    def signals(self):
+        return self._signals
+
+    @property
+    def results(self):
+        return self._results
 
 
 class DAQResult:
