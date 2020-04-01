@@ -88,6 +88,8 @@ class SweeperModule:
         self._signals = []
         self._results = {}
         self._clk_rate = clk_rate
+        # the `streaming_nodes` are used as all available signal sources for the data acquisition
+        self._signal_sources = self._parent._streaming_nodes
         self._sweep_params = {}
 
     def _setup(self):
@@ -122,7 +124,7 @@ class SweeperModule:
         self._signals = []
 
     def signals_list(self):
-        return list(self._parent._streaming_nodes.keys())
+        return list(self._signal_sources.keys())
 
     def sweep_parameter_list(self):
         return list(self._sweep_params.keys())
@@ -181,10 +183,11 @@ class SweeperModule:
 
     def _parse_signals(self, source):
         source = source.lower()
-        sources = self._parent._streaming_nodes
-        if source not in sources:
-            raise ZHTKException(f"Signal source must be in {sources.keys()}")
-        return sources[source]
+        if source not in self._signal_sources:
+            raise ZHTKException(
+                f"Signal source must be in {self._signal_sources.keys()}"
+            )
+        return self._signal_sources[source]
 
     def _parse_sweep_param(self, param):
         if param not in self._sweep_params.keys():
