@@ -116,14 +116,11 @@ class SweeperModule:
             self._signals.append(signal_node)
         return signal_node
 
-    def _parse_signals(self, signal_source, **kwargs):
-        raise NotImplementedError()
-
     def signals_clear(self):
         self._signals = []
 
     def signals_list(self):
-        return list(MAPPINGS["signal_sources"].keys())
+        return list(self._parent._streaming_nodes.keys())
 
     def sweep_parameter(self, param):
         node = self._parse_sweep_param(param)
@@ -176,6 +173,9 @@ class SweeperModule:
     @property
     def results(self):
         return self._results
+
+    def _parse_signals(self, signal_source, **kwargs):
+        raise NotImplementedError()
 
     def _parse_sweep_param(self, param):
         raise NotImplementedError()
