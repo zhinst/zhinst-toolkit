@@ -7,6 +7,14 @@
 from zhinst.toolkit import HDAWG, UHFQA, UHFLI, MFLI, PQSC, MultiDeviceConnection
 from zhinst.toolkit.control.drivers.uhfqa import AWG as UHFQA_AWG, ReadoutChannel
 from zhinst.toolkit.control.drivers.hdawg import AWG as HDAWG_AWG
+from zhinst.toolkit.control.drivers.mfli import (
+    DAQModule as DAQModule_MFLI,
+    SweeperModule as Sweeper_MFLI,
+)
+from zhinst.toolkit.control.drivers.uhfli import (
+    DAQModule as DAQModule_UHFLI,
+    SweeperModule as Sweeper_UHFLI,
+)
 from zhinst.toolkit.control.connection import (
     ZIConnection,
     DeviceConnection,
@@ -17,6 +25,7 @@ from zhinst.toolkit.control.drivers.base import (
     ZHTKException,
     AWGCore,
     DAQModule,
+    SweeperModule,
 )
 from zhinst.toolkit.control.nodetree import (
     Nodetree,

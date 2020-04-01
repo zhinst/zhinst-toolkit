@@ -3,7 +3,7 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import DAQModule, ZHTKException
+from .context import SweeperModule, ZHTKException
 
 
 class Parent:
@@ -11,23 +11,23 @@ class Parent:
         return "streamingnodes"
 
 
-def test_daq_init():
+def test_sweeper_init():
     p = Parent()
-    daq = DAQModule(p)
-    assert daq._parent == p
-    assert daq._module is None
-    assert not daq.signals
-    assert not daq.results
-    assert daq._signal_sources == "streamingnodes"
-    assert daq._signal_types
+    s = SweeperModule(p)
+    assert s._parent == p
+    assert s._module is None
+    assert not s.signals
+    assert not s.results
+    assert s._signal_sources == "streamingnodes"
+    assert not s._sweep_params
 
 
 def test_no_connection():
     p = Parent()
-    daq = DAQModule(p)
+    s = SweeperModule(p)
     with pytest.raises(ZHTKException):
-        daq._init_settings()
+        s._init_settings()
     with pytest.raises(ZHTKException):
-        daq._set("endless", 0)
+        s._set("endless", 0)
     with pytest.raises(ZHTKException):
-        daq._get("endless")
+        s._get("endless")
