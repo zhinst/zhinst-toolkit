@@ -145,11 +145,12 @@ class BaseInstrument:
         streaming_nodes = {}
         for node in nodes:
             node = node.lower()
-            node_split = node.split("/")[2:]
-            node_name = node_split[0][:-1] + str(int(node_split[1]) + 1)
-            if "pid" in node_name:
-                node_name += f"_{node_split[-1]}"
-            streaming_nodes[node_name] = node.replace(f"/{self.serial}", "")
+            if node.endswith("sample"):
+                node_split = node.split("/")[2:]
+                node_name = node_split[0][:-1] + str(int(node_split[1]) + 1)
+                if "pid" in node_name:
+                    node_name += f"_{node_split[-1]}"
+                streaming_nodes[node_name] = node.replace(f"/{self.serial}", "")
         self._streaming_nodes = streaming_nodes
 
     def _check_connected(self):
