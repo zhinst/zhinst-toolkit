@@ -99,6 +99,17 @@ class DAQModule:
         self._set("clearhistory", 1)
         self._set("bandwidth", 0)
 
+    def trigger_list(self, source=None):
+        sources = list(self._trigger_signals.keys())
+        if source is None:
+            return sources
+        else:
+            for signal in self._trigger_types.keys():
+                if signal in source:
+                    return list(self._trigger_types[signal].keys())
+            else:
+                return sources
+
     def trigger(self, trigger_source, trigger_type):
         trigger_node = self._parse_trigger(trigger_source, trigger_type)
         self._set("/triggernode", trigger_node)
@@ -109,10 +120,11 @@ class DAQModule:
         if source is None:
             return sources
         else:
-            if "demod" in source:
-                return list(self._signal_types["demod"].keys())
-            elif "imp" in source:
-                return list(self._signal_types["imp"].keys())
+            for signal in self._signal_types.keys():
+                if signal in source:
+                    return list(self._signal_types[signal].keys())
+            else:
+                return sources
 
     def signals_add(
         self,
@@ -148,7 +160,8 @@ class DAQModule:
             tok = time.time()
             if tok - tik > timeout:
                 raise TimeoutError()
-        print("Finished")
+        if verbose:
+            print("Finished")
         result = self._module.read(flat=True)
         self._module.finish()
         self._module.unsubscribe("*")
@@ -181,15 +194,11 @@ class DAQModule:
         return sources[source]
 
     def _parse_signal_type(self, signal_type, signal_source):
+        signal_source = signal_source.lower()
         signal_type = signal_type.lower()
-        if "demod" in signal_source:
-            types = self._signal_types["demod"]
-        elif "imp" in signal_source:
-            types = self._signal_types["imp"]
-        elif "cnt" in signal_source:
-            types = self._signal_types["cnt"]
-        else:
-            return ""
+        for signal in self._signal_types.keys():
+            if signal in signal_source:
+                types = self._signal_types[signal]
         if signal_type not in types.keys():
             raise ZHTKException(f"Signal type must be in {types.keys()}")
         return types[signal_type]
@@ -226,13 +235,11 @@ class DAQModule:
         return sources[source]
 
     def _parse_trigger_type(self, trigger_source, trigger_type):
-        if "auxin" in trigger_source:
-            types = self._trigger_types["auxin"]
-        if "cnt" in trigger_source:
-            types = self._trigger_types["auxin"]
-        if "demod" in trigger_source:
-            types = self._signal_types["demod"]
-            types.update(self._trigger_types["demod"])
+        trigger_source = trigger_source.lower()
+        trigger_type = trigger_type.lower()
+        for signal in self._trigger_types.keys():
+            if signal in trigger_source:
+                types = self._trigger_types[signal]
         if trigger_type.lower() not in types.keys():
             raise ZHTKException(f"Signal type must be in {types.keys()}")
         return types[trigger_type]
@@ -241,7 +248,6 @@ class DAQModule:
         self._results = {}
         for node in self.signals:
             node = node.lower()
-            print(f"getting result from: {node}")
             if node not in result.keys():
                 raise ZHTKException()
             self._results[node] = DAQResult(
