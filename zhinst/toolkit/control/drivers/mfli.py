@@ -70,13 +70,20 @@ class DAQModule(DAQ):
             )
         self._trigger_types = {
             "demod": {
+                **self._signal_types["demod"],
                 "demod2phase": ".TrigDemod2Phase",
                 "trigin1": ".TrigIn1",
                 "trigin2": ".TrigIn2",
                 "trigout1": ".TrigOut1",
                 "trigout2": ".TrigOut2",
             },
-            "imp": {},
+            "imp": {
+                **self._signal_types["imp"],
+                "trigin1": ".TrigIn1",
+                "trigin2": ".TrigIn2",
+                "trigout1": ".TrigOut1",
+                "trigout2": ".TrigOut2",
+            },
         }
 
 

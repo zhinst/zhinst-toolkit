@@ -184,8 +184,9 @@ class DAQModule(DAQ):
                 {k: v for k, v in nodes.items() if source in k}
             )
         self._trigger_types = {
-            "auxin": {"auxin1": ".Auxin0", "auxin2": ".Auxin1",},
+            "auxin": {**self._signal_types["auxin"]},
             "cnt": {
+                **self._signal_types["cnt"],
                 "awgtrigger1": ".TrigAWGTrig1",
                 "awgtrigger2": ".TrigAWGTrig2",
                 "awgtrigger3": ".TrigAWGTrig3",
@@ -196,6 +197,7 @@ class DAQModule(DAQ):
                 "trigin4": ".TrigIn4",
             },
             "demod": {
+                **self._signal_types["demod"],
                 "demod4phase": ".TrigDemod4Phase",
                 "demod8phase": ".TrigDemod8Phase",
                 "awgtrigger1": ".TrigAWGTrig1",
