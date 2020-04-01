@@ -64,12 +64,21 @@ class UHFLI(BaseInstrument):
 
 
 class DAQModule(DAQ):
+    """
+    Subclasses the DAQ module with parameters that are specific to the UHFLI.
+    On top of the attributes of the DAQ class, this class defines the 
+    `trigger_signals` and `trigger_types` that are used in the 
+    `daq.trigger(...)` and `daq.trigger_list()` method. The user is always free 
+    to set the parameter `daq.triggernode(..)` directly, however, only some 
+    signals can be used as triggers.
+    
+    """
+
     def __init__(self, parent):
         super().__init__(parent, clk_rate=1.8e9)
-        nodes = self._parent._streaming_nodes
         for source in ["auxin", "demod", "cnt"]:
             self._trigger_signals.update(
-                {k: v for k, v in nodes.items() if source in k}
+                {k: v for k, v in self._signal_sources.items() if source in k}
             )
         self._trigger_types = {
             "auxin": {**self._signal_types["auxin"]},
@@ -105,6 +114,16 @@ class DAQModule(DAQ):
 
 
 class SweeperModule(Sweeper):
+    """
+    Subclasses the Sweeper module with parameters that are specific to the MFLI.
+    We define a dictionary of `sweep_params` here which is used for the 
+    `sweeper.sweep_parameter(...)` and `sweeper.sweep_parameter_list()` methods, 
+    which are guidelines to the user. The parameter to sweep can also be set 
+    directly with the `sweeper.gridnode(...)` method, however only some nodes 
+    support sweeping. 
+    
+    """
+
     def __init__(self, parent):
         super().__init__(parent, clk_rate=1.8e9)
         self._sweep_params = {
