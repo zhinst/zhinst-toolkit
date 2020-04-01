@@ -26,6 +26,7 @@ class MFLI(BaseInstrument):
 
     def connect_device(self, nodetree=True):
         super().connect_device(nodetree=nodetree)
+        self._get_streamingnodes()
         self._daq_module = DAQModule(self, clk_rate=60e6)
         self._daq_module._setup()
         self._sweeper_module = SweeperModule(self)
@@ -85,16 +86,17 @@ MAPPINGS = {
 
 class DAQModule(DAQ):
     def signals_list(self, source=None):
-        if source is None:
-            return list(MAPPINGS["signal_sources"].keys())
-        else:
-            sources = MAPPINGS["signal_sources"]
-            if source.lower() not in sources.keys():
-                raise ZHTKException(f"Signal source must be in {list(sources.keys())}")
-            if "demod" in source:
-                return list(MAPPINGS["signal_types_demod"].keys())
-            else:
-                return list(MAPPINGS["signal_types_imp"].keys())
+        # if source is None:
+        #     return list(MAPPINGS["signal_sources"].keys())
+        # else:
+        #     sources = MAPPINGS["signal_sources"]
+        #     if source.lower() not in sources.keys():
+        #         raise ZHTKException(f"Signal source must be in {list(sources.keys())}")
+        #     if "demod" in source:
+        #         return list(MAPPINGS["signal_types_demod"].keys())
+        #     else:
+        #         return list(MAPPINGS["signal_types_imp"].keys())
+        return list(self._parent._streaming_nodes.keys())
 
     def _parse_signals(
         self, signal_source, signal_type, operation, fft, complex_selector,
@@ -160,7 +162,7 @@ class DAQModule(DAQ):
 
 class SweeperModule(Sweeper):
     def signals_list(self):
-        return list(MAPPINGS["signal_sources"].keys())
+        return list(self._parent._streaming_nodes.keys())
 
     def sweep_parameter_list(self):
         return list(MAPPINGS["sweep_parameters"].keys())
