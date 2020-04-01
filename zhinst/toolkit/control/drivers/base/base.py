@@ -151,7 +151,7 @@ class BaseInstrument:
                 if "pid" in node_name:
                     node_name += f"_{node_split[-1]}"
                 streaming_nodes[node_name] = node.replace(f"/{self.serial}", "")
-        self._streaming_nodes = streaming_nodes
+        return streaming_nodes
 
     def _check_connected(self):
         """
