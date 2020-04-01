@@ -138,6 +138,20 @@ class BaseInstrument:
         self._check_connected()
         return self._controller.get_nodetree(prefix, **kwargs)
 
+    def _get_streamingnodes(self):
+        self._check_connected()
+        nodes = self._controller.get_nodetree("*", streamingonly=True)
+        nodes = list(nodes.keys())
+        streaming_nodes = {}
+        for node in nodes:
+            node = node.lower()
+            node_split = node.split("/")[2:]
+            node_name = node_split[0][:-1] + str(int(node_split[1]) + 1)
+            if "pid" in node_name:
+                node_name += f"_{node_split[-1]}"
+            streaming_nodes[node_name] = node.replace(f"/{self.serial}", "")
+        self._streaming_nodes = streaming_nodes
+
     def _check_connected(self):
         """
         Check if the device is connected to the data server, otherwise raises 
