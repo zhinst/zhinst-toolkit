@@ -175,7 +175,6 @@ class DAQModule:
     def results(self):
         return self._results
 
-    # signal parsing ...
     def _parse_signals(
         self, signal_source, signal_type, operation, fft, complex_selector,
     ):
@@ -220,7 +219,6 @@ class DAQModule:
         else:
             return ""
 
-    # trigger ....
     def _parse_trigger(self, trigger_source, trigger_type):
         trigger_node = "/" + self._parent.serial
         trigger_node += self._parse_trigger_source(trigger_source)
