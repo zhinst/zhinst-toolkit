@@ -82,12 +82,13 @@ APPLICATIONS = {
 
 
 class SweeperModule:
-    def __init__(self, parent):
+    def __init__(self, parent, clk_rate=60e6):
         self._parent = parent
         self._module = None
         self._signals = []
         self._results = {}
-        self._clk_rate = 60e6
+        self._clk_rate = clk_rate
+        self._sweep_params = {}
 
     def _setup(self):
         self._module = self._parent._controller._connection.sweeper_module
@@ -110,8 +111,9 @@ class SweeperModule:
         data = self._module.get(*args, device=self._parent.serial)
         return list(data.values())[0][0] if valueonly else data
 
-    def signals_add(self, signal_source, **kwargs):
-        signal_node = self._parse_signals(signal_source, **kwargs)
+    def signals_add(self, signal_source):
+        signal_node = "/" + self._parent.serial
+        signal_node += self._parse_signals(signal_source)
         if signal_node not in self.signals:
             self._signals.append(signal_node)
         return signal_node
@@ -121,6 +123,9 @@ class SweeperModule:
 
     def signals_list(self):
         return list(self._parent._streaming_nodes.keys())
+
+    def sweep_parameter_list(self):
+        return list(self._sweep_params.keys())
 
     def sweep_parameter(self, param):
         node = self._parse_sweep_param(param)
@@ -174,11 +179,19 @@ class SweeperModule:
     def results(self):
         return self._results
 
-    def _parse_signals(self, signal_source, **kwargs):
-        raise NotImplementedError()
+    def _parse_signals(self, source):
+        source = source.lower()
+        sources = self._parent._streaming_nodes
+        if source not in sources:
+            raise ZHTKException(f"Signal source must be in {sources.keys()}")
+        return sources[source]
 
     def _parse_sweep_param(self, param):
-        raise NotImplementedError()
+        if param not in self._sweep_params.keys():
+            raise ZHTKException(
+                f"The parameter {param} must be one of {list(self._sweep_params.keys())}"
+            )
+        return self._sweep_params[param]
 
     def _get_result_from_dict(self, result):
         self._results = {}
