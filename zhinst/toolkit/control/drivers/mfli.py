@@ -22,7 +22,7 @@ High-level controller for MFLI.
 
 class MFLI(BaseInstrument):
     def __init__(self, name, serial, **kwargs):
-        super().__init__(name, "mfli", serial, **kwargs)
+        super().__init__(name, DeviceTypes.MFLI, serial, **kwargs)
 
     def connect_device(self, nodetree=True):
         super().connect_device(nodetree=nodetree)
