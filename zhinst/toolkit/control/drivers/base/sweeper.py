@@ -192,7 +192,6 @@ class SweeperModule:
 
     def _init_settings(self):
         settings = [
-            ("device", "dev3337"),
             ("historylength", 100),
             ("settling/inaccuracy", 0.0001),
             ("averaging/sample", 1),
@@ -200,7 +199,6 @@ class SweeperModule:
             ("maxbandwidth", 1250000),
             ("omegasuppression", 40),
             ("order", 4),
-            ("gridnode", "/dev3337/oscs/0/freq"),
             ("save/directory", "/data/LabOne/WebServer"),
             ("averaging/tc", 0),
             ("averaging/time", 0),
