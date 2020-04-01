@@ -43,6 +43,7 @@ class DAQModule:
         self._results = {}
         self._clk_rate = clk_rate
         self._signal_types = {
+            "auxin": {"auxin1": ".Auxin0", "auxin2": ".Auxin1",},
             "demod": {
                 "x": ".X",
                 "y": ".Y",
@@ -63,7 +64,10 @@ class DAQModule:
                 "param1": ".Param0",
                 "param2": ".Param1",
             },
+            "cnt": {"": ".Value"},
         }
+        self._trigger_signals = {}
+        self._trigger_types = {}
 
     def _setup(self):
         self._module = self._parent._controller._connection.daq_module
@@ -105,8 +109,6 @@ class DAQModule:
         if source is None:
             return sources
         else:
-            if source.lower() not in sources:
-                raise ZHTKException(f"Signal source must be in {sources}")
             if "demod" in source:
                 return list(self._signal_types["demod"].keys())
             elif "imp" in source:
@@ -160,12 +162,23 @@ class DAQModule:
     def results(self):
         return self._results
 
+    # signal parsing ...
+    def _parse_signals(
+        self, signal_source, signal_type, operation, fft, complex_selector,
+    ):
+        signal_node = "/" + self._parent.serial
+        signal_node += self._parse_signal_source(signal_source)
+        signal_node += self._parse_signal_type(signal_type, signal_source)
+        signal_node += self._parse_fft(fft, complex_selector)
+        signal_node += self._parse_operation(operation)
+        return signal_node.lower()
+
     def _parse_signal_source(self, source):
         source = source.lower()
         sources = self._parent._streaming_nodes
         if source not in sources:
             raise ZHTKException(f"Signal source must be in {sources.keys()}")
-        return source
+        return sources[source]
 
     def _parse_signal_type(self, signal_type, signal_source):
         signal_type = signal_type.lower()
@@ -173,6 +186,8 @@ class DAQModule:
             types = self._signal_types["demod"]
         elif "imp" in signal_source:
             types = self._signal_types["imp"]
+        elif "cnt" in signal_source:
+            types = self._signal_types["cnt"]
         else:
             return ""
         if signal_type not in types.keys():
@@ -196,48 +211,31 @@ class DAQModule:
         else:
             return ""
 
-    def _parse_signals(
-        self, signal_source, signal_type, operation, fft, complex_selector,
-    ):
-        signal_node = "/"
-        signal_node += self._parent.serial
-        signal_node += self._parse_signal_source(signal_source)
-        signal_node += self._parse_signal_type(signal_type, signal_source)
-        signal_node += self._parse_fft(fft, complex_selector)
-        signal_node += self._parse_operation(operation)
-        return signal_node.lower()
+    # trigger ....
+    def _parse_trigger(self, trigger_source, trigger_type):
+        trigger_node = "/" + self._parent.serial
+        trigger_node += self._parse_trigger_source(trigger_source)
+        trigger_node += self._parse_trigger_type(trigger_source, trigger_type)
+        return trigger_node
+
+    def _parse_trigger_source(self, source):
+        source = source.lower()
+        sources = self._trigger_signals
+        if source not in sources:
+            raise ZHTKException(f"Signal source must be in {sources.keys()}")
+        return sources[source]
 
     def _parse_trigger_type(self, trigger_source, trigger_type):
         if "auxin" in trigger_source:
-            types = {"auxin1": "AuxIn1", "auxin2": "AuxIn2"}
+            types = self._trigger_types["auxin"]
+        if "cnt" in trigger_source:
+            types = self._trigger_types["auxin"]
         if "demod" in trigger_source:
             types = self._signal_types["demod"]
-            types.update(
-                {
-                    "demod2phase": "TrigDemod1Phase",
-                    "awgtrigger1": "TrigAWGTrig1",
-                    "awgtrigger2": "TrigAWGTrig2",
-                    "awgtrigger3": "TrigAWGTrig3",
-                    "awgtrigger4": "TrigAWGTrig4",
-                }
-            )
-        types.update(
-            {
-                "trigin1": "TrigIn1",
-                "trigin2": "TrigIn2",
-                "trigout1": "TrigOut1",
-                "trigout2": "TrigOut2",
-            }
-        )
+            types.update(self._trigger_types["demod"])
         if trigger_type.lower() not in types.keys():
             raise ZHTKException(f"Signal type must be in {types.keys()}")
-
-    def _parse_trigger(self, trigger_source, trigger_type):
-        trigger_node = "/"
-        trigger_node += self._parent.serial
-        trigger_node += self._parse_signal_source(trigger_source)
-        trigger_node += f".{types[trigger_type]}"
-        return trigger_node
+        return types[trigger_type]
 
     def _get_result_from_dict(self, result):
         self._results = {}
