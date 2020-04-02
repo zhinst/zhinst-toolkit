@@ -16,15 +16,11 @@ requirements = [
 ]
 
 
-with open("VERSION.txt", "r") as fd:
-    version = fd.read().rstrip()
-
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="zhinst-toolkit",
-    version=version,
     description="Zurich Instruments tools for high level device control",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -50,6 +46,8 @@ setuptools.setup(
     packages=setuptools.find_namespace_packages(
         exclude=["test*"], include=["zhinst.*"]
     ),
+    use_scm_version=True,
+    setup_requires=['setuptools_scm'],
     install_requires=requirements,
     include_package_data=True,
     python_requires=">=3.6",
