@@ -75,7 +75,7 @@ class AWG(AWGCore):
     def __init__(self, parent, index):
         super().__init__(parent, index)
         self._iq_modulation = False
-        self._trigger_level = 0.5
+        self._trigger_level = 0.25
         self.output1 = Parameter(
             self,
             dict(
@@ -201,6 +201,7 @@ class AWG(AWGCore):
                 "T1",
                 "T2*",
                 "Custom",
+                "Trigger",
             ]
             if t not in allowed_sequences:
                 raise ZHTKException(
