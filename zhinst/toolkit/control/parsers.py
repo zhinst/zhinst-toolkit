@@ -49,7 +49,7 @@ class Parse:
 
     @staticmethod
     def phase(v):
-        return (v + 180) % 360
+        return (v + 180) % 360 - 180
 
     @staticmethod
     def greater0(v):
