@@ -14,6 +14,7 @@ from .sequences import (
     PulsedSpectroscopySequence,
     CWSpectroscopySequence,
     CustomSequence,
+    TriggerSequence,
 )
 
 
@@ -69,6 +70,8 @@ class SequenceProgram(object):
             self.sequence_class = CWSpectroscopySequence
         elif type == "Custom":
             self.sequence_class = CustomSequence
+        elif type == "Trigger":
+            self.sequence_class = TriggerSequence
         else:
             raise ValueError("Unknown Sequence Type!")
         self._sequence_type = type
