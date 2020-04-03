@@ -124,7 +124,7 @@ class AWG(AWGCore):
                 Unit="Degrees",
             ),
             device=self._parent,
-            set_parser=Parse.abs90,
+            set_parser=Parse.phase,
         )
         self.gain1 = Parameter(
             self,
