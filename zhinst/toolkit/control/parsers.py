@@ -48,6 +48,10 @@ class Parse:
         return v
 
     @staticmethod
+    def phase(v):
+        return v % 360
+
+    @staticmethod
     def greater0(v):
         if v <= 0:
             raise ValueError("This value must be positive!")
@@ -70,4 +74,3 @@ class Parse:
     def qa_samples2time(v):
         Parse.greater0(v)
         return v / 1.8e9
-
