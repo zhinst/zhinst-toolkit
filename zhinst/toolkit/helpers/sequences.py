@@ -189,6 +189,29 @@ class SimpleSequence(Sequence):
 
 
 @attr.s
+class TriggerSequence(Sequence):
+    def write_sequence(self):
+        self.sequence = SequenceCommand.header_comment(sequence_type="Master Trigger")
+        self.sequence += self.trigger_cmd_2
+        self.sequence += SequenceCommand.repeat(self.repetitions)
+        self.sequence += self.trigger_cmd_1
+        self.sequence += SequenceCommand.wait(self.wait_cycles)
+        self.sequence += self.trigger_cmd_2
+        self.sequence += SequenceCommand.wait(self.dead_cycles)
+        self.sequence += SequenceCommand.close_bracket()
+
+    def update_params(self):
+        self.trigger_mode = "Send Trigger"
+        self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+        super().update_params()
+
+    def check_attributes(self):
+        super().check_attributes()
+        if (self.period - self.dead_time) < 0:
+            raise ValueError("Wait time cannot be negative!")
+
+
+@attr.s
 class RabiSequence(Sequence):
     pulse_amplitudes = attr.ib(default=[1.0], validator=amp_smaller_1)
     pulse_width = attr.ib(default=50e-9, validator=is_positive)
