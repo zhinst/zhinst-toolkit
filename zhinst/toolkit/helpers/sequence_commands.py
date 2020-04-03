@@ -107,7 +107,7 @@ class SequenceCommand(object):
             raise ValueError("Values cannot be negative!")
         return (
             f"wave w_1 = gauss({length}, {pos}, {width});\n"
-            f"wave w_2 = drag({length}, {pos}, {width});\n"
+            f"wave w_2 = gauss({length}, {pos}, {width});\n"
         )
 
     @staticmethod
