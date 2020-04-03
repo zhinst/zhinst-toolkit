@@ -207,6 +207,8 @@ class TriggerSequence(Sequence):
 
     def check_attributes(self):
         super().check_attributes()
+        if self.target != DeviceTypes.HDAWG:
+            raise Exception("This sequence is only valid for HDAWG!")
         if (self.period - self.dead_time) < 0:
             raise ValueError("Wait time cannot be negative!")
 
