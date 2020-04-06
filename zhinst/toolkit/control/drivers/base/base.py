@@ -112,7 +112,7 @@ class BaseInstrument:
         the data server.
         """
         self._check_connected()
-        self._controller.set(*args)
+        return self._controller.set(*args)
 
     def _get(self, command, valueonly=True):
         """

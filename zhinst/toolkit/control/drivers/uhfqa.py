@@ -261,8 +261,7 @@ class AWG(AWGCore):
                     raise ZHTKException(
                         "The values should be specified as a tuple, e.g. ('on', 'off')."
                     )
-                self.output1(value[0])
-                self.output2(value[1])
+                return self.output1(value[0]), self.output2(value[1])
             else:
                 raise ZHTKException("The value must be a tuple or list of length 2!")
 
@@ -379,6 +378,7 @@ class ReadoutChannel:
             Parse.greater0(freq)
             self._readout_frequency = freq
             self._set_int_weights()
+            return self._readout_frequency
 
     def readout_amplitude(self, amp=None):
         if amp is None:
@@ -386,12 +386,14 @@ class ReadoutChannel:
         else:
             Parse.amp1(amp)
             self._readout_amplitude = amp
+            return self._readout_amplitude
 
     def phase_shift(self, ph=None):
         if ph is None:
             return self._phase_shift
         else:
             self._phase_shift = Parse.phase(ph)
+            return self._phase_shift
 
     def _reset_int_weights(self):
         node = f"/qas/0/integration/weights/"
