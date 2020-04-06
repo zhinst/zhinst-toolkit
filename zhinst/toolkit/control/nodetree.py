@@ -97,7 +97,7 @@ class Parameter:
                     value = inv_map[value]
                 value = self._set_parser(value)
                 self._device._set(self._path, value)
-                self._cached_value = self._getter()
+                self._cached_value = self._get_parser(value)
             return self._cached_value
         else:
             raise ZHTKNodetreeException("This parameter is not settable!")
