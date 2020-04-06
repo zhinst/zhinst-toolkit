@@ -193,6 +193,7 @@ class AWG(AWGCore):
                     f"Sequence type {t} must be one of {allowed_sequences}!"
                 )
             # apply settings depending on sequence type
+            self._apply_base_settings()
             if t == "CW Spectroscopy":
                 self._apply_cw_settings()
             if t == "Pulsed Spectroscopy":
@@ -205,12 +206,23 @@ class AWG(AWGCore):
             if kwargs["trigger_mode"] == "External Trigger":
                 self._apply_trigger_settings()
 
+    def _apply_base_settings(self):
+        settings = [
+            ("sigouts/*/enables/*", 0),
+            ("sigouts/*/amplitudes/*", 0),
+            ("awgs/0/outputs/*/mode", 0),
+            ("qas/0/integration/mode", 0),
+        ]
+        self._parent._set(settings)
+        self._parent.disable_readout_channels(range(10))
+
     def _apply_cw_settings(self):
         settings = [
             ("sigouts/0/enables/0", 1),
             ("sigouts/1/enables/1", 1),
             ("sigouts/0/amplitudes/0", 1),
             ("sigouts/1/amplitudes/1", 1),
+            ("awgs/0/outputs/*/mode", 0),
             ("qas/0/integration/mode", 1),
         ]
         self._parent._set(settings)
@@ -380,8 +392,7 @@ class ReadoutChannel:
         if ph is None:
             return self._phase_shift
         else:
-            Parse.abs90(ph)
-            self._phase_shift = ph
+            self._phase_shift = Parse.phase(ph)
 
     def _reset_int_weights(self):
         node = f"/qas/0/integration/weights/"
