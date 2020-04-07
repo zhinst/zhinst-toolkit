@@ -56,8 +56,8 @@ def test_greater0(v):
 
 @given(st.floats(0.0001, 1.0))
 def test_samples2time_and_back(t):
-    samples = Parse.qa_time2samples(t)
-    time = Parse.qa_samples2time(samples)
+    samples = Parse.uhfqa_time2samples(t)
+    time = Parse.uhfqa_samples2time(samples)
     assert abs(t - time) <= 1e-5
 
 
