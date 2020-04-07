@@ -10,6 +10,8 @@ Input and output parsers for Parameters to validate and parse values.
 
 """
 
+UHFQA_CLK_RATE = 1.8e9
+
 
 class Parse:
     @staticmethod
@@ -68,9 +70,9 @@ class Parse:
     @staticmethod
     def uhfqa_time2samples(v):
         Parse.greater0(v)
-        return int(v * 1.8e9)
+        return int(round(v * UHFQA_CLK_RATE))
 
     @staticmethod
     def uhfqa_samples2time(v):
         Parse.greater0(v)
-        return v / 1.8e9
+        return v / UHFQA_CLK_RATE
