@@ -193,14 +193,14 @@ class AWG(AWGCore):
                     f"Sequence type {t} must be one of {allowed_sequences}!"
                 )
             # apply settings depending on sequence type
-            self._apply_base_settings()
-            if t == "CW Spectroscopy":
+            elif t == "CW Spectroscopy":
                 self._apply_cw_settings()
-            if t == "Pulsed Spectroscopy":
+            elif t == "Pulsed Spectroscopy":
                 self._apply_pulsed_settings()
-            if t == "Readout":
+            elif t == "Readout":
                 self._apply_readout_settings()
-
+            else:
+                self._apply_base_settings()
         # apply settings dependent on trigger type
         if "trigger_mode" in kwargs.keys():
             if kwargs["trigger_mode"] == "External Trigger":
