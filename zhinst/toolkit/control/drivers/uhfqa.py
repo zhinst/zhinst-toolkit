@@ -49,8 +49,8 @@ class UHFQA(BaseInstrument):
                 Unit="s",
             ),
             device=self,
-            set_parser=Parse.qa_time2samples,
-            get_parser=Parse.qa_samples2time,
+            set_parser=Parse.uhfqa_time2samples,
+            get_parser=Parse.uhfqa_samples2time,
         )
         self.result_source = Parameter(
             self,

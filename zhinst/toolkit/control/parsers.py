@@ -66,11 +66,11 @@ class Parse:
         return np.angle(v, deg=True)
 
     @staticmethod
-    def qa_time2samples(v):
+    def uhfqa_time2samples(v):
         Parse.greater0(v)
         return int(v * 1.8e9)
 
     @staticmethod
-    def qa_samples2time(v):
+    def uhfqa_samples2time(v):
         Parse.greater0(v)
         return v / 1.8e9
