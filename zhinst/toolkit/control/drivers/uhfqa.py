@@ -267,22 +267,17 @@ class AWG(AWGCore):
 
     def update_readout_params(self):
         if self.sequence_params["sequence_type"] == "Readout":
-            if any([ch.enabled() for ch in self._parent.channels]):
-                freqs = []
-                amps = []
-                phases = []
-                for ch in self._parent.channels:
-                    if ch.enabled():
-                        freqs.append(ch.readout_frequency())
-                        amps.append(ch.readout_amplitude())
-                        phases.append(ch.phase_shift())
-                self.set_sequence_params(
-                    readout_frequencies=freqs,
-                    readout_amplitudes=amps,
-                    phase_shifts=phases,
-                )
-            else:
-                raise ZHTKException("No readout channels are enabled!")
+            freqs = []
+            amps = []
+            phases = []
+            for ch in self._parent.channels:
+                if ch.enabled():
+                    freqs.append(ch.readout_frequency())
+                    amps.append(ch.readout_amplitude())
+                    phases.append(ch.phase_shift())
+            self.set_sequence_params(
+                readout_frequencies=freqs, readout_amplitudes=amps, phase_shifts=phases,
+            )
         else:
             raise ZHTKException("AWG Sequence type needs to be 'Readout'")
 
