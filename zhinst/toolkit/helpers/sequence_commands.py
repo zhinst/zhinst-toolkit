@@ -130,6 +130,12 @@ class SequenceCommand(object):
 
     @staticmethod
     def init_readout_pulse(length, amps, frequencies, phases, clk_rate=1.8e9):
+        if len(frequencies) == 0:
+            s = ""
+            s += "wave w_1 = zeros(32);\n"
+            s += "wave w_2 = zeros(32);\n"
+            s += "\n"
+            return s
         assert len(amps) == len(frequencies)
         assert len(phases) == len(frequencies)
         assert abs(max(amps)) <= 1.0
