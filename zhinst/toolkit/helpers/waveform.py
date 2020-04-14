@@ -7,11 +7,11 @@ import numpy as np
 
 
 class Waveform(object):
-    """
-    Implements a waveform for two channels. The 'data' attribute holds the 
-    waveform samples with the proper scaling, granularity and minimal length.
-    The 'data' attribute holds the actual waveform array that can be sent to 
-    the instrument. 
+    """Implements a waveform for two channels. 
+    
+    The 'data' attribute holds the waveform samples with the proper scaling, 
+    granularity and minimal length. The 'data' attribute holds the actual 
+    waveform array that can be sent to the instrument. 
 
     Arguments:
         wave1 (array): list or numpy array for the waveform on channel 1, will 
@@ -26,6 +26,13 @@ class Waveform(object):
         align_start (bool): the waveform will be padded with zeros to match the 
             granularity, either before or after the samples (default: True)
 
+    Properties:
+        data (array): interleaved and normalized waveform data of the two 
+            channels to be uplaoded to the AWG
+        delay (double): delay in seconds of the individual waveform w.r.t. the 
+            sequence time origin
+        buffer_length (int): number of samples for the seuqence c buffer wave
+
     """
 
     def __init__(self, wave1, wave2, delay=0, granularity=16, align_start=True):
@@ -36,10 +43,7 @@ class Waveform(object):
         self._update()
 
     def replace_data(self, wave1, wave2, delay=0):
-        """
-        Replaces the data in the waveform.
-
-        """
+        """Replaces the data in the waveform."""
         new_buffer_length = self._round_up(max(len(wave1), len(wave2), 32))
         self._delay = delay
         if new_buffer_length == self.buffer_length:
@@ -61,14 +65,15 @@ class Waveform(object):
         return self._buffer_length
 
     def _update(self):
+        """Update the buffer length and data attributes for new waveforms."""
         self._buffer_length = self._round_up(
             max(len(self._waves[0]), len(self._waves[1]), 32)
         )
         self._data = self._interleave_waveforms(self._waves[0], self._waves[1])
 
     def _interleave_waveforms(self, x1, x2):
-        """
-        Interleaves the waveforms of both channels and adjusts the scaling. 
+        """Interleaves the waveforms of both channels and adjusts the scaling. 
+        
         The data is actually sent as values in the range of +/- (2^15 - 1).
         
         """
@@ -108,5 +113,6 @@ class Waveform(object):
         return interleaved_data
 
     def _round_up(self, n):
+        """Adapt to the allowed granularity of waveforms."""
         m, rest = divmod(n, self._granularity)
         return n if not rest else (m + 1) * self._granularity

@@ -12,16 +12,14 @@ from .base import ZHTKException
 
 
 class AWGCore:
-    """
-    Implements an AWG Core representation.
+    """Implements an AWG Core representation.
 
-    Attributes:
+    Properties:
         parent (BaseInstrument): reference to the parent instrument
         index (int): integer specifying the index in the parent instrument
         waveforms (list): list of waveforms that represent the queued up waves
         program (SequenceProgram): a sequence program object used to program 
             certain seqC sequences onto the device
-    
 
     """
 
@@ -64,14 +62,22 @@ class AWGCore:
         return s
 
     def run(self):
+        """Runs the AWG Core."""
         self._parent._set(f"/awgs/{self._index}/enable", 1)
         # print(f"Started AWG {self.name}!")
 
     def stop(self):
+        """Stops the AWG Core."""
         self._parent._set(f"/awgs/{self._index}/enable", 0)
         # print(f"Stopped AWG {self.name}!")
 
     def wait_done(self, timeout=10):
+        """Waits until the AWG Core is finished.
+        
+        Keyword Arguments:
+            timeout (int): max. waiting time in seconds for the AWG (default: 10)
+
+        """
         tok = time.time()
         while self.is_running:
             tik = time.time()
@@ -81,6 +87,14 @@ class AWGCore:
         return
 
     def compile(self):
+        """Compiles the current SequenceC program on the AWG Core.
+        
+        Raises:
+            ZHTKException: If the AWG Core is not set up.
+            ZHTKException: If the compilation failed.
+            Warning: If the compilation finishes with a warning.
+
+        """
         if self._module is None:
             raise ZHTKException("This AWG is not connected to a awgModule!")
         self._module.update(device=self._parent.serial)
@@ -93,7 +107,7 @@ class AWGCore:
         while self._module.get_int("compiler/status") == -1:
             time.sleep(0.1)
         if self._module.get_int("compiler/status") == 1:
-            raise Exception(
+            raise ZHTKException(
                 "Upload failed: \n" + self._module.get_string("compiler/statusstring")
             )
         if self._module.get_int("compiler/status") == 2:
@@ -106,9 +120,24 @@ class AWGCore:
         self._wait_upload_done()
 
     def reset_queue(self):
+        """Resets the waveform queue."""
         self._waveforms = []
 
     def queue_waveform(self, wave1, wave2, delay=0):
+        """Adds a new waveform to the queue. 
+        
+        Arguments:
+            wave1 (array): Waveform to be queued for Channel 1
+            wave2 (array): Waveform to be queued for Channel 2
+        
+        Keyword Arguments:
+            delay (int): An individual delay in seconds for this waveform w.r.t. 
+                the time origin of the sequence. (default: 0)
+        
+        Raises:
+            Exception: If the sequence is not of type 'Simple'.
+
+        """
         if self._program.sequence_type != SequenceType.SIMPLE:
             raise Exception(
                 "Waveform upload only possible for 'Simple' sequence program!"
@@ -117,11 +146,32 @@ class AWGCore:
         print(f"Current length of queue: {len(self._waveforms)}")
 
     def replace_waveform(self, wave1, wave2, i=0, delay=0):
+        """Replaces a waveform in the queue at a given index.
+        
+        Arguments:
+            wave1 (array): Waveform to replace current wave for Channel 1
+            wave2 (array): Waveform to replace current wave for Channel 2
+        
+        Keyword Arguments:
+            index (int): The index of the waveform in the queue to be replaced.
+            delay (int): An individual delay in seconds for this waveform w.r.t. 
+                the time origin of the sequence. (default: 0)
+        
+        Raises:
+            ZHTKException: If the given index is out of range.
+
+        """
         if i not in range(len(self._waveforms)):
-            raise Exception("Index out of range!")
+            raise ZHTKException("Index out of range!")
         self._waveforms[i].replace_data(wave1, wave2, delay=delay)
 
     def upload_waveforms(self):
+        """Uploads all waveforms int he queue to the AWG Core.
+
+        This method only works as expected if the Sequence program in 'Simple' 
+        mode has been compiled before.
+        
+        """
         waveform_data = [w.data for w in self._waveforms]
         nodes = [
             f"awgs/{self._index}/waveform/waves/{i}" for i in range(len(waveform_data))
@@ -132,6 +182,12 @@ class AWGCore:
         print(f"Upload of {len(waveform_data)} waveforms took {tik - tok:.5} s")
 
     def compile_and_upload_waveforms(self):
+        """Compiles the Sequence Program and uploads the queued waveforms.
+
+        Simply combines the two methods to make sure the sequence is compiled 
+        before the waveform queue is uplaoded.
+        
+        """
         self.compile()
         self.upload_waveforms()
 
@@ -152,6 +208,18 @@ class AWGCore:
         )
 
     def set_sequence_params(self, **kwargs):
+        """Sets the parameters of the Sequence Program.
+
+        Passes all the keyword arguments to the `set_param(...)` method of the 
+        Sequence Program. The available sequence parameters may vary between 
+        different sequences. For a list of all current sequence parameters see 
+        the property `sequence_params`. 
+
+        They include:
+            'sequence_type', 'period', 'repetitions', 'trigger_mode', 
+            'trigger_delay', etc.
+              
+        """
         self._program.set_params(**kwargs)
         self._apply_sequence_settings(**kwargs)
 

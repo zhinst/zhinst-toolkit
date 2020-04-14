@@ -14,21 +14,29 @@ from zhinst.toolkit.helpers import SequenceType, TriggerMode
 
 
 class HDAWG(BaseInstrument):
-    """
-    High-level controller for HDAWG. Inherits from BaseInstrument and defines 
-    device specific methods. The property awg_connection accesses the 
-    connection's awg module and is used in the AWG core as 
-    awg._parent._awg_module. 
+    """High-level driver for Zurich Instruments HDAWG. 
+    
+    Inherits from BaseInstrument and defines device specific methods and 
+    properties. The four AWG Cores of the HDAWG can be accessed through the 
+    property `awgs` that is a list of four AWGs that are specific for the device 
+    and inherit from the `AWGCore` class.
 
-    The device has four awg cores that can be used as
+    Typical Usage:
+        >>>import zhinst.toolkit as tk
+        >>>hd = tk.HDAWG("hd", "dev2916")
+        >>>hd.setup()
+        >>>hd.connect_device() 
+        >>>hd.awgs[0].run()
+        >>>hd.nodetree
+        >>>...
 
-        import zhinst.toolkit as tk
-        hd = tk.HDAWG("hd", "dev2916")
-        hd.setup()
-        hd.connect_device()
-        
-        hd.awgs[0].run()
-        ...
+    Arguments:
+        name (str): Identifier for the HDAWG.
+        serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
+            number can be found on the back panel of the instrument.
+
+    Properties:
+        awgs (list): list of four AWGs
 
     """
 
@@ -37,10 +45,19 @@ class HDAWG(BaseInstrument):
         self._awgs = [AWG(self, i) for i in range(4)]
 
     def connect_device(self, nodetree=True):
+        """Connects the device to the data server and initializes the AWGs.
+        
+        Keyword Arguments:
+            nodetree (bool): flag that specifies if all the parameters from the 
+                device's nodetree should be added to the object's attributes as 
+                `zhinst-toolkit` Parameters. (default: True)
+        
+        """
         super().connect_device(nodetree=nodetree)
         [awg._setup() for awg in self.awgs]
 
     def _init_settings(self):
+        """Sets initial device settings on startup."""
         settings = [
             ("/system/clocks/referenceclock/source", 1),
             ("awgs/*/single", 1),
@@ -58,18 +75,31 @@ class HDAWG(BaseInstrument):
 
 
 class AWG(AWGCore):
-    """
-    Device-specific AWG for HDAWG with properties like ouput, modulation frequency or gains and 
-    sequence specific settings for the HDAWG. Inherits from AWGCore.
+    """Device-specific AWG Core for HDAWG.
+    
+    This class inherits from the base `AWGCore` and add `zhinst-toolkit` 
+    parameters such as ouput, modulation frequency or gains. It also applies 
+    sequence specific settings for the HDAWG depending on the type of Sequence 
+    Program on the AWG Core.
 
-    Prameters:
-        output1
-        output2
-        outputs
-        modulation_freq
-        modulation_phase_shift
-        gain1
-        gain2
+    Typical Usage:
+        >>>hdawg.awgs[0].ouput1("on")
+        >>>hdawg.awgs[0].enable_iq_modulation()
+        >>>hdawg.awgs[0].modulation_freq()
+        >>>Output: 10000.00
+        >>>...
+
+    Parameters:
+        output1 (str): state of the output 1, i.e. one of {'on', 'off'}
+        output2 (str): state of the output 2, i.e. one of {'on', 'off'}
+        modulation_freq (float): frequency of the modulation in Hz if IQ 
+            modulation enabled 
+        modulation_phase_shift (float): phase shift in degrees between I and Q signals if IQ 
+            modulation is enabled(default: 90)
+        gain1 (flaot): gain of the output channel 1 if IQ modulation is 
+            enabled, must be between -1 and +1 (default: +1)
+        gain2 (flaot): gain of the output channel 2 if IQ modulation is 
+            enabled, must be between -1 and +1 (default: +1)
 
     """
 
@@ -153,6 +183,17 @@ class AWG(AWGCore):
         )
 
     def outputs(self, value=None):
+        """Sets both signal outputs simultaneously.
+        
+        Keyword Arguments:
+            value (tuple): Tuple of values {'on', 'off'} for channel 1 and 2 
+                (default: {None})
+        
+        Returns:
+            The state {'on', 'off'} for both outputs if the keyword argument is 
+            not given.
+        
+        """
         if value is None:
             return self.output1(), self.output2()
         else:
@@ -167,6 +208,15 @@ class AWG(AWGCore):
                 raise ZHTKException("The value must be a tuple or list of length 2!")
 
     def enable_iq_modulation(self):
+        """Enables IQ Modulation by on the AWG Core.
+        
+        This method applies the corresponding settings for IQ modulation using 
+        one of the internal oscillators and two sine generators. The sines are 
+        used to modulate the AWG output channels. The parameters 
+        `modulation_freq`, `modulation_phase_shift` and `gain1`, `gain2` 
+        correspond to the settings of the oscillator and the sine generators. 
+        
+        """
         self._iq_modulation = True
         i = self._index
         settings = [
@@ -181,6 +231,11 @@ class AWG(AWGCore):
         self._parent._set("system/awg/oscillatorcontrol", 1)
 
     def disable_iq_modulation(self):
+        """Disables IQ modulation on the AWG Core.
+
+        Resets the settings of the sine generators and the AWG modulation.
+
+        """
         self._iq_modulation = False
         i = self._index
         settings = [

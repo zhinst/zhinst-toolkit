@@ -36,6 +36,19 @@ MAPPINGS = {
 
 
 class DAQModule:
+    """Implements a base Data Acquisition Module for Lock-In instruments. 
+    
+    This base class is overwritten by device specific DAQ classes with 
+    additional signal sources and types. After setup, the nodetree of the module 
+    is retrieved from the API and added to the Sweeper object attributes as 
+    zhinst-toolkit Parameters.
+
+    Properties:
+        signals (list)
+        results (list)
+    
+    """
+
     def __init__(self, parent, clk_rate=60e6):
         self._parent = parent
         self._module = None
@@ -102,6 +115,18 @@ class DAQModule:
         self._set("bandwidth", 0)
 
     def trigger_list(self, source=None):
+        """Returns a list of all the available signal sources for triggering.
+        
+        Keyword Arguments:
+            source (str): specifies the signal source to return signal types 
+                (default: None) 
+            
+        Returns:
+            Returns all available trigger sources by default. If the keyword is 
+            specified with one of the trigger sources, all the available trigger 
+            types for the trigger source are returned.
+        
+        """
         sources = list(self._trigger_signals.keys())
         if source is None:
             return sources
@@ -113,11 +138,29 @@ class DAQModule:
                 return sources
 
     def trigger(self, trigger_source, trigger_type):
+        """Sets the trigger signal by specifying the signal source and type.
+        
+        The trigger node can also be set directly using the module Parameter 
+        'triggernode'.
+        
+        """
         trigger_node = self._parse_trigger(trigger_source, trigger_type)
         self._set("/triggernode", trigger_node)
         print(f"set trigger node to '{trigger_node}'")
 
     def signals_list(self, source=None):
+        """Returns a list of all the available signal sources for data acquisition.
+        
+        Keyword Arguments:
+            source (str): specifies the signal source to return signal types 
+                (default: None) 
+            
+        Returns:
+            Returns all available signal sources by default. If the keyword is 
+            specified with one of the signal sources, all the available signal 
+            types for the signal source are returned.
+        
+        """
         sources = list(self._signal_sources.keys())
         if source is None:
             return sources
@@ -136,6 +179,29 @@ class DAQModule:
         fft=False,
         complex_selector="abs",
     ):
+        """Add a signal to the signals list to be subscribed to during measurement.
+        
+        Arguments:
+            signal_source (str): source of the signal, e.g. 'demod1'
+        
+        Keyword Arguments:
+            signal_type (str): type of the signal, depends on the source, e.g. 
+                'X', 'Y', 'R', 'Theta' ... (default: "")
+            operation (str): operation performed on the acquired signal, e.g. 
+                averaging ('avg'), standard deviation ('std') or single points 
+                ('replace') (default: "avg")
+            fft (bool): flag to enable the fourier transform of the signal 
+                (default: False)
+            complex_selector (str):  if the FFT is enabled, this selects the 
+                complex value of the result, e.g. 'abs', 'phase', 'real', 'imag' 
+                (default: "abs")
+        
+        Returns:
+            A string with the exact node that will be subscribed to. Can be used 
+            as a key in the 'results' dict to retrieve the measurement result 
+            corresponding to this signal 
+        
+        """
         signal_node = self._parse_signals(
             signal_source, signal_type, operation, fft, complex_selector
         )
@@ -144,9 +210,18 @@ class DAQModule:
         return signal_node
 
     def signals_clear(self):
+        """Resets the signals list."""
         self._signals = []
 
     def measure(self, verbose=True, timeout=20):
+        """Performs the measurement.
+        
+        Keyword Arguments:
+            verbose (bool): flag to enable output (default: True)
+            timeout (int): measurement stopped after timeout, in seconds 
+                (default: 20)
+        
+        """
         self._set("endless", 0)
         self._set("clearhistory", 1)
         for path in self.signals:
@@ -268,6 +343,17 @@ class DAQModule:
 
 
 class DAQResult:
+    """A wrapper class around the result if a DAQ module measurement.
+    
+    Properties:
+        value (array)
+        header (dict)
+        time (array)
+        frequency (array)
+        shape (tuple)
+
+    """
+
     def __init__(self, path, result_dict, clk_rate=60e6):
         self._path = path
         self._clk_rate = clk_rate

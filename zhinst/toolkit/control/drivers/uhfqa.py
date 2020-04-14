@@ -26,14 +26,35 @@ MAPPINGS = {
 
 
 class UHFQA(BaseInstrument):
-    """
-    High-level controller for UHFQA. Inherits from BaseInstrument and defines 
-    UHFQA specific methods. The property awg_connection accesses the 
-    connection's awg module and is used in the AWG core as 
-    awg._parent._awg_module
+    """High-level driver for the Zurich Instruments UHFQA. 
+    
+    Inherits from BaseInstrument and adds an AWG Module and a list of 
+    Readout Channels. They can be accessed as properties of the UHFQA.
 
-    The UHFQA has one awg core and ten ReadoutChannels that can  be accessed as 
-    properties of the object.
+    Typical Usage:
+        >>>import zhinst.toolkit as tk
+        >>>uhfqa = tk.UHFQA("uhfqa", "dev1111")
+        >>>uhfqa.setup()
+        >>>uhfqa.connect_device()
+        >>>uhfqa.nodetree
+        >>>...
+
+    Arguments:
+        name (str): Identifier for the UHFQA.
+        serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
+            number can be found on the back panel of the instrument.
+
+    Parameters:
+        integration_time (float): time in seconds used for signal integration, 
+            must be positive, when using weighted integration, the maximum 
+            value is ca. 2.275 us (default: 2.0 us)
+        result_source (str): selects the source of the QA results, must be one 
+            of {"Crosstalk", "Threshold", "Rotation", "Crosstalk Correlation", 
+            "Threshold Correlation", "Integration"} 
+    
+    Properties:
+        awg (AWG)
+        channels (list): list of ten `ReadoutChannel`s
 
     """
 
@@ -80,10 +101,28 @@ class UHFQA(BaseInstrument):
         )
 
     def connect_device(self, nodetree=True):
+        """Connects the device to the data server and initializes the AWG.
+        
+        Keyword Arguments:
+            nodetree (bool): flag that specifies if all the parameters from the 
+                device's nodetree should be added to the object's attributes as 
+                `zhinst-toolkit` Parameters. (default: True)
+        
+        """
         super().connect_device(nodetree=nodetree)
         self.awg._setup()
 
     def crosstalk_matrix(self, matrix=None):
+        """Sets or gets the crosstalk matrix of the UHFQA as a 2D array.
+        
+        Keyword Arguments:
+            matrix (2D array): The 2D crosstalk matrix with max. dimensions 
+                10 x 10. (default: None)
+
+        Returns:
+            The current crosstalk matrix as a 2D array if no argument is given.
+        
+        """
         if matrix is None:
             m = np.zeros((10, 10))
             for r in range(10):
@@ -101,12 +140,26 @@ class UHFQA(BaseInstrument):
                     self._set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
 
     def enable_readout_channels(self, channels=range(10)):
+        """Enables weighted integration on the specified readout channels.
+        
+        Keyword Arguments:
+            channels (list): List of indices of channels to enable. 
+                (default: range(10))
+        
+        """
         for i in channels:
             if i not in range(10):
                 raise ValueError(f"The channel index {i} is out of range!")
             self.channels[i].enable()
 
     def disable_readout_channels(self, channels=range(10)):
+        """Disables weighted integration on the specified readout channels.
+        
+        Keyword Arguments:
+            channels (list): List of indices of channels to disable. 
+                (default: range(10))
+        
+        """
         for i in channels:
             if i not in range(10):
                 raise ValueError(f"The channel index {i} is out of range!")
@@ -157,9 +210,19 @@ class UHFQA(BaseInstrument):
 
 
 class AWG(AWGCore):
-    """
-    Device-specific AWG for UHFQA with properties like ouput or gains and 
-    sequence specific settings for the UHFQA. Inherits from AWGCore.
+    """Device-specific AWG Core for UHFQA.
+    
+    Inherits from `AWGCore` and adds `zhinst-toolkit` Parameters like ouput 
+    or gains. This class also specifies sequence specific settings for the 
+    UHFQA.
+
+    Parameters:
+        output1 (str): state of the output 1, i.e. one of {'on', 'off'}
+        output2 (str): state of the output 2, i.e. one of {'on', 'off'}
+        gain1 (flaot): gain of the output channel 1, must be between -1 and +1 
+            (default: +1)
+        gain2 (flaot): gain of the output channel 2 , must be between -1 and +1 
+            (default: +1)
 
     """
 
@@ -292,6 +355,17 @@ class AWG(AWGCore):
         self._parent._set(settings)
 
     def outputs(self, value=None):
+        """Sets both signal outputs simultaneously.
+        
+        Keyword Arguments:
+            value (tuple): Tuple of values {'on', 'off'} for channel 1 and 2 
+                (default: {None})
+        
+        Returns:
+            The state {'on', 'off'} for both outputs if the keyword argument is 
+            not given.
+        
+        """
         if value is None:
             return self.output1(), self.output2()
         else:
@@ -305,6 +379,7 @@ class AWG(AWGCore):
                 raise ZHTKException("The value must be a tuple or list of length 2!")
 
     def update_readout_params(self):
+        """Updates the sequence parameters for 'Simple' sequence with values from the readout channels."""
         if self.sequence_params["sequence_type"] == SequenceType.READOUT:
             freqs = []
             amps = []
@@ -321,28 +396,32 @@ class AWG(AWGCore):
             raise ZHTKException("AWG Sequence type needs to be 'Readout'")
 
     def compile(self):
+        """Wraps the 'compile(...)' method of the parent class `AWGCore`."""
+        if self.sequence_params["sequence_type"] == "Readout":
         if self.sequence_params["sequence_type"] == SequenceType.READOUT:
             self.update_readout_params()
         super().compile()
 
 
-"""
-Implements a Readout Channel for UHFQA. 
-
-Parameters:
-    rotation
-    threshold
-    result
-    index
-    enabled
-    readout_frequency
-    readout_amplitude
-    phase_shift
-
-"""
-
-
 class ReadoutChannel:
+    """Implements a Readout Channel for UHFQA. 
+
+    Parameters:
+        rotation (deg): rotation of the signal in IQ plane in degrees
+        threshold (float): signal threshold for state discrimination
+        result (array): read only Parameter witht the result vector for the channel
+        readout_frequency (float): readout frequency in Hz of the readout 
+            channel, this value is used for signal generation and for digital 
+            demodulation, must be positive
+        readout_amplitude (float): amplitude of the readout pulse (default: 1.0)
+        phase_shift (float): additional phase shift in the signal generation 
+            between I and Q quadtratures (default: 0)
+
+    Properties:
+        index (int)
+
+    """
+
     def __init__(self, parent, index):
         if index not in range(10):
             raise ValueError(f"The channel index {index} is out of range!")
@@ -394,19 +473,23 @@ class ReadoutChannel:
         return self._index
 
     def enabled(self):
+        """Returns if weighted integration is enabled."""
         return self._enabled
 
     def enable(self):
+        """Enables weighted integration for this channel."""
         self._enabled = True
         self._parent._set("qas/0/integration/mode", 0)
         self._parent.integration_time(2e-6)
         self._set_int_weights()
 
     def disable(self):
+        """Disables weighted integration for this channel."""
         self._enabled = False
         self._reset_int_weights()
 
     def readout_frequency(self, freq=None):
+        """Sets or gets the readout frequency for this channel."""
         if freq is None:
             return self._readout_frequency
         else:
@@ -416,6 +499,7 @@ class ReadoutChannel:
             return self._readout_frequency
 
     def readout_amplitude(self, amp=None):
+        """Sets or gets the readout amplitude for this channel."""
         if amp is None:
             return self._readout_amplitude
         else:
@@ -424,6 +508,7 @@ class ReadoutChannel:
             return self._readout_amplitude
 
     def phase_shift(self, ph=None):
+        """Sets or gets the readout phase shift for this channel."""
         if ph is None:
             return self._phase_shift
         else:

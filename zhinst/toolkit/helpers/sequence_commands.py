@@ -8,6 +8,8 @@ import numpy as np
 
 
 class SequenceCommand(object):
+    """A collection of sequence commands used for an AWG program."""
+
     @staticmethod
     def header_comment(sequence_type="None"):
         now = datetime.now()

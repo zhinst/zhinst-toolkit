@@ -14,17 +14,46 @@ from zhinst.toolkit.control.drivers.base import (
 from zhinst.toolkit.interface import DeviceTypes
 
 
-"""
-High-level controller for MFLI.
-
-"""
-
-
 class MFLI(BaseInstrument):
+    """High-level driver for the Zurich Instruments MFLI. 
+    
+    Inherits from BaseInstrument and adds a Data Acquisition Module and a 
+    Sweeper Module. They can be accessed as properties of the MFLI.
+
+    Typical Usage:
+        >>>import zhinst.toolkit as tk
+        >>>mfli = tk.MFLI("mfli", "dev1234")
+        >>>mfli.setup()
+        >>>mfli.connect_device()
+        >>>mfli.nodetree
+        >>>...
+
+    Arguments:
+        name (str): Identifier for the MFLI.
+        serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
+            number can be found on the back panel of the instrument.
+
+    Properties:
+        daq (DAQModule)
+        sweeper (SweeperModule)
+
+    """
+
     def __init__(self, name, serial, **kwargs):
         super().__init__(name, DeviceTypes.MFLI, serial, **kwargs)
 
     def connect_device(self, nodetree=True):
+        """Establishes the device connection.
+        
+        Connects the device to the data server and initializes the DAQModule and 
+        SweeperModule.
+
+        Keyword Arguments:
+            nodetree (bool): A flag that specifies if all the parameters from 
+                the nodetree should be added to the object's attributes as 
+                `zhinst-toolkit` Parameters. (default: True)
+
+        """
         super().connect_device(nodetree=nodetree)
         self._get_streamingnodes()
         self._daq_module = DAQModule(self)
@@ -45,13 +74,20 @@ class MFLI(BaseInstrument):
 
 
 class DAQModule(DAQ):
-    """
+    """Device-specific Data Acquisition Module for the MFLI.
+    
     Subclasses the DAQ module with parameters that are specific to the MFLI.
     On top of the attributes of the DAQ class, this class defines the 
     `trigger_signals` and `trigger_types` that are used in the 
     `daq.trigger(...)` and `daq.trigger_list()` method. The user is always free 
-    to set the parameter `daq.triggernode(..)` directly, however, only some 
+    to set the parameter `daq.triggernode(..)` directly, however, not all 
     signals can be used as triggers.
+
+    Typical Usage:
+        >>>signal = mfli.daq.signals_add("demod1", "r")
+        >>>mfli.daq.measure()
+        >>>...
+        >>>result = mfli.daq.results[signal]
     
     """
 
@@ -82,13 +118,22 @@ class DAQModule(DAQ):
 
 
 class SweeperModule(Sweeper):
-    """
+    """Device-specific Sweeper Module for the MFLI.
+
     Subclasses the Sweeper module with parameters that are specific to the MFLI.
-    We define a dictionary of `sweep_params` here which is used for the 
-    `sweeper.sweep_parameter(...)` and `sweeper.sweep_parameter_list()` methods, 
-    which are guidelines to the user. The parameter to sweep can also be set 
-    directly with the `sweeper.gridnode(...)` method, however only some nodes 
-    support sweeping. 
+    This class defines a dictionary of `sweep_params` which is used for the 
+    `sweeper.sweep_parameter(...)` and `sweeper.sweep_parameter_list()` methods. 
+    Thos methods and the identifiers (keys in the dict) are mostly guidelines to 
+    the user. The parameter to sweep can also be set directly with the 
+    `sweeper.gridnode(...)` parameter, however, not all nodes support 
+    sweeping. 
+
+    Typical Usage:
+        >>>signal = mfli.sweeper.signals_add("demod1")
+        >>>mfli.sweeper.sweep_parameter("frequency")
+        >>>mfli.sweeper.measure()
+        >>>...
+        >>>result = mfli.sweeper.results[signal]
     
     """
 

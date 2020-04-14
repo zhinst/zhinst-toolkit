@@ -15,43 +15,43 @@ class ZHTKException(Exception):
 
 
 class BaseInstrument:
-    """
-    High-level controller common for all Zurich Instrument devices. Can be used 
-    by itself or inherited for device specific controllers. Provides information 
-    and functionality common to all devices, such as a name, an instrument 
-    configuration (serial, interface, device type, ...).
+    """High-level controller for all Zurich Instrument devices. 
+    
+    Can be used by itself or inherited for device specific controllers. Provides 
+    information and functionality common to all devices, such as a name, an 
+    instrument configuration (serial, interface, device type, ...).
 
     The instrument holds a DeviceConnection which handles all the communication 
     with the data server. It also initialize a Nodetree that is used to access 
     all the settings in the device's nodetree.
 
-    Typical usage:
-    
-        import zhinst.toolkit as tk
+    Typical Usage:
+        >>>import zhinst.toolkit as tk
+        >>>inst = tk.BaseInstrument("myDevice", "hdawg", "dev9999", interface="usb")
+        >>>inst.setup()
+        >>>inst.connect_device()
+        >>>inst.nodetree.sigouts[0].on(1)
+        >>>...
 
-        inst = tk.BaseInstrument("myDevice", "hdawg", "dev9999", interface="usb")
-        inst.setup()
-        inst.connect_device()
-
-        inst.nodetree.sigouts[0].on(1)
-        ...
-
-    Args:
-        name: Identifier for the instrument.
-        device_type: Type of the device, i.e. must be in 
+    Arguments:
+        name (str): Identifier for the instrument.
+        device_type (DeviceType): Type of the device, i.e. must be in 
             {hdawg, uhfqa, uhfli, mfli, pqsc}
-        serial: Serial number of the device, e.g. 'dev2281'. The serial number 
-            can typically be found on the back panel.
+        serial (str): Serial number of the device, e.g. 'dev2281'. The serial 
+            number can be found on instrument back panel.
 
-    Attributes:
+    Properties:
         nodetree (Nodetree): Nodetree object that contains the nodetree hirarchy 
             of the device settings. The leaves of the tree are parameters that can 
             be called to get and set the values.
-        name (str)
-        device_type (str)
-        serial (str)
-        interface (str)
-        is_connected (bool)
+        name (str): Identifier for the instrument.
+        device_type (str): Type of the device. 
+        serial (str): Serial number of the device.
+        interface (str): Type of the device interface used, can be specified as 
+            a keyword argument to `__init__()`.
+        is_connected (bool): A flag that shows if the device has established a 
+            connection to the data server.
+
     """
 
     def __init__(self, name: str, device_type: DeviceTypes, serial: str, **kwargs):
@@ -67,26 +67,29 @@ class BaseInstrument:
         self._nodetree = None
 
     def setup(self, connection: ZIConnection = None):
-        """
-        Sets up the data server connection. The details of the connection 
-        (host, port, api_level) can be specified as keyword arguments in the 
-        __init__() method.
-        Alternatively the user can pass an existing ZIConnection to the data 
-        server to be used for the instrument.
+        """Sets up the data server connection. 
         
-        Args:
+        The details of the connection (host, port, api_level) can be specified 
+        as keyword arguments in the __init__() method. Alternatively the user 
+        can pass an existing ZIConnection to the data server to be used for the 
+        instrument.
+        
+        Arguments:
             connection (ZIConnection): defaults to None
+
         """
         self._controller.setup(connection=connection)
 
     def connect_device(self, nodetree=True):
-        """
-        Connects the device to the data server, initializes the nodetree and 
-        performs initial device settings.
+        """Connects the device to the data server. 
         
-        Args:
+        This method connects the device to the data server of its connection, 
+        initializes the nodetree and performs initial device settings.
+        
+        Arguments:
             nodetree (bool): If True the nodetree object will be initialized 
                 after connecting the device, otherwise not. Defaults to True.
+
         """
         self._check_connected()
         self._controller.connect_device()
@@ -96,44 +99,76 @@ class BaseInstrument:
         self._init_settings()
 
     def _init_settings(self):
-        """
-        Initial device settings. Should be overridden by any instrument that 
+        """Initial device settings. 
+        
+        Can be overridden by any instrument that 
         inherits from the BaseInstrument.
+        
         """
         pass
 
     def _set(self, *args):
-        """
-        Setter for the instrument. Passes the arguments to the setter of the 
-        DeviceConnection and the ZIConnection. Eventually wraps around 
-        daq.set(...) in zhinst.ziPython.
+        """Setter for the instrument. 
+        
+        Passes the arguments to the setter of the DeviceConnection and the 
+        ZIConnection. Eventually wraps around `daq.set(...)` in zhinst.ziPython.
 
-        Raises ZHTKException if called and the device in not yet connected to 
-        the data server.
+        Raises:
+            ZHTKException if called and the device in not yet connected to 
+            the data server.
+
+        Returns: 
+            The value set on the device as returned from the API's `set(...)` 
+            method.
+
         """
         self._check_connected()
         return self._controller.set(*args)
 
     def _get(self, command, valueonly=True):
-        """
-        Getter for the instrument. Passes the arguments to the getter of the 
-        DeviceConnection and the ZIConnection. Eventually wraps around 
-        daq.get(...) in zhinst.ziPython.
+        """Getter for the instrument. 
         
-        Raises ZHTKException if called and the device in not yet connected to 
-        the data server.
+        Passes the arguments to the getter of the DeviceConnection and the 
+        ZIConnection. Eventually wraps around `daq.get(...)` in zhinst.ziPython.
+
+        Arguments:
+            command (str): node string to the parameter
+
+        Keyword Arguments:
+            valueonly (bool): flag to select if only the value should be 
+                returned or a dict with node/value pairs (default: True)
+        
+        Raises:
+            ZHTKException if called and the device in not yet connected to 
+            the data server.
+
+        Returns:
+            The value of the parameter corresponding to the specified node. 
+            If `valueonly=False` the value is returned in a dict with the node 
+            as a key.
+        
         """
         self._check_connected()
         return self._controller.get(command, valueonly=valueonly)
 
     def _get_nodetree(self, prefix, **kwargs):
-        """
-        Gets the entire nodetree from the instrument as a dictionary. Passes the 
-        arguments to the DeviceConnection and the ZIConnection. Eventually wraps 
-        around daq.listNodesJSON(...) in zhinst.ziPython.
+        """Gets the entire nodetree from the instrument as a dictionary. 
         
-        Raises ZHTKException if called and the device in not yet connected to 
-        the data server.
+        Passes the arguments to the DeviceConnection and the ZIConnection. 
+        Eventually wraps around `daq.listNodesJSON(...)` in zhinst.ziPython.
+        
+        Arguments:
+            prefix (str): string that is passed to `listNodesJSON(...)` to 
+                specify subtree
+
+        Raises: 
+            ZHTKException if called and the device in not yet connected to 
+            the data server.
+
+        Returns:
+            The dictionary that is returned from the API's `listNodesJSON(...)` 
+            method.
+        
         """
         self._check_connected()
         return self._controller.get_nodetree(prefix, **kwargs)
@@ -153,9 +188,11 @@ class BaseInstrument:
         return streaming_nodes
 
     def _check_connected(self):
-        """
-        Check if the device is connected to the data server, otherwise raises 
-        a ZHTKException.
+        """Check if the device is connected to the data server
+        
+        Raises:
+            ZHTKException if the device is not connected to a data server.
+            
         """
         if not self.is_connected:
             raise ZHTKException(

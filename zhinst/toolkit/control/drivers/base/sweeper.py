@@ -82,6 +82,19 @@ APPLICATIONS = {
 
 
 class SweeperModule:
+    """Implements a base Sweeper Module for Lock-In instruments. 
+    
+    This base class is overwritten by device specific Sweeper classes with 
+    additional signal sources and types. After setup, the nodetree of the module 
+    is retrieved from the API and added to the Sweeper object attributes as 
+    zhinst-toolkit Parameters.
+
+    Properties:
+        signals (list): list of node strings of signals added to the measurement
+        results (dict): dict of SweeperResults with signals as keys 
+    
+    """
+
     def __init__(self, parent, clk_rate=60e6):
         self._parent = parent
         self._module = None
@@ -114,6 +127,22 @@ class SweeperModule:
         return list(data.values())[0][0] if valueonly else data
 
     def signals_add(self, signal_source):
+        """Adds a signal to the measurement.
+        
+        The according signal node path will be generated and added to the 
+        module's signal list. The signal node will be subscribed to before 
+        measurement. Available signal sources can be listed using 
+        `signals_list()`.
+        
+        Arguments:
+            signal_source (str): specifies the source of the signal, e.g. 
+                "demod1"
+        
+        Returns:
+            The exact node string that will be subscribed to, can be used as a 
+            key in the results dict to get the measurement result to this signal.
+
+        """
         signal_node = "/" + self._parent.serial
         signal_node += self._parse_signals(signal_source)
         if signal_node not in self.signals:
@@ -121,20 +150,49 @@ class SweeperModule:
         return signal_node
 
     def signals_clear(self):
+        """Resets the signal list."""
         self._signals = []
 
     def signals_list(self):
+        """Lists the available signals that can be added to the measurement.
+        
+        Returns:
+            (list) a list of the available signals
+
+        """
         return list(self._signal_sources.keys())
 
     def sweep_parameter_list(self):
+        """Lists the available parameters that can be swept during the measurement.
+        
+        Returns:
+            (list) a list of the available available sweep parameters
+
+        """
         return list(self._sweep_params.keys())
 
     def sweep_parameter(self, param):
+        """Sets the sweep parameter. 
+        
+        The available parameters can be listed with `sweep_parameter_list()`.
+        
+        Arguments:
+            param (str)
+
+        """
         node = self._parse_sweep_param(param)
         self._set("/gridnode", node)
         print(f"set sweep parameter to '{param}': '{node}'")
 
     def measure(self, verbose=True, timeout=20):
+        """Performs the measurement.
+        
+        Keyword Arguments:
+            verbose (bool): flag to enable output (default: True)
+            timeout (int): measurement stopped after timeout, in seconds 
+                (default: 20)
+     
+        """
         self._set("endless", 0)
         self._set("clearhistory", 1)
         for path in self.signals:
@@ -161,9 +219,23 @@ class SweeperModule:
         return self._get_result_from_dict(result)
 
     def application_list(self):
+        """Lists the availbale application presets.
+        
+        Returns:
+            A list of strings with the available applications.
+        
+        """
         return list(APPLICATIONS.keys())
 
     def application(self, application):
+        """Sets one of the available application rpesets. 
+        
+        The applications are defined in the global variable APPLICATIONS.
+        
+        Arguments:
+            application (str)
+        
+        """
         if application not in APPLICATIONS.keys():
             raise ZHTKException(
                 f"Application must be one of {list(APPLICATIONS.keys())}."
@@ -244,6 +316,13 @@ class SweeperModule:
 
 
 class SweeperResult:
+    """A wrapper class around the result of a Sweeper module measurement. Adds all 
+    
+    the items of the dictionary returned from the API as attributes of the 
+    class, e.g. value, grid etc.
+
+    """
+
     def __init__(self, path, result_dict):
         self._path = path
         self._result_dict = result_dict

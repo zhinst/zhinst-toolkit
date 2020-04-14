@@ -14,14 +14,20 @@ from zhinst.toolkit.control.drivers.base import ZHTKException
 
 
 class MultiDeviceConnection:
-    """
+    """A data server connection shared by multiple device.
+    
     A container for devices that ensures a single instrument connection 
-    (Data Server) is shared between multiple devices. The MultiDeviceConnection 
-    holds dictionaries of different device types. The devices are identified by 
-    the name they are given.
-    The MultiDeviceConnection connects to a Data Server 'with mdc.setup()' and 
-    individual devices are added with 'mdc.connect_device()'.
+    (Data Server) is shared between multiple devices. The 
+    `MultiDeviceConnection` holds dictionaries of different device types. The 
+    devices are identified by the name they are given. The MultiDeviceConnection 
+    connects to a Data Server with `mdc.setup()` and individual devices are 
+    added with `mdc.connect_device()`.
 
+    Keyword Arguments:
+        host (str): the host of the data server (default: 'localhost')
+        port (int): the port for the data server (default: 8004)
+        api (int): the API level for the data server (default: 6)
+    
     Properties:
         hdawgs (dict): dict of HDAWGs
         uhfqas (dict): dict of UHFQAs
@@ -34,22 +40,13 @@ class MultiDeviceConnection:
     
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self._shared_connection = None
         self._hdawgs = {}
         self._uhfqas = {}
         self._uhflis = {}
         self._mflis = {}
         self._pqsc = None
-        """
-        Establishes a connection to the Data Server. The connection details can 
-        be specified as keyword arguments, they default to:
-        
-        host = "localhost"
-        port = "8004"
-        api = 6
-
-        """
         config = InstrumentConfiguration()
         config.api_config.host = kwargs.get("host", "localhost")
         config.api_config.port = kwargs.get("port", 8004)
@@ -62,8 +59,9 @@ class MultiDeviceConnection:
         self._shared_connection.connect()
 
     def connect_device(self, device):
-        """
-        Adds a device to the MultiDeviceConnection and connects the device to 
+        """Connects a device to the `MultiDeviceConnection`.
+
+        Adds a device to the `MultiDeviceConnection` and connects the device to 
         the shared Data Server. Depending on the device type, the device is 
         added to respective dictionary and can then be accessed from there.
         
@@ -74,6 +72,7 @@ class MultiDeviceConnection:
         
         Raises:
             ZHTKException: if the device is not recognized
+            
         """
         if isinstance(device, HDAWG):
             self._hdawgs[device.name] = device

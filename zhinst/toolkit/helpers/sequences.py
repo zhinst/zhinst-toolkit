@@ -25,6 +25,27 @@ def amp_smaller_1(self, attribute, value):
 
 @attr.s
 class Sequence(object):
+    """Base class for an AWG sequence.
+    
+    Attributes:
+        target (DeviceType)
+        clock_rate (double)
+        period (double)
+        trigger_mode (str)
+        repetitions (int)
+        alignment (str)
+        n_HW_loop (int)
+        dead_time (double)
+        trigger_delay (double)
+        latency (double)
+        trigger_cmd_1 (str)
+        trigger_cmd_2 (str)
+        wait_cycles (int)
+        dead_cycles (int)
+        reset_phase (bool)
+    
+    """
+
     target = attr.ib(
         default=DeviceTypes.HDAWG,
         validator=attr.validators.in_(
@@ -52,6 +73,7 @@ class Sequence(object):
     reset_phase = attr.ib(default=False)
 
     def set(self, **settings):
+        """Sets attributes, updates related attributes and checks attributes."""
         for key in settings:
             if hasattr(self, key):
                 setattr(self, key, settings[key])
@@ -59,15 +81,18 @@ class Sequence(object):
         self.check_attributes()
 
     def get(self):
+        """Updates and checks attributes, writes and returns the sequence program."""
         self.update_params()
         self.check_attributes()
         self.write_sequence()
         return self.sequence
 
     def write_sequence(self):
+        """To be overridden by children classes."""
         self.sequence = None
 
     def update_params(self):
+        """Update interrelated parameters."""
         if self.trigger_mode == TriggerMode.NONE:
             self.trigger_cmd_1 = SequenceCommand.comment_line()
             self.trigger_cmd_2 = SequenceCommand.comment_line()
@@ -84,12 +109,21 @@ class Sequence(object):
             self.dead_cycles = 0
 
     def time_to_cycles(self, time, wait_time=True):
+        """Helper method to convert time to FPGA clock cycles."""
         if wait_time:
             return int(time * self.clock_rate / 8)
         else:
             return int(time * self.clock_rate)
 
     def get_gauss_params(self, width, truncation):
+        """Calculates the attribute `gauss_params` from width and truncation.
+        
+        Arguments:
+            width (double): width in seconds of the gaussian pulse
+            truncation (double): the gaussian pulse shape will be truncated 
+                at `truncation * width` 
+        
+        """
         gauss_length = (
             self.time_to_cycles(2 * truncation * width, wait_time=False) // 16 * 16
         )
@@ -98,6 +132,7 @@ class Sequence(object):
         self.gauss_params = [gauss_length, gauss_pos, gauss_width]
 
     def check_attributes(self):
+        """Performs sanity checks on the sequence parameters."""
         if (self.period - self.dead_time - self.latency + self.trigger_delay) < 0:
             raise ValueError("Wait time cannot be negative!")
 
@@ -120,6 +155,19 @@ class Sequence(object):
 
 @attr.s
 class SimpleSequence(Sequence):
+    """Sequence for 'simple' playback of waveform arrays.
+
+    Inherits from `Sequence`. Initializes buffers (`randomUniform(...)`) of the 
+    correct length for a number of waveforms and plays them sequenctially.
+    
+    Attributes:
+        buffer_lengths (list): list of integers with the required lengths of the 
+            waveform buffers.
+        delay_times (list): list of delays for each fo the waveforms w.r.t. the 
+            time origin of the sequence 
+    
+    """
+
     buffer_lengths = attr.ib(default=[800], validator=attr.validators.instance_of(list))
     delay_times = attr.ib(default=[0])
 
@@ -192,6 +240,8 @@ class SimpleSequence(Sequence):
 
 @attr.s
 class TriggerSequence(Sequence):
+    """Sequence that only sets the triggers but does not play any waveforms."""
+
     def write_sequence(self):
         self.sequence = SequenceCommand.header_comment(sequence_type="Master Trigger")
         self.sequence += self.trigger_cmd_2
@@ -215,6 +265,17 @@ class TriggerSequence(Sequence):
 
 @attr.s
 class RabiSequence(Sequence):
+    """Predefined Rabi sequence.
+    
+    Attributes:
+        pulse_amplitudes (list): list of pulse amplitudes for each point in the 
+            Rabi sequence
+        pulse_width (double): width of the gaussian pulse in seconds
+        pulse_truncation (double): truncation of the gaussian pulse as 
+            multiples of the width
+
+    """
+
     pulse_amplitudes = attr.ib(default=[1.0], validator=amp_smaller_1)
     pulse_width = attr.ib(default=50e-9, validator=is_positive)
     pulse_truncation = attr.ib(default=3, validator=is_positive)

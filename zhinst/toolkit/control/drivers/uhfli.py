@@ -16,14 +16,29 @@ from zhinst.toolkit.interface import DeviceTypes
 
 
 class UHFLI(BaseInstrument):
-    """
-    High-level controller for UHFLI. Inherits from BaseInstrument and overrides 
-    the _init-settings(...) method. The property awg_connection accesses the 
-    connection's awg module and is used in the AWG core as 
-    awg._parent._awg_module. 
+    """High-level driver for Zurich Instruments UHFLI. 
     
-    Reuses the device specific AWG from the UHFQA. Might want to define a 
-    device-specific AWG for the UHFLI isntead.
+    Inherits from BaseInstrument and adds an a Data Acquisition Module, a 
+    Sweeper Module and a AWG Module (if option installed). The modules can be 
+    accessed as properties of the UHFLI.
+    
+    Typical Usage:
+        >>>import zhinst.toolkit as tk
+        >>>uhfli = tk.UHFLI("uhfli", "dev1111")
+        >>>uhfli.setup()
+        >>>uhfli.connect_device()
+        >>>uhfli.nodetree
+        >>>...
+
+    Arguments:
+        name (str): Identifier for the UHFLI.
+        serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
+            number can be found on the back panel of the instrument.
+
+    Properties:
+        daq (DAQModule)
+        sweeper (SweeperModule)
+        awg (AWG)
 
     """
 
@@ -31,6 +46,17 @@ class UHFLI(BaseInstrument):
         super().__init__(name, DeviceTypes.UHFLI, serial, **kwargs)
 
     def connect_device(self, nodetree=True):
+        """Establishes a device connection.
+
+        Connects the device to a data server and initializes the `DAQModule`, 
+        `SweeperModule` and `AWG` (if option installed).
+        
+        Keyword Arguments:
+            nodetree (bool): flag that specifies if all the parameters from the 
+                device's nodetree should be added to the object's attributes as 
+                `zhinst-toolkit` Parameters. (default: True)
+
+        """
         super().connect_device(nodetree=nodetree)
         self._get_streamingnodes()
         if "AWG" in self._options:
@@ -64,13 +90,20 @@ class UHFLI(BaseInstrument):
 
 
 class DAQModule(DAQ):
-    """
-    Subclasses the DAQ module with parameters that are specific to the UHFLI.
+    """Device-specific Data Acquisition Module for the UHFLI.
+    
+    Subclasses the DAQ module with parameters that are specific to the MFLI.
     On top of the attributes of the DAQ class, this class defines the 
     `trigger_signals` and `trigger_types` that are used in the 
     `daq.trigger(...)` and `daq.trigger_list()` method. The user is always free 
-    to set the parameter `daq.triggernode(..)` directly, however, only some 
+    to set the parameter `daq.triggernode(..)` directly, however, not all 
     signals can be used as triggers.
+
+    Typical Usage:
+        >>>signal = uhfli.daq.signals_add("demod1", "r")
+        >>>uhfli.daq.measure()
+        >>>...
+        >>>result = uhfli.daq.results[signal]
     
     """
 
@@ -114,13 +147,22 @@ class DAQModule(DAQ):
 
 
 class SweeperModule(Sweeper):
-    """
+    """Device-specific Sweeper Module for the UHFLI.
+
     Subclasses the Sweeper module with parameters that are specific to the MFLI.
-    We define a dictionary of `sweep_params` here which is used for the 
-    `sweeper.sweep_parameter(...)` and `sweeper.sweep_parameter_list()` methods, 
-    which are guidelines to the user. The parameter to sweep can also be set 
-    directly with the `sweeper.gridnode(...)` method, however only some nodes 
-    support sweeping. 
+    This class defines a dictionary of `sweep_params` which is used for the 
+    `sweeper.sweep_parameter(...)` and `sweeper.sweep_parameter_list()` methods. 
+    Thos methods and the identifiers (keys in the dict) are mostly guidelines to 
+    the user. The parameter to sweep can also be set directly with the 
+    `sweeper.gridnode(...)` parameter, however, not all nodes support 
+    sweeping. 
+
+    Typical Usage:
+        >>>signal = uhfli.sweeper.signals_add("demod1")
+        >>>uhfli.sweeper.sweep_parameter("frequency")
+        >>>uhfli.sweeper.measure()
+        >>>...
+        >>>result = uhfli.sweeper.results[signal]
     
     """
 
@@ -184,9 +226,9 @@ class SweeperModule(Sweeper):
             "frequency7": "oscs/6/freq",
             "frequency8": "oscs/7/freq",
             "pid1_setpoint": "pids/0/setpoint",
-            "pid1_setpoint": "pids/1/setpoint",
-            "pid1_setpoint": "pids/2/setpoint",
-            "pid1_setpoint": "pids/3/setpoint",
+            "pid2_setpoint": "pids/1/setpoint",
+            "pid3_setpoint": "pids/2/setpoint",
+            "pid4_setpoint": "pids/3/setpoint",
             "output1_amp": "sigouts/0/amplitudes/1",
             "output1_offset": "sigouts/0/offset",
             "output2_amp": "sigouts/1/amplitudes/1",

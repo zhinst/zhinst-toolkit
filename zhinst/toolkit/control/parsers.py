@@ -5,15 +5,12 @@
 
 import numpy as np
 
-"""
-Input and output parsers for Parameters to validate and parse values. 
-
-"""
-
 UHFQA_SAMPLE_RATE = 1.8e9
 
 
 class Parse:
+    """Input and output parsers for Parameters to validate and parse values."""
+
     @staticmethod
     def none(v):
         pass

@@ -20,11 +20,19 @@ from .sequences import (
 
 
 class SequenceProgram(object):
-    """
-    SequenceProgram class that holds information about an AWG sequence.
+    """SequenceProgram class that holds information about an AWG sequence.
+    
     The class holds a Sequence object, depending on the set type of the sequence.
     the get() method returns the generated string for the seqC program that can 
     be downloaded to the AWG.
+
+    Keyword Arguments:
+        sequence_type (str): type of the sequence program, one of {'Simple',
+        'Rabi', 'T1', 'T2', 'Readout', 'Pulsed Spectroscopy', 'CW Spectroscopy', 
+        'Custom', 'Trigger'}
+
+    Properties:
+        sequence_type (str): The type of the current sequence program. 
     
     """
 
@@ -33,13 +41,16 @@ class SequenceProgram(object):
         self._sequence = self.sequence_class(**kwargs)
 
     def get_seqc(self):
-        """
-        Returns the sequence C code for of the current program as a string.
+        """Get the sequence program.
+
+        Returns:
+            The sequence C code for of the current program as a string.
     
         """
         return self._sequence.get()
 
     def set_params(self, **settings):
+        """Sets the sequence parameters of the sequence program."""
         if "sequence_type" in settings:
             current_params = attr.asdict(self._sequence)
             self.__init__(sequence_type=settings["sequence_type"])
@@ -47,6 +58,12 @@ class SequenceProgram(object):
         self._sequence.set(**settings)
 
     def list_params(self):
+        """List all the current sequence parameters.
+        
+        Returns:
+            A dictionary with all the seuqence parameters.
+
+        """
         return dict(
             sequence_type=self._sequence_type,
             sequence_parameters=attr.asdict(self._sequence),

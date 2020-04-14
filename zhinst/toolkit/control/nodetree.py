@@ -11,11 +11,31 @@ class ZHTKNodetreeException(Exception):
 
 
 class Parameter:
-    """
+    """Implements a `zhinst-toolkit` Parameter.
+
     Implements a callable parameter as leaves in the nodetree with a parent node 
     and a device. It holds the information from the daq.listNodesJSON(...) 
     method such as the node path, the description, properties, etc. The 'help' 
     property prints a string with a summary of the parameter.
+
+    Arguments:
+        parent (BaseInstrument or Node): Parent object that the Parameter is 
+            associated to.
+        params (dict): Dictionary with a definition of the Parameter. It must 
+            contain the item 'Node' corresponding to a node path on the device 
+            that is used for getting and setting the Parameter value. It may 
+            contain the items 'Description', 'Properties', 'Options', 'Unit', 
+            'Type'. 
+
+    Keyword Arguments:
+        device (BaseInstruemnt): deviec driver that the Parameter is associated 
+            to, used to call set and get (default: None)
+        set_parser (Callable): parser that is called before setting the value 
+            (default: 'lambda v: v')
+        set_parser (Callable): parser that is called after getting the value
+            (default: 'lambda v: v')
+        mapping (dict): value mapping for keyword to integer conversion 
+            (defaul: None)
 
     """
 
@@ -42,17 +62,17 @@ class Parameter:
         self._map = mapping
 
     def _getter(self):
-        """
-        Implements a getter for the parameter, if 'Read' is in the parameter 
-        properties (from listNodesJSON), this will call the '_get' method of the 
-        associated device with 'path' as attribute.
+        """Implements a getter for the parameter.
+        
+        If 'Read' is in the parameter properties (from listNodesJSON), this will 
+        call the '_get' method of the associated device with 'path' as attribute.
         
         Raises:
             ZHTKNodetreeException: if the parameter is not gettable, i.e. if 
                 'Read' not in properties
         
         Returns:
-            the gotten value
+            The Parameter value as returned from the get parser.
 
         """
         if "Read" in self._properties:
@@ -69,10 +89,11 @@ class Parameter:
             raise ZHTKNodetreeException("This parameter is not gettable!")
 
     def _setter(self, value):
-        """
-        Implements a setter for the parameter, if 'Write' is in the parameter 
-        properties (from listNodesJSON), this will call the '_set' method of the 
-        associated device with 'path' and 'value' as attributes.
+        """Implements a setter for the parameter. 
+        
+        If 'Write' is in the parameter properties (from listNodesJSON), this 
+        will call the '_set' method of the associated device with 'path' and 
+        'value' as attributes.
         
         Arguments:
             value: value to be set
@@ -82,7 +103,7 @@ class Parameter:
                 'Write' not in properties
         
         Returns:
-            the set value
+            The Parameter value set on the device.
 
         """
         if "Write" in self._properties:
@@ -102,7 +123,8 @@ class Parameter:
             raise ZHTKNodetreeException("This parameter is not settable!")
 
     def __call__(self, value=None):
-        """
+        """Make the object callable.
+
         Override the __call__ method for setting and getting the Parameter 
         value. The Parameter can then be gotten by calling it with no arguments. 
         It is set by calling it with the value as an argument. This works
@@ -113,7 +135,8 @@ class Parameter:
                 leaving the argumetn out gets the parameter(default: None)
 
         Returns:
-            either the set or gotten value
+            The value that has been set if a value is specified, otherwise the 
+            returned value from the getter.
         
         """
         if value is None:
@@ -141,11 +164,16 @@ class Parameter:
 
 
 class Node:
-    """
-    Implements a node in the nodetree of a device. A node has a parent node 
-    and a device it is associated with. It can hold other nodes as well as 
-    parameters. The data structure of the device nodetree is recreated by 
-    recursively adding either nodes or parameters as attributes to the node.
+    """Implements a node in the nodetree of a device. 
+    
+    A node has a parent node and a device it is associated with. It can hold 
+    other nodes as well as parameters. The data structure of the device nodetree 
+    is recreated by recursively adding either nodes or parameters as attributes 
+    to the node.
+
+    Properties:
+        nodes (list): list of nodes that are children of this Node
+        parameters (list): list of Parameters that are children of this Node
 
     """
 
@@ -162,7 +190,8 @@ class Node:
         return [k for k, v in self.__dict__.items() if isinstance(v, Parameter)]
 
     def _init_subnodes_recursively(self, parent, nodetree_dict: dict):
-        """
+        """Recursively adds Nodes and/or Parameters to a parent Node.
+
         Recursively goes through a nested nodetree dictionary. Adds a Node 
         object as attribute to the parent node if the leave of the nodetree has 
         not yet been reached. Adds a Parameter as attribute to the parent node
@@ -222,9 +251,10 @@ class Node:
 
 
 class NodeList(list):
-    """
-    Implements a list of nodes. Simply inherits from List and overrides 
-    the __repr__() method to make it look nice in the console or in a notebook.
+    """Implements a list of nodes. 
+    
+    Simply inherits from List and overrides the __repr__() method to make it 
+    look nice in the console or in a notebook.
 
     """
 
@@ -237,7 +267,8 @@ class NodeList(list):
 
 
 class Nodetree(Node):
-    """
+    """Recreates the device's nodetree.
+
     Implements a Nodetree data structure used to access the settings (nodes) 
     of any ZI device. A nodetree is created for every instrument when it is 
     connected to the data server. In this way the available settings always 
@@ -248,11 +279,11 @@ class Nodetree(Node):
     Node and Parameter objects as attributes to the node.
     
     Args:
-        device: reference to the instrument the nodetree 
+        device (BaseInstrument): reference to the instrument the nodetree 
             belong to. Used for getting and setting of each parameter.
     
     Attributes:
-        device (BaseInstrument)
+        device (BaseInstrument): the associated device
         nodetree_dict (dict): a nested dictionary created from the dict 
             returned by daq.listNodesJSON(...) in zhinst.ziPython. 
 
@@ -264,9 +295,10 @@ class Nodetree(Node):
         self._init_subnodes_recursively(self, self._nodetree_dict)
 
     def _get_nodetree_dict(self):
-        """
+        """Gets the nodetree as a nested dictionary. 
+
         Retrieves the nodetree from the device as a flat dictionary and 
-        converts it to a nested dictionary using dictify(). For every device 
+        converts it to a nested dictionary using `dictify()`. For every device 
         node returned from the instrument this method splits the node string 
         into its parts and sorts the value (dict with node, description, unit, 
         etc.) into a nested dict that recreates the hirarchy of the nodetree.
@@ -282,7 +314,8 @@ class Nodetree(Node):
 
 
 def dictify(data, keys, val):
-    """
+    """Turns a flat nodetree dictionary into a nested dictionary.
+
     Helper function to generate nested dictionary from list of keys and value. 
     Calls itself recursively.
     
