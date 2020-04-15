@@ -4,6 +4,7 @@
 # of the MIT license. See the LICENSE file for details.
 
 import attr
+from .utils import SequenceType
 from .sequences import (
     Sequence,
     SimpleSequence,
@@ -27,7 +28,7 @@ class SequenceProgram(object):
     
     """
 
-    def __init__(self, sequence_type=None, **kwargs):
+    def __init__(self, sequence_type: SequenceType = SequenceType.NONE, **kwargs):
         self._set_type(sequence_type)
         self._sequence = self.sequence_class(**kwargs)
 
@@ -51,30 +52,22 @@ class SequenceProgram(object):
             sequence_parameters=attr.asdict(self._sequence),
         )
 
-    def _set_type(self, type):
-        if type is None or type == "None":
-            self.sequence_class = Sequence
-        elif type == "Simple":
-            self.sequence_class = SimpleSequence
-        elif type == "Rabi":
-            self.sequence_class = RabiSequence
-        elif type == "T1":
-            self.sequence_class = T1Sequence
-        elif type == "T2*":
-            self.sequence_class = T2Sequence
-        elif type == "Readout":
-            self.sequence_class = ReadoutSequence
-        elif type == "Pulsed Spectroscopy":
-            self.sequence_class = PulsedSpectroscopySequence
-        elif type == "CW Spectroscopy":
-            self.sequence_class = CWSpectroscopySequence
-        elif type == "Custom":
-            self.sequence_class = CustomSequence
-        elif type == "Trigger":
-            self.sequence_class = TriggerSequence
-        else:
-            raise ValueError("Unknown Sequence Type!")
-        self._sequence_type = type
+    def _set_type(self, t: SequenceType):
+        t = SequenceType(t)
+        sequence_classes = {
+            SequenceType.NONE: Sequence,
+            SequenceType.SIMPLE: SimpleSequence,
+            SequenceType.RABI: RabiSequence,
+            SequenceType.T1: T1Sequence,
+            SequenceType.T2: T2Sequence,
+            SequenceType.READOUT: ReadoutSequence,
+            SequenceType.PULSED_SPEC: PulsedSpectroscopySequence,
+            SequenceType.CW_SPEC: CWSpectroscopySequence,
+            SequenceType.CUSTOM: CustomSequence,
+            SequenceType.TRIGGER: TriggerSequence,
+        }
+        self.sequence_class = sequence_classes[t]
+        self._sequence_type = t
 
     @property
     def sequence_type(self):
