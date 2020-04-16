@@ -8,12 +8,7 @@ import os
 import setuptools
 
 
-requirements = [
-    "numpy>=1.13",
-    "setuptools>=40.1.0",
-    "zhinst>=20.01",
-    "attrs"
-]
+requirements = ["numpy>=1.13", "setuptools>=40.1.0", "zhinst>=20.01", "attrs"]
 
 
 with open("README.md", "r") as fh:
@@ -44,10 +39,10 @@ setuptools.setup(
     ],
     keywords="zhinst sdk quantum",
     packages=setuptools.find_namespace_packages(
-        exclude=["test*"], include=["zhinst.*"]
+        exclude=["test*", "docs*"], include=["zhinst.*"]
     ),
     use_scm_version=True,
-    setup_requires=['setuptools_scm'],
+    setup_requires=["setuptools_scm"],
     install_requires=requirements,
     include_package_data=True,
     python_requires=">=3.6",

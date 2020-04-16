@@ -278,7 +278,7 @@ class Nodetree(Node):
     dictionary representing the nodetree hirarchy and then recursively adds 
     Node and Parameter objects as attributes to the node.
     
-    Args:
+    Arguments:
         device (BaseInstrument): reference to the instrument the nodetree 
             belong to. Used for getting and setting of each parameter.
     

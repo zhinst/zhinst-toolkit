@@ -22,13 +22,15 @@ class HDAWG(BaseInstrument):
     and inherit from the `AWGCore` class.
 
     Typical Usage:
-        >>>import zhinst.toolkit as tk
-        >>>hd = tk.HDAWG("hd", "dev2916")
-        >>>hd.setup()
-        >>>hd.connect_device() 
-        >>>hd.awgs[0].run()
-        >>>hd.nodetree
-        >>>...
+        .. code:: python
+        
+            import zhinst.toolkit as tk
+            hd = tk.HDAWG("hd", "dev2916")
+            hd.setup()
+            hd.connect_device() 
+            hd.awgs[0].run()
+            hd.nodetree
+            ...
 
     Arguments:
         name (str): Identifier for the HDAWG.
