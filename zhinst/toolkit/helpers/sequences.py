@@ -9,6 +9,7 @@ import numpy as np
 from pathlib import Path
 
 from .sequence_commands import SequenceCommand
+from .utils import SequenceType, TriggerMode, Alignment
 from zhinst.toolkit.interface import DeviceTypes
 
 
@@ -32,14 +33,10 @@ class Sequence(object):
     )
     clock_rate = attr.ib(default=2.4e9, validator=is_positive)
     period = attr.ib(default=100e-6, validator=is_positive)
-    trigger_mode = attr.ib(
-        default="None",
-        validator=attr.validators.in_(["None", "Send Trigger", "External Trigger"]),
-    )
+    trigger_mode = attr.ib(default=TriggerMode.NONE, converter=lambda m: TriggerMode(m))
     repetitions = attr.ib(default=1)
     alignment = attr.ib(
-        default="End with Trigger",
-        validator=attr.validators.in_(["End with Trigger", "Start with Trigger"]),
+        default=Alignment.END_WITH_TRIGGER, converter=lambda a: Alignment(a)
     )
     n_HW_loop = attr.ib(default=1, converter=int, validator=is_positive)
     dead_time = attr.ib(default=5e-6, validator=is_positive)
@@ -68,15 +65,15 @@ class Sequence(object):
         self.sequence = None
 
     def update_params(self):
-        if self.trigger_mode == "None":
+        if self.trigger_mode == TriggerMode.NONE:
             self.trigger_cmd_1 = SequenceCommand.comment_line()
             self.trigger_cmd_2 = SequenceCommand.comment_line()
             self.dead_cycles = 0
-        elif self.trigger_mode == "Send Trigger":
+        elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
             self.trigger_cmd_1 = SequenceCommand.trigger(1)
             self.trigger_cmd_2 = SequenceCommand.trigger(0)
             self.dead_cycles = self.time_to_cycles(self.dead_time)
-        elif self.trigger_mode == "External Trigger":
+        elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
             self.trigger_cmd_1 = SequenceCommand.wait_dig_trigger(
                 index=int(self.target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI])
             )
@@ -111,6 +108,8 @@ class Sequence(object):
                     raise TypeError(
                         f"{self.__class__.__name__}.{attribute.name} cannot set {value} because it is not a {attribute.type.__name__}"
                     )
+            if attribute.converter is not None:
+                value = attribute.converter(value)
             if attribute.validator is not None:
                 attribute.validator(self, attribute, value)
         super().__setattr__(name, value)
@@ -134,9 +133,9 @@ class SimpleSequence(Sequence):
             self.sequence += self.trigger_cmd_1
             if self.target == DeviceTypes.HDAWG and self.reset_phase:
                 self.sequence += SequenceCommand.reset_osc_phase()
-            if self.alignment == "Start with Trigger":
+            if self.alignment == Alignment.START_WITH_TRIGGER:
                 temp = self.wait_cycles
-            elif self.alignment == "End with Trigger":
+            elif self.alignment == Alignment.END_WITH_TRIGGER:
                 temp = self.wait_cycles - self.buffer_lengths[i] / 8
             self.sequence += SequenceCommand.wait(
                 temp - self.time_to_cycles(self.delay_times[i])
@@ -146,10 +145,10 @@ class SimpleSequence(Sequence):
                 self.sequence += SequenceCommand.readout_trigger()
             self.sequence += SequenceCommand.play_wave_indexed(i)
             self.sequence += SequenceCommand.wait_wave()
-            if self.trigger_mode != "External Trigger":
-                if self.alignment == "Start with Trigger":
+            if self.trigger_mode != TriggerMode.EXTERNAL_TRIGGER:
+                if self.alignment == Alignment.START_WITH_TRIGGER:
                     temp = self.dead_cycles - self.buffer_lengths[i] / 8
-                elif self.alignment == "End with Trigger":
+                elif self.alignment == Alignment.END_WITH_TRIGGER:
                     temp = self.dead_cycles
             else:
                 temp = 0
@@ -161,11 +160,11 @@ class SimpleSequence(Sequence):
 
     def update_params(self):
         super().update_params()
-        if self.trigger_mode == "None":
+        if self.trigger_mode == TriggerMode.NONE:
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
-        elif self.trigger_mode == "Send Trigger":
+        elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
-        elif self.trigger_mode == "External Trigger":
+        elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
             self.wait_cycles = self.time_to_cycles(
                 self.period - self.dead_time - self.latency + self.trigger_delay
             )
@@ -201,14 +200,12 @@ class TriggerSequence(Sequence):
         self.sequence += SequenceCommand.close_bracket()
 
     def update_params(self):
-        self.trigger_mode = "Send Trigger"
+        self.trigger_mode = TriggerMode.SEND_TRIGGER
         self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
         super().update_params()
 
     def check_attributes(self):
         super().check_attributes()
-        if self.target != DeviceTypes.HDAWG:
-            raise Exception("This sequence is only valid for HDAWG!")
         if (self.period - self.dead_time) < 0:
             raise ValueError("Wait time cannot be negative!")
 
@@ -240,19 +237,19 @@ class RabiSequence(Sequence):
         super().update_params()
         self.n_HW_loop = len(self.pulse_amplitudes)
         self.get_gauss_params(self.pulse_width, self.pulse_truncation)
-        if self.trigger_mode in ["None", "Send Trigger"]:
+        if self.trigger_mode in [TriggerMode.NONE, TriggerMode.SEND_TRIGGER]:
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
-            if self.alignment == "End with Trigger":
+            if self.alignment == Alignment.END_WITH_TRIGGER:
                 self.wait_cycles -= self.gauss_params[0] / 8
-            elif self.alignment == "Start with Trigger":
+            elif self.alignment == Alignment.START_WITH_TRIGGER:
                 self.dead_cycles -= self.gauss_params[0] / 8
-        elif self.trigger_mode == "External Trigger":
+        elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
             self.wait_cycles = self.time_to_cycles(
                 self.period - self.dead_time - self.latency + self.trigger_delay
             )
-            if self.alignment == "End with Trigger":
+            if self.alignment == Alignment.END_WITH_TRIGGER:
                 self.wait_cycles -= self.gauss_params[0] / 8
-            elif self.alignment == "Start with Trigger":
+            elif self.alignment == Alignment.START_WITH_TRIGGER:
                 self.dead_cycles = 0
 
     def check_attributes(self):
@@ -297,9 +294,9 @@ class T1Sequence(Sequence):
         super().update_params()
         self.n_HW_loop = len(self.delay_times)
         self.get_gauss_params(self.pulse_width, self.pulse_truncation)
-        if self.trigger_mode in ["None", "Send Trigger"]:
+        if self.trigger_mode in [TriggerMode.NONE, TriggerMode.SEND_TRIGGER]:
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
-        elif self.trigger_mode == "External Trigger":
+        elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
             self.wait_cycles = self.time_to_cycles(
                 self.period - self.dead_time - self.latency + self.trigger_delay
             )
@@ -377,15 +374,15 @@ class ReadoutSequence(Sequence):
     def update_params(self):
         super().update_params()
         temp = self.period - self.dead_time
-        if self.alignment == "End with Trigger":
+        if self.alignment == Alignment.END_WITH_TRIGGER:
             temp -= self.readout_length
-        elif self.alignment == "Start with Trigger":
+        elif self.alignment == Alignment.START_WITH_TRIGGER:
             self.dead_cycles = self.time_to_cycles(self.dead_time - self.readout_length)
-        if self.trigger_mode == "None":
+        if self.trigger_mode == TriggerMode.NONE:
             self.wait_cycles = self.time_to_cycles(temp)
-        elif self.trigger_mode == "Send Trigger":
+        elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
             self.wait_cycles = self.time_to_cycles(temp)
-        elif self.trigger_mode == "External Trigger":
+        elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
             self.wait_cycles = self.time_to_cycles(
                 temp - self.latency + self.trigger_delay
             )
@@ -429,15 +426,15 @@ class PulsedSpectroscopySequence(Sequence):
         super().update_params()
         self.target = DeviceTypes.UHFQA
         temp = self.period - self.dead_time
-        if self.alignment == "End with Trigger":
+        if self.alignment == Alignment.END_WITH_TRIGGER:
             temp -= self.pulse_length
-        elif self.alignment == "Start with Trigger":
+        elif self.alignment == Alignment.START_WITH_TRIGGER:
             self.dead_cycles = self.time_to_cycles(self.dead_time - self.pulse_length)
-        if self.trigger_mode == "None":
+        if self.trigger_mode == TriggerMode.NONE:
             self.wait_cycles = self.time_to_cycles(temp)
-        elif self.trigger_mode == "Send Trigger":
+        elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
             self.wait_cycles = self.time_to_cycles(temp)
-        elif self.trigger_mode == "External Trigger":
+        elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
             self.wait_cycles = self.time_to_cycles(
                 temp - self.latency + self.trigger_delay
             )
@@ -459,11 +456,11 @@ class CWSpectroscopySequence(Sequence):
 
     def update_params(self):
         super().update_params()
-        if self.trigger_mode == "None":
+        if self.trigger_mode == TriggerMode.NONE:
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
-        elif self.trigger_mode == "Send Trigger":
+        elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
-        elif self.trigger_mode == "External Trigger":
+        elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
             self.wait_cycles = self.time_to_cycles(
                 self.period - self.dead_time - self.latency + self.trigger_delay
             )
