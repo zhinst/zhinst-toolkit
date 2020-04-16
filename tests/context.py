@@ -35,7 +35,6 @@ from zhinst.toolkit.control.nodetree import (
     ZHTKNodetreeException,
 )
 from zhinst.toolkit.control.parsers import Parse
-from zhinst.toolkit.helpers import Waveform
-from zhinst.toolkit.helpers import SequenceCommand
-from zhinst.toolkit.helpers import SequenceProgram
+from zhinst.toolkit.helpers import Waveform, SequenceCommand, SequenceProgram
+from zhinst.toolkit.helpers import SequenceType, TriggerMode, Alignment
 from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes

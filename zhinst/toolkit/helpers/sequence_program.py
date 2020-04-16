@@ -53,6 +53,8 @@ class SequenceProgram(object):
         )
 
     def _set_type(self, t: SequenceType):
+        if t == "None":
+            t = None
         t = SequenceType(t)
         sequence_classes = {
             SequenceType.NONE: Sequence,

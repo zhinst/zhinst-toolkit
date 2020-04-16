@@ -3,7 +3,7 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import HDAWG, HDAWG_AWG, DeviceTypes
+from .context import HDAWG, HDAWG_AWG, DeviceTypes, SequenceType
 
 
 def test_init_hdawg():
@@ -43,5 +43,7 @@ def test_hdawg_awg_set_get():
         awg.disable_iq_modulation()
     with pytest.raises(Exception):
         awg._apply_sequence_settings(sequence_type="1234")
+    with pytest.raises(Exception):
+        awg._apply_sequence_settings(sequence_type=SequenceType.READOUT)
     with pytest.raises(Exception):
         awg._apply_trigger_settings()

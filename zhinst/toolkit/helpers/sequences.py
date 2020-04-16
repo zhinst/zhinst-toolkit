@@ -33,7 +33,10 @@ class Sequence(object):
     )
     clock_rate = attr.ib(default=2.4e9, validator=is_positive)
     period = attr.ib(default=100e-6, validator=is_positive)
-    trigger_mode = attr.ib(default=TriggerMode.NONE, converter=lambda m: TriggerMode(m))
+    trigger_mode = attr.ib(
+        default=TriggerMode.SEND_TRIGGER,
+        converter=lambda m: TriggerMode.NONE if m == "None" else TriggerMode(m),
+    )
     repetitions = attr.ib(default=1)
     alignment = attr.ib(
         default=Alignment.END_WITH_TRIGGER, converter=lambda a: Alignment(a)
@@ -45,7 +48,7 @@ class Sequence(object):
     trigger_cmd_1 = attr.ib(default="//")
     trigger_cmd_2 = attr.ib(default="//")
     wait_cycles = attr.ib(default=0)
-    dead_cycles = attr.ib(default=0)
+    dead_cycles = attr.ib(default=1500)
     reset_phase = attr.ib(default=False)
 
     def set(self, **settings):
@@ -68,7 +71,7 @@ class Sequence(object):
         if self.trigger_mode == TriggerMode.NONE:
             self.trigger_cmd_1 = SequenceCommand.comment_line()
             self.trigger_cmd_2 = SequenceCommand.comment_line()
-            self.dead_cycles = 0
+            self.dead_cycles = self.time_to_cycles(self.dead_time)
         elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
             self.trigger_cmd_1 = SequenceCommand.trigger(1)
             self.trigger_cmd_2 = SequenceCommand.trigger(0)
@@ -145,7 +148,7 @@ class SimpleSequence(Sequence):
                 self.sequence += SequenceCommand.readout_trigger()
             self.sequence += SequenceCommand.play_wave_indexed(i)
             self.sequence += SequenceCommand.wait_wave()
-            if self.trigger_mode != TriggerMode.EXTERNAL_TRIGGER:
+            if self.trigger_mode == TriggerMode.SEND_TRIGGER:
                 if self.alignment == Alignment.START_WITH_TRIGGER:
                     temp = self.dead_cycles - self.buffer_lengths[i] / 8
                 elif self.alignment == Alignment.END_WITH_TRIGGER:
@@ -161,7 +164,7 @@ class SimpleSequence(Sequence):
     def update_params(self):
         super().update_params()
         if self.trigger_mode == TriggerMode.NONE:
-            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+            self.wait_cycles = self.time_to_cycles(self.period)
         elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
         elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
@@ -237,7 +240,12 @@ class RabiSequence(Sequence):
         super().update_params()
         self.n_HW_loop = len(self.pulse_amplitudes)
         self.get_gauss_params(self.pulse_width, self.pulse_truncation)
-        if self.trigger_mode in [TriggerMode.NONE, TriggerMode.SEND_TRIGGER]:
+        if self.trigger_mode == TriggerMode.NONE:
+            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+            self.dead_cycles = (
+                self.time_to_cycles(self.dead_time) - self.gauss_params[0] / 8
+            )
+        elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
             if self.alignment == Alignment.END_WITH_TRIGGER:
                 self.wait_cycles -= self.gauss_params[0] / 8

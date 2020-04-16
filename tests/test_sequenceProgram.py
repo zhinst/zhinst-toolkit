@@ -8,7 +8,7 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import SequenceProgram
+from .context import SequenceProgram, SequenceType, TriggerMode, Alignment
 
 
 class SequenceProgramMachine(RuleBasedStateMachine):
@@ -16,33 +16,102 @@ class SequenceProgramMachine(RuleBasedStateMachine):
         super().__init__()
         self.sequenceProgram = SequenceProgram()
 
-    @rule(type=st.integers(0, 7))
-    def change_type(self, type):
-        if type == 0:
-            t = None
-        elif type == 1:
-            t = "Simple"
-        elif type == 2:
-            t = "T1"
-        elif type == 3:
-            t = "T2*"
-        elif type == 4:
-            t = "Readout"
-        elif type == 5:
-            t = "Custom"
-        elif type == 6:
-            t = "CW Spectroscopy"
-        elif type == 7:
-            t = "Pulsed Spectroscopy"
-        self.sequenceProgram.set_params(sequence_type=t)
-        assert self.sequenceProgram.sequence_type == t
+    @rule(t=st.integers(0, 9))
+    def change_sequence_by_enum(self, t):
+        types = {
+            0: SequenceType.NONE,
+            1: SequenceType.SIMPLE,
+            2: SequenceType.T1,
+            3: SequenceType.T2,
+            4: SequenceType.READOUT,
+            5: SequenceType.CUSTOM,
+            6: SequenceType.CW_SPEC,
+            7: SequenceType.PULSED_SPEC,
+            8: SequenceType.TRIGGER,
+            9: SequenceType.RABI,
+        }
+        self.sequenceProgram.set_params(sequence_type=types[t])
+        assert self.sequenceProgram.sequence_type == types[t]
+
+    @rule(t=st.integers(-1, 9))
+    def change_sequence_by_string(self, t):
+        types = {
+            -1: "None",
+            0: None,
+            1: "Simple",
+            2: "T1",
+            3: "T2*",
+            4: "Readout",
+            5: "Custom",
+            6: "CW Spectroscopy",
+            7: "Pulsed Spectroscopy",
+            8: "Trigger",
+            9: "Rabi",
+        }
+        self.sequenceProgram.set_params(sequence_type=types[t])
+        if t == -1:
+            assert self.sequenceProgram.sequence_type.value is None
+        else:
+            assert self.sequenceProgram.sequence_type.value == types[t]
+
+    @rule(t=st.integers(0, 2))
+    def change_trigger_by_enum(self, t):
+        types = {
+            0: TriggerMode.NONE,
+            1: TriggerMode.SEND_TRIGGER,
+            2: TriggerMode.EXTERNAL_TRIGGER,
+        }
+        self.sequenceProgram.set_params(trigger_mode=types[t])
+        params = self.sequenceProgram.list_params()
+        if params["sequence_type"] != SequenceType.TRIGGER:
+            params = params["sequence_parameters"]
+            assert params["trigger_mode"] == types[t]
+
+    @rule(t=st.integers(-1, 2))
+    def change_trigger_by_string(self, t):
+        types = {
+            -1: "None",
+            0: None,
+            1: "Send Trigger",
+            2: "External Trigger",
+        }
+        self.sequenceProgram.set_params(trigger_mode=types[t])
+        params = self.sequenceProgram.list_params()
+        if params["sequence_type"] != SequenceType.TRIGGER:
+            params = params["sequence_parameters"]
+            if t == -1:
+                assert params["trigger_mode"].value is None
+            else:
+                assert params["trigger_mode"].value == types[t]
+
+    @rule(t=st.integers(0, 1))
+    def change_alignment_by_enum(self, t):
+        types = {
+            0: Alignment.START_WITH_TRIGGER,
+            1: Alignment.END_WITH_TRIGGER,
+        }
+        self.sequenceProgram.set_params(alignment=types[t])
+        params = self.sequenceProgram.list_params()
+        params = params["sequence_parameters"]
+        assert params["alignment"] == types[t]
+
+    @rule(t=st.integers(0, 1))
+    def change_alignment_by_string(self, t):
+        types = {
+            0: "Start with Trigger",
+            1: "End with Trigger",
+        }
+        self.sequenceProgram.set_params(alignment=types[t])
+        params = self.sequenceProgram.list_params()
+        params = params["sequence_parameters"]
+        assert params["alignment"].value == types[t]
 
     @rule(l=st.integers(1, 1000), amp=st.floats(0, 1.0))
     def change_amps(self, l, amp):
         test_array = np.random.uniform(0, amp, l)
         self.sequenceProgram.set_params(pulse_amplitudes=test_array)
         params = self.sequenceProgram.list_params()
-        if self.sequenceProgram.sequence_type == "Rabi":
+        if self.sequenceProgram.sequence_type == SequenceType.RABI:
             assert np.array_equal(
                 params["sequence_parameters"]["pulse_amplitudes"], test_array
             )
@@ -64,11 +133,11 @@ class SequenceProgramMachine(RuleBasedStateMachine):
     @rule()
     def get_sequence(self):
         sequence = self.sequenceProgram.get_seqc()
-        if self.sequenceProgram.sequence_type is None:
+        t = self.sequenceProgram.sequence_type.value
+        if t is None:
             assert sequence is None
         else:
-            assert self.sequenceProgram.sequence_type in sequence
+            assert t in sequence
 
 
 TestPrograms = SequenceProgramMachine.TestCase
-
