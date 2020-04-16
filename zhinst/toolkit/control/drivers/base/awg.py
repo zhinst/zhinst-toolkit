@@ -6,7 +6,7 @@
 import numpy as np
 import time
 
-from zhinst.toolkit.helpers import SequenceProgram, Waveform
+from zhinst.toolkit.helpers import SequenceProgram, Waveform, SequenceType
 from .base import ZHTKException
 from .base import ZHTKException
 
@@ -85,7 +85,7 @@ class AWGCore:
             raise ZHTKException("This AWG is not connected to a awgModule!")
         self._module.update(device=self._parent.serial)
         self._module.update(index=self._index)
-        if self._program.sequence_type == "Simple":
+        if self._program.sequence_type == SequenceType.SIMPLE:
             buffer_lengths = [w.buffer_length for w in self._waveforms]
             delays = [w.delay for w in self._waveforms]
             self.set_sequence_params(buffer_lengths=buffer_lengths, delay_times=delays)
@@ -109,7 +109,7 @@ class AWGCore:
         self._waveforms = []
 
     def queue_waveform(self, wave1, wave2, delay=0):
-        if self._program.sequence_type != "Simple":
+        if self._program.sequence_type != SequenceType.SIMPLE:
             raise Exception(
                 "Waveform upload only possible for 'Simple' sequence program!"
             )

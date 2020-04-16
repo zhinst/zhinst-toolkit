@@ -10,6 +10,7 @@ from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ZHTKExc
 from zhinst.toolkit.control.nodetree import Parameter
 from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.interface import DeviceTypes
+from zhinst.toolkit.helpers import SequenceType, TriggerMode
 
 
 class HDAWG(BaseInstrument):
@@ -193,22 +194,22 @@ class AWG(AWGCore):
 
     def _apply_sequence_settings(self, **kwargs):
         if "sequence_type" in kwargs.keys():
-            t = kwargs["sequence_type"]
+            t = SequenceType(kwargs["sequence_type"])
             allowed_sequences = [
-                "None",
-                "Simple",
-                "Rabi",
-                "T1",
-                "T2*",
-                "Custom",
-                "Trigger",
+                SequenceType.NONE,
+                SequenceType.SIMPLE,
+                SequenceType.RABI,
+                SequenceType.T1,
+                SequenceType.T2,
+                SequenceType.CUSTOM,
+                SequenceType.TRIGGER,
             ]
             if t not in allowed_sequences:
                 raise ZHTKException(
                     f"Sequence type {t} must be one of {allowed_sequences}!"
                 )
         if "trigger_mode" in kwargs.keys():
-            if kwargs["trigger_mode"] == "External Trigger":
+            if TriggerMode(kwargs["trigger_mode"]) == TriggerMode.EXTERNAL_TRIGGER:
                 self._apply_trigger_settings()
 
     def _apply_trigger_settings(self):

@@ -9,6 +9,7 @@ from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ZHTKExc
 from zhinst.toolkit.control.nodetree import Parameter
 from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.interface import DeviceTypes
+from zhinst.toolkit.helpers import SequenceType, TriggerMode
 
 
 MAPPINGS = {
@@ -217,30 +218,31 @@ class AWG(AWGCore):
 
     def _apply_sequence_settings(self, **kwargs):
         if "sequence_type" in kwargs.keys():
-            t = kwargs["sequence_type"]
+            t = SequenceType(kwargs["sequence_type"])
             allowed_sequences = [
-                "Simple",
-                "Readout",
-                "CW Spectroscopy",
-                "Pulsed Spectroscopy",
-                "Custom",
+                SequenceType.NONE,
+                SequenceType.SIMPLE,
+                SequenceType.READOUT,
+                SequenceType.CW_SPEC,
+                SequenceType.PULSED_SPEC,
+                SequenceType.CUSTOM,
             ]
             if t not in allowed_sequences:
                 raise ZHTKException(
-                    f"Sequence type {t} must be one of {allowed_sequences}!"
+                    f"Sequence type {t} must be one of {[s.value for s in allowed_sequences]}!"
                 )
             # apply settings depending on sequence type
-            elif t == "CW Spectroscopy":
+            elif t == SequenceType.CW_SPEC:
                 self._apply_cw_settings()
-            elif t == "Pulsed Spectroscopy":
+            elif t == SequenceType.PULSED_SPEC:
                 self._apply_pulsed_settings()
-            elif t == "Readout":
+            elif t == SequenceType.READOUT:
                 self._apply_readout_settings()
             else:
                 self._apply_base_settings()
         # apply settings dependent on trigger type
         if "trigger_mode" in kwargs.keys():
-            if kwargs["trigger_mode"] == "External Trigger":
+            if TriggerMode(kwargs["trigger_mode"]) == TriggerMode.EXTERNAL_TRIGGER:
                 self._apply_trigger_settings()
 
     def _apply_base_settings(self):
@@ -303,7 +305,7 @@ class AWG(AWGCore):
                 raise ZHTKException("The value must be a tuple or list of length 2!")
 
     def update_readout_params(self):
-        if self.sequence_params["sequence_type"] == "Readout":
+        if self.sequence_params["sequence_type"] == SequenceType.READOUT:
             freqs = []
             amps = []
             phases = []
@@ -319,7 +321,7 @@ class AWG(AWGCore):
             raise ZHTKException("AWG Sequence type needs to be 'Readout'")
 
     def compile(self):
-        if self.sequence_params["sequence_type"] == "Readout":
+        if self.sequence_params["sequence_type"] == SequenceType.READOUT:
             self.update_readout_params()
         super().compile()
 
