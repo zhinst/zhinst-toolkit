@@ -6,3 +6,4 @@
 from .waveform import Waveform
 from .sequence_program import SequenceProgram
 from .sequence_commands import SequenceCommand
+from .utils import SequenceType, TriggerMode, Alignment
