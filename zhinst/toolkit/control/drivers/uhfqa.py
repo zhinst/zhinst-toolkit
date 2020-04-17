@@ -347,6 +347,7 @@ class ReadoutChannel:
                 Unit="None",
             ),
             device=self._parent,
+            get_parser=self._average_result,
         )
 
     @property
@@ -414,6 +415,10 @@ class ReadoutChannel:
         x = np.arange(0, length)
         y = np.sin(2 * np.pi * freq * x / clk_rate + np.deg2rad(phase))
         return y
+
+    def _average_result(self, result):
+        n_averages = self._parent._get("qas/0/result/averages")
+        return result / n_averages
 
     def __repr__(self):
         s = f"Readout Channel {self._index}:  {super().__repr__()}\n"
