@@ -17,25 +17,33 @@ from zhinst.toolkit.interface import DeviceTypes
 class MFLI(BaseInstrument):
     """High-level driver for the Zurich Instruments MFLI. 
     
-    Inherits from BaseInstrument and adds a Data Acquisition Module and a 
-    Sweeper Module. They can be accessed as properties of the MFLI.
+    Inherits from :class:`BaseInstrument` and adds a :class:`DAQModule` and a 
+    :class:`SweeperModule`. They can be accessed as properties of the MFLI.
 
-    Typical Usage:
-        >>>import zhinst.toolkit as tk
-        >>>mfli = tk.MFLI("mfli", "dev1234")
-        >>>mfli.setup()
-        >>>mfli.connect_device()
-        >>>mfli.nodetree
-        >>>...
+        >>> import zhinst.toolkit as tk
+        >>> mfli = tk.MFLI("mfli", "dev1234")
+        >>> mfli.setup()
+        >>> mfli.connect_device()
+        >>> mfli.nodetree
+        ...
 
-    Arguments:
+        >>> signal = mfli.daq.signals_add("demod1", "r")
+        >>> mfli.daq.measure()
+        ...
+        >>> result = mfli.daq.results[signal]
+        
+        >>> signal = mfli.sweeper.signals_add("demod1")
+        >>> mfli.sweeper.sweep_parameter("frequency")
+        >>> mfli.sweeper.measure()
+        ...
+        >>> result = mfli.sweeper.results[signal]
+
+    Attributes:
         name (str): Identifier for the MFLI.
         serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
             number can be found on the back panel of the instrument.
-
-    Properties:
-        daq (DAQModule)
-        sweeper (SweeperModule)
+        daq (:class:`zhinst.toolkit.control.drivers.base.DAQModule`)
+        sweeper (:class:`zhinst.toolkit.control.drivers.base.SweeperModule`)
 
     """
 
@@ -83,11 +91,10 @@ class DAQModule(DAQ):
     to set the parameter `daq.triggernode(..)` directly, however, not all 
     signals can be used as triggers.
 
-    Typical Usage:
-        >>>signal = mfli.daq.signals_add("demod1", "r")
-        >>>mfli.daq.measure()
-        >>>...
-        >>>result = mfli.daq.results[signal]
+        >>> signal = mfli.daq.signals_add("demod1", "r")
+        >>> mfli.daq.measure()
+        >>> ...
+        >>> result = mfli.daq.results[signal]
     
     """
 
@@ -128,12 +135,11 @@ class SweeperModule(Sweeper):
     `sweeper.gridnode(...)` parameter, however, not all nodes support 
     sweeping. 
 
-    Typical Usage:
-        >>>signal = mfli.sweeper.signals_add("demod1")
-        >>>mfli.sweeper.sweep_parameter("frequency")
-        >>>mfli.sweeper.measure()
-        >>>...
-        >>>result = mfli.sweeper.results[signal]
+        >>> signal = mfli.sweeper.signals_add("demod1")
+        >>> mfli.sweeper.sweep_parameter("frequency")
+        >>> mfli.sweeper.measure()
+        >>> ...
+        >>> result = mfli.sweeper.results[signal]
     
     """
 

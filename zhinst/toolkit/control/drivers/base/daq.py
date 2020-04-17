@@ -43,9 +43,9 @@ class DAQModule:
     is retrieved from the API and added to the Sweeper object attributes as 
     zhinst-toolkit Parameters.
 
-    Properties:
-        signals (list)
-        results (list)
+    Attributes:
+        signals (list): list of node strings of signals added to the measurement
+        results (dict): dict with signals as keys and values :class:`zhinst.toolkit.control.drivers.base.daq.DAQResult`  
     
     """
 
@@ -345,7 +345,7 @@ class DAQModule:
 class DAQResult:
     """A wrapper class around the result if a DAQ module measurement.
     
-    Properties:
+    Attributes:
         value (array)
         header (dict)
         time (array)

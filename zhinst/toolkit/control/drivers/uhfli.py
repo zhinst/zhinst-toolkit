@@ -22,23 +22,20 @@ class UHFLI(BaseInstrument):
     Sweeper Module and a AWG Module (if option installed). The modules can be 
     accessed as properties of the UHFLI.
     
-    Typical Usage:
-        >>>import zhinst.toolkit as tk
-        >>>uhfli = tk.UHFLI("uhfli", "dev1111")
-        >>>uhfli.setup()
-        >>>uhfli.connect_device()
-        >>>uhfli.nodetree
-        >>>...
+        >>> import zhinst.toolkit as tk
+        >>> uhfli = tk.UHFLI("uhfli", "dev1111")
+        >>> uhfli.setup()
+        >>> uhfli.connect_device()
+        >>> uhfli.nodetree
+        >>> ...
 
-    Arguments:
+    Attributes:
         name (str): Identifier for the UHFLI.
         serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
             number can be found on the back panel of the instrument.
-
-    Properties:
-        daq (DAQModule)
-        sweeper (SweeperModule)
-        awg (AWG)
+        daq (:class:`zhinst.toolkit.control.drivers.base.DAQModule`)
+        sweeper (:class:`zhinst.toolkit.control.drivers.base.SweeperModule`)
+        awg (:class:`zhinst.toolkit.control.drivers.uhfqa.AWG`)
 
     """
 
@@ -48,13 +45,13 @@ class UHFLI(BaseInstrument):
     def connect_device(self, nodetree=True):
         """Establishes a device connection.
 
-        Connects the device to a data server and initializes the `DAQModule`, 
-        `SweeperModule` and `AWG` (if option installed).
+        Connects the device to a data server and initializes the :class:`DAQModule`, 
+        :class:`SweeperModule` and :class:`AWG` (if option installed).
         
         Keyword Arguments:
             nodetree (bool): flag that specifies if all the parameters from the 
                 device's nodetree should be added to the object's attributes as 
-                `zhinst-toolkit` Parameters. (default: True)
+                :mod:`zhinst-toolkit` :class:`Parameters`. (default: True)
 
         """
         super().connect_device(nodetree=nodetree)
@@ -99,11 +96,10 @@ class DAQModule(DAQ):
     to set the parameter `daq.triggernode(..)` directly, however, not all 
     signals can be used as triggers.
 
-    Typical Usage:
-        >>>signal = uhfli.daq.signals_add("demod1", "r")
-        >>>uhfli.daq.measure()
-        >>>...
-        >>>result = uhfli.daq.results[signal]
+        >>> signal = uhfli.daq.signals_add("demod1", "r")
+        >>> uhfli.daq.measure()
+        >>> ...
+        >>> result = uhfli.daq.results[signal]
     
     """
 
@@ -157,12 +153,11 @@ class SweeperModule(Sweeper):
     `sweeper.gridnode(...)` parameter, however, not all nodes support 
     sweeping. 
 
-    Typical Usage:
-        >>>signal = uhfli.sweeper.signals_add("demod1")
-        >>>uhfli.sweeper.sweep_parameter("frequency")
-        >>>uhfli.sweeper.measure()
-        >>>...
-        >>>result = uhfli.sweeper.results[signal]
+        >>> signal = uhfli.sweeper.signals_add("demod1")
+        >>> uhfli.sweeper.sweep_parameter("frequency")
+        >>> uhfli.sweeper.measure()
+        >>> ...
+        >>> result = uhfli.sweeper.results[signal]
     
     """
 

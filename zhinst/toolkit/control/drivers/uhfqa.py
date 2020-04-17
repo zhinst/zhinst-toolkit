@@ -31,30 +31,50 @@ class UHFQA(BaseInstrument):
     Inherits from BaseInstrument and adds an AWG Module and a list of 
     Readout Channels. They can be accessed as properties of the UHFQA.
 
-    Typical Usage:
-        >>>import zhinst.toolkit as tk
-        >>>uhfqa = tk.UHFQA("uhfqa", "dev1111")
-        >>>uhfqa.setup()
-        >>>uhfqa.connect_device()
-        >>>uhfqa.nodetree
-        >>>...
+        >>> import zhinst.toolkit as tk
+        >>> ...
+        >>> uhfqa = tk.UHFQA("uhfqa", "dev1111")
+        >>> uhfqa.setup()
+        >>> uhfqa.connect_device()
+        >>> ...
+        >>> uhfqa.nodetree
+        <zhinst.toolkit.tools.nodetree.Nodetree object at 0x0000021091FFC898>
+        nodes:
+        - stats
+        - osc
+        - triggers
+        - status
+        - dio
+        - auxin
+        - scope
+        - system
+        - sigins
+        - sigouts
+        - features
+        - auxouts
+        - awg
+        - qa
+        parameters:
+        - clockbase
+        
 
     Arguments:
         name (str): Identifier for the UHFQA.
         serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
             number can be found on the back panel of the instrument.
 
-    Parameters:
-        integration_time (float): time in seconds used for signal integration, 
-            must be positive, when using weighted integration, the maximum 
-            value is ca. 2.275 us (default: 2.0 us)
-        result_source (str): selects the source of the QA results, must be one 
-            of {"Crosstalk", "Threshold", "Rotation", "Crosstalk Correlation", 
-            "Threshold Correlation", "Integration"} 
-    
-    Properties:
-        awg (AWG)
-        channels (list): list of ten `ReadoutChannel`s
+    Attributes:
+        awg (:class:`zhinst.toolkit.control.drivers.uhfqa.AWG`): device-specific AWG Core for the UHFQA
+        channels (list): list of ten :class:`zhinst.toolkit.control.drivers.uhfqa.ReadoutChannel` s
+        integration_time (:class:`zhinst.toolkit.control.nodetree.Parameter`): 
+            time in seconds used for signal integration, must be positive, when 
+            using weighted integration, the maximum value is ca. 2.275 us 
+            (default: 2.0 us)
+        result_source (:class:`zhinst.toolkit.control.nodetree.Parameter`): 
+            selects the source of the QA results, must be one of {"Crosstalk", 
+            "Threshold", "Rotation", "Crosstalk Correlation", "Threshold 
+            Correlation", "Integration"} 
+
 
     """
 
@@ -212,17 +232,19 @@ class UHFQA(BaseInstrument):
 class AWG(AWGCore):
     """Device-specific AWG Core for UHFQA.
     
-    Inherits from `AWGCore` and adds `zhinst-toolkit` Parameters like ouput 
-    or gains. This class also specifies sequence specific settings for the 
+    Inherits from `AWGCore` and adds `zhinst-toolkit` :class:`Parameters` like 
+    ouput or gains. This class also specifies sequence specific settings for the 
     UHFQA.
 
-    Parameters:
-        output1 (str): state of the output 1, i.e. one of {'on', 'off'}
-        output2 (str): state of the output 2, i.e. one of {'on', 'off'}
-        gain1 (flaot): gain of the output channel 1, must be between -1 and +1 
-            (default: +1)
-        gain2 (flaot): gain of the output channel 2 , must be between -1 and +1 
-            (default: +1)
+    Attributes:
+        output1 (:class:`zhinst.toolkit.control.nodetree.Parameter`): state of 
+            the output 1, i.e. one of {'on', 'off'}
+        output2 (:class:`zhinst.toolkit.control.nodetree.Parameter`): state of 
+            the output 2, i.e. one of {'on', 'off'}
+        gain1 (:class:`zhinst.toolkit.control.nodetree.Parameter`): gain of the 
+            output channel 1, must be between -1 and +1 (default: +1)
+        gain2 (:class:`zhinst.toolkit.control.nodetree.Parameter`): gain of the 
+            output channel 2 , must be between -1 and +1 (default: +1)
 
     """
 
@@ -406,19 +428,14 @@ class AWG(AWGCore):
 class ReadoutChannel:
     """Implements a Readout Channel for UHFQA. 
 
-    Parameters:
-        rotation (deg): rotation of the signal in IQ plane in degrees
-        threshold (float): signal threshold for state discrimination
-        result (array): read only Parameter witht the result vector for the channel
-        readout_frequency (float): readout frequency in Hz of the readout 
-            channel, this value is used for signal generation and for digital 
-            demodulation, must be positive
-        readout_amplitude (float): amplitude of the readout pulse (default: 1.0)
-        phase_shift (float): additional phase shift in the signal generation 
-            between I and Q quadtratures (default: 0)
-
-    Properties:
-        index (int)
+    Attributes:
+        index (int): index of the Readout Channel from 1 - 10
+        rotation (:class:`zhinst.toolkit.control.nodetree.Parameter`): rotation 
+            of the signal in IQ plane in degrees
+        threshold (:class:`zhinst.toolkit.control.nodetree.Parameter`): signal 
+            threshold for state discrimination
+        result (:class:`zhinst.toolkit.control.nodetree.Parameter`): read only 
+            Parameter witht the result vector for the channel            
 
     """
 
@@ -489,7 +506,12 @@ class ReadoutChannel:
         self._reset_int_weights()
 
     def readout_frequency(self, freq=None):
-        """Sets or gets the readout frequency for this channel."""
+        """Sets or gets the readout frequency for this channel.
+        
+        Readout frequency in Hz of the readout channel, this value is used 
+        for signal generation and for digital demodulation. Must be positive.
+        
+        """
         if freq is None:
             return self._readout_frequency
         else:
@@ -499,7 +521,11 @@ class ReadoutChannel:
             return self._readout_frequency
 
     def readout_amplitude(self, amp=None):
-        """Sets or gets the readout amplitude for this channel."""
+        """Sets or gets the readout amplitude for this channel.
+        
+        Amplitude of the readout pulse (default: 1.0)
+        
+        """
         if amp is None:
             return self._readout_amplitude
         else:
@@ -508,7 +534,12 @@ class ReadoutChannel:
             return self._readout_amplitude
 
     def phase_shift(self, ph=None):
-        """Sets or gets the readout phase shift for this channel."""
+        """Sets or gets the readout phase shift for this channel.
+        
+        Additional phase shift in the signal generation between I and Q 
+        quadtratures (default: 0).
+        
+        """
         if ph is None:
             return self._phase_shift
         else:

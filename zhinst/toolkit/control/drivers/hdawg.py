@@ -16,29 +16,41 @@ from zhinst.toolkit.helpers import SequenceType, TriggerMode
 class HDAWG(BaseInstrument):
     """High-level driver for Zurich Instruments HDAWG. 
     
-    Inherits from BaseInstrument and defines device specific methods and 
-    properties. The four AWG Cores of the HDAWG can be accessed through the 
-    property `awgs` that is a list of four AWGs that are specific for the device 
-    and inherit from the `AWGCore` class.
+    Inherits from :class:`BaseInstrument` and defines device specific methods and 
+    properties. The four AWG Cores of the :class:`HDAWG` can be accessed through the 
+    property `awgs` that is a list of four :class:`AWG` s that are specific for the device 
+    and inherit from the :class:`AWGCore` class.
 
-    Typical Usage:
-        .. code:: python
-        
-            import zhinst.toolkit as tk
-            hd = tk.HDAWG("hd", "dev2916")
-            hd.setup()
-            hd.connect_device() 
-            hd.awgs[0].run()
-            hd.nodetree
-            ...
+        >>> from zhinst.toolkit import HDAWG
+        >>> ... 
+        >>> hd = HDAWG("hdawg 1", "dev8030")
+        >>> hd.setup()
+        >>> hd.connect_device()
+        >>> hd.nodetree
+        <zhinst.toolkit.tools.nodetree.Nodetree object at 0x0000021E467D3BA8>
+        nodes:
+        - stats
+        - oscs
+        - status
+        - sines
+        - awgs
+        - dio
+        - system
+        - sigouts
+        - triggers
+        - features
+        - cnts
+        parameters:
+        - clockbase
+
 
     Arguments:
         name (str): Identifier for the HDAWG.
         serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
             number can be found on the back panel of the instrument.
 
-    Properties:
-        awgs (list): list of four AWGs
+    Attributes:
+        awgs (list): list of four HDAWG-specific AWG Cores: :class:`zhinst.toolkit.control.drivers.hdawg.AWG`
 
     """
 
@@ -79,28 +91,43 @@ class HDAWG(BaseInstrument):
 class AWG(AWGCore):
     """Device-specific AWG Core for HDAWG.
     
-    This class inherits from the base `AWGCore` and add `zhinst-toolkit` 
-    parameters such as ouput, modulation frequency or gains. It also applies 
-    sequence specific settings for the HDAWG depending on the type of Sequence 
-    Program on the AWG Core.
+    This class inherits from the base :class:`AWGCore` and adds `zhinst-toolkit` 
+    :class:`Parameters` such as ouput, modulation frequency or gains. It also 
+    applies sequence specific settings for the HDAWG depending on the type of 
+    Sequence Program on the AWG Core.
 
-    Typical Usage:
-        >>>hdawg.awgs[0].ouput1("on")
-        >>>hdawg.awgs[0].enable_iq_modulation()
-        >>>hdawg.awgs[0].modulation_freq()
-        >>>Output: 10000.00
-        >>>...
+        >>> hd.awgs[0]
+        <zhinst.toolkit.hdawg.AWG object at 0x0000021E467D3320>
+            parent  : <zhinst.toolkit.hdawg.HDAWG object at 0x0000021E467D3198>
+            index   : 0
+            sequence: 
+                    type: None
+                    ('target', 'hdawg')
+                    ('clock_rate', 2400000000.0)
+                    ('period', 0.0001)
+                    ('trigger_mode', 'None')
+                    ('repetitions', 1)
+                    ('alignment', 'End with Trigger')
+                    ...
+        
+        >>> hd.awgs[0].outputs("on")
+        >>> hd.awgs[0].enable_iq_modulation()
+        >>> hd.awgs[0].modulation_freq(123.45e6)
+        >>> hd.awgs[0].gain1()
+        1.0
 
-    Parameters:
-        output1 (str): state of the output 1, i.e. one of {'on', 'off'}
-        output2 (str): state of the output 2, i.e. one of {'on', 'off'}
-        modulation_freq (float): frequency of the modulation in Hz if IQ 
+    See more about AWG Cores at :class:`zhinst.toolkit.control.drivers.base.AWGCore`.
+
+    Attributes:
+        output1 (:class:`Parameter`): state of the output 1, i.e. one of {'on', 'off'}
+        output2 (:class:`Parameter`): state of the output 2, i.e. one of {'on', 'off'}
+        modulation_freq (:class:`Parameter`): frequency of the modulation in Hz if IQ 
             modulation enabled 
-        modulation_phase_shift (float): phase shift in degrees between I and Q signals if IQ 
+        modulation_phase_shift (:class:`Parameter`): phase shift in degrees between I and Q signals if IQ 
             modulation is enabled(default: 90)
-        gain1 (flaot): gain of the output channel 1 if IQ modulation is 
+        gain1 (:class:`Parameter`): gain of the output channel 1 if IQ modulation is 
             enabled, must be between -1 and +1 (default: +1)
-        gain2 (flaot): gain of the output channel 2 if IQ modulation is 
+        gain2 (:class:`Parameter`): gain of the output channel 2 if IQ modulation is 
             enabled, must be between -1 and +1 (default: +1)
 
     """

@@ -18,17 +18,32 @@ class Parameter:
     method such as the node path, the description, properties, etc. The 'help' 
     property prints a string with a summary of the parameter.
 
+        >>> uhfqa.nodetree.osc.freq
+        Node: /DEV2266/OSCS/0/FREQ
+        Description: Frequency control of the oscillator.
+        Type: Double
+        Properties: Read, Write, Setting
+        Options: none
+        Unit: Hz
+        Value: none
+
+    Settings and getting a Parameter is easy!
+
+        >>> uhfqa.nodetree.osc.freq(10e6)
+        >>> uhfqa.nodetree.osc.freq()
+        10000000.00
+    
     Arguments:
-        parent (BaseInstrument or Node): Parent object that the Parameter is 
+        parent (:class:`BaseInstrument` or :class:`Node`): Parent object that the :class:`Parameter` is 
             associated to.
-        params (dict): Dictionary with a definition of the Parameter. It must 
+        params (dict): Dictionary with a definition of the :class:`Parameter`. It must 
             contain the item 'Node' corresponding to a node path on the device 
-            that is used for getting and setting the Parameter value. It may 
+            that is used for getting and setting the :class:`Parameter` value. It may 
             contain the items 'Description', 'Properties', 'Options', 'Unit', 
             'Type'. 
 
     Keyword Arguments:
-        device (BaseInstruemnt): deviec driver that the Parameter is associated 
+        device (:class:`BaseInstruemnt`): deviec driver that the Parameter is associated 
             to, used to call set and get (default: None)
         set_parser (Callable): parser that is called before setting the value 
             (default: 'lambda v: v')
@@ -171,9 +186,9 @@ class Node:
     is recreated by recursively adding either nodes or parameters as attributes 
     to the node.
 
-    Properties:
-        nodes (list): list of nodes that are children of this Node
-        parameters (list): list of Parameters that are children of this Node
+    Attributes:
+        nodes (list): list of :class:`Node` s that are children of this :class:`Node`
+        parameters (list): list of :class:`Parameters` that are children of this :class:`Node`
 
     """
 

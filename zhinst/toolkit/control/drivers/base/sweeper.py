@@ -89,9 +89,9 @@ class SweeperModule:
     is retrieved from the API and added to the Sweeper object attributes as 
     zhinst-toolkit Parameters.
 
-    Properties:
+    Attributes:
         signals (list): list of node strings of signals added to the measurement
-        results (dict): dict of SweeperResults with signals as keys 
+        results (dict): dict with signals as keys and values :class:`zhinst.toolkit.control.drivers.base.sweeper.SweeperResult` 
     
     """
 

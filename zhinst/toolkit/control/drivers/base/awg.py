@@ -14,11 +14,11 @@ from .base import ZHTKException
 class AWGCore:
     """Implements an AWG Core representation.
 
-    Properties:
-        parent (BaseInstrument): reference to the parent instrument
+    Attributes:
+        parent (:class:`BaseInstrument`): reference to the parent instrument
         index (int): integer specifying the index in the parent instrument
         waveforms (list): list of waveforms that represent the queued up waves
-        program (SequenceProgram): a sequence program object used to program 
+        program (:class:`SequenceProgram`): a sequence program object used to program 
             certain seqC sequences onto the device
 
     """
