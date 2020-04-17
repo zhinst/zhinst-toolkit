@@ -12,6 +12,5 @@ blaba
 
 and then ...
 
-.. code:: python
 
-    import zhinst.toolkit as tk
+    >>> import zhinst.toolkit as tk

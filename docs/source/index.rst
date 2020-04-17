@@ -1,10 +1,10 @@
-Welcome to zhinst-toolkit's documentation!
-==========================================
+Welcome to :mod:`zhinst-toolkit` 's documentation!
+==================================================
 
 Documentation:
 ^^^^^^^^^^^^^^
 
-Here is some text about what zhinst-toolkit is ...
+Here is some text about what :mod:`zhinst-toolkit` is ...
 
 
 .. toctree::
@@ -13,7 +13,7 @@ Here is some text about what zhinst-toolkit is ...
 
    start/index
    examples/index
-   zhinst-toolkit
+   zhinst-toolkit/index
 
 
 
