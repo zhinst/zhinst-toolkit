@@ -9,7 +9,8 @@ The zhinst-toolkit is well tested and considered stable enough for general usage
 See [INSTALL](INSTALL.md) for more information.
 
 ## Documentation
-See the examples for more information in the folder 'examples'
+For a full documentation see [here](http://labone.pages.zhinst.com/zhinst-toolkit/index.html). 
+<!-- See the examples for more information in the folder 'examples' -->
 
 ## Contributing
 We welcome contributions by the community, either as bug reports, fixes and new code. Please use the GitHub issue tracker to report bugs or submit patches. Before developing something new, please get in contact with us. 
