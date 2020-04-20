@@ -18,7 +18,7 @@ class HDAWG(BaseInstrument):
     
     Inherits from :class:`BaseInstrument` and defines device specific methods and 
     properties. The four AWG Cores of the :class:`HDAWG` can be accessed through the 
-    property `awgs` that is a list of four :class:`AWG` s that are specific for the device 
+    property `awgs` that is a list of four :class:`AWGCore` s that are specific for the device 
     and inherit from the :class:`AWGCore` class.
 
         >>> from zhinst.toolkit import HDAWG
@@ -50,7 +50,8 @@ class HDAWG(BaseInstrument):
             number can be found on the back panel of the instrument.
 
     Attributes:
-        awgs (list): list of four HDAWG-specific AWG Cores: :class:`zhinst.toolkit.control.drivers.hdawg.AWG`
+        awgs (list): list of four device-specific AWG Cores of type 
+            :class:`zhinst.toolkit.control.drivers.hdawg.AWG`
 
     """
 
@@ -91,10 +92,10 @@ class HDAWG(BaseInstrument):
 class AWG(AWGCore):
     """Device-specific AWG Core for HDAWG.
     
-    This class inherits from the base :class:`AWGCore` and adds `zhinst-toolkit` 
-    :class:`Parameters` such as ouput, modulation frequency or gains. It also 
-    applies sequence specific settings for the HDAWG depending on the type of 
-    Sequence Program on the AWG Core.
+    This class inherits from the base :class:`AWGCore` and adds 
+    :mod:`zhinst-toolkit` :class:`Parameters` such as ouput, modulation 
+    frequency or gains. It also applies sequence specific settings for the 
+    HDAWG, depending on the type of :class:`SequenceProgram` on the AWG Core.
 
         >>> hd.awgs[0]
         <zhinst.toolkit.hdawg.AWG object at 0x0000021E467D3320>
@@ -116,19 +117,23 @@ class AWG(AWGCore):
         >>> hd.awgs[0].gain1()
         1.0
 
-    See more about AWG Cores at :class:`zhinst.toolkit.control.drivers.base.AWGCore`.
+    See more about AWG Cores at 
+    :class:`zhinst.toolkit.control.drivers.base.AWGCore`.
 
     Attributes:
-        output1 (:class:`Parameter`): state of the output 1, i.e. one of {'on', 'off'}
-        output2 (:class:`Parameter`): state of the output 2, i.e. one of {'on', 'off'}
-        modulation_freq (:class:`Parameter`): frequency of the modulation in Hz if IQ 
-            modulation enabled 
-        modulation_phase_shift (:class:`Parameter`): phase shift in degrees between I and Q signals if IQ 
-            modulation is enabled(default: 90)
-        gain1 (:class:`Parameter`): gain of the output channel 1 if IQ modulation is 
-            enabled, must be between -1 and +1 (default: +1)
-        gain2 (:class:`Parameter`): gain of the output channel 2 if IQ modulation is 
-            enabled, must be between -1 and +1 (default: +1)
+        output1 (:class:`Parameter`): State of the output 1, i.e. one of 
+            {'on', 'off'}.
+        output2 (:class:`Parameter`): State of the output 2, i.e. one of 
+            {'on', 'off'}.
+        modulation_freq (:class:`Parameter`): Frequency of the modulation in 
+            Hz if IQ modulation is enabled. 
+        modulation_phase_shift (:class:`Parameter`): Phase shift in degrees 
+            between I and Q quadratures if IQ modulation is enabled 
+            (default: 90).
+        gain1 (:class:`Parameter`): Gain of the output channel 1 if IQ 
+            modulation is enabled. Must be between -1 and +1 (default: +1).
+        gain2 (:class:`Parameter`): Gain of the output channel 2 if IQ 
+            modulation is enabled. Must be between -1 and +1 (default: +1).
 
     """
 
@@ -216,11 +221,11 @@ class AWG(AWGCore):
         
         Keyword Arguments:
             value (tuple): Tuple of values {'on', 'off'} for channel 1 and 2 
-                (default: {None})
+                (default: None).
         
         Returns:
-            The state {'on', 'off'} for both outputs if the keyword argument is 
-            not given.
+            A tuple with the states {'on', 'off'} for the two output channels if 
+            the keyword argument is not given.
         
         """
         if value is None:

@@ -14,12 +14,76 @@ from .base import ZHTKException
 class AWGCore:
     """Implements an AWG Core representation.
 
+    The :class:`AWGCore` class implements basic functionality of the AWG 
+    sequencer without the need for the user to write their own '.seqC' code.
+    The :class:`AWGCore` holds a :class:`SequenceProgram` object whose 
+    parameters can be set using the `set_sequence_params(...)` method of the 
+    AWG. Diferent sequence types and sequence parameters are explained HERE
+    TODO: add section about sequence programs etc and link here!
+    This module takes over the functionality of configuring the seuqence program 
+    and compiling it on the instrument. Given the 'Simple' sequence type, 
+    sample-defined waveforms can be queued and uploaded to the AWG. 
+
+    This base class :class:`AWGCore` is subclassed by device-specific AWGs for 
+    the HDAWG or the UHFQA/UHFLI. The device-specific AWGs add certain 
+    :mod:`zhinst-toolkit` :class:`Parameters` and apply certain 
+    instrument settings, depending on the `sequence_type` and the `trigger_mode` 
+    (sending out a trigger signal or waiting for a trigger) of the sequence 
+    program. 
+
+    For example, a predefined Rabi sequence with a sweep over 101 different 
+    amplitudes could be programmed like this:
+
+        >>> awg = hdawg.awgs[0]
+        >>> awg.set_sequence_params(
+        >>>     sequence_type="Rabi",
+        >>>     trigger_mode="None",
+        >>>     repetitions=1e3,
+        >>>     period=20e-6,
+        >>>     pulse_amplitudes=np.linspace(0, 1.0, 101),
+        >>>     pulse_width=20e-9,
+        >>>     pulse_truncation=4,
+        >>> )
+        >>> awg.compile()
+        >>> ...
+        >>> awg.run()
+        >>> awg.wait_done()
+
+    The sequence type "Simple" allows the user to upload sample-defined 
+    waveforms as numpy arrays. The waveforms in the queue are played one after 
+    the other with a specified period and alignment/delay to a time origin.
+
+        >>> awg.set_sequence_params(
+        >>>     sequence_type="Simple",
+        >>>     trigger_mode="Send Trigger",
+        >>>     repetitions=1e3,
+        >>>     period=20e-6,
+        >>> )
+        >>> for amp in np.linspace(-1, 1, 101):
+        >>>     wave = amp * np.linspace(-1.0, 1.0, 800)
+        >>>     awg.queue_waveform(wave, -wave)
+        Current length of queue: 1
+        Current length of queue: 2
+        Current length of queue: 3
+        Current length of queue: 4
+        ...
+        >>> awg.compile_and_upload_waveforms()
+        Compilation successful
+        hd1-0: Sequencer status: ELF file uploaded
+        Upload of 101 waveforms took 0.20005226135253906 s
+        >>> awg.run()
+        >>> awg.wait_done()
+
+    TODO: link to section about AWG sequencing and seuqence definitions ...  
+
     Attributes:
-        parent (:class:`BaseInstrument`): reference to the parent instrument
-        index (int): integer specifying the index in the parent instrument
-        waveforms (list): list of waveforms that represent the queued up waves
-        program (:class:`SequenceProgram`): a sequence program object used to program 
-            certain seqC sequences onto the device
+        parent (:class:`BaseInstrument`): The parent instrument that this 
+            :class:`AWGCore` is associated to.
+        index (int): An integer specifying the index in the parent instrument.
+        waveforms (list): A list of :class:`Waveforms` that represent the 
+            queued up waveforms in for a "Simple" sequence.  
+        program (:class:`SequenceProgram`): A :class:`SequenceProgram` object 
+            used to program predefined '.seqC' sequences on the device.
 
     """
 
@@ -75,7 +139,8 @@ class AWGCore:
         """Waits until the AWG Core is finished.
         
         Keyword Arguments:
-            timeout (int): max. waiting time in seconds for the AWG (default: 10)
+            timeout (int): The maximum waiting time in seconds for the AWG Core. 
+                (default: 10)
 
         """
         tok = time.time()
@@ -87,12 +152,12 @@ class AWGCore:
         return
 
     def compile(self):
-        """Compiles the current SequenceC program on the AWG Core.
+        """Compiles the current SequenceProgram on the AWG Core.
         
         Raises:
-            ZHTKException: If the AWG Core is not set up.
-            ZHTKException: If the compilation failed.
-            Warning: If the compilation finishes with a warning.
+            ZHTKException: If the AWG Core has not been set up yet.
+            ZHTKException: If the compilation has failed.
+            Warning: If the compilation has finished with a warning.
 
         """
         if self._module is None:
@@ -120,15 +185,17 @@ class AWGCore:
         self._wait_upload_done()
 
     def reset_queue(self):
-        """Resets the waveform queue."""
+        """Resets the waveform queue to an empty list."""
         self._waveforms = []
 
     def queue_waveform(self, wave1, wave2, delay=0):
         """Adds a new waveform to the queue. 
         
         Arguments:
-            wave1 (array): Waveform to be queued for Channel 1
-            wave2 (array): Waveform to be queued for Channel 2
+            wave1 (array): The waveform to be queued for Channel 1 as a 1D numpy 
+                array. 
+            wave2 (array): The waveform to be queued for Channel 2 as a 1D numpy 
+                array. 
         
         Keyword Arguments:
             delay (int): An individual delay in seconds for this waveform w.r.t. 
@@ -149,8 +216,8 @@ class AWGCore:
         """Replaces a waveform in the queue at a given index.
         
         Arguments:
-            wave1 (array): Waveform to replace current wave for Channel 1
-            wave2 (array): Waveform to replace current wave for Channel 2
+            wave1 (array): Waveform to replace current wave for Channel 1.
+            wave2 (array): Waveform to replace current wave for Channel 2.
         
         Keyword Arguments:
             index (int): The index of the waveform in the queue to be replaced.
@@ -166,10 +233,10 @@ class AWGCore:
         self._waveforms[i].replace_data(wave1, wave2, delay=delay)
 
     def upload_waveforms(self):
-        """Uploads all waveforms int he queue to the AWG Core.
+        """Uploads all waveforms in the queue to the AWG Core.
 
-        This method only works as expected if the Sequence program in 'Simple' 
-        mode has been compiled before.
+        This method only works as expected if the Sequence Program is in 
+        'Simple' mode and has been compiled beforehand.
         
         """
         waveform_data = [w.data for w in self._waveforms]
@@ -217,7 +284,27 @@ class AWGCore:
 
         They include:
             'sequence_type', 'period', 'repetitions', 'trigger_mode', 
-            'trigger_delay', etc.
+            'trigger_delay', ...
+
+            >>> hdawg.awgs[0]
+            <zhinst.toolkit.hdawg.AWG object at 0x0000021E467D3320>
+                parent  : <zhinst.toolkit.hdawg.HDAWG object at 0x0000021E467D3198>
+                index   : 0
+                sequence:
+                        type: None
+                        ('target', 'hdawg')
+                        ('clock_rate', 2400000000.0)
+                        ('period', 0.0001)
+                        ('trigger_mode', 'None')
+                        ('repetitions', 1)
+                        ('alignment', 'End with Trigger')
+                        ...
+            >>> hdawg.awgs[0].set_sequence_params(
+            >>>     sequence_type="Simple",
+            >>>     trigger_mode="Send Trigger",
+            >>>     repetitions=1e6,
+            >>>     alignemnt="Start with Trigger"
+            >>> )
               
         """
         self._program.set_params(**kwargs)

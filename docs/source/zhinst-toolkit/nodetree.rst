@@ -1,22 +1,9 @@
-Nodetree and Prameters
-^^^^^^^^^^^^^^^^^^^^^^
-
-
-Parameter
----------
-
-Explain somthing here....
-
-.. autoclass:: zhinst.toolkit.control.nodetree.Parameter
-    :members:
-    :inherited-members:
-
+Nodetree and Parameters
+^^^^^^^^^^^^^^^^^^^^^^^
 
 
 Nodetree
 --------
-
-Explain something here...
 
 .. autoclass:: zhinst.toolkit.control.nodetree.Nodetree
     :show-inheritance:  
@@ -27,7 +14,19 @@ Explain something here...
 Node
 ----
 
-Explain something here ...
-
 .. autoclass:: zhinst.toolkit.control.nodetree.Node
     :members:
+
+Node List
+---------
+
+.. autoclass:: zhinst.toolkit.control.nodetree.NodeList
+    :members:
+
+
+Parameter
+---------
+
+.. autoclass:: zhinst.toolkit.control.nodetree.Parameter
+    :members:
+    :inherited-members:

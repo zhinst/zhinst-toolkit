@@ -42,8 +42,10 @@ class MFLI(BaseInstrument):
         name (str): Identifier for the MFLI.
         serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
             number can be found on the back panel of the instrument.
-        daq (:class:`zhinst.toolkit.control.drivers.base.DAQModule`)
-        sweeper (:class:`zhinst.toolkit.control.drivers.base.SweeperModule`)
+        daq (:class:`zhinst.toolkit.control.drivers.base.DAQModule`): Data 
+            Acquisition Module of the instrument.
+        sweeper (:class:`zhinst.toolkit.control.drivers.base.SweeperModule`): 
+            Sweeper Module of the instrument.
 
     """
 

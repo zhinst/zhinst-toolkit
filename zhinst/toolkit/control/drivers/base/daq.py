@@ -36,16 +36,84 @@ MAPPINGS = {
 
 
 class DAQModule:
-    """Implements a base Data Acquisition Module for Lock-In instruments. 
+    """Implements a :class:`Data Acquisition Module` for Lock-In instruments. 
     
+    The data acquisition module is a powerful tool that builds on top of LabOne. 
+    It allows for triggered acquisition of multiple data streams on an 
+    equidistant temporal grid. For more information on how to use the DAQ 
+    Module, have a look at the LabOne Programming Manual. 
+
     This base class is overwritten by device specific DAQ classes with 
     additional signal sources and types. After setup, the nodetree of the module 
-    is retrieved from the API and added to the Sweeper object attributes as 
-    zhinst-toolkit Parameters.
+    is retrieved from the API and added to the DAQModule object attributes as 
+    :mod:`zhinst-toolkit` :class:`Parameters`.  
+
+    In a typical measurement using the DAQ Module one would first configure its 
+    trigger and grid settings. 
+
+        >>> # configure a measurement 
+        >>> mfli.daq.fft_window("rectangular")
+        >>> mfli.daq.type("continuous")
+        >>> mfli.daq.grid_cols(512)
+        >>> mfli.daq.grid_rows(10)
+
+    The signal streams that are available for acquisition can be listed using 
+    `signals_list(...)`.  
+
+        >>> # list available signal sources ...
+        >>> mf.daq.signals_list()
+        ['auxin0', 'demod0', 'demod1', 'imp0']
+        >>> # ... and according singal types
+        >>> mf.daq.signals_list("demod1")
+        ['x', 'y', 'r', 'xiy', 'theta', 'frequency', 'auxin0', 'auxin1', 'dio']
+
+    To specify which signals should be acquired during the measurement, they 
+    need to be added to the measurement. This is done with the 
+    `signals_add(...)` method. Note that the return value is a string with the 
+    exact node path that will be subscribed to during the measurement. The 
+    string can be used later as a key in the `results` dictionary.
+
+        >>> # add signals to the measurement
+        >>> mf.daq.signals_clear()
+        >>> signal1 = mf.daq.signals_add("demod1", "r")     # specify signal_source and signal_type
+        >>> signal2 = mf.daq.signals_add("demod1", "theta")
+        >>> signal3 = mf.daq.signals_add("demod1", "xiy", fft=True)
+
+    The measurement is started ...
+
+        >>> # start the measurement
+        >>> mf.daq.measure()
+        subscribed to: /dev3337/demods/0/sample.r.avg
+        subscribed to: /dev3337/demods/0/sample.theta.avg
+        subscribed to: /dev3337/demods/0/sample.xiy.fft.abs.avg
+        Progress: 0.0%
+        Progress: 40.0%
+        ...
+
+    ... and afterwards the results can be found in the `results` attribute of 
+    the :class:`DAQModule`. The values in the dictionary are of type 
+    :class:`DAQResults`.
+
+        >>> # retrieve the measurement results
+        >>> result1 = mf.daq.results[signal1]
+        >>> result2 = mf.daq.results[signal2]
+        >>> result3 = mf.daq.results[signal3]
+        >>> ...
+        >>> result1
+        <zhinst.toolkit.control.drivers.base.daq.DAQResult object at 0x0000023B8467D588>
+            path:        /dev3337/demods/0/sample.xiy.fft.abs.avg
+            value:       (10, 511)
+            frequency:   (511,)
+
+    See below for details on 
+    :class:`zhinst.toolkit.control.drivers.base.daq.DAQResult`.
 
     Attributes:
-        signals (list): list of node strings of signals added to the measurement
-        results (dict): dict with signals as keys and values :class:`zhinst.toolkit.control.drivers.base.daq.DAQResult`  
+        signals (list): A list of node strings of signals that are added to the 
+            measurement and will be subscribed to before data acquisition.
+        results (dict): A dictionary with signal strings as keys and 
+            :class:`zhinst.toolkit.control.drivers.base.daq.DAQResult` objects 
+            as values that hold all the data of the measurement result.  
     
     """
 
@@ -66,8 +134,8 @@ class DAQModule:
                 "xiy": ".xiy",
                 "theta": ".Theta",
                 "frequency": ".Frequency",
-                "auxin1": ".AuxIn0",
-                "auxin2": ".AuxIn1",
+                "auxin0": ".AuxIn0",
+                "auxin1": ".AuxIn1",
                 "dio": ".Dio",
             },
             "imp": {
@@ -76,8 +144,8 @@ class DAQModule:
                 "abs": ".AbsZ",
                 "theta": ".PhaseZ",
                 "frequency": ".Frequency",
-                "param1": ".Param0",
-                "param2": ".Param1",
+                "param0": ".Param0",
+                "param1": ".Param1",
             },
             "cnt": {"": ".Value"},
         }
@@ -182,19 +250,23 @@ class DAQModule:
         """Add a signal to the signals list to be subscribed to during measurement.
         
         Arguments:
-            signal_source (str): source of the signal, e.g. 'demod1'
+            signal_source (str): The source of the signal, e.g. 'demod0'. See 
+                `signals_list()` for available signals.
         
         Keyword Arguments:
-            signal_type (str): type of the signal, depends on the source, e.g. 
-                'X', 'Y', 'R', 'Theta' ... (default: "")
-            operation (str): operation performed on the acquired signal, e.g. 
-                averaging ('avg'), standard deviation ('std') or single points 
-                ('replace') (default: "avg")
-            fft (bool): flag to enable the fourier transform of the signal 
-                (default: False)
-            complex_selector (str):  if the FFT is enabled, this selects the 
-                complex value of the result, e.g. 'abs', 'phase', 'real', 'imag' 
-                (default: "abs")
+            signal_type (str): The type of the signal. Depends on the given 
+                source, e.g. for demod signals the types'X', 'Y', 'R', 'Theta',
+                ... are available. See `signals_list({signal source})` for 
+                available signal types. (default: "")
+            operation (str): The operation that is performed on the acquired 
+                signal, e.g. the average of data points ('avg'), the standard 
+                deviation of the signal ('std') or single points ('replace'). 
+                (default: "avg")
+            fft (bool): A flag to enable the fourier transform (FFT) of the 
+                acquired signal.  (default: False)
+            complex_selector (str):  If the FFT is enabled, this selects the 
+                complex value of the result, e.g. 'abs', 'phase', 'real', 
+                'imag'. (default: "abs")
         
         Returns:
             A string with the exact node that will be subscribed to. Can be used 
@@ -217,9 +289,10 @@ class DAQModule:
         """Performs the measurement.
         
         Keyword Arguments:
-            verbose (bool): flag to enable output (default: True)
-            timeout (int): measurement stopped after timeout, in seconds 
-                (default: 20)
+            verbose (bool): A flag to enable or disable console output during 
+                the measurement. (default: True)
+            timeout (int): The measurement will be stopped after the timeout. 
+                The valiue is given in seconds. (default: 20)
         
         """
         self._set("endless", 0)
@@ -345,12 +418,46 @@ class DAQModule:
 class DAQResult:
     """A wrapper class around the result if a DAQ module measurement.
     
+    The Data Acquisition Result class holds all measurement information returned 
+    from the API. The attribute `value` is a two-dimensional numpy array with 
+    the measured data along the measured grid. Depending on whether the time 
+    trace or the FFT of a signal was acquired, either the `time` of `frequency` 
+    attribute holds a 1D numpy array with the correct axis values calculated 
+    from the measurement grid.
+
+        >>> signal = mf.daq.signals_add("demod1", "r")     
+        >>> mf.daq.measure()
+        ...
+        >>> result = mf.daq.results[signal]
+        >>> result
+        <zhinst.toolkit.control.drivers.base.daq.DAQResult object at 0x0000023B8467D588>
+            path:        /dev3337/demods/0/sample.r.avg
+            value:       (10, 511)
+            time:        (511,)
+        >>> result.header
+           {'systemtime': array([1585136936490779], dtype=uint64),
+            'createdtimestamp': array([548560038356], dtype=uint64),
+            'changedtimestamp': array([548669852116], dtype=uint64),
+            'flags': array([1977], dtype=uint32),
+            ...
+        >>> plt.imshow(result.value, extent=[result.time[0], result.time[-1], 0, result.shape[0]])
+
     Attributes:
-        value (array)
-        header (dict)
-        time (array)
-        frequency (array)
-        shape (tuple)
+        value (array): A 2D numpy array with the measurement result.
+        shape (tuple): A tuple with the shape of the acquired data. Corresponds 
+            to the according grid settings. 
+        time (array): A 1D numpy array containing the time axis of the 
+            measurement in seconds. Calculated from the returned timestamps 
+            using the DAC clock rate. If the result is a Fourier transform this 
+            value is `None`.
+        frequency (array): A 1D numpy array with the frequency values for FFT 
+            measurements in Hertz. If the signal is not a FFT this value is 
+            `None` The frequency grid is calculated from the grid settings. If 
+            the "xiy" complex signal of the demodulator data stream is acquired, 
+            the frequency spectrum is symmetric around 0 Hz, otherwise it is 
+            positive.
+        header (dict): A dictionary containing all information about the 
+            measurement settings.
 
     """
 

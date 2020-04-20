@@ -11,12 +11,13 @@ class ZHTKNodetreeException(Exception):
 
 
 class Parameter:
-    """Implements a `zhinst-toolkit` Parameter.
+    """Implements a :mod:`zhinst-toolkit` :class:`Parameter`.
 
-    Implements a callable parameter as leaves in the nodetree with a parent node 
-    and a device. It holds the information from the daq.listNodesJSON(...) 
-    method such as the node path, the description, properties, etc. The 'help' 
-    property prints a string with a summary of the parameter.
+    Implements a callable :class:`Parameter` as leaves in the :class:`Nodetree` 
+    with a parent :class:`Node` and a device. It holds the information from the 
+    `daq.listNodesJSON(...)` method of the Zurich Instruments Python API such as 
+    the node path, the description, properties, etc. The `__repr__()` method 
+    returns a string with a summary of the :class:`Parameter`.
 
         >>> uhfqa.nodetree.osc.freq
         Node: /DEV2266/OSCS/0/FREQ
@@ -27,30 +28,34 @@ class Parameter:
         Unit: Hz
         Value: none
 
-    Settings and getting a Parameter is easy!
+    Setting and getting a :class:`Parameter` is easy! Just call the 
+    :class:`Parameter` with or without an argument:
 
         >>> uhfqa.nodetree.osc.freq(10e6)
         >>> uhfqa.nodetree.osc.freq()
         10000000.00
     
     Arguments:
-        parent (:class:`BaseInstrument` or :class:`Node`): Parent object that the :class:`Parameter` is 
-            associated to.
-        params (dict): Dictionary with a definition of the :class:`Parameter`. It must 
-            contain the item 'Node' corresponding to a node path on the device 
-            that is used for getting and setting the :class:`Parameter` value. It may 
-            contain the items 'Description', 'Properties', 'Options', 'Unit', 
-            'Type'. 
+        parent (:class:`BaseInstrument`, :class:`Nodetree` or :class:`Node`): 
+            The parent object that the :class:`Parameter` is associated to.
+        params (dict): Dictionary with a definition of the :class:`Parameter`. 
+            It must contain the item 'Node' corresponding to the node path of 
+            the parameter on the device that is used for getting and setting the 
+            :class:`Parameter` value. It may contain the items 'Description', 
+            'Properties', 'Options', 'Unit', 'Type'. 
 
     Keyword Arguments:
-        device (:class:`BaseInstruemnt`): deviec driver that the Parameter is associated 
-            to, used to call set and get (default: None)
-        set_parser (Callable): parser that is called before setting the value 
-            (default: 'lambda v: v')
-        set_parser (Callable): parser that is called after getting the value
-            (default: 'lambda v: v')
-        mapping (dict): value mapping for keyword to integer conversion 
-            (defaul: None)
+        device (:class:`BaseInstruemnt`): The device driver that the 
+            :class:`Parameter` is associated to. The device is eventually 
+            used to `set(...)` and `get(...)` the node. (default: None)
+        set_parser (Callable): A parser function that is called with the set 
+            value before setting the value and returns the parsed parameter 
+            value. (default: 'lambda v: v')
+        set_parser (Callable): A parser function that is called with the gotten 
+            value from the device before returning it by the getter. It returns 
+            the parsed parameter value. (default: 'lambda v: v')
+        mapping (dict): A value mapping for keyword to integer conversion. 
+            (default: None)
 
     """
 
@@ -77,17 +82,18 @@ class Parameter:
         self._map = mapping
 
     def _getter(self):
-        """Implements a getter for the parameter.
+        """Implements a getter for the :class:`Parameter`.
         
-        If 'Read' is in the parameter properties (from listNodesJSON), this will 
-        call the '_get' method of the associated device with 'path' as attribute.
+        If 'Read' is in the parameter properties (from `listNodesJSON`), this 
+        will call the '_get' method of the associated device with 'path' as 
+        attribute.
         
         Raises:
             ZHTKNodetreeException: if the parameter is not gettable, i.e. if 
                 'Read' not in properties
         
         Returns:
-            The Parameter value as returned from the get parser.
+            The  :class:`Parameter` value as returned from the `get` parser.
 
         """
         if "Read" in self._properties:
@@ -104,21 +110,21 @@ class Parameter:
             raise ZHTKNodetreeException("This parameter is not gettable!")
 
     def _setter(self, value):
-        """Implements a setter for the parameter. 
+        """Implements a setter for the :class:`Parameter`. 
         
-        If 'Write' is in the parameter properties (from listNodesJSON), this 
-        will call the '_set' method of the associated device with 'path' and 
-        'value' as attributes.
+        If 'Write' is in the  :class:`Parameter` properties (from 
+        `listNodesJSON`), this will call the '_set' method of the associated 
+        device with 'path' and 'value' as attributes.
         
         Arguments:
             value: value to be set
         
         Raises:
-            ZHTKNodetreeException: if the parameter is not settable, i.e. if 
-                'Write' not in properties
+            ZHTKNodetreeException: if the  :class:`Parameter` is not settable, 
+                i.e. if 'Write' not in properties
         
         Returns:
-            The Parameter value set on the device.
+            The  :class:`Parameter` value set on the device.
 
         """
         if "Write" in self._properties:
@@ -140,18 +146,19 @@ class Parameter:
     def __call__(self, value=None):
         """Make the object callable.
 
-        Override the __call__ method for setting and getting the Parameter 
-        value. The Parameter can then be gotten by calling it with no arguments. 
-        It is set by calling it with the value as an argument. This works
-        similarly to parameters in QCoDeS.
+        Override the `__call__(...)` method for setting and getting the 
+        :class:`Parameter` value. The  :class:`Parameter` can then be gotten by 
+        calling it with no arguments. It is set by calling it with the value as 
+        an argument. This works similarly to parameters in :mod:`qcodes`.
         
         Arguments:
-            value:  optional value to call the parameter with if it is set, 
-                leaving the argumetn out gets the parameter(default: None)
+            value:  An optional value to call the  :class:`Parameter` with if it 
+                is `set`, leaving the argument out `gets` the  :class:`Parameter` 
+                from the device. (default: None)
 
         Returns:
             The value that has been set if a value is specified, otherwise the 
-            returned value from the getter.
+            returned value from the `getter`.
         
         """
         if value is None:
@@ -179,16 +186,36 @@ class Parameter:
 
 
 class Node:
-    """Implements a node in the nodetree of a device. 
+    """Implements a node in the :class:`Nodetree` of a device. 
     
-    A node has a parent node and a device it is associated with. It can hold 
-    other nodes as well as parameters. The data structure of the device nodetree 
-    is recreated by recursively adding either nodes or parameters as attributes 
-    to the node.
+    A :class:`Node` has a parent node and a device it is associated with. It can 
+    hold other :class:`Nodes` as well as :class:`Parameters`. The data structure 
+    of the device :class:`Nodetree` is recreated by recursively adding either 
+    other :class:`Nodes` or :class:`Parameters` as attributes to the 
+    :class:`Node`.
+
+    To make it easier fo the user to navigate the device :class:`Nodetree`, each
+    :class:`Node` has the attributes `nodes` and `parameters` taht holds a list 
+    its children. Also the `__repr__()` method is overwritten such that the 
+    output in the console is useful:  
+
+        >>> hdawg.nodetree.sigouts[0] 
+        <zhinst.toolkit.tools.nodetree.Node object at 0x0000021E49397470>
+        nodes:
+        - precompensation
+        parameters:
+        - on
+        - range
+        - direct
+        - over
+        ...
+
 
     Attributes:
-        nodes (list): list of :class:`Node` s that are children of this :class:`Node`
-        parameters (list): list of :class:`Parameters` that are children of this :class:`Node`
+        nodes (list): A list of other :class:`Node` s that are children of this 
+            :class:`Node`.
+        parameters (list): A list of :class:`Parameters` that are children of 
+            this :class:`Node`.
 
     """
 
@@ -205,26 +232,28 @@ class Node:
         return [k for k, v in self.__dict__.items() if isinstance(v, Parameter)]
 
     def _init_subnodes_recursively(self, parent, nodetree_dict: dict):
-        """Recursively adds Nodes and/or Parameters to a parent Node.
+        """Recursively adds class:`Nodes` and/or :class:`Parameters` to a parent 
+        :class:`Node`.
 
-        Recursively goes through a nested nodetree dictionary. Adds a Node 
-        object as attribute to the parent node if the leave of the nodetree has 
-        not yet been reached. Adds a Parameter as attribute to the parent node
-        if the leave has been reached (i.e. when 'Node' is in keys of the 
-        remaining dict and the remaining dict is the same as the one return 
-        from listNodesJSON describing the parameter).
+        Recursively goes through a nested nodetree dictionary. Adds a 
+        :class:`Node` object as attribute to the parent node if the leave of the 
+        :class:`Nodetree` has not yet been reached. Adds a :class:`Parameter` as 
+        attribute to the parent node if the leave has been reached (i.e. when 
+        'Node' is in keys of the remaining dict and the remaining dict is the s
+        ame as the one return from `listNodesJSON` describing the 
+        :class:`Parameter`).
 
-        If a layer in the nodetree is enumerated and the keys of the dict are 
-        integer values (e.g. 'sigouts/0/..', 'sigouts/1/..', 'sigouts/2/..', ...) 
-        a NodeList is created instead. In case the NodeList has only one entry 
-        (e.g. for 'qas/0/..') only a single node is added and the plural of 
-        'qas' is turned into 'qa'.
+        If a layer in the :class:`Nodetree` is enumerated and the keys of the 
+        dict are integer values (e.g. 'sigouts/0/..', 'sigouts/1/..', 
+        'sigouts/2/..', ...) a :class:`NodeList` is created instead. In case the 
+        :class:`NodeList` has only one entry (e.g. for 'qas/0/..') only a single 
+        :class:`Node` is added and the plural of 'qas' is turned into 'qa'.
         
         Arguments:
-            parent (Node): parent node that the Nodes or Parameters are added 
-                to as attributes
-            nodetree_dict (dict): (sub-)dictionary containing the next Nodes 
-                and/or Parameters as dicts 
+            parent (:class:`Node`): The parent :class:`Node` that the 
+                :class:`Nodes` or :class:`Parameters` are added to as attributes.
+            nodetree_dict (dict): A (sub-)dictionary containing the next 
+                :class:`Nodes` and/or :class:`Parameters` as dicts. 
 
         """
         for key, value in nodetree_dict.items():
@@ -266,10 +295,25 @@ class Node:
 
 
 class NodeList(list):
-    """Implements a list of nodes. 
+    """Implements a list of :class:`Nodes`. 
     
-    Simply inherits from List and overrides the __repr__() method to make it 
-    look nice in the console or in a notebook.
+    Simply inherits from :class:`List` and overrides the `__repr__()` method to 
+    make it look nice in the console or in a notebook.
+
+        >>> hdawg.nodetree.sigouts
+        Iterable node with 8 items: 
+            Node 1:
+            <zhinst.toolkit.tools.nodetree.Node object at 0x0000021E49397470>
+            nodes:
+            - precompensation
+            parameters:
+            - on
+            - range
+            - direct
+            - over
+        ...
+        >>> for sigout in hdawg.nodetree.sigouts:
+        >>>     sigout.range(1.5)
 
     """
 
@@ -284,23 +328,45 @@ class NodeList(list):
 class Nodetree(Node):
     """Recreates the device's nodetree.
 
-    Implements a Nodetree data structure used to access the settings (nodes) 
-    of any ZI device. A nodetree is created for every instrument when it is 
-    connected to the data server. In this way the available settings always 
-    directly correspond to the ndoes that are available on the device.
+    Implements a :class:`Nodetree` data structure used to access the settings 
+    (:class:`Parameter`) of any Zurich Instruments device. A :class:`Nodetree` 
+    is created for every instrument when it is connected to the data server. In 
+    this way the available settings always directly correspond to the 
+    :class:`Nodes` that are available on the device.
 
-    Inherits from the Node class. On initialization the nodetree gets a nested 
-    dictionary representing the nodetree hirarchy and then recursively adds 
-    Node and Parameter objects as attributes to the node.
+    Inherits from the :class:`Node` class. On initialization the 
+    :class:`Nodetree` retireves a nested dictionary fromt he device representing 
+    its nodetree hirarchy and then recursively adds :class:`Nodes` and 
+    :class:`Parameters` as attributes to the :class:`Node`.
+
+        >>> hdawg.nodetree
+        <zhinst.toolkit.tools.nodetree.Nodetree object at 0x0000021E467D3BA8>
+        nodes:
+        - stats
+        - oscs
+        - status
+        - sines
+        - awgs
+        - dio
+        - system
+        - sigouts
+        - triggers
+        - features
+        - cnts
+        parameters:
+        - clockbase
+
     
     Arguments:
-        device (BaseInstrument): reference to the instrument the nodetree 
-            belong to. Used for getting and setting of each parameter.
+        device (:class:`BaseInstrument`): A reference to the instrument that 
+            the :class:`Nodetree` belongs to. Used for `getting` and `setting` 
+            of each :class:`Parameter`.
     
     Attributes:
-        device (BaseInstrument): the associated device
-        nodetree_dict (dict): a nested dictionary created from the dict 
-            returned by daq.listNodesJSON(...) in zhinst.ziPython. 
+        device (:class:`BaseInstrument`): The associated device.
+        nodetree_dict (dict): A nested dictionary created from the dict 
+            returned by `daq.listNodesJSON(...)` of the :mod:`zhinst.ziPython` 
+            Python API. 
 
     """
 
@@ -310,13 +376,14 @@ class Nodetree(Node):
         self._init_subnodes_recursively(self, self._nodetree_dict)
 
     def _get_nodetree_dict(self):
-        """Gets the nodetree as a nested dictionary. 
+        """Gets the :class:`Nodetree` as a nested dictionary. 
 
-        Retrieves the nodetree from the device as a flat dictionary and 
+        Retrieves the :class:`Nodetree` from the device as a flat dictionary and 
         converts it to a nested dictionary using `dictify()`. For every device 
         node returned from the instrument this method splits the node string 
-        into its parts and sorts the value (dict with node, description, unit, 
-        etc.) into a nested dict that recreates the hirarchy of the nodetree.
+        into its parts and sorts the value (dict with 'Node', 'Description', 
+        'Unit', etc.) into a nested dict that recreates the hirarchy of the 
+        :class:`Nodetree`.
 
         """
         tree = self._device._get_nodetree(f"{self._device.serial}/*")
@@ -329,15 +396,15 @@ class Nodetree(Node):
 
 
 def dictify(data, keys, val):
-    """Turns a flat nodetree dictionary into a nested dictionary.
+    """Turns a flat :class:`Nodetree` dictionary into a nested dictionary.
 
     Helper function to generate nested dictionary from list of keys and value. 
     Calls itself recursively.
     
     Arguments:
-        data (dict): dictionary to add value to with keys
-        keys (list): list of keys to traverse along tree and place value
-        val (dict): value for innermost layer of nested dict
+        data (dict): A dictionary to add value to with keys.
+        keys (list): A list of keys to traverse along tree and place value.
+        val (dict): A value for innermost layer of nested dict.
 
     """
     key = keys[0]

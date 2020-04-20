@@ -25,13 +25,12 @@ class BaseInstrument:
     with the data server. It also initialize a Nodetree that is used to access 
     all the settings in the device's nodetree.
 
-    Typical Usage:
-        >>>import zhinst.toolkit as tk
-        >>>inst = tk.BaseInstrument("myDevice", "hdawg", "dev9999", interface="usb")
-        >>>inst.setup()
-        >>>inst.connect_device()
-        >>>inst.nodetree.sigouts[0].on(1)
-        >>>...
+        >>> import zhinst.toolkit as tk
+        >>> inst = tk.BaseInstrument("myDevice", "hdawg", "dev9999", interface="usb")
+        >>> inst.setup()
+        >>> inst.connect_device()
+        >>> inst.nodetree.sigouts[0].on(1)
+        >>> ...
 
     Arguments:
         name (str): Identifier for the instrument.
@@ -40,10 +39,10 @@ class BaseInstrument:
         serial (str): Serial number of the device, e.g. 'dev2281'. The serial 
             number can be found on instrument back panel.
 
-    Properties:
-        nodetree (Nodetree): Nodetree object that contains the nodetree hirarchy 
-            of the device settings. The leaves of the tree are parameters that can 
-            be called to get and set the values.
+    Attributes:
+        nodetree (:class:`Nodetree`): :class:`Nodetree` object that contains the 
+            nodetree hirarchy of the device settings. The leaves of the tree are 
+            parameters that can be called to get and set the values.
         name (str): Identifier for the instrument.
         device_type (str): Type of the device. 
         serial (str): Serial number of the device.

@@ -28,8 +28,9 @@ MAPPINGS = {
 class UHFQA(BaseInstrument):
     """High-level driver for the Zurich Instruments UHFQA. 
     
-    Inherits from BaseInstrument and adds an AWG Module and a list of 
-    Readout Channels. They can be accessed as properties of the UHFQA.
+    Inherits from :class:`BaseInstrument` and adds an :class:`AWGCore` and a 
+    list of :class:`ReadoutChannels`. They can be accessed as properties of the 
+    UHFQA.
 
         >>> import zhinst.toolkit as tk
         >>> ...
@@ -64,16 +65,20 @@ class UHFQA(BaseInstrument):
             number can be found on the back panel of the instrument.
 
     Attributes:
-        awg (:class:`zhinst.toolkit.control.drivers.uhfqa.AWG`): device-specific AWG Core for the UHFQA
-        channels (list): list of ten :class:`zhinst.toolkit.control.drivers.uhfqa.ReadoutChannel` s
+        awg (:class:`zhinst.toolkit.control.drivers.uhfqa.AWG`): 
+            A device-specific :class:`AWGCore` for the UHFQA.
+        channels (list): A list of ten 
+            :class:`zhinst.toolkit.control.drivers.uhfqa.ReadoutChannel` s that 
+            each represent the digital signal processing path on the instrument.
         integration_time (:class:`zhinst.toolkit.control.nodetree.Parameter`): 
-            time in seconds used for signal integration, must be positive, when 
-            using weighted integration, the maximum value is ca. 2.275 us 
-            (default: 2.0 us)
+            The time in seconds used for signal integration. The value must be 
+            positive. The maximum value when using weighted integration is 4096 
+            samples or ca. 2.275 us (default: 2.0 us).
         result_source (:class:`zhinst.toolkit.control.nodetree.Parameter`): 
-            selects the source of the QA results, must be one of {"Crosstalk", 
-            "Threshold", "Rotation", "Crosstalk Correlation", "Threshold 
-            Correlation", "Integration"} 
+            This parameter selects the stage in the signal processing path that 
+            is used as the source for the QA results. It can be one of 
+            {"Crosstalk", "Threshold", "Rotation", "Crosstalk Correlation", 
+            "Threshold Correlation", "Integration"}. 
 
 
     """
@@ -124,9 +129,9 @@ class UHFQA(BaseInstrument):
         """Connects the device to the data server and initializes the AWG.
         
         Keyword Arguments:
-            nodetree (bool): flag that specifies if all the parameters from the 
-                device's nodetree should be added to the object's attributes as 
-                `zhinst-toolkit` Parameters. (default: True)
+            nodetree (bool): A flag that specifies if all the parameters from 
+                the device's nodetree should be added to the object's attributes 
+                as `zhinst-toolkit` Parameters. (default: True)
         
         """
         super().connect_device(nodetree=nodetree)
@@ -136,11 +141,15 @@ class UHFQA(BaseInstrument):
         """Sets or gets the crosstalk matrix of the UHFQA as a 2D array.
         
         Keyword Arguments:
-            matrix (2D array): The 2D crosstalk matrix with max. dimensions 
-                10 x 10. (default: None)
+            matrix (2D array): The 2D matrix used in the digital signal 
+                processing path to compensate for crosstalk between the 
+                different channels. The given matrix can also be a part of the 
+                entire 10 x 10 matrix. Its maximum dimensions are 10 x 10. 
+                (default: None)
 
         Returns:
-            The current crosstalk matrix as a 2D array if no argument is given.
+            If no argument is given the method returns the current crosstalk 
+            matrix as a 2D numpy array.
         
         """
         if matrix is None:
@@ -163,7 +172,7 @@ class UHFQA(BaseInstrument):
         """Enables weighted integration on the specified readout channels.
         
         Keyword Arguments:
-            channels (list): List of indices of channels to enable. 
+            channels (list): A list of indices of channels to enable. 
                 (default: range(10))
         
         """
@@ -176,7 +185,7 @@ class UHFQA(BaseInstrument):
         """Disables weighted integration on the specified readout channels.
         
         Keyword Arguments:
-            channels (list): List of indices of channels to disable. 
+            channels (list): A list of indices of channels to disable. 
                 (default: range(10))
         
         """
@@ -232,19 +241,19 @@ class UHFQA(BaseInstrument):
 class AWG(AWGCore):
     """Device-specific AWG Core for UHFQA.
     
-    Inherits from `AWGCore` and adds `zhinst-toolkit` :class:`Parameters` like 
-    ouput or gains. This class also specifies sequence specific settings for the 
-    UHFQA.
+    Inherits from `AWGCore` and adds :mod:`zhinst-toolkit` :class:`Parameters` 
+    like ouput or gains. This class also specifies sequence specific settings 
+    for the UHFQA.
 
     Attributes:
-        output1 (:class:`zhinst.toolkit.control.nodetree.Parameter`): state of 
-            the output 1, i.e. one of {'on', 'off'}
-        output2 (:class:`zhinst.toolkit.control.nodetree.Parameter`): state of 
-            the output 2, i.e. one of {'on', 'off'}
-        gain1 (:class:`zhinst.toolkit.control.nodetree.Parameter`): gain of the 
-            output channel 1, must be between -1 and +1 (default: +1)
-        gain2 (:class:`zhinst.toolkit.control.nodetree.Parameter`): gain of the 
-            output channel 2 , must be between -1 and +1 (default: +1)
+        output1 (:class:`zhinst.toolkit.control.nodetree.Parameter`): The state 
+            of the output of channel 1. Can be one of {'on', 'off'}.
+        output2 (:class:`zhinst.toolkit.control.nodetree.Parameter`): The state 
+            of the output of channel 2. Can be one of {'on', 'off'}.
+        gain1 (:class:`zhinst.toolkit.control.nodetree.Parameter`): Gain of the 
+            output channel 1. The value must be between -1 and +1 (default: +1).
+        gain2 (:class:`zhinst.toolkit.control.nodetree.Parameter`): Gain of the 
+            output channel 2. The value must be between -1 and +1 (default: +1).
 
     """
 
@@ -428,14 +437,45 @@ class AWG(AWGCore):
 class ReadoutChannel:
     """Implements a Readout Channel for UHFQA. 
 
+    This class represents the signal processing chain for one of the ten 
+    :class:`ReadoutChannels` of a UHFQA. One channel is typically used for 
+    dispersive resonator readout of a superconducting Qubit.
+
+        >>> ch = uhfqa.channels[0]
+        >>> uhfqa.result_source("Threshold")
+        >>> ...
+        >>> ch.enable()
+        >>> ch.readout_frequency(85.6e6)
+        >>> ch
+        Readout Channel 0:  <zhinst.toolkit.uhfqa.ReadoutChannel object at 0x0000021091FD4F28>
+            rotation          : 0.0
+            threshold         : 0.0
+            readout_frequency : 85600000.0
+            readout_amplitude : 1
+            phase_shift       : 0
+        >>> ch.rotation(123.4)
+        >>> ch.threshold(-56.78)
+        >>> ...
+        >>> ch.result()
+        array([0.0, 1.0, 1.0, 1.0, 0.0, ...])
+
+    The readout channel can be enabled with `enable()` which means that the 
+    weighted integration mode is activated and integration weights are set to 
+    demodulate the signal at the given readout frequency. If the channel is 
+    enabled, the readout parameters are also used for signal generation in the 
+    :class:`AWGCore` if the sequence type is set to "Readout". 
+
     Attributes:
-        index (int): index of the Readout Channel from 1 - 10
-        rotation (:class:`zhinst.toolkit.control.nodetree.Parameter`): rotation 
-            of the signal in IQ plane in degrees
-        threshold (:class:`zhinst.toolkit.control.nodetree.Parameter`): signal 
-            threshold for state discrimination
-        result (:class:`zhinst.toolkit.control.nodetree.Parameter`): read only 
-            Parameter witht the result vector for the channel            
+        index (int): The index of the Readout Channel from 1 - 10.
+        rotation (:class:`zhinst.toolkit.control.nodetree.Parameter`): The 
+            rotation applied to the signal in IQ plane. The angle is specified 
+            in degrees.
+        threshold (:class:`zhinst.toolkit.control.nodetree.Parameter`): The 
+            signal threshold used for state discrimination in the thresholding 
+            unit.
+        result (:class:`zhinst.toolkit.control.nodetree.Parameter`): This 
+            read-only Parameter holds the result vector for the given readout 
+            channel as a 1D numpy array.            
 
     """
 
@@ -508,8 +548,12 @@ class ReadoutChannel:
     def readout_frequency(self, freq=None):
         """Sets or gets the readout frequency for this channel.
         
-        Readout frequency in Hz of the readout channel, this value is used 
-        for signal generation and for digital demodulation. Must be positive.
+        Readout frequency in Hz of the readout channel. If the AWG 
+        :class:`SequenceProgram` is of type "Readout", this Parameter is used to 
+        generate a readout tone at the given readout frequency for all readout 
+        channels that are enabled. This frequency is also used in the signal 
+        acquisition for digital demodulation if the readout channel is 
+        enabled. The frequency must be positive.
         
         """
         if freq is None:
@@ -523,7 +567,9 @@ class ReadoutChannel:
     def readout_amplitude(self, amp=None):
         """Sets or gets the readout amplitude for this channel.
         
-        Amplitude of the readout pulse (default: 1.0)
+        The amplitude of the readout pulse is used for signal generation of the 
+        readout tone if the channel is enabled and if the AWG 
+        :class:`SequenceProgram` is of type "Readout". (default: 1.0)
         
         """
         if amp is None:
@@ -537,7 +583,7 @@ class ReadoutChannel:
         """Sets or gets the readout phase shift for this channel.
         
         Additional phase shift in the signal generation between I and Q 
-        quadtratures (default: 0).
+        quadtratures. (default: 0)
         
         """
         if ph is None:

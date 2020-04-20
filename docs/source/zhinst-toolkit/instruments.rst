@@ -4,15 +4,13 @@ Instrument Drivers
 HDAWG
 -----    
 
-Explain something here about the HDAWG  and AWG Cores etc. balbla
-
-
-Maybe some more explaining down here ....
-
 .. autoclass:: zhinst.toolkit.HDAWG
     :show-inheritance:
     :members:
     :inherited-members:
+
+AWGCore for the HDAWG
++++++++++++++++++++++
 
 .. autoclass:: zhinst.toolkit.control.drivers.hdawg.AWG
     :show-inheritance:
@@ -27,9 +25,15 @@ UHFQA
     :members:
     :inherited-members:
 
+AWGCore for the UHFQA
++++++++++++++++++++++
+
 .. autoclass:: zhinst.toolkit.control.drivers.uhfqa.AWG
     :show-inheritance:
     :members:
+
+Readout Channel
++++++++++++++++
 
 .. autoclass:: zhinst.toolkit.control.drivers.uhfqa.ReadoutChannel
     :show-inheritance:

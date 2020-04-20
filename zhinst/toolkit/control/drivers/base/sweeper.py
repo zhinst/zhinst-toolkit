@@ -84,15 +84,69 @@ APPLICATIONS = {
 class SweeperModule:
     """Implements a base Sweeper Module for Lock-In instruments. 
     
-    This base class is overwritten by device specific Sweeper classes with 
+    The Sweeper Module allows for simple and efficient parameter sweeps while 
+    acquiring data streams from mutiple different signal sources. The  module 
+    supports well defined sweeps of various parameters as well as application 
+    specific measurement presets. For more information on how to use the Sweeper 
+    Module, have a look at the LabOne Programming Manual. 
+
+    This base class is overwritten by device specific Sweeper Modules with 
     additional signal sources and types. After setup, the nodetree of the module 
     is retrieved from the API and added to the Sweeper object attributes as 
-    zhinst-toolkit Parameters.
+    :mod:`zhinst-toolkit` :class:`Parameters`.
+
+    For a list of device parameters that support sweeping, use the 
+    `sweep_parameter_list()` method.
+
+        >>> mfli.sweeper.sweep_parameter_list()
+        ['auxout0offset',
+        'auxout1offset',
+        'auxout2offset',
+        'auxout3offset',
+        'demdod0phase',
+        'demdod1phase',
+        'frequency',
+        'output0amp',
+        'output0offset']
+
+    A typical measurement configuration for a simple frequency sweep would look 
+    like this:
+
+        >>> mfli.sweeper.start(1e3)
+        >>> mfli.sweeper.stop(510e3)
+        >>> mfli.sweeper.samplecount(100)
+        >>> mfli.sweeper.sweep_parameter("frequency")
+        set sweep parameter to 'frequency': 'oscs/0/freq'
+        
+    Similarly to the :class:`DAQModule`, signals can be listed with 
+    `signals_list()` and added to the measurement with `signals_add(...)`.
+
+        >>> mf.sweeper.signals_list()
+        ['auxin0', 'demod0', 'demod1', 'imp0']
+        >>> signal = mfli.sweeper.signals_add("demod0")
+        
+    The sweep is performed and the measurement result for the acquired signal is 
+    added as an entry in the `results` dictionary of the Sweeper Module.  
+
+        >>> mfli.sweeper.measure()
+        Subscribed to: '/dev3337/demods/0/sample'
+        Sweeping 'oscs/0/freq' from 1000.0 to 510000.0
+        Progress: 0.0%
+        Progress: 6.0%
+        Progress: 12.0%
+        ...
+        >>> result = mfli.sweeper.results[signal]
+
+    For more information on the results object, see the documentation for
+    :class:`zhinst.toolkit.control.drivers.base.sweeper.SweeperResult` below.
 
     Attributes:
-        signals (list): list of node strings of signals added to the measurement
-        results (dict): dict with signals as keys and values :class:`zhinst.toolkit.control.drivers.base.sweeper.SweeperResult` 
-    
+        signals (list): A list of node strings of signals that are added to the 
+            measurement and will be subscribed to before data acquisition.
+        results (dict):  A dictionary with signal strings as keys and 
+            :class:`zhinst.toolkit.control.drivers.base.daq.SweeperResult` 
+            objects as values that hold all the data of the measurement result.  
+
     """
 
     def __init__(self, parent, clk_rate=60e6):
@@ -130,13 +184,14 @@ class SweeperModule:
         """Adds a signal to the measurement.
         
         The according signal node path will be generated and added to the 
-        module's signal list. The signal node will be subscribed to before 
-        measurement. Available signal sources can be listed using 
-        `signals_list()`.
+        module's `signal` list attribute. The signal node will be subscribed to 
+        before measurement and the :class:`SweeperResult` for this signal will 
+        be added as an item in the `results` attribute after measurement. 
+        Available signal sources can be listed using `signals_list()`.
         
         Arguments:
-            signal_source (str): specifies the source of the signal, e.g. 
-                "demod1"
+            signal_source (str): A keyword string that specifies the source of 
+                the signal, e.g. "demod1".
         
         Returns:
             The exact node string that will be subscribed to, can be used as a 
@@ -150,23 +205,25 @@ class SweeperModule:
         return signal_node
 
     def signals_clear(self):
-        """Resets the signal list."""
+        """Resets the `signal` list attribute to an empty list."""
         self._signals = []
 
     def signals_list(self):
-        """Lists the available signals that can be added to the measurement.
+        """Lists the keywords for available signals that can be added to the 
+        measurement.
         
         Returns:
-            (list) a list of the available signals
+            A list of the available signals.
 
         """
         return list(self._signal_sources.keys())
 
     def sweep_parameter_list(self):
-        """Lists the available parameters that can be swept during the measurement.
+        """Lists the keywords for available parameters that can be swept during 
+        the measurement.
         
         Returns:
-            (list) a list of the available available sweep parameters
+            A list with keywords of the available sweep parameters.
 
         """
         return list(self._sweep_params.keys())
@@ -174,10 +231,12 @@ class SweeperModule:
     def sweep_parameter(self, param):
         """Sets the sweep parameter. 
         
-        The available parameters can be listed with `sweep_parameter_list()`.
+        The parameter to sweep should be given by a keyword string. The 
+        available parameters can be listed with `sweep_parameter_list()`.
         
         Arguments:
-            param (str)
+            param (str): The string corresponding to the parameter to sweep 
+                during measurement.
 
         """
         node = self._parse_sweep_param(param)
@@ -188,9 +247,10 @@ class SweeperModule:
         """Performs the measurement.
         
         Keyword Arguments:
-            verbose (bool): flag to enable output (default: True)
-            timeout (int): measurement stopped after timeout, in seconds 
-                (default: 20)
+            verbose (bool): A flag to enable or disable output on the console. 
+                (default: True)
+            timeout (int): The measurement will stopped after timeout. The value 
+                is given in seconds. (default: 20)
      
         """
         self._set("endless", 0)
@@ -222,7 +282,7 @@ class SweeperModule:
         """Lists the availbale application presets.
         
         Returns:
-            A list of strings with the available applications.
+            A list of keywprd strings with the available applications.
         
         """
         return list(APPLICATIONS.keys())
@@ -230,10 +290,13 @@ class SweeperModule:
     def application(self, application):
         """Sets one of the available application rpesets. 
         
-        The applications are defined in the global variable APPLICATIONS.
+        The applications are defined in the global variable `APPLICATIONS`. They
+        include `parameter_sweep`, `noise_amplitude_sweep`, 
+        `frequency_response_analyzer` and more.
         
         Arguments:
-            application (str)
+            application (str): The keyword for the application. See available 
+                applications with `application_list()`.
         
         """
         if application not in APPLICATIONS.keys():
@@ -316,10 +379,15 @@ class SweeperModule:
 
 
 class SweeperResult:
-    """A wrapper class around the result of a Sweeper module measurement. Adds all 
+    """A wrapper class around the result of a :class:`SweeperModule` 
+    measurement. 
     
-    the items of the dictionary returned from the API as attributes of the 
-    class, e.g. value, grid etc.
+    Adds all the items of the dictionary returned from the API as attributes to 
+    the class, e.g. attributes like `value`, `grid`, etc. 
+
+    Attributes:
+        attributes (list): A list of all the attributes that were returned from 
+            the API as a measurement result. 
 
     """
 

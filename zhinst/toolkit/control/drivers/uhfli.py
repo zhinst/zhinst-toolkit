@@ -29,13 +29,27 @@ class UHFLI(BaseInstrument):
         >>> uhfli.nodetree
         >>> ...
 
+        >>> signal = uhfli.daq.signals_add("demod1", "r")
+        >>> uhfli.daq.measure()
+        ...
+        >>> result = uhfli.daq.results[signal]
+        
+        >>> signal = uhfli.sweeper.signals_add("demod1")
+        >>> uhfli.sweeper.sweep_parameter("frequency")
+        >>> uhfli.sweeper.measure()
+        ...
+        >>> result = uhfli.sweeper.results[signal]
+
     Attributes:
         name (str): Identifier for the UHFLI.
         serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
             number can be found on the back panel of the instrument.
-        daq (:class:`zhinst.toolkit.control.drivers.base.DAQModule`)
-        sweeper (:class:`zhinst.toolkit.control.drivers.base.SweeperModule`)
-        awg (:class:`zhinst.toolkit.control.drivers.uhfqa.AWG`)
+        daq (:class:`zhinst.toolkit.control.drivers.base.DAQModule`): Data 
+            Acquisition Module of the instrument.
+        sweeper (:class:`zhinst.toolkit.control.drivers.base.SweeperModule`):
+            :class:`SweeperModule` of the instrument. 
+        awg (:class:`zhinst.toolkit.control.drivers.uhfqa.AWG`): AWG Module 
+            of the instrument if the the option is installed. 
 
     """
 

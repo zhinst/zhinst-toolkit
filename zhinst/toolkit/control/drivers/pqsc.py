@@ -12,13 +12,12 @@ from zhinst.toolkit.interface import DeviceTypes
 class PQSC(BaseInstrument):
     """High-level driver for the Zurich Instruments PQSC.
     
-    Typical Usage:
-        >>>import zhinst.toolkit as tk
-        >>>pqsc = tk.PQSC("pqsc", "dev1234")
-        >>>pqsc.setup()
-        >>>pqsc.connect_device()
-        >>>pqsc.nodetree
-        >>>...
+        >>> import zhinst.toolkit as tk
+        >>> pqsc = tk.PQSC("pqsc", "dev1234")
+        >>> pqsc.setup()
+        >>> pqsc.connect_device()
+        >>> pqsc.nodetree
+        >>> ...
     
     Arguments:
         name (str): Identifier for the PQSC.
