@@ -29,7 +29,9 @@ class BaseInstrument:
         >>> ...
         >>> inst = tk.BaseInstrument("myDevice", tk.DeviceTypes.HDAWG, "dev9999", interface="USB")
         >>> inst.setup()
+        Successfully connected to data server at localhost 8004 api version: 6
         >>> inst.connect_device()
+        Successfully connected to device DEV9999 on interface USB
         >>> inst.nodetree
         >>> ...
 
@@ -130,6 +132,19 @@ class BaseInstrument:
         specified with '*' as a placeholder.
 
             >>> hdawg._set("sigouts/*/on", 1)
+
+        Instead of specifying a single node path and a value, the user is free 
+        to pass a list of node / value pairs to the method to apply several 
+        settings at once with one call of the method.
+
+            >>> settings = [
+            >>>     ("sigouts/0/on", 1),
+            >>>     ("sigouts/0/range", 0.75),
+            >>>     ("sigouts/0/offset", 0.5),
+            >>>     ("sigouts/0/filter", 0),
+            >>>     ...
+            >>> ]
+            >>> hdawg._set(settings)
 
         Raises:
             ZHTKException if called and the device in not yet connected to the 

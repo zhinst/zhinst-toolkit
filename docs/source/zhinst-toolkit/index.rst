@@ -10,3 +10,4 @@ Documentation for :mod:`zhinst-toolkit`
    instruments
    modules
    nodetree
+   sequences

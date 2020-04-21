@@ -25,24 +25,37 @@ def amp_smaller_1(self, attribute, value):
 
 @attr.s
 class Sequence(object):
-    """Base class for an AWG sequence.
+    """Base class for an AWG sequence to be programmed on a :class:`AWGCore` .
     
     Attributes:
-        target (DeviceType)
-        clock_rate (double)
-        period (double)
-        trigger_mode (str)
-        repetitions (int)
-        alignment (str)
-        n_HW_loop (int)
-        dead_time (double)
-        trigger_delay (double)
-        latency (double)
-        trigger_cmd_1 (str)
-        trigger_cmd_2 (str)
-        wait_cycles (int)
-        dead_cycles (int)
-        reset_phase (bool)
+        period (double): Period in seconds at which the experiment is repeated.
+        trigger_mode (str or :class:`TriggerMode` enum): The trigger mode of the 
+            sequence, i.e if the AWG Core is used to send out the triger signal 
+            ("Send Triger" or :class:`TriggerMode.SEND_TRIGGER`) or to wait for 
+            an external trigger signal ("External Triger" or 
+            :class:`TriggerMode.EXTERNAL_TRIGGER`). (default: 
+            :class:`TriggerMode.NONE`) 
+        repetitions (int): The number of repetitions of the experiment.
+        alignment (str): The alignment of the played waveform with the trigger 
+            signal, i.e. if the waveform should start with the trigger (or the 
+            time origin `t=0` of the sequence). Waveforms can either "Start with 
+            Trigger" (:class:`Alignment.START_WITH_TRIGGER`) or "End with 
+            Trigger" (:class:`Alignment.END_WITH_TRIGGER`).
+        dead_time (double): The `dead time` of a sequence is the time in seconds 
+            after the time origin of the sequence before the next  trigger 
+            signal is sent / expected. This time defines the maximum length of a 
+            waveform played after the time origin, otherwise triggers can be 
+            missed. (default: 5 us)
+        trigger_delay (double): The `trigger delay` is an addittional delay in 
+            seconds that shifts the time origin `t=0` with respect to the 
+            trigger signal. (default: 0)
+        latency (double): The `latency` is a time in seconds that compensated 
+            for different trigger latencies of different instruments. It works 
+            as a constant `trigger_delay`.  
+        reset_phase (bool): A flag that specifies if the phase of the modulation 
+            oscillator should be reset to 0 for every repetition of the 
+            experiment before the waveform is played. This value only applies 
+            for AWG Cores of the HDAWG when IQ Modulation is enabled.
     
     """
 
@@ -157,8 +170,11 @@ class Sequence(object):
 class SimpleSequence(Sequence):
     """Sequence for 'simple' playback of waveform arrays.
 
-    Inherits from `Sequence`. Initializes buffers (`randomUniform(...)`) of the 
-    correct length for a number of waveforms and plays them sequenctially.
+    Inherits from :class:`Sequence`. Initializes buffers (`randomUniform(...)`) 
+    of the correct length for a number of waveforms and plays them 
+    sequenctially.
+
+    TODO: example
     
     Attributes:
         buffer_lengths (list): list of integers with the required lengths of the 
@@ -240,7 +256,11 @@ class SimpleSequence(Sequence):
 
 @attr.s
 class TriggerSequence(Sequence):
-    """Sequence that only sets the triggers but does not play any waveforms."""
+    """Sequence that only sets the triggers but does not play any waveforms.
+    
+    TODO: example
+    
+    """
 
     def write_sequence(self):
         self.sequence = SequenceCommand.header_comment(sequence_type="Master Trigger")
@@ -267,6 +287,8 @@ class TriggerSequence(Sequence):
 class RabiSequence(Sequence):
     """Predefined Rabi sequence.
     
+    TODO: example
+
     Attributes:
         pulse_amplitudes (list): list of pulse amplitudes for each point in the 
             Rabi sequence
@@ -335,6 +357,18 @@ class RabiSequence(Sequence):
 
 @attr.s
 class T1Sequence(Sequence):
+    """Docstring here
+    
+    TODO: example
+
+    Attributes:
+        pulse_amplitude (double)
+        pulse_width (double)
+        pulse_truncation (double)
+        delay_times (array)
+    
+    """
+
     pulse_amplitude = attr.ib(default=1, validator=amp_smaller_1)
     pulse_width = attr.ib(default=50e-9, validator=is_positive)
     pulse_truncation = attr.ib(default=3, validator=is_positive)
@@ -382,6 +416,12 @@ class T1Sequence(Sequence):
 
 @attr.s
 class T2Sequence(T1Sequence):
+    """Docstring here
+    
+    TODO: example
+    
+    """
+
     def write_sequence(self):
         self.sequence = SequenceCommand.header_comment(sequence_type="T2* (Ramsey)")
         self.sequence += SequenceCommand.init_gauss_scaled(
@@ -411,6 +451,18 @@ class T2Sequence(T1Sequence):
 
 @attr.s
 class ReadoutSequence(Sequence):
+    """Docstring here
+    
+    TODO: example
+
+    Attributes:
+        readout_length (double)
+        readout_freqencies (list)
+        readout_amplitudes (list)
+        phase_shifts (list)
+    
+    """
+
     readout_length = attr.ib(default=2e-6, validator=is_positive)
     readout_amplitudes = attr.ib(default=[1])
     readout_frequencies = attr.ib(default=[100e6])
@@ -470,6 +522,16 @@ class ReadoutSequence(Sequence):
 
 @attr.s
 class PulsedSpectroscopySequence(Sequence):
+    """Docstring here
+    
+    TODO: example
+
+    Attributes:
+        pulse_length (double)
+        pulse_amplitude (double)
+    
+    """
+
     pulse_length = attr.ib(default=2e-6, validator=is_positive)
     pulse_amplitude = attr.ib(default=1)
 
@@ -511,6 +573,12 @@ class PulsedSpectroscopySequence(Sequence):
 
 @attr.s
 class CWSpectroscopySequence(Sequence):
+    """Docstring here
+    
+    TODO: example
+    
+    """
+
     def write_sequence(self):
         self.sequence = SequenceCommand.header_comment(sequence_type="CW Spectroscopy")
         self.sequence += SequenceCommand.repeat(self.repetitions)
@@ -535,6 +603,16 @@ class CWSpectroscopySequence(Sequence):
 
 @attr.s
 class CustomSequence(Sequence):
+    """Docstring here
+    
+    TODO: example
+
+    Attributes:
+        path (str)
+        custom_params (list)
+    
+    """
+
     path = attr.ib(default="")
     program = attr.ib(default="")
     custom_params = attr.ib(default=[])
