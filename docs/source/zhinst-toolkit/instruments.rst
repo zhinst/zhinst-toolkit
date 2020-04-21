@@ -1,13 +1,23 @@
 Instrument Drivers
 ^^^^^^^^^^^^^^^^^^
 
+Base Instrument
+---------------
+
+.. autoclass:: zhinst.toolkit.control.drivers.base.BaseInstrument
+    :members:
+
+    .. automethod:: _get
+
+    .. automethod:: _set
+
+
 HDAWG
 -----    
 
 .. autoclass:: zhinst.toolkit.HDAWG
     :show-inheritance:
     :members:
-    :inherited-members:
 
 AWGCore for the HDAWG
 +++++++++++++++++++++
@@ -23,7 +33,6 @@ UHFQA
 .. autoclass:: zhinst.toolkit.UHFQA
     :show-inheritance:
     :members:
-    :inherited-members:
 
 AWGCore for the UHFQA
 +++++++++++++++++++++
@@ -47,7 +56,6 @@ UHFLI
 .. autoclass:: zhinst.toolkit.UHFLI
     :show-inheritance:
     :members:
-    :inherited-members:
 
 
 MFLI
@@ -56,4 +64,3 @@ MFLI
 .. autoclass:: zhinst.toolkit.MFLI
     :show-inheritance:
     :members:
-    :inherited-members:

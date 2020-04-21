@@ -18,33 +18,38 @@ class BaseInstrument:
     """High-level controller for all Zurich Instrument devices. 
     
     Can be used by itself or inherited for device specific controllers. Provides 
-    information and functionality common to all devices, such as a name, an 
-    instrument configuration (serial, interface, device type, ...).
+    information and functionality common to all devices, such as a name, serial 
+    number, device type, interface, etc.
 
-    The instrument holds a DeviceConnection which handles all the communication 
-    with the data server. It also initialize a Nodetree that is used to access 
-    all the settings in the device's nodetree.
+    The instrument holds a :class:`DeviceConnection` which handles all the 
+    communication with the data server. It also initialize a :class:`Nodetree` 
+    that is used to access all the settings in the device's nodetree.
 
         >>> import zhinst.toolkit as tk
-        >>> inst = tk.BaseInstrument("myDevice", "hdawg", "dev9999", interface="usb")
+        >>> ...
+        >>> inst = tk.BaseInstrument("myDevice", tk.DeviceTypes.HDAWG, "dev9999", interface="USB")
         >>> inst.setup()
         >>> inst.connect_device()
-        >>> inst.nodetree.sigouts[0].on(1)
+        >>> inst.nodetree
         >>> ...
 
     Arguments:
         name (str): Identifier for the instrument.
-        device_type (DeviceType): Type of the device, i.e. must be in 
-            {hdawg, uhfqa, uhfli, mfli, pqsc}
+        device_type (:class:`DeviceType`): Type enum of the device type.
         serial (str): Serial number of the device, e.g. 'dev2281'. The serial 
             number can be found on instrument back panel.
 
     Attributes:
-        nodetree (:class:`Nodetree`): :class:`Nodetree` object that contains the 
-            nodetree hirarchy of the device settings. The leaves of the tree are 
-            parameters that can be called to get and set the values.
+        nodetree (:class:`zhinst.toolkit.control.nodetree.Nodetree`): A 
+            :class:`Nodetree` object that contains a datastructure recreating 
+            the nodetree hirarchy of the instrument settings. The leaves of the 
+            tree are :class:`Parameters` that can be called to get and set the 
+            according value from the device. The :class:`Nodetree` can be used 
+            to navigate all available device settings without having to know the 
+            exact node path of the setting. Alternatively, the node can always 
+            accessed using the `_set(..)` and `_get(...)` methods.
         name (str): Identifier for the instrument.
-        device_type (str): Type of the device. 
+        device_type (:class:`DeviceType`): Type enum of the device type. 
         serial (str): Serial number of the device.
         interface (str): Type of the device interface used, can be specified as 
             a keyword argument to `__init__()`.
@@ -68,13 +73,15 @@ class BaseInstrument:
     def setup(self, connection: ZIConnection = None):
         """Sets up the data server connection. 
         
-        The details of the connection (host, port, api_level) can be specified 
-        as keyword arguments in the __init__() method. Alternatively the user 
-        can pass an existing ZIConnection to the data server to be used for the 
-        instrument.
+        The details of the connection (`host`, `port`, `api_level`) can be 
+        specified as keyword arguments in the `__init__()` method. Alternatively 
+        the user can pass an existing :class:`ZIConnection` to the data server 
+        to be used for the instrument.
         
         Arguments:
-            connection (ZIConnection): defaults to None
+            connection (:class:`ZIConnection`): An existing data server 
+                connection. If specified, this data server will be used to 
+                establish a :class:`DeviceConnection`. (default: None)
 
         """
         self._controller.setup(connection=connection)
@@ -83,11 +90,14 @@ class BaseInstrument:
         """Connects the device to the data server. 
         
         This method connects the device to the data server of its connection, 
-        initializes the nodetree and performs initial device settings.
+        initializes the :class:`Nodetree` and applies initial device settings. 
+        A data server connection needs to be set up beforehand by calling 
+        `setup()`.
         
         Arguments:
-            nodetree (bool): If True the nodetree object will be initialized 
-                after connecting the device, otherwise not. Defaults to True.
+            nodetree (bool): If `True`,  the :class:`Nodetree` object will be 
+                initialized after connecting the device, otherwise not. 
+                (Default: `True`)
 
         """
         self._check_connected()
@@ -100,8 +110,8 @@ class BaseInstrument:
     def _init_settings(self):
         """Initial device settings. 
         
-        Can be overridden by any instrument that 
-        inherits from the BaseInstrument.
+        Can be overwritten by any instrument that inherits from the 
+        :class:`BaseInstrument`.
         
         """
         pass
@@ -109,16 +119,25 @@ class BaseInstrument:
     def _set(self, *args):
         """Setter for the instrument. 
         
-        Passes the arguments to the setter of the DeviceConnection and the 
-        ZIConnection. Eventually wraps around `daq.set(...)` in zhinst.ziPython.
+        This method sets a node value from the device, specified by a node 
+        string. Passes the arguments to the setter of the 
+        :class:`DeviceConnection` and the :class:`ZIConnection`. Eventually 
+        this method wraps around `daq.set(...)` in :mod:`zhinst.ziPython`.
+
+            >>> hdawg._set("sigouts/0/on", 1)
+        
+        The method also supports wildcards in the node path that can be 
+        specified with '*' as a placeholder.
+
+            >>> hdawg._set("sigouts/*/on", 1)
 
         Raises:
-            ZHTKException if called and the device in not yet connected to 
-            the data server.
+            ZHTKException if called and the device in not yet connected to the 
+                data server.
 
         Returns: 
             The value set on the device as returned from the API's `set(...)` 
-            method.
+                method.
 
         """
         self._check_connected()
@@ -127,24 +146,45 @@ class BaseInstrument:
     def _get(self, command, valueonly=True):
         """Getter for the instrument. 
         
-        Passes the arguments to the getter of the DeviceConnection and the 
-        ZIConnection. Eventually wraps around `daq.get(...)` in zhinst.ziPython.
+        This method gets a node value from the device, specified by a node 
+        string. Passes the arguments to the getter of the 
+        :class:`DeviceConnection` and the :class:`ZIConnection`. Eventually this 
+        method wraps around `daq.get(...)` in :mod:`zhinst.ziPython`.
+
+            >>> hdawg._get("sigouts/0/on")
+            1
+        
+        The method also supports wildcards in the node path that can be 
+        specified with '*' as a placeholder. The flag `valueonly` can be used to 
+        get the exact node of the values.
+
+            >>> hdawg._get("sigouts/*/on")
+            [1, 0, 0, 0, 0, 0, 0]
+            >>> hdawg._get("sigouts/*/on", valueonly=False)
+            {'sigouts/0/on': 0,
+             'sigouts/1/on': 0,
+             'sigouts/2/on': 0,
+             'sigouts/3/on': 0,
+             'sigouts/4/on': 0,
+             'sigouts/5/on': 0,
+             'sigouts/6/on': 0,
+             'sigouts/7/on': 0}
 
         Arguments:
-            command (str): node string to the parameter
+            command (str): A node string to the parameter.
 
         Keyword Arguments:
-            valueonly (bool): flag to select if only the value should be 
+            valueonly (bool): A flag to select if only the value should be 
                 returned or a dict with node/value pairs (default: True)
         
         Raises:
-            ZHTKException if called and the device in not yet connected to 
-            the data server.
+            ZHTKException: if called and the device is not yet connected to 
+                the data server.
 
         Returns:
             The value of the parameter corresponding to the specified node. 
-            If `valueonly=False` the value is returned in a dict with the node 
-            as a key.
+            If `valueonly=False` the value is returned in a dict with the 
+            node as a key.
         
         """
         self._check_connected()
@@ -153,16 +193,17 @@ class BaseInstrument:
     def _get_nodetree(self, prefix, **kwargs):
         """Gets the entire nodetree from the instrument as a dictionary. 
         
-        Passes the arguments to the DeviceConnection and the ZIConnection. 
-        Eventually wraps around `daq.listNodesJSON(...)` in zhinst.ziPython.
+        This method passes the arguments to the :class:`DeviceConnection` and 
+        the :class:`ZIConnection`. Eventually this method wraps around 
+        `daq.listNodesJSON(...)` in :mod:`zhinst.ziPython`.
         
         Arguments:
-            prefix (str): string that is passed to `listNodesJSON(...)` to 
-                specify subtree
+            prefix (str): A string that is passed to `listNodesJSON(...)` to 
+                specify the subtree for which the nodes should be returned.
 
         Raises: 
-            ZHTKException if called and the device in not yet connected to 
-            the data server.
+            ZHTKException: if called and the device is not yet connected to 
+                the data server.
 
         Returns:
             The dictionary that is returned from the API's `listNodesJSON(...)` 
@@ -187,7 +228,7 @@ class BaseInstrument:
         return streaming_nodes
 
     def _check_connected(self):
-        """Check if the device is connected to the data server
+        """Checks if the device is connected to the data server.
         
         Raises:
             ZHTKException if the device is not connected to a data server.

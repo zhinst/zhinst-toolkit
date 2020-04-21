@@ -335,7 +335,7 @@ class Nodetree(Node):
     :class:`Nodes` that are available on the device.
 
     Inherits from the :class:`Node` class. On initialization the 
-    :class:`Nodetree` retireves a nested dictionary fromt he device representing 
+    :class:`Nodetree` retireves a nested dictionary from the device representing 
     its nodetree hirarchy and then recursively adds :class:`Nodes` and 
     :class:`Parameters` as attributes to the :class:`Node`.
 
