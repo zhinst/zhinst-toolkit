@@ -1,5 +1,5 @@
 Examples of using :mod:`zhinst-toolkit`
-======================================
+=======================================
 
 
 Basic examples
