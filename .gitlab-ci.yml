@@ -18,11 +18,13 @@ build:linux:
 pages:
   image: python:3.7-buster
   stage: docs
-  script:
+  before_script:
    - pip install .
    - pip install sphinx
    - pip install sphinx_rtd_theme
+   - pip install pandoc
    - pip install nbsphinx
+  script:
    - cd docs
    - make html
    - cd ..
