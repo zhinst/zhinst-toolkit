@@ -22,6 +22,7 @@ pages:
    - pip install .
    - pip install sphinx
    - pip install sphinx_rtd_theme
+   - pip install nbsphinx
    - cd docs
    - make html
    - cd ..
