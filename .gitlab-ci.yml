@@ -16,13 +16,9 @@ build:linux:
     - pytest --cov=. .
     
 pages:
-  image: python:3.7-buster
+  image: docker-registry.zhinst.com/devops/dockerfiles/sphinxdoc:latest
   stage: docs
-  before:
-   - pip install sphinx
-   - pip install sphinx_rtd_theme
-   - pip install pandoc
-   - pip install nbsphinx
+  script:
    - pip install .
    - cd docs
    - make html
