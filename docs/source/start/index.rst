@@ -88,8 +88,8 @@ If you have installed the toolkit from GitHub, pull the latest changes and rerun
     $ pip install .
 
 
-Using the :mod:`zhinst-toolkit`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Start using the :mod:`zhinst-toolkit`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For an interactive use of the :mod:`zhinst-toolkit` we recommend 
 `Jupyter Notebooks`, `Jupyter lab` or simply `ipython` for you console. 

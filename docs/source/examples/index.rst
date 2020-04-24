@@ -1,4 +1,4 @@
-Examples of using :mod:`zhinst-toolkit`
+How to use the :mod:`zhinst-toolkit`
 =======================================
 
 
