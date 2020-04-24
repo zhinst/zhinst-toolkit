@@ -94,7 +94,7 @@ Start using the :mod:`zhinst-toolkit`
 For an interactive use of the :mod:`zhinst-toolkit` we recommend 
 `Jupyter Notebooks`, `Jupyter lab` or simply `ipython` for you console. 
 
-.. code::
+.. code:: python
 
     >>> import zhinst.toolkit as tk
     >>> ...
