@@ -14,29 +14,55 @@ from zhinst.toolkit.control.drivers.base import ZHTKException
 
 
 class MultiDeviceConnection:
-    """A data server connection shared by multiple device.
+    """A data server connection shared by multiple devices.
     
     A container for devices that ensures a single instrument connection 
     (Data Server) is shared between multiple devices. The 
-    `MultiDeviceConnection` holds dictionaries of different device types. The 
-    devices are identified by the name they are given. The MultiDeviceConnection 
-    connects to a Data Server with `mdc.setup()` and individual devices are 
-    added with `mdc.connect_device()`.
+    :class:`MultiDeviceConnection` holds dictionaries of different device types. 
+    The devices are identified by the name they are given. The 
+    *MultiDeviceConnection* connects to a Data Server with `mdc.setup()` ...
+
+        >>> import zhinst.toolkit as tk
+        >>> mdc = tk.MultiDeviceConnection(host="localhost")
+        >>> mdc.setup()
+        Successfully connected to data server at localhost8004 api version: 6
+
+    and individual devices are added with `mdc.connect_device()`.
+
+        >>> mdc.connect_device(tk.HDAWG("hdawg 1", "dev1234"))
+        >>> mdc.connect_device(tk.HDAWG("hdawg 2", "dev5678"))
+        >>> mdc.connect_device(tk.UHFQA("uhfqa 1", "dev9999"))
+        Successfully connected to device DEV1234 on interface 1GBE
+        Successfully connected to device DEV5678 on interface 1GBE
+        Successfully connected to device DEV9999 on interface 1GBE
+
+    The :class:`MultiDeviceConnection` holds dictionaries for every device type 
+    with the device name as keys:
+
+        >>> hdawg1 = mdc.hdawgs["hdawg 1"]
+        >>> hdawg2 = mdc.hdawgs["hdawg 2"]
+        >>> uhfqa = mdc.uhfqas["uhfqa 1"]
+        >>> ...
+
 
     Keyword Arguments:
         host (str): the host of the data server (default: 'localhost')
         port (int): the port for the data server (default: 8004)
         api (int): the API level for the data server (default: 6)
     
-    Properties:
-        hdawgs (dict): dict of HDAWGs
-        uhfqas (dict): dict of UHFQAs
-        uhflis (dict): dict of UHFLIs
-        mflis (dict): dict of MFLIs
-        pqsc: a PQSC if one is added, otherwise None
+    Attributes:
+        hdawgs (dict): A dictionary of :class:`HDAWG` s with the device names as 
+            keys.
+        uhfqas (dict): A dictionary of :class:`UHFQA` s with the device names as 
+            keys.
+        uhflis (dict): A dictionary of :class:`UHFLI` s with the device names as 
+            keys.
+        mflis (dict): A dictionary of :class:`MFLI` s with the device names as 
+            keys.
+        pqsc (:class:`PQSC`): A PQSC if one is added, otherwise None
     
     Raises:
-        ZHTKException: if an unknown device is added
+        ZHTKException if an unknown device is added
     
     """
 
@@ -59,16 +85,17 @@ class MultiDeviceConnection:
         self._shared_connection.connect()
 
     def connect_device(self, device):
-        """Connects a device to the `MultiDeviceConnection`.
+        """Connects a device to the :class:`MultiDeviceConnection`.
 
-        Adds a device to the `MultiDeviceConnection` and connects the device to 
-        the shared Data Server. Depending on the device type, the device is 
-        added to respective dictionary and can then be accessed from there.
+        Adds a device to the :class:`MultiDeviceConnection` and connects the 
+        device to the shared Data Server. Depending on the device type, the 
+        device is added to respective dictionary and can then be accessed from 
+        there.
         
         Arguments:
             device (BaseInstrument): the device to be added to the 
-                MultiDeviceConnection, has to be one of 
-                {HDAWG, UHFQA, PQSC, UHFLI, MFLI}
+                MultiDeviceConnection, has to be one of :class:`HDAWG`, 
+                :class:`UHFQA`, :class:`UHFLI`, :class:`MFLI`, :class:`PQSC`
         
         Raises:
             ZHTKException: if the device is not recognized

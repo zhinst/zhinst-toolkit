@@ -8,6 +8,7 @@ Documentation for :mod:`zhinst-toolkit`
    :caption: Contents:
 
    instruments
+   multidevcon
    modules
    nodetree
    sequences
