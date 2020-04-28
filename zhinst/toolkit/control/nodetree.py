@@ -88,7 +88,6 @@ class Parameter:
         if "Write" in self._properties:
             if value != self._cached_value:
                 if self._map is not None and isinstance(value, str):
-                    value = value.lower()
                     if value not in self._map.values():
                         raise ZHTKNodetreeException(
                             f"The value '{value}' is not in {list(self._map.values())}."
