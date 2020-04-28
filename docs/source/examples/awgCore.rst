@@ -4,6 +4,6 @@ How to program *AWG Cores*
 .. toctree:: 
     :maxdepth: 2
 
-    notebooks/example4_SequenceParameters
-    notebooks/example5_SimpleSequence
-    notebooks/example6_PredefinedSequences
+    notebooks/example3-1_SequenceParameters
+    notebooks/example3-2_SimpleSequence
+    notebooks/example3-3_PredefinedSequences

@@ -11,3 +11,5 @@ TODO: Add some explanation here!
    notebooks/example1_getting_started
    tour
    awgCore
+   notebooks/example4_DAQModule
+   notebooks/example5_SweeperModule
