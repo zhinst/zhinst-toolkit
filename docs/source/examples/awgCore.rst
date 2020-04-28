@@ -6,3 +6,4 @@ How to program *AWG Cores*
 
     notebooks/example4_SequenceParameters
     notebooks/example5_SimpleSequence
+    notebooks/example6_PredefinedSequences
