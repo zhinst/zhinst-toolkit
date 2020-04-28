@@ -99,11 +99,26 @@ class UHFQA(BaseInstrument):
             self.channels[i].disable()
 
     def arm(self, length=None, averages=None):
+        """Prepare UHFQA for result acquisition.
+
+        This method enables the QA Results Acquisition and resets the acquired 
+        points. Optionally, the *result length* and *result averages* can be set 
+        when specified as keyword arguments. If they are not specified, they are 
+        not changed.  
+
+        Keyword Arguments:
+            length (int): If specified, the length of the result vector will be 
+                set before arming the UHFQA readout. (default: None)
+            averages (int): If specified, the result averages will be set before 
+                arming the UHFQA readout. (default: None)
+
+        """
         if length is not None:
             self._set("qas/0/result/length", int(length))
         if averages is not None:
             self._set("qas/0/result/averages", int(averages))
         self._set("qas/0/result/enable", 1)
+        # toggle node value from 0 to 1 for reset
         self._set("qas/0/result/reset", 0)
         self._set("qas/0/result/reset", 1)
 
