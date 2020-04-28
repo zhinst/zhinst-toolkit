@@ -19,7 +19,8 @@ MAPPINGS = {
         4: "Crosstalk Correlation",
         5: "Threshold Correlation",
         7: "Integration",
-    }
+    },
+    "averaging_mode": {0: "Cyclic", 1: "Sequential",},
 }
 
 
@@ -63,6 +64,18 @@ class UHFQA(BaseInstrument):
             ),
             device=self,
             mapping=MAPPINGS["result_source"],
+        )
+        self.averaging_mode = Parameter(
+            self,
+            dict(
+                Node="qas/0/result/mode",
+                Description="Selects the order of the result logger. One of {'Cyclic', 'Sequential'}.",
+                Type="Integer",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self,
+            mapping=MAPPINGS["averaging_mode"],
         )
 
     def connect_device(self, nodetree=True):
