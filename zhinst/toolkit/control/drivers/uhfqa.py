@@ -98,6 +98,15 @@ class UHFQA(BaseInstrument):
                 raise ValueError(f"The channel index {i} is out of range!")
             self.channels[i].disable()
 
+    def arm(self, length=None, averages=None):
+        if length is not None:
+            self._set("qas/0/result/length", int(length))
+        if averages is not None:
+            self._set("qas/0/result/averages", int(averages))
+        self._set("qas/0/result/enable", 1)
+        self._set("qas/0/result/reset", 0)
+        self._set("qas/0/result/reset", 1)
+
     def _init_settings(self):
         settings = [
             ("awgs/0/single", 1),
