@@ -7,6 +7,7 @@ TODO: Add some explanation here!
 
 .. toctree::
    :maxdepth: 2
-   :glob:
 
-   notebooks/*
+   notebooks/example1_getting_started
+   tour
+   awgCore
