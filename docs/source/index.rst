@@ -11,9 +11,13 @@ Here is some text about what :mod:`zhinst-toolkit` is ...
    :maxdepth: 2
    :caption: Contents:
 
+   about/index
    start/index
-   examples/index
+   overview/index
    zhinst-toolkit/index
+   examples/index
+   changelog/index
+   licence/index
 
 
 
