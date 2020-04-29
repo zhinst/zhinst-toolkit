@@ -13,7 +13,6 @@ Here is some text about what :mod:`zhinst-toolkit` is ...
 
    about/index
    start/index
-   overview/index
    zhinst-toolkit/index
    examples/index
    changelog/index

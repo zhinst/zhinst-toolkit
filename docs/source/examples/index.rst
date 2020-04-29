@@ -1,5 +1,5 @@
-How to use the :mod:`zhinst-toolkit`
-=======================================
+Examples of using the :mod:`zhinst-toolkit`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 TODO: Add some explanation here!
