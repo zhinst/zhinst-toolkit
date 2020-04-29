@@ -18,8 +18,8 @@ class AWGCore:
     sequencer without the need for the user to write their own '.seqC' code.
     The :class:`AWGCore` holds a :class:`SequenceProgram` object whose 
     parameters can be set using the `set_sequence_params(...)` method of the 
-    AWG. Diferent sequence types and sequence parameters are explained HERE
-    TODO: add section about sequence programs etc and link here!
+    AWG.
+    
     This module takes over the functionality of configuring the seuqence program 
     and compiling it on the instrument. Given the 'Simple' sequence type, 
     sample-defined waveforms can be queued and uploaded to the AWG. 
@@ -72,9 +72,7 @@ class AWGCore:
         hd1-0: Sequencer status: ELF file uploaded
         Upload of 101 waveforms took 0.20005226135253906 s
         >>> awg.run()
-        >>> awg.wait_done()
-
-    TODO: link to section about AWG sequencing and seuqence definitions ...  
+        >>> awg.wait_done() 
 
     Attributes:
         parent (:class:`BaseInstrument`): The parent instrument that this 
