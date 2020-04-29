@@ -170,17 +170,24 @@ class Sequence(object):
 class SimpleSequence(Sequence):
     """Sequence for 'simple' playback of waveform arrays.
 
-    Inherits from :class:`Sequence`. Initializes buffers (`randomUniform(...)`) 
-    of the correct length for a number of waveforms and plays them 
-    sequenctially.
+    Initializes placeholders (`randomUniform(...)`) of the correct length for 
+    the waveforms in the queue of the AWG Core. The data of the waveform 
+    placeholders is then replaced in memory when uploading the waveform using 
+    `upload_waveforms()`. The waveforms are played sequentially within the main 
+    loop of the sequence program.
 
-    TODO: example
+        >>> awg.set_sequence_params(sequence_type="Simple")
+        >>> awg.queue_waveform(np.ones(800), np.oenes(800))
+        >>> awg.compile_and_upload_waveforms()
+        >>> ...
     
     Attributes:
-        buffer_lengths (list): list of integers with the required lengths of the 
-            waveform buffers.
-        delay_times (list): list of delays for each fo the waveforms w.r.t. the 
-            time origin of the sequence 
+        buffer_lengths (list): A list of integers with the required lengths of 
+            the waveform buffers. These values will be taken from the waveforms
+            in the queue of the AWG Core.
+        delay_times (list): A list of delay times for each fo the individual 
+            waveform w.r.t. the time origin of the period. These values will be 
+            taken from the waveform queue of the AWG Core.  
     
     """
 
@@ -256,9 +263,18 @@ class SimpleSequence(Sequence):
 
 @attr.s
 class TriggerSequence(Sequence):
-    """Sequence that only sets the triggers but does not play any waveforms.
+    """Predefined sequence for *Master Trigger*.
     
-    TODO: example
+    This sequence does not play any waveforms but only sends the trigger signal 
+    at the start of every period. The `trigger_mode` parameter will be 
+    overwritten to be "Send Trigger". The trigger signal will be played on the 
+    *Mark* output of the lower channel.
+
+        >>> awg.set_sequence_params(
+        >>>     sequence_type="Trigger",
+        >>>     period=50e-6,
+        >>>     repetitions=1e3,
+        >>> )
     
     """
 
@@ -285,16 +301,28 @@ class TriggerSequence(Sequence):
 
 @attr.s
 class RabiSequence(Sequence):
-    """Predefined Rabi sequence.
+    """Predefined *Rabi Sequence*.
     
-    TODO: example
+    This sequence plays a Gaussian pulse with width `pulse_width` and varies its 
+    amplitude. The values for the amplitude sweep are defined in the array 
+    parameter `pulse_amplitudes`. For each value in the array, one pulse of that 
+    amplitude is played in the main loop of the seuence program in the same 
+    order as in the array.
+
+        >>> awg.set_sequence_params(
+        >>>     sequence_type="Rabi",
+        >>>     pulse_width=50e-9,
+        >>>     pulse_amplitudes=np.linspace(0, 1.0, 101),    
+        >>> )
 
     Attributes:
-        pulse_amplitudes (list): list of pulse amplitudes for each point in the 
-            Rabi sequence
-        pulse_width (double): width of the gaussian pulse in seconds
-        pulse_truncation (double): truncation of the gaussian pulse as 
-            multiples of the width
+        pulse_amplitudes (list): A list of pulse amplitudes for each point in 
+            the Rabi sequence. The pulse amplitudes have to be within -1.0 and 
+            1.0.
+        pulse_width (double): The width of the gaussian pulse (sigma) in 
+            seconds.
+        pulse_truncation (double): The truncation of the gaussian pulse as 
+            multiples of the width. 
 
     """
 
@@ -357,15 +385,30 @@ class RabiSequence(Sequence):
 
 @attr.s
 class T1Sequence(Sequence):
-    """Docstring here
+    """Predefined *T1 Sequence*.
     
-    TODO: example
+    This sequence plays a Gaussian pulse with width `pulse_width` and amplitude
+    `pulse_amplitude`. The shift of the waveform with respect to the period's 
+    time origin `t=0` is defined in the array parameter `time_delays`. For each 
+    value in the array, one pulse is shifted by the given value (in seconds) 
+    forward in time is played in the main loop of the seuence program.
+
+        >>> awg.set_sequence_params(
+        >>>     sequence_type="T1",
+        >>>     pulse_amplitude=0.876,
+        >>>     pulse_width=50e-9,
+        >>>     delay_times=np.linspace(0.1e-6, 10e-6, 100),    
+        >>> )
 
     Attributes:
-        pulse_amplitude (double)
-        pulse_width (double)
-        pulse_truncation (double)
-        delay_times (array)
+        pulse_amplitude (double): The amplitude of the Gaussian pulse 
+            (pi-pulse). Must be between -1.0 and 1.0.
+        pulse_width (double): The width of the gaussian pulse (sigma) in 
+            seconds.
+        pulse_truncation (double): The truncation of the gaussian pulse as 
+            multiples of the width. 
+        delay_times (array): The time shifts in seconds of the waveforms forward 
+            in time with respect to the period's time origin `t=0`.
     
     """
 
@@ -416,9 +459,30 @@ class T1Sequence(Sequence):
 
 @attr.s
 class T2Sequence(T1Sequence):
-    """Docstring here
+    """Predefined *T2 Ramsey* sequence.
     
-    TODO: example
+    This sequence plays *two* Gaussian pulses with width `pulse_width` and 
+    amplitude 1/2 * `pulse_amplitude`. The shift between the  waveforms is defined 
+    in the array parameter `time_delays`. For each value in the array, the first
+    pulse is shifted forward in time by the given value (in seconds) before the
+    second pulse is played.
+
+        >>> awg.set_sequence_params(
+        >>>     sequence_type="T1",
+        >>>     pulse_amplitude=0.876,
+        >>>     pulse_width=50e-9,
+        >>>     delay_times=np.linspace(0.1e-6, 10e-6, 100),    
+        >>> )
+
+    Attributes:
+        pulse_amplitude (double): Twice the amplitude of the Gaussian pulse 
+            (pi-half pulse). Must be between -1.0 and 1.0.
+        pulse_width (double): The width of the gaussian pulse (sigma) in 
+            seconds.
+        pulse_truncation (double): The truncation of the gaussian pulse as 
+            multiples of the width. 
+        delay_times (array): The time shifts in seconds of the waveforms forward 
+            in time with respect to the period's time origin `t=0`.
     
     """
 
@@ -451,15 +515,69 @@ class T2Sequence(T1Sequence):
 
 @attr.s
 class ReadoutSequence(Sequence):
-    """Docstring here
+    """Predefined sequence for *Multiplexed Qubit Readout*.
     
-    TODO: example
+    The *Readout* sequence is designed for multiplexed qubit readout. It is made 
+    to work together with the `Readout Channels` of the *UHFQA*. The sequence 
+    generates a readout pulse as the sum of readout tones at different readout 
+    frequencies. The readout frequencies are given in the list parameter 
+    `readout_frequencies`, their amplitudes in `readout_amplitudes`. If the 
+    *Readout* sequence is configured, the *integration mode* is automatically 
+    set to *Standard* (weighted integration). 
+
+    For the *UHFQA* the values for *readout frequencies* and *readout 
+    amplitudes* can be taken from the respective *Readout Channel*. If the AWG 
+    Core is configured to use the *Readout* sequence, upon compilation the 
+    sequence takes the values from *all enabled channels*. This ensures that for 
+    all channels for which a readout tone is generated, the weighted integration 
+    is also a demodulation at that readout frequency. The transfer of the 
+    corresponding values from channels to the sequence program is done before 
+    compilation or manually using `update_readout_params()`. 
+
+        >>> frequencies = [34e6, 56e6, 78e6, 90e6]
+        >>> amplitudes = [0.4, 0.5, 0.6, 0.7]
+        >>> for i, ch in enumerate(uhfqa.channels[:4]):
+        >>>     ch.enable()
+        >>>     ch.readout_frequency(frequencies[i])
+        >>>     ch.readout_amplitude(amplitudes[i])
+        >>>
+        >>> uhfqa.awg.set_sequence_params(
+        >>>     sequence_type="Readout",
+        >>>     readout_length=1e-6,
+        >>> )
+        >>> uhfqa.awg.update_readout_params()
+        >>> uhfqa.awg
+        qa: <zhinst.toolkit.control.drivers.uhfqa.AWG object at 0x000001BA34D978D0>
+            parent  : <zhinst.toolkit.control.drivers.uhfqa.UHFQA object at 0x000001BA34D97B38>
+            index   : 0
+            sequence:
+                type: Readout
+                    ('target', <DeviceTypes.UHFQA: 'uhfqa'>)
+                    ('clock_rate', 1800000000.0)
+                    ('period', 0.0001)
+                    ('trigger_mode', 'None')
+                    ('repetitions', 1)
+                    ('alignment', 'End with Trigger')
+                    ...
+                    ('readout_length', 2e-06)
+                    ('readout_amplitudes', [0.4, 0.5, 0.6, 0.7])
+                    ('readout_frequencies', [34000000.0, 56000000.0, 78000000.0, 90000000.0])
+                    ('phase_shifts', [0, 0, 0, 0])
 
     Attributes:
-        readout_length (double)
-        readout_freqencies (list)
-        readout_amplitudes (list)
-        phase_shifts (list)
+        readout_length (double): The duration in seconds of the readout pulse. 
+            Note that the maximum integration time for weighted integration is
+            4096 samples or roughly 2.3 us. (default: 2 us) 
+        readout_freqencies (list): A list of readout frequencies in Hz. These 
+            values are typically taken from the *Readout Channels* of the 
+            *UHFQA*.
+        readout_amplitudes (list) A list of readout amplitudes (-1.0 to 1.0). 
+            These values are typically taken from the *Readout Channels* of the 
+            *UHFQA*. Note that the amplitude of each tone is always divided by 
+            the number of tones.
+        phase_shifts (list): A list of additional phase shifts (in degrees) 
+            between the generated I and Q quadratures of each individual readout 
+            tone.
     
     """
 
@@ -522,13 +640,31 @@ class ReadoutSequence(Sequence):
 
 @attr.s
 class PulsedSpectroscopySequence(Sequence):
-    """Docstring here
+    """Predefined Sequence for Pulsed Spectroscopy.
     
-    TODO: example
+    This sequence plays a rectangular pulse of duration `pulse_length` (in 
+    seconds). When this sequence is configured, the AWG output modulation of the 
+    *UHFQA* is enabled and the two output channels are modualted with the *sine*
+    and *cosine* of the internal oscillator. The oscillators frequency can be 
+    set with the *Parameter* `uhfqa.nodetree.osc.freq`. 
+    
+    Similarly, the *integration mode* of the *UHFQA* is set to *Spectroscopy* to 
+    demodulate the input signals with the *sine* and *cosine* of the same 
+    internal oscillator. Note that when modulating the AWG output, the value for 
+    *integration time* has to be set to at least as long as the *pulse duration* 
+    of the modulated pulse.
+
+        >>> awg.set_sequence_params(
+        >>>     sequence_type="Pulsed Spectroscopy",
+        >>>     pulse_length=5e-6,
+        >>>     pulse_amplitude=0.567,    
+        >>> )  
 
     Attributes:
-        pulse_length (double)
-        pulse_amplitude (double)
+        pulse_length (double): The duration of the spectroscopy pulse in 
+            seconds.  
+        pulse_amplitude (double): The amplitude of the generated rectangular 
+            pulse.
     
     """
 
@@ -573,10 +709,12 @@ class PulsedSpectroscopySequence(Sequence):
 
 @attr.s
 class CWSpectroscopySequence(Sequence):
-    """Docstring here
-    
-    TODO: example
-    
+    """Predefined sequence for Continuous-Wave Spectroscopy.
+
+    The sequence configures the direct output of the oscillator signal. There 
+    are no actual waveforms payed within the seuqence program, however, the data 
+    acquisition of the QA Results is triggered.
+
     """
 
     def write_sequence(self):
@@ -603,13 +741,31 @@ class CWSpectroscopySequence(Sequence):
 
 @attr.s
 class CustomSequence(Sequence):
-    """Docstring here
+    """A *Custom Sequence* for compiling an existing `.seqC` program.
     
-    TODO: example
+    The *Custom Sequence* allows the user to specify the file path to an 
+    existing `.seqC` program. It needs to be located in the folder
+    *".../Zurich Instruments/LabOne/WebServer/awg/src"*. 
+
+    Additionally, the *Custom Sequence* gives the user the ability to define 
+    variable placeholders in their `.seqC` program. So parameter `custom_params` 
+    expects a list of values that replace placeholders in the program. The 
+    placeholders are specified as special in the format `"$param{i}$"` where `i` 
+    is the index of the value in the *custom_params* list. 
+
+        >>> awg.set_sequence_params(
+        >>>    path="...\Zurich Instruments\LabOne\WebServer\awg\src\myProgram.seqC",
+        >>>    custom_params=[1000, 99, 1],
+        >>> )
+
+    If the specified *'myProgram.seqC'* sequence program has placeholders 
+    `"$param0$"`, `"$param1$"`, `"$param2$"`, they will be replaced by `"1000"`, 
+    `"99"`, `"1"`.
 
     Attributes:
-        path (str)
-        custom_params (list)
+        path (str): The file path to a preexisting `.seqC` program.
+        custom_params (list): A list of parameter values to replace placeholders 
+            in the program.
     
     """
 

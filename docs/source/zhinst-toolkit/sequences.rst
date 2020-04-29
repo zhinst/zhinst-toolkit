@@ -1,10 +1,5 @@
-AWG Sequence Programs
-^^^^^^^^^^^^^^^^^^^^^^^
-
-TODO: Explain something here!!
-
 Sequence Programs
------------------
+^^^^^^^^^^^^^^^^^
 
 Base Sequence
 +++++++++++++
