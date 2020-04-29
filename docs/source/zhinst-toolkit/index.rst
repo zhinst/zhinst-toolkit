@@ -1,7 +1,5 @@
-:mod:`zhinst-toolkit` Documentation
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
+Package Documentation
+^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree::
    :maxdepth: 2

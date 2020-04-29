@@ -1,8 +1,13 @@
-Welcome to :mod:`zhinst-toolkit` 's documentation!
-==================================================
+.. image:: images/zhinst_logo_sep_horiz_2019_1000.png
+   :width: 600
 
-Documentation:
-^^^^^^^^^^^^^^
+|
+|
+|
+
+Welcome to the Documentation for :mod:`zhinst-toolkit`
+======================================================
+
 
 Here is some text about what :mod:`zhinst-toolkit` is ...
 
