@@ -5,12 +5,16 @@
 |
 |
 
-Welcome to the Documentation for :mod:`zhinst-toolkit`
-======================================================
+Welcome to the Documentation for :mod:`zhinst-toolkit`!
+=======================================================
 
 
-Here is some text about what :mod:`zhinst-toolkit` is ...
-
+The *Zurich Instruments Toolkit* is an extension of our Python API `ziPython`. 
+It facilitates the control of *Zurich Instruments* devices like the *HDAWG*, 
+*UHFQA*, *UHFLI*, *MFLI* or *PQSC*. The Python package :mod:`zhinst-toolkit` 
+forms the basis for high-level instrument drivers within measurement frameworks 
+like QCoDeS_ or Labber_. The :mod:`zhinst-toolkit` can however also be used by 
+itself.
 
 .. toctree::
    :maxdepth: 2
@@ -21,7 +25,7 @@ Here is some text about what :mod:`zhinst-toolkit` is ...
    zhinst-toolkit/index
    examples/index
    changelog/index
-   licence/index
+   license/index
 
 
 
@@ -31,3 +35,7 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+.. _QCoDeS: https://qcodes.github.io/Qcodes/index.html
+.. _Labber: https://labber.org/
