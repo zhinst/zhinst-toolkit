@@ -11,3 +11,4 @@ Package Documentation
    daq
    sweeper
    multidevcon
+   enums
