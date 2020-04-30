@@ -57,7 +57,17 @@ class UHFQA(BaseInstrument):
         - qa
         parameters:
         - clockbase
-        
+
+    A measurement using the *AWG Core* could look like this:
+
+        >>> uhfqa.awg.set_sequence_params(...)
+        >>> uhfqa.channels[0].enable()
+        >>> uhfqa.channels[0].readout_frequency(123e6)
+        >>> ...
+        >>> uhfqa.arm(length=100, averages=1)   # arm the QA Readout, set length and averages 
+        >>> uhfqa.awg.run()                     # start the AWG    
+        >>> uhfqa.awg.wait_done()               # wait until AWG is finished
+        >>> result = uhfqa.channels[0].result() # get the result vector
 
     Arguments:
         name (str): Identifier for the UHFQA.
@@ -77,8 +87,20 @@ class UHFQA(BaseInstrument):
         result_source (:class:`zhinst.toolkit.control.nodetree.Parameter`): 
             This parameter selects the stage in the signal processing path that 
             is used as the source for the QA results. It can be one of 
-            {"Crosstalk", "Threshold", "Rotation", "Crosstalk Correlation", 
-            "Threshold Correlation", "Integration"}. 
+            {`"Crosstalk"`, `"Threshold"`, `"Rotation"`, `"Crosstalk 
+            Correlation"`, `"Threshold Correlation"`, `"Integration"`}. 
+        averaging_mode (:class:`zhinst.toolkit.control.nodetree.Parameter`):
+            Mode of averaing in the QA Result Acquisition. Either `"Sequential"` 
+            or `"Cyclic"`.
+            `"Sequential"`: The first point of the Result vector is the average 
+            of the first *N* results where *N* is the value of the *result 
+            averages* setting. The second point is the average of the next *N* 
+            results, and so forth.
+            `"Cyclic"`: The first point in the Result vector is the average of 
+            the results *1, M+1, 2M+1, ...*, where *M* is the value of the 
+            *result length* setting. The second point is the average of the 
+            results number *2, M+2, 2M+2, ...*, and so forth.
+              
 
 
     """
