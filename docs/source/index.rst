@@ -29,13 +29,10 @@ itself.
 
 
 
-Indices and tables
-==================
+Index
+=====
 
 * :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
 
 .. _QCoDeS: https://qcodes.github.io/Qcodes/index.html
 .. _Labber: https://labber.org/
