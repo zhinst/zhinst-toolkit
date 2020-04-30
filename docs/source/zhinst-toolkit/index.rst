@@ -6,7 +6,8 @@ Package Documentation
    :caption: Contents:
 
    instruments
-   multidevcon
-   modules
    nodetree
-   sequences
+   awg
+   daq
+   sweeper
+   multidevcon
