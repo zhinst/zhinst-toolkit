@@ -48,7 +48,7 @@ class Sequence(object):
     trigger_cmd_1 = attr.ib(default="//")
     trigger_cmd_2 = attr.ib(default="//")
     wait_cycles = attr.ib(default=0)
-    dead_cycles = attr.ib(default=1500)
+    dead_cycles = attr.ib(default=1500)  # 5 us by default
     reset_phase = attr.ib(default=False)
 
     def set(self, **settings):
@@ -308,8 +308,6 @@ class T1Sequence(Sequence):
             self.wait_cycles = self.time_to_cycles(
                 self.period - self.dead_time - self.latency + self.trigger_delay
             )
-        # if self.alignment == "Start with Trigger":
-        #     self.wait_cycles -= self.gauss_params[0] / 8
 
     def check_attributes(self):
         super().check_attributes()
@@ -341,7 +339,7 @@ class T2Sequence(T1Sequence):
             if t > 3:
                 self.sequence += SequenceCommand.wait(
                     t - 3
-                )  # -3 to subtract additional cycles of playWave() ...
+                )  # -3 to subtract additional cycles of playWave()
             else:
                 self.sequence += SequenceCommand.wait(t)
             self.sequence += SequenceCommand.play_wave()
