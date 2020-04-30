@@ -450,7 +450,6 @@ class AWG(AWGCore):
 
     def compile(self):
         """Wraps the 'compile(...)' method of the parent class `AWGCore`."""
-        if self.sequence_params["sequence_type"] == "Readout":
         if self.sequence_params["sequence_type"] == SequenceType.READOUT:
             self.update_readout_params()
         super().compile()
