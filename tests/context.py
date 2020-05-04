@@ -27,7 +27,7 @@ from zhinst.toolkit.control.drivers.base import (
     DAQModule,
     SweeperModule,
 )
-from zhinst.toolkit.control.nodetree import (
+from zhinst.toolkit.control.node_tree import (
     NodeTree,
     Parameter,
     NodeList,

@@ -7,7 +7,7 @@ import numpy as np
 import time
 
 from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ToolkitError
-from zhinst.toolkit.control.nodetree import Parameter
+from zhinst.toolkit.control.node_tree import Parameter
 from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.interface import DeviceTypes
 from zhinst.toolkit.helpers import SequenceType, TriggerMode
@@ -27,7 +27,7 @@ class HDAWG(BaseInstrument):
         >>> hd.setup()
         >>> hd.connect_device()
         >>> hd.nodetree
-        <zhinst.toolkit.tools.nodetree.NodeTree object at 0x0000021E467D3BA8>
+        <zhinst.toolkit.tools.node_tree.NodeTree object at 0x0000021E467D3BA8>
         nodes:
         - stats
         - oscs

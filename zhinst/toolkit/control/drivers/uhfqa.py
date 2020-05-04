@@ -6,7 +6,7 @@
 import numpy as np
 
 from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ToolkitError
-from zhinst.toolkit.control.nodetree import Parameter
+from zhinst.toolkit.control.node_tree import Parameter
 from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.interface import DeviceTypes
 from zhinst.toolkit.helpers import SequenceType, TriggerMode
@@ -39,7 +39,7 @@ class UHFQA(BaseInstrument):
         >>> uhfqa.connect_device()
         >>> ...
         >>> uhfqa.nodetree
-        <zhinst.toolkit.tools.nodetree.NodeTree object at 0x0000021091FFC898>
+        <zhinst.toolkit.tools.node_tree.NodeTree object at 0x0000021091FFC898>
         nodes:
         - stats
         - osc
@@ -80,16 +80,16 @@ class UHFQA(BaseInstrument):
         channels (list): A list of ten 
             :class:`zhinst.toolkit.control.drivers.uhfqa.ReadoutChannel` s that 
             each represent the digital signal processing path on the instrument.
-        integration_time (:class:`zhinst.toolkit.control.nodetree.Parameter`): 
+        integration_time (:class:`zhinst.toolkit.control.node_tree.Parameter`): 
             The time in seconds used for signal integration. The value must be 
             positive. The maximum value when using weighted integration is 4096 
             samples or ca. 2.275 us (default: 2.0 us).
-        result_source (:class:`zhinst.toolkit.control.nodetree.Parameter`): 
+        result_source (:class:`zhinst.toolkit.control.node_tree.Parameter`): 
             This parameter selects the stage in the signal processing path that 
             is used as the source for the QA results. It can be one of 
             {`"Crosstalk"`, `"Threshold"`, `"Rotation"`, `"Crosstalk 
             Correlation"`, `"Threshold Correlation"`, `"Integration"`}. 
-        averaging_mode (:class:`zhinst.toolkit.control.nodetree.Parameter`):
+        averaging_mode (:class:`zhinst.toolkit.control.node_tree.Parameter`):
             Mode of averaing in the QA Result Acquisition. Either `"Sequential"` 
             or `"Cyclic"`.
             `"Sequential"`: The first point of the Result vector is the average 
@@ -268,13 +268,13 @@ class AWG(AWGCore):
     for the UHFQA.
 
     Attributes:
-        output1 (:class:`zhinst.toolkit.control.nodetree.Parameter`): The state 
+        output1 (:class:`zhinst.toolkit.control.node_tree.Parameter`): The state 
             of the output of channel 1. Can be one of {'on', 'off'}.
-        output2 (:class:`zhinst.toolkit.control.nodetree.Parameter`): The state 
+        output2 (:class:`zhinst.toolkit.control.node_tree.Parameter`): The state 
             of the output of channel 2. Can be one of {'on', 'off'}.
-        gain1 (:class:`zhinst.toolkit.control.nodetree.Parameter`): Gain of the 
+        gain1 (:class:`zhinst.toolkit.control.node_tree.Parameter`): Gain of the 
             output channel 1. The value must be between -1 and +1 (default: +1).
-        gain2 (:class:`zhinst.toolkit.control.nodetree.Parameter`): Gain of the 
+        gain2 (:class:`zhinst.toolkit.control.node_tree.Parameter`): Gain of the 
             output channel 2. The value must be between -1 and +1 (default: +1).
 
     """

@@ -6,7 +6,7 @@
 import numpy as np
 
 from zhinst.toolkit.control.connection import DeviceConnection, ZIConnection
-from zhinst.toolkit.control.nodetree import NodeTree
+from zhinst.toolkit.control.node_tree import NodeTree
 from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes
 
 
@@ -42,7 +42,7 @@ class BaseInstrument:
             number can be found on instrument back panel.
 
     Attributes:
-        nodetree (:class:`zhinst.toolkit.control.nodetree.NodeTree`): A 
+        nodetree (:class:`zhinst.toolkit.control.node_tree.NodeTree`): A 
             :class:`Nodetree` object that contains a datastructure recreating 
             the nodetree hirarchy of the instrument settings. The leaves of the 
             tree are :class:`Parameters` that can be called to get and set the 
