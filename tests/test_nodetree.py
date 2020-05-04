@@ -3,7 +3,7 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import Nodetree, Node, NodeList
+from .context import NodeTree, Node, NodeList
 
 
 DUMMY_PARAMETER = {
@@ -73,7 +73,7 @@ def test_init_submodules():
 
 def test_nodetree_init():
     dev = Device()
-    tree = Nodetree(dev)
+    tree = NodeTree(dev)
     assert tree._nodetree_dict == DUMMY_DICT
     assert tree.__repr__() != ""
 

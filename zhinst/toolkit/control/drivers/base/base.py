@@ -6,7 +6,7 @@
 import numpy as np
 
 from zhinst.toolkit.control.connection import DeviceConnection, ZIConnection
-from zhinst.toolkit.control.nodetree import Nodetree
+from zhinst.toolkit.control.nodetree import NodeTree
 from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes
 
 
@@ -22,7 +22,7 @@ class BaseInstrument:
     number, device type, interface, etc.
 
     The instrument holds a :class:`DeviceConnection` which handles all the 
-    communication with the data server. It also initialize a :class:`Nodetree` 
+    communication with the data server. It also initialize a :class:`NodeTree` 
     that is used to access all the settings in the device's nodetree.
 
         >>> import zhinst.toolkit as tk
@@ -42,7 +42,7 @@ class BaseInstrument:
             number can be found on instrument back panel.
 
     Attributes:
-        nodetree (:class:`zhinst.toolkit.control.nodetree.Nodetree`): A 
+        nodetree (:class:`zhinst.toolkit.control.nodetree.NodeTree`): A 
             :class:`Nodetree` object that contains a datastructure recreating 
             the nodetree hirarchy of the instrument settings. The leaves of the 
             tree are :class:`Parameters` that can be called to get and set the 
@@ -92,12 +92,12 @@ class BaseInstrument:
         """Connects the device to the data server. 
         
         This method connects the device to the data server of its connection, 
-        initializes the :class:`Nodetree` and applies initial device settings. 
+        initializes the :class:`NodeTree` and applies initial device settings. 
         A data server connection needs to be set up beforehand by calling 
         `setup()`.
         
         Arguments:
-            nodetree (bool): If `True`,  the :class:`Nodetree` object will be 
+            nodetree (bool): If `True`,  the :class:`NodeTree` object will be 
                 initialized after connecting the device, otherwise not. 
                 (Default: `True`)
 
@@ -105,7 +105,7 @@ class BaseInstrument:
         self._check_connected()
         self._controller.connect_device()
         if nodetree:
-            self._nodetree = Nodetree(self)
+            self._nodetree = NodeTree(self)
         self._options = self._get("/features/options").split("\n")
         self._init_settings()
 

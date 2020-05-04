@@ -27,7 +27,7 @@ class HDAWG(BaseInstrument):
         >>> hd.setup()
         >>> hd.connect_device()
         >>> hd.nodetree
-        <zhinst.toolkit.tools.nodetree.Nodetree object at 0x0000021E467D3BA8>
+        <zhinst.toolkit.tools.nodetree.NodeTree object at 0x0000021E467D3BA8>
         nodes:
         - stats
         - oscs

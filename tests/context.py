@@ -28,7 +28,7 @@ from zhinst.toolkit.control.drivers.base import (
     SweeperModule,
 )
 from zhinst.toolkit.control.nodetree import (
-    Nodetree,
+    NodeTree,
     Parameter,
     NodeList,
     Node,

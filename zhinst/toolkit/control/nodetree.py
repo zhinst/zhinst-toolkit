@@ -13,7 +13,7 @@ class ZHTKNodetreeException(Exception):
 class Parameter:
     """Implements a :mod:`zhinst-toolkit` :class:`Parameter`.
 
-    Implements a callable :class:`Parameter` as leaves in the :class:`Nodetree` 
+    Implements a callable :class:`Parameter` as leaves in the :class:`NodeTree` 
     with a parent :class:`Node` and a device. It holds the information from the 
     `daq.listNodesJSON(...)` method of the Zurich Instruments Python API such as 
     the node path, the description, properties, etc. The `__repr__()` method 
@@ -36,7 +36,7 @@ class Parameter:
         10000000.00
     
     Arguments:
-        parent (:class:`BaseInstrument`, :class:`Nodetree` or :class:`Node`): 
+        parent (:class:`BaseInstrument`, :class:`NodeTree` or :class:`Node`): 
             The parent object that the :class:`Parameter` is associated to.
         params (dict): Dictionary with a definition of the :class:`Parameter`. 
             It must contain the item 'Node' corresponding to the node path of 
@@ -186,15 +186,15 @@ class Parameter:
 
 
 class Node:
-    """Implements a node in the :class:`Nodetree` of a device. 
+    """Implements a node in the :class:`NodeTree` of a device. 
     
     A :class:`Node` has a parent node and a device it is associated with. It can 
     hold other :class:`Nodes` as well as :class:`Parameters`. The data structure 
-    of the device :class:`Nodetree` is recreated by recursively adding either 
+    of the device :class:`NodeTree` is recreated by recursively adding either 
     other :class:`Nodes` or :class:`Parameters` as attributes to the 
     :class:`Node`.
 
-    To make it easier fo the user to navigate the device :class:`Nodetree`, each
+    To make it easier fo the user to navigate the device :class:`NodeTree`, each
     :class:`Node` has the attributes `nodes` and `parameters` taht holds a list 
     its children. Also the `__repr__()` method is overwritten such that the 
     output in the console is useful:  
@@ -237,13 +237,13 @@ class Node:
 
         Recursively goes through a nested nodetree dictionary. Adds a 
         :class:`Node` object as attribute to the parent node if the leave of the 
-        :class:`Nodetree` has not yet been reached. Adds a :class:`Parameter` as 
+        :class:`NodeTree` has not yet been reached. Adds a :class:`Parameter` as 
         attribute to the parent node if the leave has been reached (i.e. when 
         'Node' is in keys of the remaining dict and the remaining dict is the s
         ame as the one return from `listNodesJSON` describing the 
         :class:`Parameter`).
 
-        If a layer in the :class:`Nodetree` is enumerated and the keys of the 
+        If a layer in the :class:`NodeTree` is enumerated and the keys of the 
         dict are integer values (e.g. 'sigouts/0/..', 'sigouts/1/..', 
         'sigouts/2/..', ...) a :class:`NodeList` is created instead. In case the 
         :class:`NodeList` has only one entry (e.g. for 'qas/0/..') only a single 
@@ -325,22 +325,22 @@ class NodeList(list):
         return s
 
 
-class Nodetree(Node):
+class NodeTree(Node):
     """Recreates the device's nodetree.
 
-    Implements a :class:`Nodetree` data structure used to access the settings 
-    (:class:`Parameter`) of any Zurich Instruments device. A :class:`Nodetree` 
+    Implements a :class:`NodeTree` data structure used to access the settings 
+    (:class:`Parameter`) of any Zurich Instruments device. A :class:`NodeTree` 
     is created for every instrument when it is connected to the data server. In 
     this way the available settings always directly correspond to the 
     :class:`Nodes` that are available on the device.
 
     Inherits from the :class:`Node` class. On initialization the 
-    :class:`Nodetree` retireves a nested dictionary from the device representing 
+    :class:`NodeTree` retireves a nested dictionary from the device representing 
     its nodetree hirarchy and then recursively adds :class:`Nodes` and 
     :class:`Parameters` as attributes to the :class:`Node`.
 
         >>> hdawg.nodetree
-        <zhinst.toolkit.tools.nodetree.Nodetree object at 0x0000021E467D3BA8>
+        <zhinst.toolkit.tools.nodetree.NodeTree object at 0x0000021E467D3BA8>
         nodes:
         - stats
         - oscs
@@ -359,7 +359,7 @@ class Nodetree(Node):
     
     Arguments:
         device (:class:`BaseInstrument`): A reference to the instrument that 
-            the :class:`Nodetree` belongs to. Used for `getting` and `setting` 
+            the :class:`NodeTree` belongs to. Used for `getting` and `setting` 
             of each :class:`Parameter`.
     
     Attributes:
@@ -376,14 +376,14 @@ class Nodetree(Node):
         self._init_subnodes_recursively(self, self._nodetree_dict)
 
     def _get_nodetree_dict(self):
-        """Gets the :class:`Nodetree` as a nested dictionary. 
+        """Gets the :class:`NodeTree` as a nested dictionary. 
 
-        Retrieves the :class:`Nodetree` from the device as a flat dictionary and 
+        Retrieves the :class:`NodeTree` from the device as a flat dictionary and 
         converts it to a nested dictionary using `dictify()`. For every device 
         node returned from the instrument this method splits the node string 
         into its parts and sorts the value (dict with 'Node', 'Description', 
         'Unit', etc.) into a nested dict that recreates the hirarchy of the 
-        :class:`Nodetree`.
+        :class:`NodeTree`.
 
         """
         tree = self._device._get_nodetree(f"{self._device.serial}/*")
@@ -396,7 +396,7 @@ class Nodetree(Node):
 
 
 def dictify(data, keys, val):
-    """Turns a flat :class:`Nodetree` dictionary into a nested dictionary.
+    """Turns a flat :class:`NodeTree` dictionary into a nested dictionary.
 
     Helper function to generate nested dictionary from list of keys and value. 
     Calls itself recursively.

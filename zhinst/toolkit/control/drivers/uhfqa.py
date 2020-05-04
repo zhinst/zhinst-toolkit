@@ -39,7 +39,7 @@ class UHFQA(BaseInstrument):
         >>> uhfqa.connect_device()
         >>> ...
         >>> uhfqa.nodetree
-        <zhinst.toolkit.tools.nodetree.Nodetree object at 0x0000021091FFC898>
+        <zhinst.toolkit.tools.nodetree.NodeTree object at 0x0000021091FFC898>
         nodes:
         - stats
         - osc
