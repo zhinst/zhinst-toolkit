@@ -5,7 +5,7 @@ Nodetree and Parameters
 Nodetree
 --------
 
-.. autoclass:: zhinst.toolkit.control.nodetree.Nodetree
+.. autoclass:: zhinst.toolkit.control.node_tree.NodeTree
     :show-inheritance:  
     :members:
     :inherited-members:
@@ -14,19 +14,19 @@ Nodetree
 Node
 ----
 
-.. autoclass:: zhinst.toolkit.control.nodetree.Node
+.. autoclass:: zhinst.toolkit.control.node_tree.Node
     :members:
 
 Node List
 ---------
 
-.. autoclass:: zhinst.toolkit.control.nodetree.NodeList
+.. autoclass:: zhinst.toolkit.control.node_tree.NodeList
     :members:
 
 
 Parameter
 ---------
 
-.. autoclass:: zhinst.toolkit.control.nodetree.Parameter
+.. autoclass:: zhinst.toolkit.control.node_tree.Parameter
     :members:
     :inherited-members:
