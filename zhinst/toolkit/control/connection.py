@@ -8,7 +8,7 @@ import zhinst.ziPython as zi
 from zhinst.toolkit.interface import DeviceTypes
 
 
-class ZHTKConnectionException(Exception):
+class ToolkitConnectionError(Exception):
     """Exception specific to the zhinst.toolkit ZIConnection class."""
 
     pass
@@ -50,7 +50,7 @@ class ZIConnection:
         is used for all communication to the data server.
 
         Raises:
-            ZHTKConnectionException: if connection to the Data Server could not 
+            ToolkitConnectionError: if connection to the Data Server could not 
                 be established
 
         """
@@ -61,7 +61,7 @@ class ZIConnection:
                 self._connection_details.api,
             )
         except RuntimeError:
-            raise ZHTKConnectionException(
+            raise ToolkitConnectionError(
                 f"No connection could be established with the connection details:"
                 f"{self._connection_details}"
             )
@@ -76,7 +76,7 @@ class ZIConnection:
             self._daq_module = DAQModuleConnection(self._daq)
             self._sweeper_module = SweeperModuleConnection(self._daq)
         else:
-            raise ZHTKConnectionException(
+            raise ToolkitConnectionError(
                 f"No connection could be established with the connection details:"
                 f"{self._connection_details}"
             )
@@ -94,13 +94,13 @@ class ZIConnection:
                 'usb'
 
         Raises:
-            ZHTKConnectionException if the could not be established. 
+            ToolkitConnectionError if the could not be established. 
 
         """
         if self._daq is None:
-            raise ZHTKConnectionException("No existing connection to data server")
+            raise ToolkitConnectionError("No existing connection to data server")
         if any(k is None for k in [serial, interface]):
-            raise ZHTKConnectionException(
+            raise ToolkitConnectionError(
                 "To connect a Zurich Instruments' device, youd need a serial and an interface [1gbe or usb]"
             )
         self._daq.connectDevice(serial, interface)
@@ -115,14 +115,14 @@ class ZIConnection:
         Passes all arguments to the undelying method.
         
         Raises:
-            ZHTKConnectionException: is the connection is not yet established
+            ToolkitConnectionError: is the connection is not yet established
         
         Returns:
             the value returned from `daq.set(...)`
         
         """
         if not self.established:
-            raise ZHTKConnectionException("The connection is not yet established.")
+            raise ToolkitConnectionError("The connection is not yet established.")
         return self._daq.set(*args)
 
     def get(self, *args, **kwargs):
@@ -131,14 +131,14 @@ class ZIConnection:
         Passes all arguments and keyword arguments to the underlying method.
         
         Raises:
-            ZHTKConnectionException: is the connection is not yet established
+            ToolkitConnectionError: is the connection is not yet established
         
         Returns:
             the value returned from `daq.get(...)`
         
         """
         if not self.established:
-            raise ZHTKConnectionException("The connection is not yet established.")
+            raise ToolkitConnectionError("The connection is not yet established.")
         return self._daq.get(*args, **kwargs)
 
     def get_sample(self, *args, **kwargs):
@@ -148,14 +148,14 @@ class ZIConnection:
         Used only for certain streaming nodes on the UHFLI or MFLI devices.
 
         Raises:
-            ZHTKConnectionException: is the connection is not yet established
+            ToolkitConnectionError: is the connection is not yet established
         
         Returns:
             the value returned from `daq.getSample(...)`
         
         """
         if not self.established:
-            raise ZHTKConnectionException("The connection is not yet established.")
+            raise ToolkitConnectionError("The connection is not yet established.")
         return self._daq.getSample(*args, **kwargs)
 
     def list_nodes(self, *args, **kwargs):
@@ -164,14 +164,14 @@ class ZIConnection:
         Passes all arguments and keyword arguemnts to the undelying method.
 
         Raises:
-            ZHTKConnectionException: is the connection is not yet established
+            ToolkitConnectionError: is the connection is not yet established
         
         Returns:
             the value returned from `daq.listNodesJSON(...)`
         
         """
         if not self.established:
-            raise ZHTKConnectionException("The connection is not yet established.")
+            raise ToolkitConnectionError("The connection is not yet established.")
         return self._daq.listNodesJSON(*args, **kwargs)
 
     @property
@@ -432,7 +432,7 @@ class DeviceConnection(object):
         the API.
 
         Raises:
-            ZHTKConnectionException if is the input arguemnts are invalid.
+            ToolkitConnectionError if is the input arguemnts are invalid.
 
         Returns:
             The set value as returned from the API.
@@ -443,7 +443,7 @@ class DeviceConnection(object):
         elif len(args) == 1:
             settings = args[0]
         else:
-            raise ZHTKConnectionException("Invalid number of arguments!")
+            raise ToolkitConnectionError("Invalid number of arguments!")
         settings = self._commands_to_node(settings)
         return self._connection.set(settings)
 
@@ -462,7 +462,7 @@ class DeviceConnection(object):
                 (default: True)
 
         Raises:
-            ZHTKConnectionException: if no device is connected
+            ToolkitConnectionError: if no device is connected
 
         Returns:
             The value of the node.
@@ -477,7 +477,7 @@ class DeviceConnection(object):
             elif isinstance(command, str):
                 node_string = self._command_to_node(command)
             else:
-                raise ZHTKConnectionException("Invalid argument!")
+                raise ToolkitConnectionError("Invalid argument!")
             if (
                 self._device.device_type in [DeviceTypes.UHFLI, DeviceTypes.MFLI]
                 and "sample" in command.lower()
@@ -495,7 +495,7 @@ class DeviceConnection(object):
             else:
                 return data
         else:
-            raise ZHTKConnectionException("No device connected!")
+            raise ToolkitConnectionError("No device connected!")
 
     def get_nodetree(self, prefix: str, **kwargs):
         """Gets the entire nodetree of the connected device. 
@@ -525,16 +525,16 @@ class DeviceConnection(object):
             data (dict): A dictionary as returned from the Python API.
         
         Raises:
-            ZHTKConnectionException: if no data is returned from the API
+            ToolkitConnectionError: if no data is returned from the API
         
         Returns:
             A dictionary with node/value as key and value.
 
         """
         if not isinstance(data, dict):
-            raise ZHTKConnectionException("Something went wrong...")
+            raise ToolkitConnectionError("Something went wrong...")
         if not len(data):
-            raise ZHTKConnectionException("No data returned... does the node exist?")
+            raise ToolkitConnectionError("No data returned... does the node exist?")
         new_data = dict()
         for key, data_dict in data.items():
             key = key.replace(f"/{self._device.serial}/", "")
@@ -553,18 +553,18 @@ class DeviceConnection(object):
             data (dict): A dictionary as returned from the Python API.
         
         Raises:
-            ZHTKConnectionException: if no data is returned from the API
+            ToolkitConnectionError: if no data is returned from the API
         
         Returns:
             The complex demod sample value.
 
         """
         if not isinstance(data, dict):
-            raise ZHTKConnectionException("Something went wrong...")
+            raise ToolkitConnectionError("Something went wrong...")
         if not len(data):
-            raise ZHTKConnectionException("No data returned... does the node exist?")
+            raise ToolkitConnectionError("No data returned... does the node exist?")
         if "x" not in data.keys() or "y" not in data.keys():
-            raise ZHTKConnectionException("No 'x' or 'y' in streaming node data!")
+            raise ToolkitConnectionError("No 'x' or 'y' in streaming node data!")
         return data["x"][0] + 1j * data["y"][0]
 
     def _commands_to_node(self, settings):
@@ -578,7 +578,7 @@ class DeviceConnection(object):
             settings (list): list of command/value pairs
         
         Raises:
-            ZHTKConnectionException: if the command/value pairs are not 
+            ToolkitConnectionError: if the command/value pairs are not 
                 specified as pairs/tuples
         
         Returns:
@@ -589,11 +589,11 @@ class DeviceConnection(object):
         for args in settings:
             try:
                 if len(args) != 2:
-                    raise ZHTKConnectionException(
+                    raise ToolkitConnectionError(
                         "node/value must be specified as pairs!"
                     )
             except TypeError:
-                raise ZHTKConnectionException("node/value must be specified as pairs!")
+                raise ToolkitConnectionError("node/value must be specified as pairs!")
             new_settings.append((self._command_to_node(args[0]), args[1]))
         return new_settings
 

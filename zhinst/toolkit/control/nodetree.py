@@ -6,7 +6,7 @@
 import numpy as np
 
 
-class ZHTKNodetreeException(Exception):
+class ToolkitNodeTreeError(Exception):
     pass
 
 
@@ -89,7 +89,7 @@ class Parameter:
         attribute.
         
         Raises:
-            ZHTKNodetreeException: if the parameter is not gettable, i.e. if 
+            ToolkitNodeTreeError: if the parameter is not gettable, i.e. if 
                 'Read' not in properties
         
         Returns:
@@ -100,14 +100,14 @@ class Parameter:
             value = self._device._get(self._path)
             if self._map is not None:
                 if value not in self._map.keys():
-                    raise ZHTKNodetreeException(
+                    raise ToolkitNodeTreeError(
                         f"The value '{value}' is not in {list(self._map.keys())}."
                     )
                 value = self._map[value]
             self._cached_value = self._get_parser(value)
             return self._cached_value
         else:
-            raise ZHTKNodetreeException("This parameter is not gettable!")
+            raise ToolkitNodeTreeError("This parameter is not gettable!")
 
     def _setter(self, value):
         """Implements a setter for the :class:`Parameter`. 
@@ -120,7 +120,7 @@ class Parameter:
             value: value to be set
         
         Raises:
-            ZHTKNodetreeException: if the  :class:`Parameter` is not settable, 
+            ToolkitNodeTreeError: if the  :class:`Parameter` is not settable, 
                 i.e. if 'Write' not in properties
         
         Returns:
@@ -131,7 +131,7 @@ class Parameter:
             if value != self._cached_value:
                 if self._map is not None and isinstance(value, str):
                     if value not in self._map.values():
-                        raise ZHTKNodetreeException(
+                        raise ToolkitNodeTreeError(
                             f"The value '{value}' is not in {list(self._map.values())}."
                         )
                     inv_map = {v: k for k, v in self._map.items()}
@@ -141,7 +141,7 @@ class Parameter:
                 self._cached_value = self._get_parser(value)
             return self._cached_value
         else:
-            raise ZHTKNodetreeException("This parameter is not settable!")
+            raise ToolkitNodeTreeError("This parameter is not settable!")
 
     def __call__(self, value=None):
         """Make the object callable.

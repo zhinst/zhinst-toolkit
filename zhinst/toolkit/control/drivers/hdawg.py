@@ -6,7 +6,7 @@
 import numpy as np
 import time
 
-from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ZHTKException
+from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ToolkitError
 from zhinst.toolkit.control.nodetree import Parameter
 from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.interface import DeviceTypes
@@ -233,13 +233,13 @@ class AWG(AWGCore):
         else:
             if isinstance(value, tuple) or isinstance(value, list):
                 if len(value) != 2:
-                    raise ZHTKException(
+                    raise ToolkitError(
                         "The values should be specified as a tuple, e.g. ('on', 'off')."
                     )
                 self.output1(value[0])
                 self.output2(value[1])
             else:
-                raise ZHTKException("The value must be a tuple or list of length 2!")
+                raise ToolkitError("The value must be a tuple or list of length 2!")
 
     def enable_iq_modulation(self):
         """Enables IQ Modulation by on the AWG Core.
@@ -294,7 +294,7 @@ class AWG(AWGCore):
                 SequenceType.TRIGGER,
             ]
             if t not in allowed_sequences:
-                raise ZHTKException(
+                raise ToolkitError(
                     f"Sequence type {t} must be one of {allowed_sequences}!"
                 )
         if "trigger_mode" in kwargs.keys():

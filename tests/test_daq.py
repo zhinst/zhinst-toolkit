@@ -3,7 +3,7 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import DAQModule, ZHTKException
+from .context import DAQModule, ToolkitError
 
 
 class Parent:
@@ -25,9 +25,9 @@ def test_daq_init():
 def test_no_connection():
     p = Parent()
     daq = DAQModule(p)
-    with pytest.raises(ZHTKException):
+    with pytest.raises(ToolkitError):
         daq._init_settings()
-    with pytest.raises(ZHTKException):
+    with pytest.raises(ToolkitError):
         daq._set("endless", 0)
-    with pytest.raises(ZHTKException):
+    with pytest.raises(ToolkitError):
         daq._get("endless")

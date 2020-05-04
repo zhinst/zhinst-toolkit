@@ -1,7 +1,7 @@
 import time
 import numpy as np
 
-from .base import ZHTKException
+from .base import ToolkitError
 from zhinst.toolkit.control.nodetree import Parameter
 
 
@@ -171,12 +171,12 @@ class SweeperModule:
 
     def _set(self, *args):
         if self._module is None:
-            raise ZHTKException("This DAQ is not connected to a dataAcquisitionModule!")
+            raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
         return self._module.set(*args, device=self._parent.serial)
 
     def _get(self, *args, valueonly=True):
         if self._module is None:
-            raise ZHTKException("This DAQ is not connected to a dataAcquisitionModule!")
+            raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
         data = self._module.get(*args, device=self._parent.serial)
         return list(data.values())[0][0] if valueonly else data
 
@@ -300,7 +300,7 @@ class SweeperModule:
         
         """
         if application not in APPLICATIONS.keys():
-            raise ZHTKException(
+            raise ToolkitError(
                 f"Application must be one of {list(APPLICATIONS.keys())}."
             )
         settings = APPLICATIONS[application]
@@ -319,14 +319,14 @@ class SweeperModule:
     def _parse_signals(self, source):
         source = source.lower()
         if source not in self._signal_sources:
-            raise ZHTKException(
+            raise ToolkitError(
                 f"Signal source must be in {self._signal_sources.keys()}"
             )
         return self._signal_sources[source]
 
     def _parse_sweep_param(self, param):
         if param not in self._sweep_params.keys():
-            raise ZHTKException(
+            raise ToolkitError(
                 f"The parameter {param} must be one of {list(self._sweep_params.keys())}"
             )
         return self._sweep_params[param]
@@ -336,7 +336,7 @@ class SweeperModule:
         for node in self.signals:
             node = node.lower()
             if node not in result.keys():
-                raise ZHTKException()
+                raise ToolkitError()
             result = SweeperResult(node, result[node][0][0])
             self._results[node] = result
         return result

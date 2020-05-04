@@ -10,7 +10,7 @@ import pathlib
 from zhinst.toolkit.interface import InstrumentConfiguration
 from zhinst.toolkit.control.connection import ZIConnection
 from zhinst.toolkit.control.drivers import UHFQA, HDAWG, PQSC, UHFLI, MFLI
-from zhinst.toolkit.control.drivers.base import ZHTKException
+from zhinst.toolkit.control.drivers.base import ToolkitError
 
 
 class MultiDeviceConnection:
@@ -62,7 +62,7 @@ class MultiDeviceConnection:
         pqsc (:class:`PQSC`): A PQSC if one is added, otherwise None
     
     Raises:
-        ZHTKException if an unknown device is added
+        ToolkitError if an unknown device is added
     
     """
 
@@ -98,7 +98,7 @@ class MultiDeviceConnection:
                 :class:`UHFQA`, :class:`UHFLI`, :class:`MFLI`, :class:`PQSC`
         
         Raises:
-            ZHTKException: if the device is not recognized
+            ToolkitError: if the device is not recognized
             
         """
         if isinstance(device, HDAWG):
@@ -112,7 +112,7 @@ class MultiDeviceConnection:
         elif isinstance(device, MFLI):
             self._mflis = device
         else:
-            raise ZHTKException("This device is not recognized!")
+            raise ToolkitError("This device is not recognized!")
         device.setup(connection=self._shared_connection)
         device.connect_device()
 

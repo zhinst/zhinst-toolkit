@@ -3,7 +3,7 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import Parameter, ZHTKNodetreeException
+from .context import Parameter, ToolkitNodeTreeError
 
 
 DUMMY_PARAMETER = {
@@ -68,7 +68,7 @@ def test_set_get_readonly():
     params["Properties"] = "Read"
     p = Parameter(parent, DUMMY_PARAMETER)
     p()
-    with pytest.raises(ZHTKNodetreeException):
+    with pytest.raises(ToolkitNodeTreeError):
         p(0)
 
 
@@ -80,6 +80,5 @@ def test_set_get_writeonly(v):
     params["Properties"] = "Write"
     p = Parameter(parent, DUMMY_PARAMETER)
     p(v)
-    with pytest.raises(ZHTKNodetreeException):
+    with pytest.raises(ToolkitNodeTreeError):
         p()
-

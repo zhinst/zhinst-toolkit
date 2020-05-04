@@ -10,7 +10,7 @@ from zhinst.toolkit.control.nodetree import NodeTree
 from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes
 
 
-class ZHTKException(Exception):
+class ToolkitError(Exception):
     pass
 
 
@@ -147,7 +147,7 @@ class BaseInstrument:
             >>> hdawg._set(settings)
 
         Raises:
-            ZHTKException if called and the device in not yet connected to the 
+            ToolkitError if called and the device in not yet connected to the 
                 data server.
 
         Returns: 
@@ -193,7 +193,7 @@ class BaseInstrument:
                 returned or a dict with node/value pairs (default: True)
         
         Raises:
-            ZHTKException: if called and the device is not yet connected to 
+            ToolkitError: if called and the device is not yet connected to 
                 the data server.
 
         Returns:
@@ -217,7 +217,7 @@ class BaseInstrument:
                 specify the subtree for which the nodes should be returned.
 
         Raises: 
-            ZHTKException: if called and the device is not yet connected to 
+            ToolkitError: if called and the device is not yet connected to 
                 the data server.
 
         Returns:
@@ -246,11 +246,11 @@ class BaseInstrument:
         """Checks if the device is connected to the data server.
         
         Raises:
-            ZHTKException if the device is not connected to a data server.
+            ToolkitError if the device is not connected to a data server.
             
         """
         if not self.is_connected:
-            raise ZHTKException(
+            raise ToolkitError(
                 f"The device {self.name} ({self.serial}) is not connected to a Data Server! Use device.setup() to establish a data server connection."
             )
 

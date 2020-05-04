@@ -9,7 +9,7 @@ from zhinst.toolkit.control.drivers.base import (
     BaseInstrument,
     DAQModule as DAQ,
     SweeperModule as Sweeper,
-    ZHTKException,
+    ToolkitError,
 )
 from zhinst.toolkit.control.drivers.uhfqa import AWG
 from zhinst.toolkit.interface import DeviceTypes
@@ -88,7 +88,7 @@ class UHFLI(BaseInstrument):
     @property
     def awg(self):
         if "AWG" not in self._options:
-            raise ZHTKException("The AWG option is not installed.")
+            raise ToolkitError("The AWG option is not installed.")
         return self._awg
 
     @property

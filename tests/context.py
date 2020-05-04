@@ -18,11 +18,11 @@ from zhinst.toolkit.control.drivers.uhfli import (
 from zhinst.toolkit.control.connection import (
     ZIConnection,
     DeviceConnection,
-    ZHTKConnectionException,
+    ToolkitConnectionError,
 )
 from zhinst.toolkit.control.drivers.base import (
     BaseInstrument,
-    ZHTKException,
+    ToolkitError,
     AWGCore,
     DAQModule,
     SweeperModule,
@@ -32,7 +32,7 @@ from zhinst.toolkit.control.nodetree import (
     Parameter,
     NodeList,
     Node,
-    ZHTKNodetreeException,
+    ToolkitNodeTreeError,
 )
 from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.helpers import Waveform, SequenceCommand, SequenceProgram

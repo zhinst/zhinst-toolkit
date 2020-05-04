@@ -5,7 +5,7 @@
 
 import numpy as np
 
-from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ZHTKException
+from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ToolkitError
 from zhinst.toolkit.control.nodetree import Parameter
 from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.interface import DeviceTypes
@@ -344,7 +344,7 @@ class AWG(AWGCore):
                 SequenceType.CUSTOM,
             ]
             if t not in allowed_sequences:
-                raise ZHTKException(
+                raise ToolkitError(
                     f"Sequence type {t} must be one of {[s.value for s in allowed_sequences]}!"
                 )
             # apply settings depending on sequence type
@@ -424,12 +424,12 @@ class AWG(AWGCore):
         else:
             if isinstance(value, tuple) or isinstance(value, list):
                 if len(value) != 2:
-                    raise ZHTKException(
+                    raise ToolkitError(
                         "The values should be specified as a tuple, e.g. ('on', 'off')."
                     )
                 return self.output1(value[0]), self.output2(value[1])
             else:
-                raise ZHTKException("The value must be a tuple or list of length 2!")
+                raise ToolkitError("The value must be a tuple or list of length 2!")
 
     def update_readout_params(self):
         """Updates the sequence parameters for 'Simple' sequence with values from the readout channels."""
@@ -446,7 +446,7 @@ class AWG(AWGCore):
                 readout_frequencies=freqs, readout_amplitudes=amps, phase_shifts=phases,
             )
         else:
-            raise ZHTKException("AWG Sequence type needs to be 'Readout'")
+            raise ToolkitError("AWG Sequence type needs to be 'Readout'")
 
     def compile(self):
         """Wraps the 'compile(...)' method of the parent class `AWGCore`."""

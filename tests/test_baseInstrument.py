@@ -3,7 +3,7 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import BaseInstrument, ZHTKException, DeviceTypes
+from .context import BaseInstrument, ToolkitError, DeviceTypes
 
 
 def test_init_instrument():
@@ -18,11 +18,11 @@ def test_init_instrument():
 
 def test_check_connection():
     instr = BaseInstrument("name", DeviceTypes.PQSC, "dev1234", interface="1GbE")
-    with pytest.raises(ZHTKException):
+    with pytest.raises(ToolkitError):
         instr._check_connected()
-    with pytest.raises(ZHTKException):
+    with pytest.raises(ToolkitError):
         instr.connect_device()
-    with pytest.raises(ZHTKException):
+    with pytest.raises(ToolkitError):
         instr._get("sigouts/0/on")
-    with pytest.raises(ZHTKException):
+    with pytest.raises(ToolkitError):
         instr._set("sigouts/0/on", 1)

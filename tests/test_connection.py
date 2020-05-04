@@ -6,7 +6,7 @@ import numpy as np
 from .context import (
     ZIConnection,
     DeviceConnection,
-    ZHTKConnectionException,
+    ToolkitConnectionError,
     DeviceTypes,
 )
 
@@ -37,15 +37,15 @@ def test_init_zi_connection():
 
 def test_check_connection():
     c = ZIConnection(Details())
-    with pytest.raises(ZHTKConnectionException):
+    with pytest.raises(ToolkitConnectionError):
         c.connect_device()
-    with pytest.raises(ZHTKConnectionException):
+    with pytest.raises(ToolkitConnectionError):
         c.get("tests/test")
-    with pytest.raises(ZHTKConnectionException):
+    with pytest.raises(ToolkitConnectionError):
         c.get_sample("tests/test")
-    with pytest.raises(ZHTKConnectionException):
+    with pytest.raises(ToolkitConnectionError):
         c.set("tests/test", 1)
-    with pytest.raises(ZHTKConnectionException):
+    with pytest.raises(ToolkitConnectionError):
         c.connect()
 
 
@@ -58,15 +58,15 @@ def test_init_device_connection():
 
 def test_device_connection_connect():
     c = DeviceConnection(Device())
-    with pytest.raises(ZHTKConnectionException):
+    with pytest.raises(ToolkitConnectionError):
         c.setup()
-    with pytest.raises(ZHTKConnectionException):
+    with pytest.raises(ToolkitConnectionError):
         c.setup(connection=ZIConnection(Details()))
-    with pytest.raises(ZHTKConnectionException):
+    with pytest.raises(ToolkitConnectionError):
         c.connect_device()
-    with pytest.raises(ZHTKConnectionException):
+    with pytest.raises(ToolkitConnectionError):
         c.get("tests/test")
-    with pytest.raises(ZHTKConnectionException):
+    with pytest.raises(ToolkitConnectionError):
         c.set("tests/test", 1)
-    with pytest.raises(ZHTKConnectionException):
+    with pytest.raises(ToolkitConnectionError):
         c.get_nodetree("*")

@@ -1,7 +1,7 @@
 import time
 import numpy as np
 
-from .base import ZHTKException
+from .base import ToolkitError
 from zhinst.toolkit.control.nodetree import Parameter
 
 
@@ -164,12 +164,12 @@ class DAQModule:
 
     def _set(self, *args):
         if self._module is None:
-            raise ZHTKException("This DAQ is not connected to a dataAcquisitionModule!")
+            raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
         return self._module.set(*args, device=self._parent.serial)
 
     def _get(self, *args, valueonly=True):
         if self._module is None:
-            raise ZHTKException("This DAQ is not connected to a dataAcquisitionModule!")
+            raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
         data = self._module.get(*args, device=self._parent.serial)
         return list(data.values())[0][0] if valueonly else data
 
@@ -330,7 +330,7 @@ class DAQModule:
     def _parse_signal_source(self, source):
         source = source.lower()
         if source not in self._signal_sources:
-            raise ZHTKException(
+            raise ToolkitError(
                 f"Signal source must be in {self._signal_sources.keys()}"
             )
         return self._signal_sources[source]
@@ -342,13 +342,13 @@ class DAQModule:
             if signal in signal_source:
                 types = self._signal_types[signal]
         if signal_type not in types.keys():
-            raise ZHTKException(f"Signal type must be in {types.keys()}")
+            raise ToolkitError(f"Signal type must be in {types.keys()}")
         return types[signal_type]
 
     def _parse_operation(self, operation):
         operations = ["replace", "avg", "std"]
         if operation not in operations:
-            raise ZHTKException(f"Operation must be in {operations}")
+            raise ToolkitError(f"Operation must be in {operations}")
         if operation == "replace":
             operation = ""
         return f".{operation}"
@@ -357,7 +357,7 @@ class DAQModule:
         if fft:
             selectors = ["real", "imag", "abs", "phase"]
             if selector not in selectors:
-                raise ZHTKException(f"Operation must be in {selectors}")
+                raise ToolkitError(f"Operation must be in {selectors}")
             return f".fft.{selector}"
         else:
             return ""
@@ -372,7 +372,7 @@ class DAQModule:
         source = source.lower()
         sources = self._trigger_signals
         if source not in sources:
-            raise ZHTKException(f"Signal source must be in {sources.keys()}")
+            raise ToolkitError(f"Signal source must be in {sources.keys()}")
         return sources[source]
 
     def _parse_trigger_type(self, trigger_source, trigger_type):
@@ -382,7 +382,7 @@ class DAQModule:
             if signal in trigger_source:
                 types = self._trigger_types[signal]
         if trigger_type.lower() not in types.keys():
-            raise ZHTKException(f"Signal type must be in {types.keys()}")
+            raise ToolkitError(f"Signal type must be in {types.keys()}")
         return types[trigger_type]
 
     def _get_result_from_dict(self, result):
@@ -390,7 +390,7 @@ class DAQModule:
         for node in self.signals:
             node = node.lower()
             if node not in result.keys():
-                raise ZHTKException()
+                raise ToolkitError()
             self._results[node] = DAQResult(
                 node, result[node][0], clk_rate=self._clk_rate
             )

@@ -3,7 +3,7 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import SweeperModule, ZHTKException
+from .context import SweeperModule, ToolkitError
 
 
 class Parent:
@@ -25,9 +25,9 @@ def test_sweeper_init():
 def test_no_connection():
     p = Parent()
     s = SweeperModule(p)
-    with pytest.raises(ZHTKException):
+    with pytest.raises(ToolkitError):
         s._init_settings()
-    with pytest.raises(ZHTKException):
+    with pytest.raises(ToolkitError):
         s._set("endless", 0)
-    with pytest.raises(ZHTKException):
+    with pytest.raises(ToolkitError):
         s._get("endless")

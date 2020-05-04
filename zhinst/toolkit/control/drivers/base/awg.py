@@ -7,8 +7,7 @@ import numpy as np
 import time
 
 from zhinst.toolkit.helpers import SequenceProgram, Waveform, SequenceType
-from .base import ZHTKException
-from .base import ZHTKException
+from .base import ToolkitError
 
 
 class AWGCore:
@@ -153,13 +152,13 @@ class AWGCore:
         """Compiles the current SequenceProgram on the AWG Core.
         
         Raises:
-            ZHTKException: If the AWG Core has not been set up yet.
-            ZHTKException: If the compilation has failed.
+            ToolkitError: If the AWG Core has not been set up yet.
+            ToolkitError: If the compilation has failed.
             Warning: If the compilation has finished with a warning.
 
         """
         if self._module is None:
-            raise ZHTKException("This AWG is not connected to a awgModule!")
+            raise ToolkitError("This AWG is not connected to a awgModule!")
         self._module.update(device=self._parent.serial)
         self._module.update(index=self._index)
         if self._program.sequence_type == SequenceType.SIMPLE:
@@ -170,7 +169,7 @@ class AWGCore:
         while self._module.get_int("compiler/status") == -1:
             time.sleep(0.1)
         if self._module.get_int("compiler/status") == 1:
-            raise ZHTKException(
+            raise ToolkitError(
                 "Upload failed: \n" + self._module.get_string("compiler/statusstring")
             )
         if self._module.get_int("compiler/status") == 2:
@@ -223,11 +222,11 @@ class AWGCore:
                 the time origin of the sequence. (default: 0)
         
         Raises:
-            ZHTKException: If the given index is out of range.
+            ToolkitError: If the given index is out of range.
 
         """
         if i not in range(len(self._waveforms)):
-            raise ZHTKException("Index out of range!")
+            raise ToolkitError("Index out of range!")
         self._waveforms[i].replace_data(wave1, wave2, delay=delay)
 
     def upload_waveforms(self):
@@ -258,7 +257,7 @@ class AWGCore:
 
     def _wait_upload_done(self, timeout=10):
         if self._module is None:
-            raise ZHTKException("This AWG is not connected to a awgModule!")
+            raise ToolkitError("This AWG is not connected to a awgModule!")
         time.sleep(0.01)
         self._module = self._parent._awg_connection
         self._module.update(device=self._parent.serial, index=self._index)

@@ -9,7 +9,6 @@ from zhinst.toolkit.control.drivers.base import (
     BaseInstrument,
     DAQModule as DAQ,
     SweeperModule as Sweeper,
-    ZHTKException,
 )
 from zhinst.toolkit.interface import DeviceTypes
 
