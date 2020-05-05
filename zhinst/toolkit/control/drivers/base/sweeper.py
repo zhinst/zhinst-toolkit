@@ -246,6 +246,11 @@ class SweeperModule:
     def measure(self, verbose=True, timeout=20):
         """Performs the measurement.
         
+        Starts a measurement and stores the result in `sweeper.results`. This 
+        method subscribes to all the paths previously added to 
+        `sweeper.signals`, then starts the measurement, waits until the 
+        measurement in finished and eventually reads the result.
+        
         Keyword Arguments:
             verbose (bool): A flag to enable or disable output on the console. 
                 (default: True)
