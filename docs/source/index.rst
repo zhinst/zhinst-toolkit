@@ -5,8 +5,8 @@
 |
 |
 
-Welcome to the Documentation for :mod:`zhinst-toolkit`!
-=======================================================
+*Zurich Instruments Toolkit* Documentation
+==========================================
 
 
 The *Zurich Instruments Toolkit* is an extension of our Python API `ziPython`. 
