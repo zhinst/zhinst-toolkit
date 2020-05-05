@@ -256,6 +256,10 @@ class DAQModule:
     ):
         """Add a signal to the signals list to be subscribed to during measurement.
         
+        The specified signal is added to the property *signals* list. On 
+        `measure()`, the *DAQ Module* subscribes to all the signal nodes in the 
+        list. 
+
         Arguments:
             signal_source (str): The source of the signal, e.g. 'demod0'. See 
                 `signals_list()` for available signals.
@@ -278,7 +282,13 @@ class DAQModule:
         Returns:
             A string with the exact node that will be subscribed to. Can be used 
             as a key in the 'results' dict to retrieve the measurement result 
-            corresponding to this signal 
+            corresponding to this signal, e.g.
+
+                >>> signal = mfli.daq.signal_add("demod0", "r")
+                /dev3337/demods/0/sample.r.avg
+                >>> mfli.daq.measure()
+                >>> ...
+                >>> result = mfli.daq.results[signal]
         
         """
         signal_node = self._parse_signals(
@@ -294,6 +304,11 @@ class DAQModule:
 
     def measure(self, verbose=True, timeout=20):
         """Performs the measurement.
+
+        Starts a measurement and stores the result in `daq.results`. This 
+        method subscribes to all the paths previously added to `daq.signals`, 
+        then starts the measurement, waits until the measurement in finished 
+        and eventually reads the result. 
         
         Keyword Arguments:
             verbose (bool): A flag to enable or disable console output during 
