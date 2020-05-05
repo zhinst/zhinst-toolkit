@@ -129,12 +129,10 @@ class AWGCore:
     def run(self):
         """Runs the AWG Core."""
         self._parent._set(f"/awgs/{self._index}/enable", 1)
-        # print(f"Started AWG {self.name}!")
 
     def stop(self):
         """Stops the AWG Core."""
         self._parent._set(f"/awgs/{self._index}/enable", 0)
-        # print(f"Stopped AWG {self.name}!")
 
     def wait_done(self, timeout=10):
         """Waits until the AWG Core is finished.
@@ -221,7 +219,7 @@ class AWGCore:
             wave2 (array): Waveform to replace current wave for Channel 2.
         
         Keyword Arguments:
-            index (int): The index of the waveform in the queue to be replaced.
+            i (int): The index of the waveform in the queue to be replaced.
             delay (int): An individual delay in seconds for this waveform w.r.t. 
                 the time origin of the sequence. (default: 0)
         
