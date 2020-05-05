@@ -205,10 +205,18 @@ class DAQModule:
                     return list(self._trigger_types[signal].keys())
 
     def trigger(self, trigger_source, trigger_type):
-        """Sets the trigger signal by specifying the signal source and type.
+        """Sets the trigger signal of the *DAQ Module*. 
         
-        The trigger node can also be set directly using the module Parameter 
-        'triggernode'.
+        This method can be used to specify the signal used to trigger the data 
+        acquisition. Use the method `trigger_list()` to see the available 
+        trigger signal sources and types.The trigger node can also be set 
+        directly using the module Parameter `triggernode`.
+
+        Arguments:
+            trigger_source (str): A string that specifies the source of the 
+                trigger signal, e.g. "demod0".
+            trigger_trype (str): A string that specifies the type of the 
+                trigger signal, e.g. "trigin1".
         
         """
         trigger_node = self._parse_trigger(trigger_source, trigger_type)
