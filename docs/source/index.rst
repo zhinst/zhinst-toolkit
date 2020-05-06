@@ -1,5 +1,5 @@
 .. image:: images/zhinst_logo_sep_horiz_2019_1000.png
-   :width: 600
+   :width: 400
 
 |
 |
