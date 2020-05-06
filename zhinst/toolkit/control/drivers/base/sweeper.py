@@ -276,7 +276,7 @@ class SweeperModule:
         result = self._module.read(flat=True)
         self._module.finish()
         self._module.unsubscribe("*")
-        return self._get_result_from_dict(result)
+        self._get_result_from_dict(result)
 
     def application_list(self):
         """Lists the availbale application presets.
