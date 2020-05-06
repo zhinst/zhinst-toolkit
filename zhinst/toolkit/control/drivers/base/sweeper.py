@@ -11,8 +11,8 @@ MAPPINGS = {
     "scan": {0: "sequential", 1: "binary", 2: "bidirectional", 3: "reverse"},
     "xmapping": {0: "linear", 1: "logarithmic",},
     "signal_sources": {
-        "demod1": "/demods/0/sample",
-        "demod2": "/demods/1/sample",
+        "demod0": "/demods/0/sample",
+        "demod1": "/demods/1/sample",
         "imp": "/demods/1/sample",
     },
 }

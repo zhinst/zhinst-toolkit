@@ -148,13 +148,13 @@ class SweeperModule(Sweeper):
     def __init__(self, parent):
         super().__init__(parent, clk_rate=60e6)
         self._sweep_params = {
-            "auxout1offset": "auxouts/0/offset",
-            "auxout2offset": "auxouts/1/offset",
-            "auxout3offset": "auxouts/2/offset",
-            "auxout4offset": "auxouts/3/offset",
-            "demdod1phase": "demods/0/phaseshift",
-            "demdod2phase": "demods/1/phaseshift",
+            "auxout0offset": "auxouts/0/offset",
+            "auxout1offset": "auxouts/1/offset",
+            "auxout2offset": "auxouts/2/offset",
+            "auxout3offset": "auxouts/3/offset",
+            "demdod0phase": "demods/0/phaseshift",
+            "demdod1phase": "demods/1/phaseshift",
             "frequency": "oscs/0/freq",
-            "output1amp": "sigouts/0/amplitudes/1",
-            "output1offset": "sigouts/0/offset",
+            "output0amp": "sigouts/0/amplitudes/1",
+            "output0offset": "sigouts/0/offset",
         }
