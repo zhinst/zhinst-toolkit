@@ -49,6 +49,13 @@ Readout Channel
     :members:
 
 
+PQSC
+----
+
+.. autoclass:: zhinst.toolkit.PQSC
+    :show-inheritance:
+    :members:
+
 
 UHFLI
 -----
