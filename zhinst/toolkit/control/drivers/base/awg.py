@@ -81,6 +81,11 @@ class AWGCore:
             queued up waveforms in for a "Simple" sequence.  
         program (:class:`SequenceProgram`): A :class:`SequenceProgram` object 
             used to program predefined '.seqC' sequences on the device.
+        name (str): The name of the `AWG Core`.
+        is_running (bool): A flag that shows if the `AWG Core` is currently 
+            running or not.
+        sequence_params (dict): A dictionary of all the sequence parameters 
+            currently set on the `SequenceProgram`.
 
     """
 
