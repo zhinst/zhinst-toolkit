@@ -96,6 +96,10 @@ class AWGCore:
         self._module = self._parent._controller._connection.awg_module
 
     @property
+    def index(self):
+        return self._index
+
+    @property
     def name(self):
         return self._parent.name + "-" + str(self._index)
 
