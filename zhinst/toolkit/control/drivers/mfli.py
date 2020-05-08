@@ -100,7 +100,7 @@ class DAQModule(DAQ):
     """
 
     def __init__(self, parent):
-        super().__init__(parent, clk_rate=1.8e9)
+        super().__init__(parent, clk_rate=60e6)
         self._trigger_signals = {}
         for source in ["auxin", "demod", "imp"]:
             self._trigger_signals.update(
