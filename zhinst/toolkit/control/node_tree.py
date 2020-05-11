@@ -336,7 +336,7 @@ class NodeTree(Node):
 
     Inherits from the :class:`Node` class. On initialization the 
     :class:`NodeTree` retireves a nested dictionary from the device representing 
-    its nodetree hirarchy and then recursively adds :class:`Nodes` and 
+    its nodetree heirarchy and then recursively adds :class:`Nodes` and 
     :class:`Parameters` as attributes to the :class:`Node`.
 
         >>> hdawg.nodetree
@@ -382,7 +382,7 @@ class NodeTree(Node):
         converts it to a nested dictionary using `dictify()`. For every device 
         node returned from the instrument this method splits the node string 
         into its parts and sorts the value (dict with 'Node', 'Description', 
-        'Unit', etc.) into a nested dict that recreates the hirarchy of the 
+        'Unit', etc.) into a nested dict that recreates the hierarchy of the 
         :class:`NodeTree`.
 
         """
@@ -390,8 +390,8 @@ class NodeTree(Node):
         nodetree = {}
         for key, value in tree.items():
             key = key.replace(f"/{self._device.serial.upper()}/", "")
-            hirarchy = key.split("/")
-            dictify(nodetree, hirarchy, value)
+            hierarchy = key.split("/")
+            dictify(nodetree, hierarchy, value)
         return nodetree
 
 
