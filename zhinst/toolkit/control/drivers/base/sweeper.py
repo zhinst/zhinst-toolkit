@@ -337,9 +337,7 @@ class SweeperModule:
             node = node.lower()
             if node not in result.keys():
                 raise ToolkitError()
-            result = SweeperResult(node, result[node][0][0])
-            self._results[node] = result
-        return result
+            self._results[node] = SweeperResult(node, result[node][0][0])
 
     def _init_settings(self):
         settings = [
