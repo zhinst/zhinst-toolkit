@@ -1,5 +1,5 @@
-How to use the :mod:`zhinst-toolkit`
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to Use :mod:`zhinst-toolkit`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 .. toctree::

@@ -21,8 +21,8 @@ Anaconda
 
 A working installation of Python 3.6+ is required to use :mod:`zhinst-toolkit`. 
 On Windows and MacOS X, Anaconda is highly recommended. At the moment Python 
-3.8 is not supported, we recommend to use Python 3.7. After installation, is 
-recommended to create a new envirornment. This can be done by opening the 
+3.8 is not supported, we recommend to use Python 3.7. After installation, it is 
+recommended to create a new environment. This can be done by opening the 
 Anaconda Prompt from the start menu and by typing these lines in the prompt
 
 .. code:: bash
@@ -30,8 +30,8 @@ Anaconda Prompt from the start menu and by typing these lines in the prompt
     $ conda create -n NAME python=3.7
     $ conda activate NAME
 
-where NAME should be the name of the envirornment that you ant to create. The 
-first line will create the envirornment, while the second activate it.
+where NAME should be the name of the envirronment that you want to create. The 
+first line will create the environment, while the second activate it.
 
 
 Installation
@@ -47,7 +47,7 @@ Simply install the toolkit using `pip`
 
     $ pip install zhinst-toolkit
 
-and verify the installation with
+and verify the installation with e.g. iPython (if installed):
 
 .. code:: bash
 
@@ -58,7 +58,7 @@ and verify the installation with
 Install from Source
 -------------------
 
-Clone the :mod:`zhinst-toolkit` repository from github HERE (TODO: add link!) 
+Clone the :mod:`zhinst-toolkit` repository from GitHub HERE (TODO: add link!) 
 and install the package from source.
 
 .. code:: bash
@@ -92,7 +92,7 @@ Start using the :mod:`zhinst-toolkit`
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For an interactive use of the :mod:`zhinst-toolkit` we recommend 
-`Jupyter Notebooks`, `Jupyter lab` or simply `ipython` for you console. 
+`Jupyter Notebook`, `Jupyter Lab` or simply `iPython` for you console. 
 
 .. code:: python
 
