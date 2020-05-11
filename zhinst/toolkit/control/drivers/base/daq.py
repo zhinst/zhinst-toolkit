@@ -391,7 +391,7 @@ class DAQModule:
         for node in self.signals:
             node = node.lower()
             if node not in result.keys():
-                raise ToolkitError()
+                raise ToolkitError(f"The signal {node} is not in {list(result.keys())}")
             self._results[node] = DAQResult(
                 node, result[node][0], clk_rate=self._clk_rate
             )
