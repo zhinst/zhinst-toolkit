@@ -16,11 +16,11 @@ from zhinst.toolkit.interface import DeviceTypes
 
 
 class UHFLI(BaseInstrument):
-    """High-level driver for Zurich Instruments UHFLI. 
+    """High-level driver for Zurich Instruments UHFLI Lock-In Amplifier. 
     
-    Inherits from BaseInstrument and adds an a Data Acquisition Module, a 
-    Sweeper Module and a AWG Module (if option installed). The modules can be 
-    accessed as properties of the UHFLI.
+    Inherits from :class:`BaseInstrument` and adds a :class:`DAQModule`, a 
+    :class:`SweeperModule` and an :class:`AWGCore` (if option installed). The 
+    modules can be accessed as properties of the UHFLI.
     
         >>> import zhinst.toolkit as tk
         >>> uhfli = tk.UHFLI("uhfli", "dev1111")
@@ -47,7 +47,7 @@ class UHFLI(BaseInstrument):
         daq (:class:`zhinst.toolkit.control.drivers.base.DAQModule`): Data 
             Acquisition Module of the instrument.
         sweeper (:class:`zhinst.toolkit.control.drivers.base.SweeperModule`):
-            :class:`SweeperModule` of the instrument. 
+            Sweeper Module of the instrument. 
         awg (:class:`zhinst.toolkit.control.drivers.uhfqa.AWG`): AWG Module 
             of the instrument if the the option is installed. 
 

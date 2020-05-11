@@ -14,7 +14,7 @@ from zhinst.toolkit.interface import DeviceTypes
 
 
 class MFLI(BaseInstrument):
-    """High-level driver for the Zurich Instruments MFLI. 
+    """High-level driver for the Zurich Instruments MFLI Lock-In Amplifier. 
     
     Inherits from :class:`BaseInstrument` and adds a :class:`DAQModule` and a 
     :class:`SweeperModule`. They can be accessed as properties of the MFLI.

@@ -41,7 +41,8 @@ class DAQModule:
     The data acquisition module is a powerful tool that builds on top of LabOne. 
     It allows for triggered acquisition of multiple data streams on an 
     equidistant temporal grid. For more information on how to use the DAQ 
-    Module, have a look at the LabOne Programming Manual. 
+    Module, have a look at the (LabOne Programming Manual)
+    [https://www.zhinst.com/sites/default/files/documents/2020-03/LabOneProgrammingManual_20.01.0.pdf]. 
 
     This base class is overwritten by device specific DAQ classes with 
     additional signal sources and types. After setup, the nodetree of the module 
@@ -280,9 +281,9 @@ class DAQModule:
                 'imag'. (default: "abs")
         
         Returns:
-            A string with the exact node that will be subscribed to. Can be used 
-            as a key in the 'results' dict to retrieve the measurement result 
-            corresponding to this signal, e.g.
+            A string with the exact signal node that will be acquired during the 
+            measurement. It can be used as a key in the `results` dict to 
+            retrieve the measurement result corresponding to this signal, e.g.
 
                 >>> signal = mfli.daq.signal_add("demod0", "r")
                 /dev3337/demods/0/sample.r.avg
@@ -468,8 +469,8 @@ class DAQResult:
 
     Attributes:
         value (array): A 2D numpy array with the measurement result.
-        shape (tuple): A tuple with the shape of the acquired data. Corresponds 
-            to the according grid settings. 
+        shape (tuple): A tuple with the shape of the acquired data which 
+            corresponds to the according grid settings. 
         time (array): A 1D numpy array containing the time axis of the 
             measurement in seconds. Calculated from the returned timestamps 
             using the DAC clock rate. If the result is a Fourier transform this 

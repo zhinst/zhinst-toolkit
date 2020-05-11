@@ -17,12 +17,12 @@ class ToolkitError(Exception):
 class BaseInstrument:
     """High-level controller for all Zurich Instrument devices. 
     
-    Can be used by itself or inherited for device specific controllers. Provides 
-    information and functionality common to all devices, such as a name, serial 
-    number, device type, interface, etc.
+    It can be used by itself or inherited for device specific controllers. It 
+    provides information and functionality common to all devices, such as a 
+    name, serial number, device type, interface, etc.
 
     The instrument holds a :class:`DeviceConnection` which handles all the 
-    communication with the data server. It also initialize a :class:`NodeTree` 
+    communication with the data server. It also initializes a :class:`NodeTree` 
     that is used to access all the settings in the device's nodetree.
 
         >>> import zhinst.toolkit as tk
@@ -43,8 +43,8 @@ class BaseInstrument:
 
     Attributes:
         nodetree (:class:`zhinst.toolkit.control.node_tree.NodeTree`): A 
-            :class:`Nodetree` object that contains a datastructure recreating 
-            the nodetree hirarchy of the instrument settings. The leaves of the 
+            :class:`Nodetree` object contains a data structure that recreates 
+            the nodetree hierarchy of the instrument settings. The leaves of the 
             tree are :class:`Parameters` that can be called to get and set the 
             according value from the device. The :class:`Nodetree` can be used 
             to navigate all available device settings without having to know the 
@@ -147,7 +147,7 @@ class BaseInstrument:
             >>> hdawg._set(settings)
 
         Raises:
-            ToolkitError if called and the device in not yet connected to the 
+            ToolkitError: If called and the device in not yet connected to the 
                 data server.
 
         Returns: 

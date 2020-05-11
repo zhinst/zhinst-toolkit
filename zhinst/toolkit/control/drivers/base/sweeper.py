@@ -88,7 +88,8 @@ class SweeperModule:
     acquiring data streams from mutiple different signal sources. The  module 
     supports well defined sweeps of various parameters as well as application 
     specific measurement presets. For more information on how to use the Sweeper 
-    Module, have a look at the LabOne Programming Manual. 
+    Module, have a look at the (LabOne Programming Manual)
+    [https://www.zhinst.com/sites/default/files/documents/2020-03/LabOneProgrammingManual_20.01.0.pdf]. 
 
     This base class is overwritten by device specific Sweeper Modules with 
     additional signal sources and types. After setup, the nodetree of the module 
@@ -293,7 +294,7 @@ class SweeperModule:
         return list(APPLICATIONS.keys())
 
     def application(self, application):
-        """Sets one of the available application rpesets. 
+        """Sets one of the available application presets. 
         
         The applications are defined in the global variable `APPLICATIONS`. They
         include `parameter_sweep`, `noise_amplitude_sweep`, 
