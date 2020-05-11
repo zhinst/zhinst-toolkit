@@ -41,9 +41,8 @@ class DAQModule:
     The data acquisition module is a powerful tool that builds on top of LabOne. 
     It allows for triggered acquisition of multiple data streams on an 
     equidistant temporal grid. For more information on how to use the DAQ 
-    Module, have a look at the (LabOne Programming Manual)
-    [https://www.zhinst.com/sites/default/files/documents/2020-03/LabOneProgrammingManual_20.01.0.pdf]. 
-
+    Module, have a look at the LabOne Programming Manual.
+    
     This base class is overwritten by device specific DAQ classes with 
     additional signal sources and types. After setup, the nodetree of the module 
     is retrieved from the API and added to the DAQModule object attributes as 
