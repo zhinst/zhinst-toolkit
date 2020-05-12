@@ -1,7 +1,8 @@
 import time
 import numpy as np
+from typing import List, Dict
 
-from .base import ToolkitError
+from .base import ToolkitError, BaseInstrument
 from zhinst.toolkit.control.node_tree import Parameter
 
 
@@ -149,7 +150,7 @@ class SweeperModule:
 
     """
 
-    def __init__(self, parent, clk_rate=60e6):
+    def __init__(self, parent: BaseInstrument, clk_rate: float = 60e6) -> None:
         self._parent = parent
         self._module = None
         self._signals = []
@@ -159,7 +160,7 @@ class SweeperModule:
         self._signal_sources = self._parent._get_streamingnodes()
         self._sweep_params = {}
 
-    def _setup(self):
+    def _setup(self) -> None:
         self._module = self._parent._controller._connection.sweeper_module
         # add all parameters from nodetree
         nodetree = self._module.get_nodetree("*")
@@ -174,13 +175,13 @@ class SweeperModule:
             raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
         return self._module.set(*args, device=self._parent.serial)
 
-    def _get(self, *args, valueonly=True):
+    def _get(self, *args, valueonly: bool = True):
         if self._module is None:
             raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
         data = self._module.get(*args, device=self._parent.serial)
         return list(data.values())[0][0] if valueonly else data
 
-    def signals_add(self, signal_source):
+    def signals_add(self, signal_source: str) -> str:
         """Adds a signal to the measurement.
         
         The according signal node path will be generated and added to the 
@@ -204,11 +205,11 @@ class SweeperModule:
             self._signals.append(signal_node)
         return signal_node
 
-    def signals_clear(self):
+    def signals_clear(self) -> None:
         """Resets the `signal` list attribute to an empty list."""
         self._signals = []
 
-    def signals_list(self):
+    def signals_list(self) -> List:
         """Lists the keywords for available signals that can be added to the 
         measurement.
         
@@ -218,7 +219,7 @@ class SweeperModule:
         """
         return list(self._signal_sources.keys())
 
-    def sweep_parameter_list(self):
+    def sweep_parameter_list(self) -> List:
         """Lists the keywords for available parameters that can be swept during 
         the measurement.
         
@@ -228,7 +229,7 @@ class SweeperModule:
         """
         return list(self._sweep_params.keys())
 
-    def sweep_parameter(self, param):
+    def sweep_parameter(self, param: str) -> None:
         """Sets the sweep parameter. 
         
         The parameter to sweep should be given by a keyword string. The 
@@ -243,7 +244,7 @@ class SweeperModule:
         self._set("/gridnode", node)
         print(f"set sweep parameter to '{param}': '{node}'")
 
-    def measure(self, verbose=True, timeout=20):
+    def measure(self, verbose: bool = True, timeout: bool = 20) -> None:
         """Performs the measurement.
         
         Starts a measurement and stores the result in `sweeper.results`. This 
@@ -283,7 +284,7 @@ class SweeperModule:
         self._module.unsubscribe("*")
         self._get_result_from_dict(result)
 
-    def application_list(self):
+    def application_list(self) -> List:
         """Lists the availbale application presets.
         
         Returns:
@@ -292,7 +293,7 @@ class SweeperModule:
         """
         return list(APPLICATIONS.keys())
 
-    def application(self, application):
+    def application(self, application: str) -> None:
         """Sets one of the available application presets. 
         
         The applications are defined in the global variable `APPLICATIONS`. They
@@ -321,7 +322,7 @@ class SweeperModule:
     def results(self):
         return self._results
 
-    def _parse_signals(self, source):
+    def _parse_signals(self, source: str) -> str:
         source = source.lower()
         if source not in self._signal_sources:
             raise ToolkitError(
@@ -329,14 +330,14 @@ class SweeperModule:
             )
         return self._signal_sources[source]
 
-    def _parse_sweep_param(self, param):
+    def _parse_sweep_param(self, param: str) -> str:
         if param not in self._sweep_params.keys():
             raise ToolkitError(
                 f"The parameter {param} must be one of {list(self._sweep_params.keys())}"
             )
         return self._sweep_params[param]
 
-    def _get_result_from_dict(self, result):
+    def _get_result_from_dict(self, result: Dict) -> None:
         self._results = {}
         for node in self.signals:
             node = node.lower()
@@ -394,7 +395,7 @@ class SweeperResult:
 
     """
 
-    def __init__(self, path, result_dict):
+    def __init__(self, path: str, result_dict: Dict) -> None:
         self._path = path
         self._result_dict = result_dict
         for k, v in result_dict.items():

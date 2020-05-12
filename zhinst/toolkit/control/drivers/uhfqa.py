@@ -4,6 +4,7 @@
 # of the MIT license. See the LICENSE file for details.
 
 import numpy as np
+from typing import List
 
 from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ToolkitError
 from zhinst.toolkit.control.node_tree import Parameter
@@ -105,7 +106,7 @@ class UHFQA(BaseInstrument):
 
     """
 
-    def __init__(self, name, serial, **kwargs):
+    def __init__(self, name: str, serial: str, **kwargs) -> None:
         super().__init__(name, DeviceTypes.UHFQA, serial, **kwargs)
         self._awg = AWG(self, 0)
         self._channels = [ReadoutChannel(self, i) for i in range(10)]
@@ -147,7 +148,7 @@ class UHFQA(BaseInstrument):
             mapping=MAPPINGS["averaging_mode"],
         )
 
-    def connect_device(self, nodetree=True):
+    def connect_device(self, nodetree: bool = True) -> None:
         """Connects the device to the data server and initializes the AWG.
         
         Keyword Arguments:
@@ -190,7 +191,7 @@ class UHFQA(BaseInstrument):
                 for c in range(cols):
                     self._set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
 
-    def enable_readout_channels(self, channels=range(10)):
+    def enable_readout_channels(self, channels: List = range(10)) -> None:
         """Enables weighted integration on the specified readout channels.
         
         Keyword Arguments:
@@ -203,7 +204,7 @@ class UHFQA(BaseInstrument):
                 raise ValueError(f"The channel index {i} is out of range!")
             self.channels[i].enable()
 
-    def disable_readout_channels(self, channels=range(10)):
+    def disable_readout_channels(self, channels: List = range(10)) -> None:
         """Disables weighted integration on the specified readout channels.
         
         Keyword Arguments:
@@ -216,7 +217,7 @@ class UHFQA(BaseInstrument):
                 raise ValueError(f"The channel index {i} is out of range!")
             self.channels[i].disable()
 
-    def arm(self, length=None, averages=None):
+    def arm(self, length=None, averages=None) -> None:
         """Prepare UHFQA for result acquisition.
 
         This method enables the QA Results Acquisition and resets the acquired 
@@ -279,7 +280,7 @@ class AWG(AWGCore):
 
     """
 
-    def __init__(self, parent, index):
+    def __init__(self, parent: BaseInstrument, index: int) -> None:
         super().__init__(parent, index)
         self.output1 = Parameter(
             self,
@@ -431,7 +432,7 @@ class AWG(AWGCore):
             else:
                 raise ToolkitError("The value must be a tuple or list of length 2!")
 
-    def update_readout_params(self):
+    def update_readout_params(self) -> None:
         """Updates the sequence parameters for 'Simple' sequence with values from the readout channels."""
         if self.sequence_params["sequence_type"] == SequenceType.READOUT:
             freqs = []
@@ -448,7 +449,7 @@ class AWG(AWGCore):
         else:
             raise ToolkitError("AWG Sequence type needs to be 'Readout'")
 
-    def compile(self):
+    def compile(self) -> None:
         """Wraps the 'compile(...)' method of the parent class `AWGCore`."""
         if self.sequence_params["sequence_type"] == SequenceType.READOUT:
             self.update_readout_params()
@@ -500,7 +501,7 @@ class ReadoutChannel:
 
     """
 
-    def __init__(self, parent, index):
+    def __init__(self, parent: BaseInstrument, index: int) -> None:
         if index not in range(10):
             raise ValueError(f"The channel index {index} is out of range!")
         self._index = index
@@ -550,18 +551,18 @@ class ReadoutChannel:
     def index(self):
         return self._index
 
-    def enabled(self):
+    def enabled(self) -> bool:
         """Returns if weighted integration is enabled."""
         return self._enabled
 
-    def enable(self):
+    def enable(self) -> None:
         """Enables weighted integration for this channel."""
         self._enabled = True
         self._parent._set("qas/0/integration/mode", 0)
         self._parent.integration_time(2e-6)
         self._set_int_weights()
 
-    def disable(self):
+    def disable(self) -> None:
         """Disables weighted integration for this channel."""
         self._enabled = False
         self._reset_int_weights()

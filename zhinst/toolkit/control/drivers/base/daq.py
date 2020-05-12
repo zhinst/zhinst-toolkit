@@ -1,7 +1,8 @@
 import time
 import numpy as np
+from typing import List, Dict
 
-from .base import ToolkitError
+from .base import ToolkitError, BaseInstrument
 from zhinst.toolkit.control.node_tree import Parameter
 
 
@@ -117,7 +118,7 @@ class DAQModule:
     
     """
 
-    def __init__(self, parent, clk_rate=60e6):
+    def __init__(self, parent: BaseInstrument, clk_rate: float = 60e6) -> None:
         self._parent = parent
         self._module = None
         self._signals = []
@@ -153,7 +154,7 @@ class DAQModule:
         self._trigger_signals = {}
         self._trigger_types = {}
 
-    def _setup(self):
+    def _setup(self) -> None:
         self._module = self._parent._controller._connection.daq_module
         # add all parameters from nodetree
         nodetree = self._module.get_nodetree("*")
@@ -168,7 +169,7 @@ class DAQModule:
             raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
         return self._module.set(*args, device=self._parent.serial)
 
-    def _get(self, *args, valueonly=True):
+    def _get(self, *args, valueonly: bool = True):
         if self._module is None:
             raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
         data = self._module.get(*args, device=self._parent.serial)
@@ -183,7 +184,7 @@ class DAQModule:
         self._set("clearhistory", 1)
         self._set("bandwidth", 0)
 
-    def trigger_list(self, source=None):
+    def trigger_list(self, source=None) -> List:
         """Returns a list of all the available signal sources for triggering.
         
         Keyword Arguments:
@@ -204,7 +205,7 @@ class DAQModule:
                 if signal in source:
                     return list(self._trigger_types[signal].keys())
 
-    def trigger(self, trigger_source, trigger_type):
+    def trigger(self, trigger_source: str, trigger_type: str) -> None:
         """Sets the trigger signal of the *DAQ Module*. 
         
         This method can be used to specify the signal used to trigger the data 
@@ -223,7 +224,7 @@ class DAQModule:
         self._set("/triggernode", trigger_node)
         print(f"set trigger node to '{trigger_node}'")
 
-    def signals_list(self, source=None):
+    def signals_list(self, source=None) -> List:
         """Returns a list of all the available signal sources for data acquisition.
         
         Keyword Arguments:
@@ -248,12 +249,12 @@ class DAQModule:
 
     def signals_add(
         self,
-        signal_source,
-        signal_type="",
-        operation="avg",
-        fft=False,
-        complex_selector="abs",
-    ):
+        signal_source: str,
+        signal_type: str = "",
+        operation: str = "avg",
+        fft: bool = False,
+        complex_selector: str = "abs",
+    ) -> str:
         """Add a signal to the signals list to be subscribed to during measurement.
         
         The specified signal is added to the property *signals* list. On 
@@ -298,11 +299,11 @@ class DAQModule:
             self._signals.append(signal_node)
         return signal_node
 
-    def signals_clear(self):
+    def signals_clear(self) -> None:
         """Resets the signals list."""
         self._signals = []
 
-    def measure(self, verbose=True, timeout=20):
+    def measure(self, verbose: bool = True, timeout: float = 20) -> None:
         """Performs the measurement.
 
         Starts a measurement and stores the result in `daq.results`. This 
@@ -340,8 +341,13 @@ class DAQModule:
         self._get_result_from_dict(result)
 
     def _parse_signals(
-        self, signal_source, signal_type, operation, fft, complex_selector,
-    ):
+        self,
+        signal_source: str,
+        signal_type: str,
+        operation: str,
+        fft: bool,
+        complex_selector: str,
+    ) -> str:
         signal_node = "/" + self._parent.serial
         signal_node += self._parse_signal_source(signal_source)
         signal_node += self._parse_signal_type(signal_type, signal_source)
@@ -349,7 +355,7 @@ class DAQModule:
         signal_node += self._parse_operation(operation)
         return signal_node.lower()
 
-    def _parse_signal_source(self, source):
+    def _parse_signal_source(self, source: str) -> str:
         source = source.lower()
         if source not in self._signal_sources:
             raise ToolkitError(
@@ -357,7 +363,7 @@ class DAQModule:
             )
         return self._signal_sources[source]
 
-    def _parse_signal_type(self, signal_type, signal_source):
+    def _parse_signal_type(self, signal_type: str, signal_source: str) -> str:
         signal_source = signal_source.lower()
         signal_type = signal_type.lower()
         types = {}
@@ -368,7 +374,7 @@ class DAQModule:
             raise ToolkitError(f"Signal type must be in {types.keys()}")
         return types[signal_type]
 
-    def _parse_operation(self, operation):
+    def _parse_operation(self, operation: str) -> str:
         operations = ["replace", "avg", "std"]
         if operation not in operations:
             raise ToolkitError(f"Operation must be in {operations}")
@@ -376,7 +382,7 @@ class DAQModule:
             operation = ""
         return f".{operation}"
 
-    def _parse_fft(self, fft, selector):
+    def _parse_fft(self, fft: bool, selector: str) -> str:
         if fft:
             selectors = ["real", "imag", "abs", "phase"]
             if selector not in selectors:
@@ -385,20 +391,20 @@ class DAQModule:
         else:
             return ""
 
-    def _parse_trigger(self, trigger_source, trigger_type):
+    def _parse_trigger(self, trigger_source: str, trigger_type: str) -> str:
         trigger_node = "/" + self._parent.serial
         trigger_node += self._parse_trigger_source(trigger_source)
         trigger_node += self._parse_trigger_type(trigger_source, trigger_type)
         return trigger_node
 
-    def _parse_trigger_source(self, source):
+    def _parse_trigger_source(self, source: str) -> str:
         source = source.lower()
         sources = self._trigger_signals
         if source not in sources:
             raise ToolkitError(f"Signal source must be in {sources.keys()}")
         return sources[source]
 
-    def _parse_trigger_type(self, trigger_source, trigger_type):
+    def _parse_trigger_type(self, trigger_source: str, trigger_type: str) -> str:
         trigger_source = trigger_source.lower()
         trigger_type = trigger_type.lower()
         types = {}
@@ -409,7 +415,7 @@ class DAQModule:
             raise ToolkitError(f"Signal type must be in {types.keys()}")
         return types[trigger_type]
 
-    def _get_result_from_dict(self, result):
+    def _get_result_from_dict(self, result: Dict):
         self._results = {}
         for node in self.signals:
             node = node.lower()
@@ -485,7 +491,7 @@ class DAQResult:
 
     """
 
-    def __init__(self, path, result_dict, clk_rate=60e6):
+    def __init__(self, path: str, result_dict: Dict, clk_rate: float = 60e6) -> None:
         self._path = path
         self._clk_rate = clk_rate
         self._is_fft = "fft" in self._path

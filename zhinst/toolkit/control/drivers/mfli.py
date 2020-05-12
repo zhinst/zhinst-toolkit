@@ -48,10 +48,10 @@ class MFLI(BaseInstrument):
 
     """
 
-    def __init__(self, name, serial, **kwargs):
+    def __init__(self, name: str, serial: str, **kwargs) -> None:
         super().__init__(name, DeviceTypes.MFLI, serial, **kwargs)
 
-    def connect_device(self, nodetree=True):
+    def connect_device(self, nodetree: bool = True) -> None:
         """Establishes the device connection.
         
         Connects the device to the data server and initializes the DAQModule and 
@@ -99,7 +99,7 @@ class DAQModule(DAQ):
     
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent: BaseInstrument) -> None:
         super().__init__(parent, clk_rate=60e6)
         self._trigger_signals = {}
         for source in ["auxin", "demod", "imp"]:
@@ -145,7 +145,7 @@ class SweeperModule(Sweeper):
     
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent: BaseInstrument) -> None:
         super().__init__(parent, clk_rate=60e6)
         self._sweep_params = {
             "auxout0offset": "auxouts/0/offset",

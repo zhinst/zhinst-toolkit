@@ -5,9 +5,10 @@
 
 import numpy as np
 import time
+from typing import List, Union
 
 from zhinst.toolkit.helpers import SequenceProgram, Waveform, SequenceType
-from .base import ToolkitError
+from .base import ToolkitError, BaseInstrument
 
 
 class AWGCore:
@@ -89,7 +90,7 @@ class AWGCore:
 
     """
 
-    def __init__(self, parent, index):
+    def __init__(self, parent: BaseInstrument, index: int) -> None:
         self._parent = parent
         self._index = index
         self._module = None
@@ -131,15 +132,15 @@ class AWGCore:
             s += f"            {i}\n"
         return s
 
-    def run(self):
+    def run(self) -> None:
         """Runs the AWG Core."""
         self._parent._set(f"/awgs/{self._index}/enable", 1)
 
-    def stop(self):
+    def stop(self) -> None:
         """Stops the AWG Core."""
         self._parent._set(f"/awgs/{self._index}/enable", 0)
 
-    def wait_done(self, timeout=10):
+    def wait_done(self, timeout: float = 10) -> None:
         """Waits until the AWG Core is finished.
         
         Keyword Arguments:
@@ -153,9 +154,8 @@ class AWGCore:
             time.sleep(0.1)
             if tik - tok > timeout:
                 break
-        return
 
-    def compile(self):
+    def compile(self) -> None:
         """Compiles the current SequenceProgram on the AWG Core.
         
         Raises:
@@ -188,11 +188,16 @@ class AWGCore:
             print("Compilation successful")
         self._wait_upload_done()
 
-    def reset_queue(self):
+    def reset_queue(self) -> None:
         """Resets the waveform queue to an empty list."""
         self._waveforms = []
 
-    def queue_waveform(self, wave1, wave2, delay=0):
+    def queue_waveform(
+        self,
+        wave1: Union[List, np.array],
+        wave2: Union[List, np.array],
+        delay: float = 0,
+    ) -> None:
         """Adds a new waveform to the queue. 
         
         Arguments:
@@ -216,7 +221,13 @@ class AWGCore:
         self._waveforms.append(Waveform(wave1, wave2, delay=delay))
         print(f"Current length of queue: {len(self._waveforms)}")
 
-    def replace_waveform(self, wave1, wave2, i=0, delay=0):
+    def replace_waveform(
+        self,
+        wave1: Union[List, np.array],
+        wave2: Union[List, np.array],
+        i: int = 0,
+        delay: float = 0,
+    ) -> None:
         """Replaces a waveform in the queue at a given index.
         
         Arguments:
@@ -236,7 +247,7 @@ class AWGCore:
             raise ToolkitError("Index out of range!")
         self._waveforms[i].replace_data(wave1, wave2, delay=delay)
 
-    def upload_waveforms(self):
+    def upload_waveforms(self) -> None:
         """Uploads all waveforms in the queue to the AWG Core.
 
         This method only works as expected if the Sequence Program is in 
@@ -252,7 +263,7 @@ class AWGCore:
         tik = time.time()
         print(f"Upload of {len(waveform_data)} waveforms took {tik - tok:.5} s")
 
-    def compile_and_upload_waveforms(self):
+    def compile_and_upload_waveforms(self) -> None:
         """Compiles the Sequence Program and uploads the queued waveforms.
 
         Simply combines the two methods to make sure the sequence is compiled 
@@ -262,7 +273,7 @@ class AWGCore:
         self.compile()
         self.upload_waveforms()
 
-    def _wait_upload_done(self, timeout=10):
+    def _wait_upload_done(self, timeout: float = 10) -> None:
         if self._module is None:
             raise ToolkitError("This AWG is not connected to a awgModule!")
         time.sleep(0.01)
@@ -278,7 +289,7 @@ class AWGCore:
             f"{self.name}: Sequencer status: {'ELF file uploaded' if status == 0 else 'FAILED!!'}"
         )
 
-    def set_sequence_params(self, **kwargs):
+    def set_sequence_params(self, **kwargs) -> None:
         """Sets the parameters of the Sequence Program.
 
         Passes all the keyword arguments to the `set_param(...)` method of the 

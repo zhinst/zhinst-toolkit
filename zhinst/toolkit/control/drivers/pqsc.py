@@ -26,5 +26,5 @@ class PQSC(BaseInstrument):
 
     """
 
-    def __init__(self, name, serial, **kwargs):
+    def __init__(self, name: str, serial: str, **kwargs) -> None:
         super().__init__(name, DeviceTypes.PQSC, serial, **kwargs)

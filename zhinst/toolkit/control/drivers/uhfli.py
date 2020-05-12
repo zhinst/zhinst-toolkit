@@ -53,10 +53,10 @@ class UHFLI(BaseInstrument):
 
     """
 
-    def __init__(self, name, serial, **kwargs):
+    def __init__(self, name: str, serial: str, **kwargs) -> None:
         super().__init__(name, DeviceTypes.UHFLI, serial, **kwargs)
 
-    def connect_device(self, nodetree=True):
+    def connect_device(self, nodetree: bool = True) -> None:
         """Establishes a device connection.
 
         Connects the device to a data server and initializes the :class:`DAQModule`, 
@@ -117,7 +117,7 @@ class DAQModule(DAQ):
     
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent: BaseInstrument) -> None:
         super().__init__(parent, clk_rate=1.8e9)
         for source in ["auxin", "demod", "cnt"]:
             self._trigger_signals.update(
@@ -175,7 +175,7 @@ class SweeperModule(Sweeper):
     
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent: BaseInstrument) -> None:
         super().__init__(parent, clk_rate=1.8e9)
         self._sweep_params = {
             "auxout0_offset": "auxouts/0/offset",

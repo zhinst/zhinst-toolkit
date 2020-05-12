@@ -4,6 +4,7 @@
 # of the MIT license. See the LICENSE file for details.
 
 import numpy as np
+from typing import List, Dict
 
 from zhinst.toolkit.control.connection import DeviceConnection, ZIConnection
 from zhinst.toolkit.control.node_tree import NodeTree
@@ -60,7 +61,9 @@ class BaseInstrument:
 
     """
 
-    def __init__(self, name: str, device_type: DeviceTypes, serial: str, **kwargs):
+    def __init__(
+        self, name: str, device_type: DeviceTypes, serial: str, **kwargs
+    ) -> None:
         self._config = InstrumentConfiguration()
         self._config._instrument._name = name
         self._config._instrument._config._device_type = device_type
@@ -72,7 +75,7 @@ class BaseInstrument:
         self._controller = DeviceConnection(self)
         self._nodetree = None
 
-    def setup(self, connection: ZIConnection = None):
+    def setup(self, connection: ZIConnection = None) -> None:
         """Sets up the data server connection. 
         
         The details of the connection (`host`, `port`, `api_level`) can be 
@@ -88,7 +91,7 @@ class BaseInstrument:
         """
         self._controller.setup(connection=connection)
 
-    def connect_device(self, nodetree=True):
+    def connect_device(self, nodetree: bool = True) -> None:
         """Connects the device to the data server. 
         
         This method connects the device to the data server of its connection, 
@@ -158,7 +161,7 @@ class BaseInstrument:
         self._check_connected()
         return self._controller.set(*args)
 
-    def _get(self, command, valueonly=True):
+    def _get(self, command: str, valueonly: bool = True):
         """Getter for the instrument. 
         
         This method gets a node value from the device, specified by a node 
@@ -205,7 +208,7 @@ class BaseInstrument:
         self._check_connected()
         return self._controller.get(command, valueonly=valueonly)
 
-    def _get_nodetree(self, prefix, **kwargs):
+    def _get_nodetree(self, prefix: str, **kwargs) -> Dict:
         """Gets the entire nodetree from the instrument as a dictionary. 
         
         This method passes the arguments to the :class:`DeviceConnection` and 
@@ -228,7 +231,7 @@ class BaseInstrument:
         self._check_connected()
         return self._controller.get_nodetree(prefix, **kwargs)
 
-    def _get_streamingnodes(self):
+    def _get_streamingnodes(self) -> List:
         self._check_connected()
         nodes = self._controller.get_nodetree(f"/{self.serial}/*", streamingonly=True)
         nodes = list(nodes.keys())

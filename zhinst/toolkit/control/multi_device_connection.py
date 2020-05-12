@@ -10,7 +10,7 @@ import pathlib
 from zhinst.toolkit.interface import InstrumentConfiguration
 from zhinst.toolkit.control.connection import ZIConnection
 from zhinst.toolkit.control.drivers import UHFQA, HDAWG, PQSC, UHFLI, MFLI
-from zhinst.toolkit.control.drivers.base import ToolkitError
+from zhinst.toolkit.control.drivers.base import ToolkitError, BaseInstrument
 
 
 class MultiDeviceConnection:
@@ -66,7 +66,7 @@ class MultiDeviceConnection:
     
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs) -> None:
         self._shared_connection = None
         self._hdawgs = {}
         self._uhfqas = {}
@@ -79,12 +79,12 @@ class MultiDeviceConnection:
         config.api_config.api = kwargs.get("api", 6)
         self._config = config
 
-    def setup(self):
+    def setup(self) -> None:
         details = self._config.api_config
         self._shared_connection = ZIConnection(details)
         self._shared_connection.connect()
 
-    def connect_device(self, device):
+    def connect_device(self, device: BaseInstrument) -> None:
         """Connects a device to the :class:`MultiDeviceConnection`.
 
         Adds a device to the :class:`MultiDeviceConnection` and connects the 

@@ -4,6 +4,7 @@
 # of the MIT license. See the LICENSE file for details.
 
 import numpy as np
+from typing import List, Dict, Callable
 
 
 class ToolkitNodeTreeError(Exception):
@@ -62,12 +63,12 @@ class Parameter:
     def __init__(
         self,
         parent,
-        params,
+        params: Dict,
         device=None,
-        set_parser=lambda v: v,
-        get_parser=lambda v: v,
-        mapping: dict = None,
-    ):
+        set_parser: Callable = lambda v: v,
+        get_parser: Callable = lambda v: v,
+        mapping: Dict = None,
+    ) -> None:
         self._parent = parent
         self._device = parent._device if device is None else device
         self._path = params["Node"]
@@ -370,12 +371,12 @@ class NodeTree(Node):
 
     """
 
-    def __init__(self, device):
+    def __init__(self, device) -> None:
         self._device = device
         self._nodetree_dict = self._get_nodetree_dict()
         self._init_subnodes_recursively(self, self._nodetree_dict)
 
-    def _get_nodetree_dict(self):
+    def _get_nodetree_dict(self) -> Dict:
         """Gets the :class:`NodeTree` as a nested dictionary. 
 
         Retrieves the :class:`NodeTree` from the device as a flat dictionary and 
@@ -395,7 +396,7 @@ class NodeTree(Node):
         return nodetree
 
 
-def dictify(data, keys, val):
+def dictify(data, keys: List, val: Dict) -> Dict:
     """Turns a flat :class:`NodeTree` dictionary into a nested dictionary.
 
     Helper function to generate nested dictionary from list of keys and value. 

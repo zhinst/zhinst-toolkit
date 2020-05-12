@@ -55,11 +55,11 @@ class HDAWG(BaseInstrument):
 
     """
 
-    def __init__(self, name, serial, **kwargs):
+    def __init__(self, name: str, serial: str, **kwargs) -> None:
         super().__init__(name, DeviceTypes.HDAWG, serial, **kwargs)
         self._awgs = [AWG(self, i) for i in range(4)]
 
-    def connect_device(self, nodetree=True):
+    def connect_device(self, nodetree: bool = True) -> None:
         """Connects the device to the data server and initializes the AWGs.
         
         Keyword Arguments:
@@ -137,7 +137,7 @@ class AWG(AWGCore):
 
     """
 
-    def __init__(self, parent, index):
+    def __init__(self, parent: BaseInstrument, index: int) -> None:
         super().__init__(parent, index)
         self._iq_modulation = False
         self._trigger_level = 0.25
@@ -241,7 +241,7 @@ class AWG(AWGCore):
             else:
                 raise ToolkitError("The value must be a tuple or list of length 2!")
 
-    def enable_iq_modulation(self):
+    def enable_iq_modulation(self) -> None:
         """Enables IQ Modulation by on the AWG Core.
         
         This method applies the corresponding settings for IQ modulation using 
@@ -264,7 +264,7 @@ class AWG(AWGCore):
         self.set_sequence_params(reset_phase=True)
         self._parent._set("system/awg/oscillatorcontrol", 1)
 
-    def disable_iq_modulation(self):
+    def disable_iq_modulation(self) -> None:
         """Disables IQ modulation on the AWG Core.
 
         Resets the settings of the sine generators and the AWG modulation.
