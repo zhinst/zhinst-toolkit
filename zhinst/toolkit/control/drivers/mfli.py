@@ -107,6 +107,7 @@ class DAQModule(DAQ):
                 {k: v for k, v in self._signal_sources.items() if source in k}
             )
         self._trigger_types = {
+            "auxin": {**self._signal_types["auxin"]},
             "demod": {
                 **self._signal_types["demod"],
                 "demod2phase": ".TrigDemod2Phase",

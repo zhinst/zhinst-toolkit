@@ -142,12 +142,13 @@ class DAQModule:
                 "real": ".RealZ",
                 "imag": ".ImagZ",
                 "abs": ".AbsZ",
-                "theta": ".PhaseZ",
+                "phase": ".PhaseZ",
                 "frequency": ".Frequency",
                 "param0": ".Param0",
                 "param1": ".Param1",
             },
             "cnt": {"": ".Value"},
+            "pid": {"": ""},
         }
         self._trigger_signals = {}
         self._trigger_types = {}
@@ -202,8 +203,6 @@ class DAQModule:
             for signal in self._trigger_types.keys():
                 if signal in source:
                     return list(self._trigger_types[signal].keys())
-            else:
-                return sources
 
     def trigger(self, trigger_source, trigger_type):
         """Sets the trigger signal by specifying the signal source and type.
@@ -338,6 +337,7 @@ class DAQModule:
     def _parse_signal_type(self, signal_type, signal_source):
         signal_source = signal_source.lower()
         signal_type = signal_type.lower()
+        types = {}
         for signal in self._signal_types.keys():
             if signal in signal_source:
                 types = self._signal_types[signal]
@@ -378,6 +378,7 @@ class DAQModule:
     def _parse_trigger_type(self, trigger_source, trigger_type):
         trigger_source = trigger_source.lower()
         trigger_type = trigger_type.lower()
+        types = {}
         for signal in self._trigger_types.keys():
             if signal in trigger_source:
                 types = self._trigger_types[signal]
