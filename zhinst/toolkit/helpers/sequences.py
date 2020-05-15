@@ -31,16 +31,16 @@ class Sequence(object):
         period (double): Period in seconds at which the experiment is repeated.
         trigger_mode (str or :class:`TriggerMode` enum): The trigger mode of the 
             sequence, i.e if the AWG Core is used to send out the triger signal 
-            ("Send Triger" or :class:`TriggerMode.SEND_TRIGGER`) or to wait for 
-            an external trigger signal ("External Triger" or 
+            (*'Send Triger'* or :class:`TriggerMode.SEND_TRIGGER`) or to wait 
+            for an external trigger signal (*'External Triger'* or 
             :class:`TriggerMode.EXTERNAL_TRIGGER`). (default: 
             :class:`TriggerMode.NONE`) 
         repetitions (int): The number of repetitions of the experiment.
         alignment (str): The alignment of the played waveform with the trigger 
             signal, i.e. if the waveform should start with the trigger (or the 
-            time origin `t=0` of the sequence). Waveforms can either "Start with 
-            Trigger" (:class:`Alignment.START_WITH_TRIGGER`) or "End with 
-            Trigger" (:class:`Alignment.END_WITH_TRIGGER`).
+            time origin `t=0` of the sequence). Waveforms can either *'Start 
+            with Trigger'* (:class:`Alignment.START_WITH_TRIGGER`) or *'End with 
+            Trigger'* (:class:`Alignment.END_WITH_TRIGGER`).
         dead_time (double): The `dead time` of a sequence is the time in seconds 
             after the time origin of the sequence before the next  trigger 
             signal is sent / expected. This time defines the maximum length of a 
@@ -168,7 +168,7 @@ class Sequence(object):
 
 @attr.s
 class SimpleSequence(Sequence):
-    """Sequence for 'simple' playback of waveform arrays.
+    """Sequence for *simple* playback of waveform arrays.
 
     Initializes placeholders (`randomUniform(...)`) of the correct length for 
     the waveforms in the queue of the AWG Core. The data of the waveform 
@@ -267,7 +267,7 @@ class TriggerSequence(Sequence):
     
     This sequence does not play any waveforms but only sends the trigger signal 
     at the start of every period. The `trigger_mode` parameter will be 
-    overwritten to be "Send Trigger". The trigger signal will be played on the 
+    overwritten to be *'Send Trigger'*. The trigger signal will be played on the 
     *Mark* output of the lower channel.
 
         >>> awg.set_sequence_params(
@@ -571,7 +571,7 @@ class ReadoutSequence(Sequence):
         readout_freqencies (list): A list of readout frequencies in Hz. These 
             values are typically taken from the *Readout Channels* of the 
             *UHFQA*.
-        readout_amplitudes (list) A list of readout amplitudes (-1.0 to 1.0). 
+        readout_amplitudes (list): A list of readout amplitudes (-1.0 to 1.0). 
             These values are typically taken from the *Readout Channels* of the 
             *UHFQA*. Note that the amplitude of each tone is always divided by 
             the number of tones.

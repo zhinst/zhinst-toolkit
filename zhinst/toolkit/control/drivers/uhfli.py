@@ -42,7 +42,7 @@ class UHFLI(BaseInstrument):
 
     Attributes:
         name (str): Identifier for the UHFLI.
-        serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
+        serial (str): Serial number of the device, e.g. *'dev1234'*. The serial 
             number can be found on the back panel of the instrument.
         daq (:class:`zhinst.toolkit.control.drivers.base.DAQModule`): Data 
             Acquisition Module of the instrument.
@@ -63,9 +63,9 @@ class UHFLI(BaseInstrument):
         :class:`SweeperModule` and :class:`AWG` (if option installed).
         
         Keyword Arguments:
-            nodetree (bool): flag that specifies if all the parameters from the 
-                device's nodetree should be added to the object's attributes as 
-                :mod:`zhinst-toolkit` :class:`Parameters`. (default: True)
+            nodetree (bool): A flag that specifies if all the parameters from 
+                the device's nodetree should be added to the object's attributes 
+                as :mod:`zhinst-toolkit` :class:`Parameters`. (default: True)
 
         """
         super().connect_device(nodetree=nodetree)

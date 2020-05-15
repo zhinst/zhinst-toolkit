@@ -15,7 +15,7 @@ class AWGCore:
     """Implements an AWG Core representation.
 
     The :class:`AWGCore` class implements basic functionality of the AWG 
-    sequencer without the need for the user to write their own '.seqC' code.
+    sequencer without the need for the user to write their own *'.seqC'* code.
     The :class:`AWGCore` holds a :class:`SequenceProgram` object whose 
     parameters can be set using the `set_sequence_params(...)` method of the 
     AWG.
@@ -24,9 +24,9 @@ class AWGCore:
     and compiling it on the instrument. Given the 'Simple' sequence type, 
     sample-defined waveforms can be queued and uploaded to the AWG. 
 
-    This base class :class:`AWGCore` is subclassed by device-specific AWGs for 
+    This base class :class:`AWGCore` is inherited by device-specific AWGs for 
     the HDAWG or the UHFQA/UHFLI. The device-specific AWGs add certain 
-    :mod:`zhinst-toolkit` :class:`Parameters` and apply certain 
+    `zhinst-toolkit` :class:`Parameters` and apply certain 
     instrument settings, depending on the `sequence_type` and the `trigger_mode` 
     (sending out a trigger signal or waiting for a trigger) of the sequence 
     program. 
@@ -49,7 +49,7 @@ class AWGCore:
         >>> awg.run()
         >>> awg.wait_done()
 
-    The sequence type "Simple" allows the user to upload sample-defined 
+    The sequence type *'Simple'* allows the user to upload sample-defined 
     waveforms as numpy arrays. The waveforms in the queue are played one after 
     the other with a specified period and alignment/delay to a time origin.
 
@@ -79,9 +79,9 @@ class AWGCore:
             :class:`AWGCore` is associated to.
         index (int): An integer specifying the index in the parent instrument.
         waveforms (list): A list of :class:`Waveforms` that represent the 
-            queued up waveforms in for a "Simple" sequence.  
+            queued up waveforms in for a *'Simple'* sequence.  
         program (:class:`SequenceProgram`): A :class:`SequenceProgram` object 
-            used to program predefined '.seqC' sequences on the device.
+            used to program predefined *'.seqC'* sequences on the device.
         name (str): The name of the `AWG Core`.
         is_running (bool): A flag that shows if the `AWG Core` is currently 
             running or not.
@@ -211,7 +211,7 @@ class AWGCore:
                 the time origin of the sequence. (default: 0)
         
         Raises:
-            Exception: If the sequence is not of type 'Simple'.
+            Exception: If the sequence is not of type *'Simple'*.
 
         """
         if self._program.sequence_type != SequenceType.SIMPLE:
@@ -251,7 +251,8 @@ class AWGCore:
         """Uploads all waveforms in the queue to the AWG Core.
 
         This method only works as expected if the Sequence Program is in 
-        'Simple' mode and has been compiled beforehand.
+        *'Simple'* mode and has been compiled beforehand. See 
+        :func:`compile_and_upload_waveforms(...)`.
         
         """
         waveform_data = [w.data for w in self._waveforms]
@@ -297,9 +298,8 @@ class AWGCore:
         different sequences. For a list of all current sequence parameters see 
         the property `sequence_params`. 
 
-        They include:
-            'sequence_type', 'period', 'repetitions', 'trigger_mode', 
-            'trigger_delay', ...
+        They include *'sequence_type'*, *'period'*, *'repetitions'*, 
+        *'trigger_mode'*, *'trigger_delay'*, ...
 
             >>> hdawg.awgs[0]
             <zhinst.toolkit.hdawg.AWG object at 0x0000021E467D3320>

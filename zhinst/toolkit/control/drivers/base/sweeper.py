@@ -94,7 +94,7 @@ class SweeperModule:
     This base class is overwritten by device specific Sweeper Modules with 
     additional signal sources and types. After setup, the nodetree of the module 
     is retrieved from the API and added to the Sweeper object attributes as 
-    :mod:`zhinst-toolkit` :class:`Parameters`.
+    `zhinst-toolkit` :class:`Parameters`.
 
     For a list of device parameters that support sweeping, use the 
     `sweep_parameter_list()` method.
@@ -250,13 +250,13 @@ class SweeperModule:
         Starts a measurement and stores the result in `sweeper.results`. This 
         method subscribes to all the paths previously added to 
         `sweeper.signals`, then starts the measurement, waits until the 
-        measurement in finished and eventually reads the result.
+        measurement is finished and eventually reads the result.
         
         Keyword Arguments:
             verbose (bool): A flag to enable or disable output on the console. 
                 (default: True)
-            timeout (int): The measurement will stopped after timeout. The value 
-                is given in seconds. (default: 20)
+            timeout (int): The measurement will be stopped after timeout. The 
+                value is given in seconds. (default: 20)
      
         """
         self._set("endless", 0)

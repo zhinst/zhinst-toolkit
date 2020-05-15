@@ -54,8 +54,9 @@ class MFLI(BaseInstrument):
     def connect_device(self, nodetree: bool = True) -> None:
         """Establishes the device connection.
         
-        Connects the device to the data server and initializes the DAQModule and 
-        SweeperModule.
+        Connects the device to the data server and initializes the DAQ Module 
+        and Sweeper
+        Module.
 
         Keyword Arguments:
             nodetree (bool): A flag that specifies if all the parameters from 

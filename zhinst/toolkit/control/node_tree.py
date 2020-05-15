@@ -29,7 +29,7 @@ class Parameter:
         Unit: Hz
         Value: none
 
-    Setting and getting a :class:`Parameter` is easy! Just call the 
+    Setting and getting a :class:`Parameter` is easy. Just call the 
     :class:`Parameter` with or without an argument:
 
         >>> uhfqa.nodetree.osc.freq(10e6)
@@ -40,10 +40,10 @@ class Parameter:
         parent (:class:`BaseInstrument`, :class:`NodeTree` or :class:`Node`): 
             The parent object that the :class:`Parameter` is associated to.
         params (dict): Dictionary with a definition of the :class:`Parameter`. 
-            It must contain the item 'Node' corresponding to the node path of 
+            It must contain the item *'Node'* corresponding to the node path of 
             the parameter on the device that is used for getting and setting the 
-            :class:`Parameter` value. It may contain the items 'Description', 
-            'Properties', 'Options', 'Unit', 'Type'. 
+            :class:`Parameter` value. It may contain the items *'Description'*, 
+            *'Properties'*, *'Options'*, *'Unit'*, *'Type'*. 
 
     Keyword Arguments:
         device (:class:`BaseInstruemnt`): The device driver that the 

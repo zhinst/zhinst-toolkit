@@ -27,7 +27,7 @@ MAPPINGS = {
 
 
 class UHFQA(BaseInstrument):
-    """High-level driver for the Zurich Instruments UHFQA. 
+    """High-level driver for the Zurich Instruments UHFQA Quantum Analyzer. 
     
     Inherits from :class:`BaseInstrument` and adds an :class:`AWGCore` and a 
     list of :class:`ReadoutChannels`. They can be accessed as properties of the 

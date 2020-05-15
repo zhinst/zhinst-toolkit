@@ -47,7 +47,7 @@ class DAQModule:
     This base class is overwritten by device specific DAQ classes with 
     additional signal sources and types. After setup, the nodetree of the module 
     is retrieved from the API and added to the DAQModule object attributes as 
-    :mod:`zhinst-toolkit` :class:`Parameters`.  
+    `zhinst-toolkit` :class:`Parameters`.  
 
     In a typical measurement using the DAQ Module one would first configure its 
     trigger and grid settings. 
@@ -446,7 +446,7 @@ class DAQModule:
 
 
 class DAQResult:
-    """A wrapper class around the result if a DAQ module measurement.
+    """A wrapper class around the result of a DAQ Module measurement.
     
     The Data Acquisition Result class holds all measurement information returned 
     from the API. The attribute `value` is a two-dimensional numpy array with 

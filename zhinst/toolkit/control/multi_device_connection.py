@@ -62,7 +62,7 @@ class MultiDeviceConnection:
         pqsc (:class:`PQSC`): A PQSC if one is added, otherwise None
     
     Raises:
-        ToolkitError if an unknown device is added
+        ToolkitError: if an unknown device is added
     
     """
 
