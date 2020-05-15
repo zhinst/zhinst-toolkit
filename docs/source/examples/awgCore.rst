@@ -1,4 +1,4 @@
-How to program *AWG Cores*
+How to Program *AWG Cores*
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. toctree:: 
