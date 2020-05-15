@@ -46,12 +46,12 @@ class HDAWG(BaseInstrument):
 
     Arguments:
         name (str): Identifier for the HDAWG.
-        serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
+        serial (str): Serial number of the device, e.g. *'dev1234'*. The serial 
             number can be found on the back panel of the instrument.
 
     Attributes:
-        awgs (list): list of four device-specific AWG Cores of type 
-            :class:`zhinst.toolkit.control.drivers.hdawg.AWG`
+        awgs (list): A list of four device-specific AWG Cores of type 
+            :class:`zhinst.toolkit.control.drivers.hdawg.AWG`.
 
     """
 
@@ -63,9 +63,9 @@ class HDAWG(BaseInstrument):
         """Connects the device to the data server and initializes the AWGs.
         
         Keyword Arguments:
-            nodetree (bool): flag that specifies if all the parameters from the 
-                device's nodetree should be added to the object's attributes as 
-                `zhinst-toolkit` Parameters. (default: True)
+            nodetree (bool): A flag that specifies if all the parameters from 
+                the device's nodetree should be added to the object's attributes 
+                as `zhinst-toolkit` Parameters. (default: True)
         
         """
         super().connect_device(nodetree=nodetree)
@@ -242,7 +242,7 @@ class AWG(AWGCore):
                 raise ToolkitError("The value must be a tuple or list of length 2!")
 
     def enable_iq_modulation(self) -> None:
-        """Enables IQ Modulation by on the AWG Core.
+        """Enables IQ Modulation on the AWG Core.
         
         This method applies the corresponding settings for IQ modulation using 
         one of the internal oscillators and two sine generators. The sines are 

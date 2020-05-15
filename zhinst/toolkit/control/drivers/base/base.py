@@ -39,7 +39,7 @@ class BaseInstrument:
     Arguments:
         name (str): Identifier for the instrument.
         device_type (:class:`DeviceType`): Type enum of the device type.
-        serial (str): Serial number of the device, e.g. 'dev2281'. The serial 
+        serial (str): Serial number of the device, e.g. *'dev2281'*. The serial 
             number can be found on instrument back panel.
 
     Attributes:
@@ -50,7 +50,7 @@ class BaseInstrument:
             according value from the device. The :class:`Nodetree` can be used 
             to navigate all available device settings without having to know the 
             exact node path of the setting. Alternatively, the node can always 
-            accessed using the `_set(..)` and `_get(...)` methods.
+            be accessed using the `_set(...)` and `_get(...)` methods.
         name (str): Identifier for the instrument.
         device_type (:class:`DeviceType`): Type enum of the device type. 
         serial (str): Serial number of the device.
@@ -132,7 +132,7 @@ class BaseInstrument:
             >>> hdawg._set("sigouts/0/on", 1)
         
         The method also supports wildcards in the node path that can be 
-        specified with '*' as a placeholder.
+        specified with ' * ' as a placeholder.
 
             >>> hdawg._set("sigouts/*/on", 1)
 
@@ -155,7 +155,7 @@ class BaseInstrument:
 
         Returns: 
             The value set on the device as returned from the API's `set(...)` 
-                method.
+            method.
 
         """
         self._check_connected()
@@ -173,13 +173,13 @@ class BaseInstrument:
             1
         
         The method also supports wildcards in the node path that can be 
-        specified with '*' as a placeholder. The flag `valueonly` can be used to 
+        specified with ' * ' as a placeholder. The flag `valueonly` can be used to 
         get the exact node of the values.
 
             >>> hdawg._get("sigouts/*/on")
             [1, 0, 0, 0, 0, 0, 0]
             >>> hdawg._get("sigouts/*/on", valueonly=False)
-            {'sigouts/0/on': 0,
+            {'sigouts/0/on': 1,
              'sigouts/1/on': 0,
              'sigouts/2/on': 0,
              'sigouts/3/on': 0,

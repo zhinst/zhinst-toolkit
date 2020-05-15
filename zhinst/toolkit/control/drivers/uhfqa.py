@@ -72,7 +72,7 @@ class UHFQA(BaseInstrument):
 
     Arguments:
         name (str): Identifier for the UHFQA.
-        serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
+        serial (str): Serial number of the device, e.g. *'dev1234'*. The serial 
             number can be found on the back panel of the instrument.
 
     Attributes:
@@ -461,7 +461,7 @@ class ReadoutChannel:
 
     This class represents the signal processing chain for one of the ten 
     :class:`ReadoutChannels` of a UHFQA. One channel is typically used for 
-    dispersive resonator readout of a superconducting Qubit.
+    dispersive resonator readout of superconducting qubits.
 
         >>> ch = uhfqa.channels[0]
         >>> uhfqa.result_source("Threshold")
@@ -485,7 +485,7 @@ class ReadoutChannel:
     weighted integration mode is activated and integration weights are set to 
     demodulate the signal at the given readout frequency. If the channel is 
     enabled, the readout parameters are also used for signal generation in the 
-    :class:`AWGCore` if the sequence type is set to "Readout". 
+    :class:`AWGCore` if the sequence type is set to *'Readout'*. 
 
     Attributes:
         index (int): The index of the Readout Channel from 1 - 10.
@@ -591,7 +591,7 @@ class ReadoutChannel:
         
         The amplitude of the readout pulse is used for signal generation of the 
         readout tone if the channel is enabled and if the AWG 
-        :class:`SequenceProgram` is of type "Readout". (default: 1.0)
+        :class:`SequenceProgram` is of type *'Readout'*. (default: 1.0)
         
         """
         if amp is None:

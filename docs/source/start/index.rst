@@ -38,7 +38,7 @@ Installation
 ^^^^^^^^^^^^
 
 
-Install the Latest Release
+Install the latest release
 -----------------------------
 
 Simply install the toolkit using `pip`
@@ -55,21 +55,20 @@ and verify the installation with e.g. iPython (if installed):
     >>> import zhinst.toolkit as tk
 
 
-Install from Source
+Install from source
 -------------------
 
-Clone the :mod:`zhinst-toolkit` repository from GitHub HERE (TODO: add link!) 
-and install the package from source.
+Clone the :mod:`zhinst-toolkit` repository from the GitHub repository 
+[here](https://github.com/zhinst/zhinst-toolkit) and install the package from 
+source.
 
 .. code:: bash
 
     $ git clone <TODO: add link to github repo>
     $ cd zhinst-toolkit
     $ pip install -r requirements.txt
-    $ pip install -e .
+    $ pip install .
 
-The `-e` option installs the package in `editable` mode. That means you can make 
-local changes to it without having to reinstall it.
 
 
 Update
