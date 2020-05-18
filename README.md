@@ -7,8 +7,9 @@
 
 
 # Zurich Instruments Toolkit (zhinst-toolkit)
-The Zurich Instruments Toolkit (zhinst-toolkit) is a collection of Python tools for high level device control. Based on the native interface to [Zurich Instruments LabOne](https://www.zhinst.com/labone), they offer an easy and user-friendly way to control Zurich Instruments devices. It's tailord for the control of multiple instruments together, especially for device management and multiple AWG distributed control. The Toolkit forms the basis for instrument drivers used in [QCoDeS](https://qcodes.github.io/Qcodes/) and [Labber](http://labber.org/online-doc/html/). 
-It comes in the form of a package compatible with Python 3.6+.
+The Zurich Instruments Toolkit (zhinst-toolkit) is a collection of Python tools for high level device control. Based on the native interface to [Zurich Instruments LabOne](https://www.zhinst.com/labone), they offer an easy and user-friendly way to control Zurich Instruments devices. It's tailord for the control of multiple instruments together, especially for device management and multiple AWG distributed control. The Toolkit forms the basis for instrument drivers used in [QCoDeS](https://qcodes.github.io/Qcodes/) and [Labber](http://labber.org/online-doc/html/). It comes in the form of a package compatible with Python 3.6+.
+
+For QCoDeS and Labber drivers for Zurich Instruments devices see [here](https://github.com/zhinst/zhinst-qcodes) and [here](https://github.com/zhinst/zhinst-labber).  
 
 ## Status
 The zhinst-toolkit is well tested and considered stable enough for general usage. The interfaces may have some incompatible changes between releases. Please check the changelog if you are upgrading.
