@@ -58,8 +58,8 @@ and verify the installation with e.g. iPython (if installed):
 Install from source
 -------------------
 
-Clone the :mod:`zhinst-toolkit` repository from the GitHub repository 
-[here](https://github.com/zhinst/zhinst-toolkit) and install the package from 
+Clone the :mod:`zhinst-toolkit` repository from the `GitHub repository 
+<https://github.com/zhinst/zhinst-toolkit>`_ and install the package from 
 source.
 
 .. code:: bash
