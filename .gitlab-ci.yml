@@ -1,9 +1,6 @@
 
-
 stages:
   - test
-  - docs
-
     
 build:linux:
   image: python:3.7-buster
@@ -13,41 +10,5 @@ build:linux:
     - pip install pytest-cov
     - pip install .
   script:
-    - pytest --cov=. .
-    
-pages:
-  image: docker-registry.zhinst.com/devops/dockerfiles/sphinxdoc:latest
-  stage: docs
-  script:
-   - pip install .
-   - pip install ipython
-   - cd docs
-   - make html
-   - cd ..
-   - mv docs/build/html public
-  artifacts:
-      paths:
-       - public
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    - pytest --cov=. .    
 
