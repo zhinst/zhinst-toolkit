@@ -1,4 +1,4 @@
-.. image:: Turm.png
+.. image:: Turm_small.png
    :width: 400
 
 |
