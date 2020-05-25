@@ -1,6 +1,7 @@
 ![CI](https://github.com/zhinst/zhinst-toolkit/workflows/CI/badge.svg?branch=master)
 [![Coverage](https://codecov.io/gh/zhinst/zhinst-toolkit/branch/master/graph/badge.svg?token=VUDDFQE20M)](https://codecov.io/gh/zhinst/zhinst-toolkit)
 [![PyPI version](https://badge.fury.io/py/zhinst-toolkit.svg)](https://badge.fury.io/py/zhinst-toolkit)
+[![DOI](https://zenodo.org/badge/245159715.svg)](https://zenodo.org/badge/latestdoi/245159715)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/fold_left.svg?style=social&label=Follow%20%40zhinst)](https://twitter.com/zhinst)
