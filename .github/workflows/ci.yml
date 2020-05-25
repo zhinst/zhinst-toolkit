@@ -36,4 +36,4 @@ jobs:
       - name: "Run pytest targets for ${{ matrix.python-version }}"
         run: |
           pytest --cov=. .
-          codecov --token=a3f0e0cb-5434-4e80-96b7-b665d360f300
+          codecov
