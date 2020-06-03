@@ -68,7 +68,7 @@ class ZIConnection:
         if self._daq is not None:
             print(
                 f"Successfully connected to data server at "
-                f"{self._connection_details.host}"
+                f"{self._connection_details.host}:"
                 f"{self._connection_details.port} "
                 f"api version: {self._connection_details.api}"
             )
