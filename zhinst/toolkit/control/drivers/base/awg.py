@@ -274,7 +274,7 @@ class AWGCore:
         self.compile()
         self.upload_waveforms()
 
-    def _wait_upload_done(self, timeout: float = 10) -> None:
+    def _wait_upload_done(self, timeout: float = 100) -> None:
         if self._module is None:
             raise ToolkitError("This AWG is not connected to a awgModule!")
         time.sleep(0.01)
@@ -284,7 +284,7 @@ class AWGCore:
         while self._module.get_int("/elf/status") == 2:
             time.sleep(0.01)
             if time.time() - tik >= timeout:
-                raise Exception("Program upload timed out!")
+                raise ToolkitError("Program upload timed out!")
         status = self._module.get_int("/elf/status")
         print(
             f"{self.name}: Sequencer status: {'ELF file uploaded' if status == 0 else 'FAILED!!'}"
