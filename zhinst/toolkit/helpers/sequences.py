@@ -754,6 +754,7 @@ class CustomSequence(Sequence):
     is the index of the value in the *custom_params* list. 
 
         >>> awg.set_sequence_params(
+        >>>    sequence_type="Custom",
         >>>    path="...\Zurich Instruments\LabOne\WebServer\awg\src\myProgram.seqC",
         >>>    custom_params=[1000, 99, 1],
         >>> )
