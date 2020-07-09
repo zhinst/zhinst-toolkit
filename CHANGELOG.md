@@ -1,5 +1,11 @@
 # zhinst-toolkit Changelog
 
+## Version 0.1.4
+* fix busy error on AWG program upload 
+
+## Version 0.1.3
+* extend AWG upload timeout to 100 s
+
 ## Version 0.1.2
 * add type hints
 * more documentation
