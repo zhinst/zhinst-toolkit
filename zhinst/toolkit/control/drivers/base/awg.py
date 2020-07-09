@@ -186,7 +186,15 @@ class AWGCore:
             )
         if self._module.get_int("compiler/status") == 0:
             print("Compilation successful")
-        self._wait_upload_done()
+        tik = time.time()
+        while (self._module.get_double("progress") < 1.0) and (self._module.get_int("/elf/status") != 1):
+            time.sleep(0.1)
+            if time.time() - tik >= 100: # 100s timeout
+                raise ToolkitError("Program upload timed out!")
+        status = self._module.get_int("/elf/status")
+        print(
+            f"{self.name}: Sequencer status: {'ELF file uploaded' if status == 0 else 'FAILED!!'}"
+        )
 
     def reset_queue(self) -> None:
         """Resets the waveform queue to an empty list."""
@@ -273,22 +281,6 @@ class AWGCore:
         """
         self.compile()
         self.upload_waveforms()
-
-    def _wait_upload_done(self, timeout: float = 100) -> None:
-        if self._module is None:
-            raise ToolkitError("This AWG is not connected to a awgModule!")
-        time.sleep(0.01)
-        self._module = self._parent._awg_connection
-        self._module.update(device=self._parent.serial, index=self._index)
-        tik = time.time()
-        while self._module.get_int("/elf/status") == 2:
-            time.sleep(0.01)
-            if time.time() - tik >= timeout:
-                raise ToolkitError("Program upload timed out!")
-        status = self._module.get_int("/elf/status")
-        print(
-            f"{self.name}: Sequencer status: {'ELF file uploaded' if status == 0 else 'FAILED!!'}"
-        )
 
     def set_sequence_params(self, **kwargs) -> None:
         """Sets the parameters of the Sequence Program.

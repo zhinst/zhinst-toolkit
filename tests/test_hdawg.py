@@ -11,8 +11,6 @@ def test_init_hdawg():
     assert len(hd._awgs) == 4
     assert hd.device_type == DeviceTypes.HDAWG
     with pytest.raises(Exception):
-        hd._awg_connection
-    with pytest.raises(Exception):
         hd._init_settings()
 
 

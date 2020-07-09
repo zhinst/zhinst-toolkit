@@ -14,8 +14,6 @@ def test_init_uhfqa():
     assert qa.integration_time is not None
     assert qa.result_source is not None
     with pytest.raises(Exception):
-        qa._awg_connection
-    with pytest.raises(Exception):
         qa._init_settings()
 
 

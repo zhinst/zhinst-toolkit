@@ -255,11 +255,6 @@ class UHFQA(BaseInstrument):
     def channels(self):
         return self._channels
 
-    @property
-    def _awg_connection(self):
-        self._check_connected()
-        return self._controller._connection.awg_module
-
 
 class AWG(AWGCore):
     """Device-specific AWG Core for UHFQA.
