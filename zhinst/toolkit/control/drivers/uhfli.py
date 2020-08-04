@@ -10,8 +10,11 @@ from zhinst.toolkit.control.drivers.base import (
     DAQModule as DAQ,
     SweeperModule as Sweeper,
     ToolkitError,
+    AWGCore,
 )
-from zhinst.toolkit.control.drivers.uhfqa import AWG
+from zhinst.toolkit.control.node_tree import Parameter
+from zhinst.toolkit.control.parsers import Parse
+from zhinst.toolkit.helpers import SequenceType, TriggerMode
 from zhinst.toolkit.interface import DeviceTypes
 
 
@@ -98,6 +101,135 @@ class UHFLI(BaseInstrument):
     @property
     def sweeper(self):
         return self._sweeper
+
+
+class AWG(AWGCore):
+    """Device-specific AWG Core for UHFLI.
+    
+    Inherits from `AWGCore` and adds :mod:`zhinst-toolkit` :class:`Parameters` 
+    like ouput or gains. This class also specifies sequence specific settings 
+    for the UHFLI.
+
+    Attributes:
+        output1 (:class:`zhinst.toolkit.control.node_tree.Parameter`): The state 
+            of the output of channel 1. Can be one of {'on', 'off'}.
+        output2 (:class:`zhinst.toolkit.control.node_tree.Parameter`): The state 
+            of the output of channel 2. Can be one of {'on', 'off'}.
+        gain1 (:class:`zhinst.toolkit.control.node_tree.Parameter`): Gain of the 
+            output channel 1. The value must be between -1 and +1 (default: +1).
+        gain2 (:class:`zhinst.toolkit.control.node_tree.Parameter`): Gain of the 
+            output channel 2. The value must be between -1 and +1 (default: +1).
+
+    """
+
+    def __init__(self, parent: BaseInstrument, index: int) -> None:
+        super().__init__(parent, index)
+        self.output1 = Parameter(
+            self,
+            dict(
+                Node="sigouts/0/on",
+                Description="Enables or disables both ouputs of the AWG. Either can be {'1', '0'} or {'on', 'off'}.",
+                Type="Integer",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self._parent,
+            set_parser=Parse.set_on_off,
+            get_parser=Parse.get_on_off,
+        )
+        self.output2 = Parameter(
+            self,
+            dict(
+                Node="sigouts/1/on",
+                Description="Enables or disables both ouputs of the AWG. Either can be {'1', '0'} or {'on', 'off'}.",
+                Type="Integer",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self._parent,
+            set_parser=Parse.set_on_off,
+            get_parser=Parse.get_on_off,
+        )
+        self.gain1 = Parameter(
+            self,
+            dict(
+                Node="awgs/0/outputs/0/amplitude",
+                Description="Sets the gain of the first output channel.",
+                Type="Double",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self._parent,
+            set_parser=Parse.amp1,
+        )
+        self.gain2 = Parameter(
+            self,
+            dict(
+                Node="awgs/0/outputs/1/amplitude",
+                Description="Sets the gain of the second output channel.",
+                Type="Double",
+                Properties="Read, Write",
+                Unit="None",
+            ),
+            device=self._parent,
+            set_parser=Parse.amp1,
+        )
+
+    def _apply_sequence_settings(self, **kwargs):
+        if "sequence_type" in kwargs.keys():
+            t = SequenceType(kwargs["sequence_type"])
+            allowed_sequences = [
+                SequenceType.NONE,
+                SequenceType.SIMPLE,
+                SequenceType.CUSTOM,
+            ]
+            if t not in allowed_sequences:
+                raise ToolkitError(
+                    f"Sequence type {t} must be one of {[s.value for s in allowed_sequences]}!"
+                )
+            # apply settings depending on sequence type
+            self._apply_base_settings()
+        # apply settings dependent on trigger type
+        if "trigger_mode" in kwargs.keys():
+            if TriggerMode(kwargs["trigger_mode"]) == TriggerMode.EXTERNAL_TRIGGER:
+                self._apply_trigger_settings()
+
+    def _apply_base_settings(self):
+        settings = [
+            ("sigouts/0/enables/*", 0),
+            ("sigouts/0/amplitudes/*", 0.0),
+            ("sigouts/1/enables/*", 0),
+            ("sigouts/1/amplitudes/*", 0.0),
+            ("awgs/0/outputs/*/mode", 0),
+        ]
+        self._parent._set(settings)
+
+    def _apply_trigger_settings(self):
+        pass
+
+    def outputs(self, value=None):
+        """Sets both signal outputs simultaneously.
+        
+        Keyword Arguments:
+            value (tuple): Tuple of values {'on', 'off'} for channel 1 and 2 
+                (default: {None})
+        
+        Returns:
+            The state {'on', 'off'} for both outputs if the keyword argument is 
+            not given.
+        
+        """
+        if value is None:
+            return self.output1(), self.output2()
+        else:
+            if isinstance(value, tuple) or isinstance(value, list):
+                if len(value) != 2:
+                    raise ToolkitError(
+                        "The values should be specified as a tuple, e.g. ('on', 'off')."
+                    )
+                return self.output1(value[0]), self.output2(value[1])
+            else:
+                raise ToolkitError("The value must be a tuple or list of length 2!")
 
 
 class DAQModule(DAQ):
