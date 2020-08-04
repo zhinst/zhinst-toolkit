@@ -215,7 +215,7 @@ class SimpleSequence(Sequence):
                 temp - self.time_to_cycles(self.delay_times[i])
             )
             self.sequence += self.trigger_cmd_2
-            if self.target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
+            if self.target == DeviceTypes.UHFQA:
                 self.sequence += SequenceCommand.readout_trigger()
             self.sequence += SequenceCommand.play_wave_indexed(i)
             self.sequence += SequenceCommand.wait_wave()
@@ -601,7 +601,7 @@ class ReadoutSequence(Sequence):
         self.sequence += self.trigger_cmd_1
         self.sequence += SequenceCommand.wait(self.wait_cycles)
         self.sequence += self.trigger_cmd_2
-        if self.target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
+        if self.target == DeviceTypes.UHFQA:
             self.sequence += SequenceCommand.readout_trigger()
         self.sequence += SequenceCommand.play_wave()
         self.sequence += SequenceCommand.wait_wave()
