@@ -180,7 +180,7 @@ class AWG(AWGCore):
             t = SequenceType(kwargs["sequence_type"])
             allowed_sequences = [
                 SequenceType.NONE,
-                SequenceType.SIMPLE,
+                SequenceType.PULSETRAIN,
                 SequenceType.CUSTOM,
             ]
             if t not in allowed_sequences:

@@ -281,6 +281,7 @@ class AWG(AWGCore):
             t = SequenceType(kwargs["sequence_type"])
             allowed_sequences = [
                 SequenceType.NONE,
+                SequenceType.PULSETRAIN,
                 SequenceType.SIMPLE,
                 SequenceType.RABI,
                 SequenceType.T1,
