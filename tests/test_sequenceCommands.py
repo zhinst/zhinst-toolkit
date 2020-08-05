@@ -92,7 +92,7 @@ def test_play_wave_indexed_scaled(i, amp):
 
 @given(l=st.integers(-10, 100), i=st.integers(-1, 10))
 def test_init_buffer_indexed(l, i):
-    if i < 0 or l % 16 or l < 16:
+    if i < 0 or l % 8 or l < 16:
         with pytest.raises(ValueError):
             SequenceCommand.init_buffer_indexed(l, i)
     else:
