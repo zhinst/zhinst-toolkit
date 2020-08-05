@@ -169,7 +169,30 @@ class Sequence(object):
 @attr.s
 class PulseTrainSequence(Sequence):
     """Sequence for playback of *pulse trains*.
+
+    Initializes placeholders (`randomUniform(...)`) of the correct length for 
+    the waveforms in the queue of the AWG Core. The data of the waveform 
+    placeholders is then replaced in memory when uploading the waveform using 
+    `upload_waveforms()`. The waveforms are played sequentially within the main 
+    loop of the sequence program.
+
+    As opposed to the "Simple" Sequence, the "Pulse Train" pays no attention to 
+    triggering, the defined period or waveform alignment. It just plays all 
+    queued waveforms directly after one another and repeats this *repetitions*
+    times. 
+
+        >>> awg.set_sequence_params(sequence_type="Pulse Train")
+        >>> for amp in np.linspace(-1, 1, 20):
+        >>>     wave = amp * np.ones(800)
+        >>>     awg.queue_waveform(wave)
+        >>> awg.compile_and_upload_waveforms()
+        >>> ...
     
+    Attributes:
+        buffer_lengths (list): A list of integers with the required lengths of 
+            the waveform buffers. These values will be taken from the waveforms
+            in the queue of the AWG Core.
+
     """
 
     buffer_lengths = attr.ib(default=[800], validator=attr.validators.instance_of(list))
@@ -204,7 +227,7 @@ class SimpleSequence(Sequence):
     loop of the sequence program.
 
         >>> awg.set_sequence_params(sequence_type="Simple")
-        >>> awg.queue_waveform(np.ones(800), np.oenes(800))
+        >>> awg.queue_waveform(np.ones(800), np.ones(800))
         >>> awg.compile_and_upload_waveforms()
         >>> ...
     
