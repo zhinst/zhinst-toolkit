@@ -172,6 +172,9 @@ class AWGCore:
             buffer_lengths = [w.buffer_length for w in self._waveforms]
             delays = [w.delay for w in self._waveforms]
             self.set_sequence_params(buffer_lengths=buffer_lengths, delay_times=delays)
+        if self._program.sequence_type == SequenceType.PULSETRAIN:
+            buffer_lengths = [w.buffer_length for w in self._waveforms]
+            self.set_sequence_params(buffer_lengths=buffer_lengths)
         self._module.set("compiler/sourcestring", self._program.get_seqc())
         while self._module.get_int("compiler/status") == -1:
             time.sleep(0.1)
@@ -187,9 +190,11 @@ class AWGCore:
         if self._module.get_int("compiler/status") == 0:
             print("Compilation successful")
         tik = time.time()
-        while (self._module.get_double("progress") < 1.0) and (self._module.get_int("/elf/status") != 1):
+        while (self._module.get_double("progress") < 1.0) and (
+            self._module.get_int("/elf/status") != 1
+        ):
             time.sleep(0.1)
-            if time.time() - tik >= 100: # 100s timeout
+            if time.time() - tik >= 100:  # 100s timeout
                 raise ToolkitError("Program upload timed out!")
         status = self._module.get_int("/elf/status")
         print(
@@ -222,7 +227,10 @@ class AWGCore:
             Exception: If the sequence is not of type *'Simple'*.
 
         """
-        if self._program.sequence_type != SequenceType.SIMPLE:
+        if self._program.sequence_type not in [
+            SequenceType.SIMPLE,
+            SequenceType.PULSETRAIN,
+        ]:
             raise Exception(
                 "Waveform upload only possible for 'Simple' sequence program!"
             )
