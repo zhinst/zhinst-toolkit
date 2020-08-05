@@ -89,8 +89,8 @@ class SequenceCommand(object):
     def init_buffer_indexed(length, i):
         if length < 16 or i < 0:
             raise ValueError("Invalid Values for waveform buffer!")
-        if length % 16:
-            raise ValueError("Buffer Length has to be multiple of 16!")
+        if length % 8:
+            raise ValueError("Buffer Length has to be multiple of 8!")
         return (
             f"wave w{i + 1}_1 = randomUniform({length});\n"
             f"wave w{i + 1}_2 = randomUniform({length});\n"
@@ -101,8 +101,8 @@ class SequenceCommand(object):
         length, pos, width = gauss_params
         if length < 16:
             raise ValueError("Invalid Value for length!")
-        if length % 16:
-            raise ValueError("Length has to be multiple of 16!")
+        if length % 8:
+            raise ValueError("Length has to be multiple of 8!")
         if not (length > pos and length > width):
             raise ValueError("Length has to be larger than position and width!")
         if not (width > 0):
@@ -119,8 +119,8 @@ class SequenceCommand(object):
             raise ValueError("Amplitude cannot be larger than 1.0!")
         if length < 16:
             raise ValueError("Invalid Value for length!")
-        if length % 16:
-            raise ValueError("Length has to be multiple of 16!")
+        if length % 8:
+            raise ValueError("Length has to be multiple of 8!")
         if not (length > pos and length > width):
             raise ValueError("Length has to be larger than position and width!")
         if not (width > 0):
