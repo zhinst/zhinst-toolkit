@@ -16,6 +16,7 @@ from .sequences import (
     CWSpectroscopySequence,
     CustomSequence,
     TriggerSequence,
+    PulseTrainSequence,
 )
 
 
@@ -84,6 +85,7 @@ class SequenceProgram(object):
             SequenceType.CW_SPEC: CWSpectroscopySequence,
             SequenceType.CUSTOM: CustomSequence,
             SequenceType.TRIGGER: TriggerSequence,
+            SequenceType.PULSETRAIN: PulseTrainSequence,
         }
         self.sequence_class = sequence_classes[t]
         self._sequence_type = t

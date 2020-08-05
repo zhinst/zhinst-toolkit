@@ -167,6 +167,33 @@ class Sequence(object):
 
 
 @attr.s
+class PulseTrainSequence(Sequence):
+    """Sequence for playback of *pulse trains*.
+    
+    """
+
+    buffer_lengths = attr.ib(default=[800], validator=attr.validators.instance_of(list))
+
+    def write_sequence(self):
+        self.sequence = SequenceCommand.header_comment(sequence_type="Pulse Train")
+        for i in range(self.n_HW_loop):
+            self.sequence += SequenceCommand.init_buffer_indexed(
+                self.buffer_lengths[i], i
+            )
+        self.sequence += SequenceCommand.trigger(0)
+        self.sequence += SequenceCommand.repeat(self.repetitions)
+        for i in range(self.n_HW_loop):
+            self.sequence += SequenceCommand.count_waveform(i, self.n_HW_loop)
+            self.sequence += SequenceCommand.play_wave_indexed(i)
+        self.sequence += SequenceCommand.close_bracket()
+
+    def update_params(self):
+        super().update_params()
+        if len(self.buffer_lengths) != self.n_HW_loop:
+            self.n_HW_loop = len(self.buffer_lengths)
+
+
+@attr.s
 class SimpleSequence(Sequence):
     """Sequence for *simple* playback of waveform arrays.
 

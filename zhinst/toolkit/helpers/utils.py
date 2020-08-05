@@ -31,6 +31,7 @@ class SequenceType(Enum):
     CW_SPEC = "CW Spectroscopy"
     CUSTOM = "Custom"
     TRIGGER = "Trigger"
+    PULSETRAIN = "Pulse Train"
 
 
 class TriggerMode(Enum):
