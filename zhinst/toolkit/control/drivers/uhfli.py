@@ -58,6 +58,7 @@ class UHFLI(BaseInstrument):
 
     def __init__(self, name: str, serial: str, **kwargs) -> None:
         super().__init__(name, DeviceTypes.UHFLI, serial, **kwargs)
+        self._awg = AWG(self, 0)
 
     def connect_device(self, nodetree: bool = True) -> None:
         """Establishes a device connection.
@@ -74,7 +75,6 @@ class UHFLI(BaseInstrument):
         super().connect_device(nodetree=nodetree)
         self._get_streamingnodes()
         if "AWG" in self._options:
-            self._awg = AWG(self, 0)
             self._awg._setup()
         self._daq = DAQModule(self)
         self._daq._setup()
