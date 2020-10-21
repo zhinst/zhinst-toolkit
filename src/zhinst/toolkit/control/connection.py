@@ -191,6 +191,10 @@ class ZIConnection:
     def sweeper_module(self):
         return self._sweeper_module
 
+    @property
+    def scope_module(self):
+        return self._scope_module
+
 
 class AWGModuleConnection:
     """Connection to an AWG Module.
