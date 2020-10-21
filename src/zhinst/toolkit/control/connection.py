@@ -75,6 +75,7 @@ class ZIConnection:
             )
             self._awg_module = AWGModuleConnection(self._daq)
             self._daq_module = DAQModuleConnection(self._daq)
+            self._scope_module = ScopeModuleConnection(self._daq)
             self._sweeper_module = SweeperModuleConnection(self._daq)
         else:
             raise ToolkitConnectionError(
@@ -277,6 +278,116 @@ class DAQModuleConnection:
 
     def __init__(self, daq):
         self._module = daq.dataAcquisitionModule()
+        self._device = self._module.getString("/device")
+
+    def execute(self, device=None):
+        if device is not None:
+            self.update_device(device)
+        self._module.execute()
+
+    def finish(self, device=None):
+        if device is not None:
+            self.update_device(device)
+        self._module.finish()
+
+    def finished(self, device=None):
+        if device is not None:
+            self.update_device(device)
+        return self._module.finished()
+
+    def progress(self, device=None):
+        if device is not None:
+            self.update_device(device)
+        return self._module.progress()
+
+    def trigger(self, device=None):
+        if device is not None:
+            self.update_device(device)
+        self._module.trigger()
+
+    def read(self, device=None, **kwargs):
+        if device is not None:
+            self.update_device(device)
+        return self._module.read(**kwargs)
+
+    def subscribe(self, *args, device=None):
+        if device is not None:
+            self.update_device(device)
+        self._module.subscribe(*args)
+
+    def unsubscribe(self, *args, device=None):
+        if device is not None:
+            self.update_device(device)
+        self._module.unsubscribe(*args)
+
+    def save(self, *args, device=None):
+        if device is not None:
+            self.update_device(device)
+        self._module.save(*args)
+
+    def clear(self, device=None):
+        if device is not None:
+            self.update_device(device)
+        self._module.clear()
+
+    def set(self, *args, device=None):
+        if device is not None:
+            self.update_device(device)
+        self._module.set(*args)
+
+    def get(self, *args, device=None):
+        if device is not None:
+            self.update_device(device)
+        return self._module.get(*args, flat=True)
+
+    def get_int(self, *args, device=None):
+        if device is not None:
+            self.update_device(device)
+        return self._module.getInt(*args)
+
+    def get_double(self, *args, device=None):
+        if device is not None:
+            self.update_device(device)
+        return self._module.getDouble(*args)
+
+    def get_string(self, *args, device=None):
+        if device is not None:
+            self.update_device(device)
+        return self._module.getString(*args)
+
+    def get_nodetree(self, prefix, device=None, **kwargs):
+        if device is not None:
+            self.update_device(device)
+        tree = json.loads(self._module.listNodesJSON(prefix, **kwargs))
+        return tree
+
+    def update_device(self, device):
+        if device != self.device:
+            self._module.set("/device", device)
+            self._device = device
+
+    @property
+    def device(self):
+        return self._device
+
+
+class ScopeModuleConnection:
+    """Connection to a Scope Module.
+
+    Implements a daq module as `daq.scopeModule(...)` of the API with 
+    get and set methods of the module. Also wraps around all other methods from 
+    the API.
+
+    Arguments:
+        daq (zi.ziDAQServer)
+
+    Properties:
+        device (str): serial number of the device
+
+    """
+
+    def __init__(self, daq):
+        self._module = daq.scopeModule()
         self._device = self._module.getString("/device")
 
     def execute(self, device=None):
