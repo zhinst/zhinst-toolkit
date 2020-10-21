@@ -9,6 +9,7 @@ from zhinst.toolkit.control.drivers.base import (
     BaseInstrument,
     DAQModule as DAQ,
     SweeperModule as Sweeper,
+    ScopeModule as Scope,
     ToolkitError,
     AWGCore,
 )
@@ -79,6 +80,8 @@ class UHFLI(BaseInstrument):
         self._daq._setup()
         self._sweeper = SweeperModule(self)
         self._sweeper._setup()
+        self._scope = Scope(self)
+        self._scope._setup()
 
     def factory_reset(self) -> None:
         """Loads the factory default settings."""
@@ -104,6 +107,10 @@ class UHFLI(BaseInstrument):
     @property
     def sweeper(self):
         return self._sweeper
+
+    @property
+    def scope(self):
+        return self._scope
 
 
 class AWG(AWGCore):
