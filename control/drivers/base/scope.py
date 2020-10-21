@@ -77,9 +77,7 @@ class ScopeModule:
         for k, v in parent_nodetree.items():
             k = k.lower().replace(f"{self._parent.serial}/scopes/0/", "")
             name = k[1:].replace("/", "_")
-            v["Node"] = (
-                v["Node"].lower().replace(f"{self._parent.serial}/scopes/0/", "")
-            )
+            v["Node"] = v["Node"].lower().replace(f"{self._parent.serial}/", "")
             mapping = MAPPINGS[name] if name in MAPPINGS.keys() else None
             if name in [
                 "channels_0_inputselect",
