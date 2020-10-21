@@ -88,7 +88,7 @@ class ScopeModule:
                     for k, v in v["Options"].items()
                 }
             setattr(
-                self, name, Parameter(self._parent, v, device=self, mapping=mapping)
+                self, name, Parameter(self, v, device=self._parent, mapping=mapping)
             )
         self._init_settings()
 
