@@ -49,6 +49,11 @@ MAPPINGS = {
         15: "54.9 kHz",
         16: "27.5 kHz",
     },
+    "channel": {1: "channel 1", 2: "channel 2", 3: "both"},
+    "averager_resamplingmode": {0: "linear", 1: "PCHIP"},
+    "fft_window": {0: "rectangular", 1: "hann", 2: "hamming", 3: "blackman"},
+    "mode": {0: "pass-through", 1: "moving average", 3: "fft"},
+    "save_fileformat": {0: "matlab", 1: "csv", 2: "zview", 3: "sxm", 4: "hdf5"},
 }
 
 
