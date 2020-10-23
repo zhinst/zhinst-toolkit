@@ -110,21 +110,28 @@ class ScopeModule:
     def _init_settings(self):
         pass
 
-    def measure(self):
+    def measure(self, timeout=10):
         self._module.subscribe(f"{self._parent.serial}/scopes/0/wave")
         self._module.execute()
         self._parent._set(f"/scopes/0/enable", 1)
-        while not self._get("records"):
+        start = time.time()
+        while not self._get("records") and time.time() - start < timeout:
             time.sleep(0.001)
         self._parent._set(f"/scopes/0/enable", 0)
         self._result = ScopeWaves(self._module.read(flat=True), self._parent.serial)
         self._module.finish()
         return self._result
 
+    @property
+    def result(self):
+        return self._result
+
 
 class ScopeWaves:
     def __init__(self, data, serial):
+        self._data = data
         self._wave_data = data[f"/{serial}/scopes/0/wave"][0][0]
+        self._header = self._wave_data["header"]
         self._waves = self._wave_data["wave"]
         self._time = np.linspace(
             0, self._wave_data["dt"] * self._wave_data["totalsamples"]
@@ -144,3 +151,7 @@ class ScopeWaves:
             return self._waves[1]
         except IndexError:
             return None
+
+    @property
+    def header(self):
+        return self._header
