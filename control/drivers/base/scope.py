@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 import numpy as np
 from typing import List, Dict
 
@@ -127,6 +128,19 @@ class ScopeModule:
         self._module.finish()
         return self._result
 
+    def __repr__(self):
+        s = super().__repr__()
+        s += "last trace:\n"
+        if self.result is None:
+            s += " - "
+        else:
+            s += self.result.__repr__()
+        s += "parameters:\n"
+        for key, value in self.__dict__.items():
+            if isinstance(value, Parameter):
+                s += f" - {key}\n"
+        return s
+
     @property
     def result(self):
         return self._result
@@ -141,6 +155,17 @@ class ScopeWaves:
         self._waves = self._wave_data["wave"]
         self._clk_base = clk_base
         self._scope_time = scope_time
+
+    def __repr__(self):
+        s = f"   created: {datetime.fromtimestamp(self._header['createdtimestamp'][0])}\n"
+        s += f"   length:  {self._wave_data['totalsamples'][0]}\n"
+        if self._fft:
+            s += f"   FFT\n"
+            s += f"   frequency = {self.frequency}\n"
+        else:
+            s += f"   time = {self.time}\n"
+        s += f"   wave 1 = {self.wave1}\n"
+        s += f"   wave 2 = {self.wave2}\n"
 
     @property
     def time(self):
