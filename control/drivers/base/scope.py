@@ -124,7 +124,7 @@ class ScopeModule:
 
 class ScopeWaves:
     def __init__(self, data, serial):
-        self._wave_data = data[f"{serial}/scopes/0/wave"][0][0]
+        self._wave_data = data[f"/{serial}/scopes/0/wave"][0][0]
         self._waves = self._wave_data["wave"]
         self._time = np.linspace(
             0, self._wave_data["dt"] * self._wave_data["totalsamples"]
