@@ -108,3 +108,14 @@ class ScopeModule:
 
     def _init_settings(self):
         pass
+
+    def measure(self):
+        self._module.subscribe(f"{self._parent.serial}/scopes/0/wave")
+        self._module.set_int(f"{self._parent.device}/scopes/0/enable", 1)
+        time.sleep(0.1)
+        self._module.set_int(f"{self._parent.device}/scopes/0/enable", 0)
+        data = self._module.read(flat=True)
+        self._module.finish()
+        return data
+
+    # TODO: add WAVE property for retrieving wave data
