@@ -111,6 +111,7 @@ class ScopeModule:
 
     def measure(self):
         self._module.subscribe(f"{self._parent.serial}/scopes/0/wave")
+        self._module.execute()
         self._parent._set(f"/scopes/0/enable", 1)
         while not self._get("records"):
             time.sleep(0.001)
