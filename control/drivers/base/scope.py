@@ -164,6 +164,7 @@ class ScopeWaves:
             s += f"   time = {self.time}\n"
         s += f"   wave 1 = {self.wave1}\n"
         s += f"   wave 2 = {self.wave2}\n"
+        return s
 
     @property
     def time(self):
