@@ -61,6 +61,7 @@ class ScopeModule:
     def __init__(self, parent: BaseInstrument) -> None:
         self._parent = parent
         self._module = None
+        self._result = None
 
     def _setup(self) -> None:
         self._module = self._parent._controller._connection.scope_module
@@ -116,11 +117,30 @@ class ScopeModule:
         while not self._get("records"):
             time.sleep(0.001)
         self._parent._set(f"/scopes/0/enable", 0)
-        data = self._module.read(flat=True)
+        self._result = ScopeWaves(self._module.read(flat=True), self._parent.serial)
         self._module.finish()
-        return data
+        return self._result
 
 
-# class ScopeWave:
-#     def __init__(self, data, channel):
-#         self.wave =
+class ScopeWaves:
+    def __init__(self, data, serial):
+        self._wave_data = data[f"{serial}/scopes/0/wave"][0][0]
+        self._waves = self._wave_data["wave"]
+        self._time = np.linspace(
+            0, self._wave_data["dt"] * self._wave_data["totalsamples"]
+        )
+
+    @property
+    def time(self):
+        return self._time
+
+    @property
+    def wave1(self):
+        return self._waves[0]
+
+    @property
+    def wave2(self):
+        try:
+            return self._waves[1]
+        except IndexError:
+            return None
