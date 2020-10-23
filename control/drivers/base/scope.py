@@ -53,7 +53,7 @@ MAPPINGS = {
     "channel": {1: "channel 1", 2: "channel 2", 3: "both"},
     "averager_resamplingmode": {0: "linear", 1: "PCHIP"},
     "fft_window": {0: "rectangular", 1: "hann", 2: "hamming", 3: "blackman"},
-    "mode": {0: "pass-through", 1: "moving average", 3: "fft"},
+    "mode": {1: "moving average", 3: "fft"},
     "save_fileformat": {0: "matlab", 1: "csv", 2: "zview", 3: "sxm", 4: "hdf5"},
 }
 
@@ -158,9 +158,10 @@ class ScopeWaves:
     def __repr__(self):
         s = f"   length:  {self._wave_data['totalsamples']}\n"
         if self._fft:
-            s += f"   FFT\n"
+            s += f"   mode: FFT\n"
             s += f"   frequency = {self.frequency}\n"
         else:
+            s += f"   mode: time domain\n"
             s += f"   time = {self.time}\n"
         s += f"   wave 1 = {self.wave1}\n"
         s += f"   wave 2 = {self.wave2}\n"
