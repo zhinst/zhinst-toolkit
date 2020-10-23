@@ -118,7 +118,12 @@ class ScopeModule:
         while not self._get("records") and time.time() - start < timeout:
             time.sleep(0.001)
         self._parent._set(f"/scopes/0/enable", 0)
-        self._result = ScopeWaves(self._module.read(flat=True), self._parent.serial)
+        self._result = ScopeWaves(
+            self._module.read(flat=True),
+            self._parent.serial,
+            clkbase=self._parent._get("clockbase"),
+            scope_time=self._parent._get("scopes/0/time"),
+        )
         self._module.finish()
         return self._result
 
@@ -128,18 +133,36 @@ class ScopeModule:
 
 
 class ScopeWaves:
-    def __init__(self, data, serial):
+    def __init__(self, data, serial, clk_base=60e6, scope_time=1):
         self._data = data
+        self._fft = True if self._data["/mode"] == 3 else False
         self._wave_data = data[f"/{serial}/scopes/0/wave"][0][0]
         self._header = self._wave_data["header"]
         self._waves = self._wave_data["wave"]
-        self._time = np.linspace(
-            0, self._wave_data["dt"] * self._wave_data["totalsamples"]
-        )
+        self._clk_base = clk_base
+        self._scope_time = scope_time
 
     @property
     def time(self):
-        return self._time
+        if not self._fft:
+            return np.linspace(
+                0,
+                self._wave_data["dt"] * self._wave_data["totalsamples"],
+                self._wave_data["totalsamples"],
+            )
+        else:
+            return None
+
+    @property
+    def frequency(self):
+        if self._fft:
+            return np.linspace(
+                0,
+                (self._clk_base / 2 ** self._scope_time) / 2,
+                self._wave_data["totalsamples"],
+            )
+        else:
+            return None
 
     @property
     def wave1(self):
