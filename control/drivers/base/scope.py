@@ -121,7 +121,7 @@ class ScopeModule:
         self._result = ScopeWaves(
             self._module.read(flat=True),
             self._parent.serial,
-            clkbase=self._parent._get("clockbase"),
+            clk_base=self._parent._get("clockbase"),
             scope_time=self._parent._get("scopes/0/time"),
         )
         self._module.finish()
