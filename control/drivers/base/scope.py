@@ -98,12 +98,12 @@ class ScopeModule:
     def _set(self, *args):
         if self._module is None:
             raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
-        return self._module.set(*args, device=self._parent.serial)
+        return self._module.set(*args)
 
     def _get(self, *args, valueonly: bool = True):
         if self._module is None:
             raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
-        data = self._module.get(*args, device=self._parent.serial)
+        data = self._module.get(*args)
         return list(data.values())[0][0] if valueonly else data
 
     def _init_settings(self):
@@ -112,7 +112,8 @@ class ScopeModule:
     def measure(self):
         self._module.subscribe(f"{self._parent.serial}/scopes/0/wave")
         self._parent._set(f"/scopes/0/enable", 1)
-        time.sleep(0.1)
+        while not self._module._get("records"):
+            time.sleep(0.001)
         self._parent._set(f"/scopes/0/enable", 0)
         data = self._module.read(flat=True)
         self._module.finish()

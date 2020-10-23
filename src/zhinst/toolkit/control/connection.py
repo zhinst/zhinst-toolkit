@@ -393,52 +393,52 @@ class ScopeModuleConnection:
     def __init__(self, daq):
         self._module = daq.scopeModule()
 
-    def execute(self, device=None):
+    def execute(self):
         self._module.execute()
 
-    def finish(self, device=None):
+    def finish(self):
         self._module.finish()
 
-    def finished(self, device=None):
+    def finished(self):
         return self._module.finished()
 
-    def progress(self, device=None):
+    def progress(self):
         return self._module.progress()
 
-    def trigger(self, device=None):
+    def trigger(self):
         self._module.trigger()
 
-    def read(self, device=None, **kwargs):
+    def read(self, **kwargs):
         return self._module.read(**kwargs)
 
-    def subscribe(self, *args, device=None):
+    def subscribe(self, *args):
         self._module.subscribe(*args)
 
-    def unsubscribe(self, *args, device=None):
+    def unsubscribe(self, *args):
         self._module.unsubscribe(*args)
 
-    def save(self, *args, device=None):
+    def save(self, *args):
         self._module.save(*args)
 
-    def clear(self, device=None):
+    def clear(self):
         self._module.clear()
 
-    def set(self, *args, device=None):
+    def set(self, *args):
         self._module.set(*args)
 
-    def get(self, *args, device=None):
+    def get(self, *args):
         return self._module.get(*args, flat=True)
 
-    def get_int(self, *args, device=None):
+    def get_int(self, *args):
         return self._module.getInt(*args)
 
-    def get_double(self, *args, device=None):
+    def get_double(self, *args):
         return self._module.getDouble(*args)
 
-    def get_string(self, *args, device=None):
+    def get_string(self, *args):
         return self._module.getString(*args)
 
-    def get_nodetree(self, prefix, device=None, **kwargs):
+    def get_nodetree(self, prefix, **kwargs):
         tree = json.loads(self._module.listNodesJSON(prefix, **kwargs))
         return tree
 
