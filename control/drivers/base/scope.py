@@ -129,8 +129,7 @@ class ScopeModule:
         return self._result
 
     def __repr__(self):
-        s = super().__repr__()
-        s += "last trace:\n"
+        s = "result:\n"
         if self.result is None:
             s += " - "
         else:
@@ -157,7 +156,6 @@ class ScopeWaves:
         self._scope_time = scope_time
 
     def __repr__(self):
-        s = f"   created: {datetime.fromtimestamp(self._header['createdtimestamp'][0])}\n"
         s += f"   length:  {self._wave_data['totalsamples'][0]}\n"
         if self._fft:
             s += f"   FFT\n"
