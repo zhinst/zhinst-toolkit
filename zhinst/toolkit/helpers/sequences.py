@@ -195,7 +195,9 @@ class PulseTrainSequence(Sequence):
 
     """
 
-    buffer_lengths = attr.ib(default=[800], validator=attr.validators.instance_of(list))
+    buffer_lengths = attr.ib(
+        default=attr.Factory(list), validator=attr.validators.instance_of(list)
+    )
 
     def write_sequence(self):
         self.sequence = SequenceCommand.header_comment(sequence_type="Pulse Train")
