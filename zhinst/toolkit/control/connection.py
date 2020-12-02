@@ -97,6 +97,12 @@ class ZIConnection:
             ToolkitConnectionError if the could not be established. 
 
         """
+        if serial is None or not serial.lower().startswith("dev"):
+            raise ToolkitConnectionError(
+                f"Serial '{serial}' is invalid. It needs to have the form 'dev1234'."
+            )
+        serial = serial.lower()
+
         if self._daq is None:
             raise ToolkitConnectionError("No existing connection to data server")
         if any(k is None for k in [serial, interface]):
