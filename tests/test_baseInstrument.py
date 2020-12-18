@@ -29,11 +29,7 @@ def test_check_connection():
 
 def test_serials():
     with pytest.raises(ToolkitError):
-        BaseInstrument("name", DeviceTypes.PQSC, "ggg", interface="1GbE")
-    with pytest.raises(ToolkitError):
         BaseInstrument("name", DeviceTypes.PQSC, None, interface="1GbE")
-    with pytest.raises(ToolkitError):
-        BaseInstrument("name", DeviceTypes.PQSC, "1234", interface="1GbE")
     with pytest.raises(ToolkitError):
         BaseInstrument("name", DeviceTypes.PQSC, 1234, interface="1GbE")
     

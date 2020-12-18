@@ -59,7 +59,7 @@ class BaseInstrument:
         is_connected (bool): A flag that shows if the device has established a 
             connection to the data server.
     Raises:
-        ToolkitError: If serial is malformed
+        ToolkitError: If no serial serial is given
     """
 
     def __init__(
@@ -69,14 +69,7 @@ class BaseInstrument:
             raise ToolkitError(
                 f"Serial must be a string"
             )
-            
-        serial = serial.lower()
-
-        if not serial.startswith("dev"):
-            raise ToolkitError(
-                f"Serial '{serial}' is invalid. It needs to have the form 'dev1234'."
-            )
-        
+                    
         self._config = InstrumentConfiguration()
         self._config._instrument._name = name
         self._config._instrument._config._device_type = device_type
