@@ -401,6 +401,7 @@ class DeviceConnection(object):
     def __init__(self, device):
         self._connection = None
         self._device = device
+        self.normalized_serial = None
 
     def setup(self, connection: ZIConnection = None):
         """Establishes the connection to the data server.
@@ -430,9 +431,9 @@ class DeviceConnection(object):
     def connect_device(self):
         """Connects the device to the data server."""
 
-        self._normalized_serial = self._normalize_serial(self._device.serial)
+        self.normalized_serial = self._normalize_serial(self._device.serial)
         self._connection.connect_device(
-            serial=self._normalized_serial, interface=self._device.interface,
+            serial=self.normalized_serial, interface=self._device.interface,
         )
 
     def set(self, *args):
@@ -548,7 +549,7 @@ class DeviceConnection(object):
             raise ToolkitConnectionError("No data returned... does the node exist?")
         new_data = dict()
         for key, data_dict in data.items():
-            key = key.replace(f"/{self._normalized_serial}/", "")
+            key = key.replace(f"/{self.normalized_serial}/", "")
             if isinstance(data_dict, list):
                 data_dict = data_dict[0]
             if "value" in data_dict.keys():
@@ -627,6 +628,6 @@ class DeviceConnection(object):
         if command[0] != "/":
             command = "/" + command
         if "/zi/" not in command:
-            if self._normalized_serial not in command:
-                command = f"/{self._normalized_serial}" + command
+            if self.normalized_serial not in command:
+                command = f"/{self.normalized_serial}" + command
         return command

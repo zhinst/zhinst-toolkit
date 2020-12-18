@@ -70,3 +70,7 @@ def test_device_connection_connect():
         c.set("tests/test", 1)
     with pytest.raises(ToolkitConnectionError):
         c.get_nodetree("*")
+
+def test_device_normalized_serial():
+    c = DeviceConnection(Device())
+    assert c.normalized_serial is None

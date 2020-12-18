@@ -113,6 +113,9 @@ class BaseInstrument:
         """
         self._check_connected()
         self._controller.connect_device()
+        if self._controller.normalized_serial is not None:
+            self.serial = self._controller.normalized_serial
+
         if nodetree:
             self._nodetree = NodeTree(self)
         self._options = self._get("/features/options").split("\n")
