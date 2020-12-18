@@ -96,7 +96,7 @@ class ZIConnection:
         Raises:
             ToolkitConnectionError if the could not be established. 
 
-        """
+        """        
         if self._daq is None:
             raise ToolkitConnectionError("No existing connection to data server")
         if any(k is None for k in [serial, interface]):
@@ -417,11 +417,22 @@ class DeviceConnection(object):
             self._connection = connection
         if not self._connection.established:
             self._connection.connect()
+    
+    def _normalize_serial(self, serial):
+        try:
+            d = zi.ziDiscovery()
+            device_props = d.get(d.find(serial))
+            discovered_serial = device_props["deviceid"]
+            return discovered_serial.lower()
+        except RuntimeError:
+            raise ToolkitConnectionError(f"Failed to discover a device with serial {serial}")
 
     def connect_device(self):
         """Connects the device to the data server."""
+
+        self._normalized_serial = self._normalize_serial(self._device.serial)
         self._connection.connect_device(
-            serial=self._device.serial, interface=self._device.interface,
+            serial=self._normalized_serial, interface=self._device.interface,
         )
 
     def set(self, *args):
@@ -537,7 +548,7 @@ class DeviceConnection(object):
             raise ToolkitConnectionError("No data returned... does the node exist?")
         new_data = dict()
         for key, data_dict in data.items():
-            key = key.replace(f"/{self._device.serial}/", "")
+            key = key.replace(f"/{self._normalized_serial}/", "")
             if isinstance(data_dict, list):
                 data_dict = data_dict[0]
             if "value" in data_dict.keys():
@@ -616,6 +627,6 @@ class DeviceConnection(object):
         if command[0] != "/":
             command = "/" + command
         if "/zi/" not in command:
-            if self._device.serial not in command:
-                command = f"/{self._device.serial}" + command
+            if self._normalized_serial not in command:
+                command = f"/{self._normalized_serial}" + command
         return command
