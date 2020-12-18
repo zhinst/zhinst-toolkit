@@ -26,3 +26,16 @@ def test_check_connection():
         instr._get("sigouts/0/on")
     with pytest.raises(ToolkitError):
         instr._set("sigouts/0/on", 1)
+
+def test_serials():
+    with pytest.raises(ToolkitError):
+        BaseInstrument("name", DeviceTypes.PQSC, "ggg", interface="1GbE")
+    with pytest.raises(ToolkitError):
+        BaseInstrument("name", DeviceTypes.PQSC, None, interface="1GbE")
+    with pytest.raises(ToolkitError):
+        BaseInstrument("name", DeviceTypes.PQSC, "1234", interface="1GbE")
+    with pytest.raises(ToolkitError):
+        BaseInstrument("name", DeviceTypes.PQSC, 1234, interface="1GbE")
+    
+    BaseInstrument("name", DeviceTypes.PQSC, "dev1234", interface="1GbE")    
+    BaseInstrument("name", DeviceTypes.PQSC, "DEV1234", interface="1GbE")        

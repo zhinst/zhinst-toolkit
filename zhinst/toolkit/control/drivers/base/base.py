@@ -65,12 +65,18 @@ class BaseInstrument:
     def __init__(
         self, name: str, device_type: DeviceTypes, serial: str, **kwargs
     ) -> None:
-        if serial is None or not serial.lower().startswith("dev"):
+        if not isinstance(serial, str):
+            raise ToolkitError(
+                f"Serial must be a string"
+            )
+            
+        serial = serial.lower()
+
+        if not serial.startswith("dev"):
             raise ToolkitError(
                 f"Serial '{serial}' is invalid. It needs to have the form 'dev1234'."
             )
-        serial = serial.lower()
-
+        
         self._config = InstrumentConfiguration()
         self._config._instrument._name = name
         self._config._instrument._config._device_type = device_type
