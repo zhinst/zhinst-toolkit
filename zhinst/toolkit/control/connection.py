@@ -434,6 +434,9 @@ class DeviceConnection(object):
 
         if self.discovery is not None:
             self.normalized_serial = self._normalize_serial(self._device.serial)
+        else:
+            self.normalized_serial = self._device.serial
+            
         self._connection.connect_device(
             serial=self.normalized_serial, interface=self._device.interface,
         )
