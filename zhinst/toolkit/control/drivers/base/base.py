@@ -80,6 +80,7 @@ class BaseInstrument:
         self._config._api_config.api = kwargs.get("api", 6)
         self._controller = DeviceConnection(self)
         self._nodetree = None
+        self._normalized_serial = None
 
     def setup(self, connection: ZIConnection = None) -> None:
         """Sets up the data server connection. 
@@ -113,9 +114,7 @@ class BaseInstrument:
         """
         self._check_connected()
         self._controller.connect_device()
-        if self._controller.normalized_serial is not None:
-            self.serial = self._controller.normalized_serial
-
+        
         if nodetree:
             self._nodetree = NodeTree(self)
         self._options = self._get("/features/options").split("\n")
@@ -280,6 +279,8 @@ class BaseInstrument:
 
     @property
     def serial(self):
+        if self._controller.normalized_serial is not None:
+            return self._controller.normalized_serial
         return self._config._instrument._config._serial
 
     @property
