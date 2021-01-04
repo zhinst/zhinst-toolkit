@@ -6,6 +6,7 @@
 import numpy as np
 from typing import List, Dict
 
+import zhinst.ziPython as zi
 from zhinst.toolkit.control.connection import DeviceConnection, ZIConnection
 from zhinst.toolkit.control.node_tree import NodeTree
 from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes
@@ -41,7 +42,8 @@ class BaseInstrument:
         device_type (:class:`DeviceType`): Type enum of the device type.
         serial (str): Serial number of the device, e.g. *'dev2281'*. The serial 
             number can be found on instrument back panel.
-
+        discovery: An instance of ziDiscovery to lookup the device
+        
     Attributes:
         nodetree (:class:`zhinst.toolkit.control.node_tree.NodeTree`): A 
             :class:`Nodetree` object contains a data structure that recreates 
@@ -63,7 +65,7 @@ class BaseInstrument:
     """
 
     def __init__(
-        self, name: str, device_type: DeviceTypes, serial: str, **kwargs
+        self, name: str, device_type: DeviceTypes, serial: str, discovery=None, **kwargs
     ) -> None:
         if not isinstance(serial, str):
             raise ToolkitError(
@@ -78,7 +80,7 @@ class BaseInstrument:
         self._config._api_config.host = kwargs.get("host", "localhost")
         self._config._api_config.port = kwargs.get("port", 8004)
         self._config._api_config.api = kwargs.get("api", 6)
-        self._controller = DeviceConnection(self)
+        self._controller = DeviceConnection(self, discovery if discovery is not None else zi.ziDiscovery())
         self._nodetree = None
         self._normalized_serial = None
 

@@ -6,7 +6,7 @@
 import json
 import zhinst.ziPython as zi
 from zhinst.toolkit.interface import DeviceTypes
-
+import zhinst.ziPython as zi
 
 class ToolkitConnectionError(Exception):
     """Exception specific to the zhinst.toolkit ZIConnection class."""
@@ -390,6 +390,7 @@ class DeviceConnection(object):
     Arguments:
         device (BaseInstrument): Associated device that the device connection 
             is used for.
+        discovery: an instance of ziDiscovery
 
     Attributes:
         connection (ZIConnection): Data server connection (common for more 
@@ -398,10 +399,11 @@ class DeviceConnection(object):
     
     """
 
-    def __init__(self, device):
+    def __init__(self, device, discovery):
         self._connection = None
         self._device = device
         self.normalized_serial = None
+        self.discovery = discovery
 
     def setup(self, connection: ZIConnection = None):
         """Establishes the connection to the data server.
@@ -420,9 +422,8 @@ class DeviceConnection(object):
             self._connection.connect()
     
     def _normalize_serial(self, serial):
-        try:
-            d = zi.ziDiscovery()
-            device_props = d.get(d.find(serial))
+        try:            
+            device_props = self.discovery.get(self.discovery.find(serial))
             discovered_serial = device_props["deviceid"]
             return discovered_serial.lower()
         except RuntimeError:
@@ -431,7 +432,8 @@ class DeviceConnection(object):
     def connect_device(self):
         """Connects the device to the data server."""
 
-        self.normalized_serial = self._normalize_serial(self._device.serial)
+        if self.discovery is not None:
+            self.normalized_serial = self._normalize_serial(self._device.serial)
         self._connection.connect_device(
             serial=self.normalized_serial, interface=self._device.interface,
         )

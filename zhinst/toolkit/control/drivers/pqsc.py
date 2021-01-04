@@ -23,8 +23,8 @@ class PQSC(BaseInstrument):
         name (str): Identifier for the PQSC.
         serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
             number can be found on the back panel of the instrument.
-
+        discovery: an instance of ziDiscovery
     """
 
-    def __init__(self, name: str, serial: str, **kwargs) -> None:
-        super().__init__(name, DeviceTypes.PQSC, serial, **kwargs)
+    def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
+        super().__init__(name, DeviceTypes.PQSC, serial, discovery, **kwargs)
