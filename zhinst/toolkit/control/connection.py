@@ -6,7 +6,7 @@
 import json
 import zhinst.ziPython as zi
 from zhinst.toolkit.interface import DeviceTypes
-
+import zhinst.ziPython as zi
 
 class ToolkitConnectionError(Exception):
     """Exception specific to the zhinst.toolkit ZIConnection class."""
@@ -96,13 +96,7 @@ class ZIConnection:
         Raises:
             ToolkitConnectionError if the could not be established. 
 
-        """
-        if serial is None or not serial.lower().startswith("dev"):
-            raise ToolkitConnectionError(
-                f"Serial '{serial}' is invalid. It needs to have the form 'dev1234'."
-            )
-        serial = serial.lower()
-
+        """        
         if self._daq is None:
             raise ToolkitConnectionError("No existing connection to data server")
         if any(k is None for k in [serial, interface]):
@@ -396,6 +390,7 @@ class DeviceConnection(object):
     Arguments:
         device (BaseInstrument): Associated device that the device connection 
             is used for.
+        discovery: an instance of ziDiscovery
 
     Attributes:
         connection (ZIConnection): Data server connection (common for more 
@@ -404,9 +399,11 @@ class DeviceConnection(object):
     
     """
 
-    def __init__(self, device):
+    def __init__(self, device, discovery):
         self._connection = None
         self._device = device
+        self.normalized_serial = None
+        self.discovery = discovery
 
     def setup(self, connection: ZIConnection = None):
         """Establishes the connection to the data server.
@@ -423,11 +420,25 @@ class DeviceConnection(object):
             self._connection = connection
         if not self._connection.established:
             self._connection.connect()
+    
+    def _normalize_serial(self, serial):
+        try:            
+            device_props = self.discovery.get(self.discovery.find(serial))
+            discovered_serial = device_props["deviceid"]
+            return discovered_serial.lower()
+        except RuntimeError:
+            raise ToolkitConnectionError(f"Failed to discover a device with serial {serial}")
 
     def connect_device(self):
         """Connects the device to the data server."""
+
+        if self.discovery is not None:
+            self.normalized_serial = self._normalize_serial(self._device.serial)
+        else:
+            self.normalized_serial = self._device.serial
+            
         self._connection.connect_device(
-            serial=self._device.serial, interface=self._device.interface,
+            serial=self.normalized_serial, interface=self._device.interface,
         )
 
     def set(self, *args):
@@ -543,7 +554,7 @@ class DeviceConnection(object):
             raise ToolkitConnectionError("No data returned... does the node exist?")
         new_data = dict()
         for key, data_dict in data.items():
-            key = key.replace(f"/{self._device.serial}/", "")
+            key = key.replace(f"/{self.normalized_serial}/", "")
             if isinstance(data_dict, list):
                 data_dict = data_dict[0]
             if "value" in data_dict.keys():
@@ -622,6 +633,6 @@ class DeviceConnection(object):
         if command[0] != "/":
             command = "/" + command
         if "/zi/" not in command:
-            if self._device.serial not in command:
-                command = f"/{self._device.serial}" + command
+            if self.normalized_serial not in command:
+                command = f"/{self.normalized_serial}" + command
         return command

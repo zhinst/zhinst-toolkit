@@ -48,6 +48,7 @@ class HDAWG(BaseInstrument):
         name (str): Identifier for the HDAWG.
         serial (str): Serial number of the device, e.g. *'dev1234'*. The serial 
             number can be found on the back panel of the instrument.
+        discovery: an instance of ziDiscovery
 
     Attributes:
         awgs (list): A list of four device-specific AWG Cores of type 
@@ -55,8 +56,8 @@ class HDAWG(BaseInstrument):
 
     """
 
-    def __init__(self, name: str, serial: str, **kwargs) -> None:
-        super().__init__(name, DeviceTypes.HDAWG, serial, **kwargs)
+    def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
+        super().__init__(name, DeviceTypes.HDAWG, serial, discovery, **kwargs)
         self._awgs = [AWG(self, i) for i in range(4)]
 
     def connect_device(self, nodetree: bool = True) -> None:

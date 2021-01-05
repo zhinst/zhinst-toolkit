@@ -37,6 +37,12 @@ class MFLI(BaseInstrument):
         ...
         >>> result = mfli.sweeper.results[signal]
 
+    Arguments:
+        name (str): Identifier for the MFLI.
+        serial (str): Serial number of the device, e.g. *'dev1234'*. The serial 
+            number can be found on the back panel of the instrument.
+        discovery: an instance of ziDiscovery
+
     Attributes:
         name (str): Identifier for the MFLI.
         serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
@@ -48,8 +54,8 @@ class MFLI(BaseInstrument):
 
     """
 
-    def __init__(self, name: str, serial: str, **kwargs) -> None:
-        super().__init__(name, DeviceTypes.MFLI, serial, **kwargs)
+    def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
+        super().__init__(name, DeviceTypes.MFLI, serial, discovery, **kwargs)
 
     def connect_device(self, nodetree: bool = True) -> None:
         """Establishes the device connection.

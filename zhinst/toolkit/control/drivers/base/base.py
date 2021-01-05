@@ -6,6 +6,7 @@
 import numpy as np
 from typing import List, Dict
 
+import zhinst.ziPython as zi
 from zhinst.toolkit.control.connection import DeviceConnection, ZIConnection
 from zhinst.toolkit.control.node_tree import NodeTree
 from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes
@@ -41,7 +42,8 @@ class BaseInstrument:
         device_type (:class:`DeviceType`): Type enum of the device type.
         serial (str): Serial number of the device, e.g. *'dev2281'*. The serial 
             number can be found on instrument back panel.
-
+        discovery: An instance of ziDiscovery to lookup the device
+        
     Attributes:
         nodetree (:class:`zhinst.toolkit.control.node_tree.NodeTree`): A 
             :class:`Nodetree` object contains a data structure that recreates 
@@ -58,12 +60,18 @@ class BaseInstrument:
             a keyword argument to `__init__()`.
         is_connected (bool): A flag that shows if the device has established a 
             connection to the data server.
-
+    Raises:
+        ToolkitError: If no serial serial is given
     """
 
     def __init__(
-        self, name: str, device_type: DeviceTypes, serial: str, **kwargs
+        self, name: str, device_type: DeviceTypes, serial: str, discovery=None, **kwargs
     ) -> None:
+        if not isinstance(serial, str):
+            raise ToolkitError(
+                f"Serial must be a string"
+            )
+                    
         self._config = InstrumentConfiguration()
         self._config._instrument._name = name
         self._config._instrument._config._device_type = device_type
@@ -72,8 +80,9 @@ class BaseInstrument:
         self._config._api_config.host = kwargs.get("host", "localhost")
         self._config._api_config.port = kwargs.get("port", 8004)
         self._config._api_config.api = kwargs.get("api", 6)
-        self._controller = DeviceConnection(self)
+        self._controller = DeviceConnection(self, discovery if discovery is not None else zi.ziDiscovery())
         self._nodetree = None
+        self._normalized_serial = None
 
     def setup(self, connection: ZIConnection = None) -> None:
         """Sets up the data server connection. 
@@ -107,6 +116,7 @@ class BaseInstrument:
         """
         self._check_connected()
         self._controller.connect_device()
+        
         if nodetree:
             self._nodetree = NodeTree(self)
         self._options = self._get("/features/options").split("\n")
@@ -271,6 +281,8 @@ class BaseInstrument:
 
     @property
     def serial(self):
+        if self._controller.normalized_serial is not None:
+            return self._controller.normalized_serial
         return self._config._instrument._config._serial
 
     @property

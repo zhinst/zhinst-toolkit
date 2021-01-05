@@ -74,6 +74,7 @@ class UHFQA(BaseInstrument):
         name (str): Identifier for the UHFQA.
         serial (str): Serial number of the device, e.g. *'dev1234'*. The serial 
             number can be found on the back panel of the instrument.
+        discovery: an instance of ziDiscovery
 
     Attributes:
         awg (:class:`zhinst.toolkit.control.drivers.uhfqa.AWG`): 
@@ -106,8 +107,8 @@ class UHFQA(BaseInstrument):
 
     """
 
-    def __init__(self, name: str, serial: str, **kwargs) -> None:
-        super().__init__(name, DeviceTypes.UHFQA, serial, **kwargs)
+    def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
+        super().__init__(name, DeviceTypes.UHFQA, serial, discovery, **kwargs)
         self._awg = AWG(self, 0)
         self._channels = [ReadoutChannel(self, i) for i in range(10)]
         self.integration_time = Parameter(
