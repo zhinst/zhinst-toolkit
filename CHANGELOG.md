@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 0.1.5
+* fix error when the device serial is uppercase
+
 ## Version 0.1.4
 * fix busy error on AWG program upload 
 
