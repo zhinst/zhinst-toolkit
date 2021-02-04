@@ -8,7 +8,6 @@ from typing import List, Union
 import json
 import zhinst.ziPython as zi
 from zhinst.toolkit.interface import DeviceTypes
-import zhinst.ziPython as zi
 
 
 class ToolkitConnectionError(Exception):
@@ -42,7 +41,7 @@ class ZIConnection:
 
     def __init__(self, connection_details):
         self._connection_details = connection_details
-        self._daq: "zi.ziDAQServer" = None
+        self._daq: zi.ziDAQServer = None
         self._awg = None
 
     def connect(self):
