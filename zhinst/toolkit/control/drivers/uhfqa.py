@@ -160,6 +160,10 @@ class UHFQA(BaseInstrument):
         """
         super().connect_device(nodetree=nodetree)
         self.awg._setup()
+        
+    def factory_reset(self) -> None:
+        """Loads the factory default settings."""
+        super().factory_reset()
 
     def crosstalk_matrix(self, matrix=None):
         """Sets or gets the crosstalk matrix of the UHFQA as a 2D array.

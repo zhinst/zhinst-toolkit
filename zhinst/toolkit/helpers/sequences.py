@@ -106,6 +106,12 @@ class Sequence(object):
 
     def update_params(self):
         """Update interrelated parameters."""
+        # Set the correct clock rate depending on the device type
+        if self.target in [DeviceTypes.HDAWG]:
+            self.clock_rate = 2.4e9
+        elif self.target in [DeviceTypes.UHFLI, DeviceTypes.UHFQA]:
+            self.clock_rate = 1.8e9
+        # Set the trigger commands depending on the trigger mode
         if self.trigger_mode == TriggerMode.NONE:
             self.trigger_cmd_1 = SequenceCommand.comment_line()
             self.trigger_cmd_2 = SequenceCommand.comment_line()
@@ -170,7 +176,7 @@ class Sequence(object):
 class SimpleSequence(Sequence):
     """Sequence for *simple* playback of waveform arrays.
 
-    Initializes placeholders (`randomUniform(...)`) of the correct length for 
+    Initializes placeholders (`placeholder(...)`) of the correct length for 
     the waveforms in the queue of the AWG Core. The data of the waveform 
     placeholders is then replaced in memory when uploading the waveform using 
     `upload_waveforms()`. The waveforms are played sequentially within the main 
@@ -197,8 +203,9 @@ class SimpleSequence(Sequence):
     def write_sequence(self):
         self.sequence = SequenceCommand.header_comment(sequence_type="Simple")
         for i in range(self.n_HW_loop):
+            # Loop over the waveforms and initialize placeholders
             self.sequence += SequenceCommand.init_buffer_indexed(
-                self.buffer_lengths[i], i
+                self.buffer_lengths[i], i, self.target
             )
         self.sequence += SequenceCommand.trigger(0)
         self.sequence += SequenceCommand.repeat(self.repetitions)
@@ -250,8 +257,6 @@ class SimpleSequence(Sequence):
         if len(self.buffer_lengths) > len(self.delay_times):
             n = len(self.buffer_lengths) - len(self.delay_times)
             self.delay_times = np.append(self.delay_times, np.zeros(n))
-        if self.target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
-            self.clock_rate = 1.8e9
 
     def check_attributes(self):
         super().check_attributes()
@@ -623,8 +628,6 @@ class ReadoutSequence(Sequence):
             self.wait_cycles = self.time_to_cycles(
                 temp - self.latency + self.trigger_delay
             )
-        if self.target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
-            self.clock_rate = 1.8e9
         len_f = len(self.readout_frequencies)
         len_a = len(self.readout_amplitudes)
         len_p = len(self.phase_shifts)
@@ -703,8 +706,6 @@ class PulsedSpectroscopySequence(Sequence):
             self.wait_cycles = self.time_to_cycles(
                 temp - self.latency + self.trigger_delay
             )
-        if self.target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
-            self.clock_rate = 1.8e9
 
 
 @attr.s

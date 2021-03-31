@@ -121,6 +121,13 @@ class BaseInstrument:
             self._nodetree = NodeTree(self)
         self._options = self._get("/features/options").split("\n")
         self._init_settings()
+        
+    def factory_reset(self) -> None:
+        """Loads the factory default settings."""
+        self._set(f"/system/preset/load", 1)
+        print(
+        f"Factory preset is loaded to device {self.serial.upper()}."
+        )
 
     def _init_settings(self):
         """Initial device settings. 

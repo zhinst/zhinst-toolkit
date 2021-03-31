@@ -72,6 +72,10 @@ class HDAWG(BaseInstrument):
         super().connect_device(nodetree=nodetree)
         [awg._setup() for awg in self.awgs]
 
+    def factory_reset(self) -> None:
+        """Loads the factory default settings."""
+        super().factory_reset()
+        
     def _init_settings(self):
         """Sets initial device settings on startup."""
         settings = [

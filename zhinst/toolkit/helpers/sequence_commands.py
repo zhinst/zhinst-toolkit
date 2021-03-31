@@ -6,6 +6,7 @@
 from datetime import datetime
 import numpy as np
 
+from zhinst.toolkit.interface import DeviceTypes
 
 class SequenceCommand(object):
     """A collection of sequence commands used for an AWG program."""
@@ -44,6 +45,30 @@ class SequenceCommand(object):
             return ""
         else:
             return f"wait({int(i)});\n"
+        
+    @staticmethod
+    def play_zero(i, target=DeviceTypes.HDAWG):
+        """Inserts playZero(...) command to the sequencer.
+
+        The granularity of the device will be automatically matched.
+
+        Arguments:
+            i (int): length in number of samples to play zero.
+            target (str): type of the target device which
+                determines the granularity to be matched.
+                (default: DeviceTypes.HDAWG)
+
+        """
+        if i < 0:
+            raise ValueError("Number of samples cannot be negative!")
+        elif target in [DeviceTypes.HDAWG]:
+            if i < 32:
+                raise ValueError("Number of samples cannot be lower than 32 samples!")
+            return f"playZero({int(round(i / 16) * 16)});\n"
+        elif target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
+            if i < 16:
+                raise ValueError("Number of samples cannot be lower than 16 samples!")
+            return f"playZero({int(round(i / 8) * 8)});\n"
 
     @staticmethod
     def wait_wave():
@@ -86,14 +111,34 @@ class SequenceCommand(object):
         return f"playWave({amp1}*w{i+1}_1, {amp2}*w{i+2}_2);\n"
 
     @staticmethod
-    def init_buffer_indexed(length, i):
-        if length < 16 or i < 0:
+    def init_buffer_indexed(length, i, target=DeviceTypes.HDAWG):
+        """Initialize placeholders (`placeholder(...)`) of specified length.
+
+        The granularity of the device should be matched.
+
+        Arguments:
+            length (int): length of the placeholders in number of samples.
+            i (int): index for the waveform label.
+            target (str): type of the target device which
+                determines the granularity to be matched.
+                (default: DeviceTypes.HDAWG)
+
+        """
+        if i < 0:
             raise ValueError("Invalid Values for waveform buffer!")
-        if length % 16:
-            raise ValueError("Buffer Length has to be multiple of 16!")
+        elif target in [DeviceTypes.HDAWG]:
+            if length < 32:
+                raise ValueError("Buffer Length cannot be lower than 32 samples!")
+            elif length % 16:
+                raise ValueError("Buffer Length has to be multiple of 16!")
+        elif target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
+            if length < 16:
+                raise ValueError("Buffer Length cannot be lower than 16 samples!")
+            elif length % 8:
+                raise ValueError("Buffer Length has to be multiple of 8!")
         return (
-            f"wave w{i + 1}_1 = randomUniform({length});\n"
-            f"wave w{i + 1}_2 = randomUniform({length});\n"
+            f"wave w{i + 1}_1 = placeholder({length});\n"
+            f"wave w{i + 1}_2 = placeholder({length});\n"
         )
 
     @staticmethod
