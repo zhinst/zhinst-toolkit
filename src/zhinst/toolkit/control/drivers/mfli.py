@@ -77,6 +77,10 @@ class MFLI(BaseInstrument):
         self._sweeper_module = SweeperModule(self)
         self._sweeper_module._setup()
 
+    def factory_reset(self) -> None:
+        """Loads the factory default settings."""
+        super().factory_reset()
+
     def _init_settings(self):
         pass
 

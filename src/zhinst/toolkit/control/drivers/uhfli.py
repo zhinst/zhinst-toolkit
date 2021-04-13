@@ -78,6 +78,10 @@ class UHFLI(BaseInstrument):
         self._sweeper = SweeperModule(self)
         self._sweeper._setup()
 
+    def factory_reset(self) -> None:
+        """Loads the factory default settings."""
+        super().factory_reset()
+
     def _init_settings(self):
         if "AWG" in self.options:
             settings = [
