@@ -5,11 +5,14 @@
 
 import numpy as np
 from typing import List, Dict
+import logging
 
 import zhinst.ziPython as zi
 from zhinst.toolkit.control.connection import DeviceConnection, ZIConnection
 from zhinst.toolkit.control.node_tree import NodeTree
 from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes
+
+_logger = logging.getLogger(__name__)
 
 
 class ToolkitError(Exception):
@@ -121,6 +124,11 @@ class BaseInstrument:
             self._nodetree = NodeTree(self)
         self._options = self._get("/features/options").split("\n")
         self._init_settings()
+
+    def factory_reset(self) -> None:
+        """Loads the factory default settings."""
+        self._set(f"/system/preset/load", 1)
+        _logger.info(f"Factory preset is loaded to device {self.serial.upper()}.")
 
     def _init_settings(self):
         """Initial device settings.
