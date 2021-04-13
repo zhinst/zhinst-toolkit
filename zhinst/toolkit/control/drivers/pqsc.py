@@ -28,3 +28,7 @@ class PQSC(BaseInstrument):
 
     def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
         super().__init__(name, DeviceTypes.PQSC, serial, discovery, **kwargs)
+
+    def factory_reset(self) -> None:
+        """Loads the factory default settings."""
+        super().factory_reset()
