@@ -48,6 +48,30 @@ class SequenceCommand(object):
             return f"wait({int(i)});\n"
 
     @staticmethod
+    def play_zero(i, target=DeviceTypes.HDAWG):
+        """Inserts playZero(...) command to the sequencer.
+
+        The granularity of the device will be automatically matched.
+
+        Arguments:
+            i (int): length in number of samples to play zero.
+            target (str): type of the target device which
+                determines the granularity to be matched.
+                (default: DeviceTypes.HDAWG)
+
+        """
+        if i < 0:
+            raise ValueError("Number of samples cannot be negative!")
+        elif target in [DeviceTypes.HDAWG]:
+            if i < 32:
+                raise ValueError("Number of samples cannot be lower than 32 samples!")
+            return f"playZero({int(round(i / 16) * 16)});\n"
+        elif target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
+            if i < 16:
+                raise ValueError("Number of samples cannot be lower than 16 samples!")
+            return f"playZero({int(round(i / 8) * 8)});\n"
+
+    @staticmethod
     def wait_wave():
         return "waitWave();\n"
 
