@@ -42,6 +42,26 @@ def test_wait_positive(i):
         assert str(i) in SequenceCommand.wait(i)
 
 
+@given(
+    i=st.integers(-10, 100),
+    target=st.sampled_from(
+        [getattr(DeviceTypes, x) for x in ["HDAWG", "UHFQA", "UHFLI"]]
+    ),
+)
+def test_play_zero(i, target):
+    if i < 0:
+        with pytest.raises(ValueError):
+            SequenceCommand.play_zero(i, target)
+    elif target in [DeviceTypes.HDAWG] and i < 32:
+        with pytest.raises(ValueError):
+            SequenceCommand.play_zero(i, target)
+    elif target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI] and i < 16:
+        with pytest.raises(ValueError):
+            SequenceCommand.play_zero(i, target)
+    else:
+        SequenceCommand.play_zero(i, target)
+
+
 @given(value=st.integers(-1, 2), index=st.integers(0, 3))
 def test_trigger(value, index):
     if value not in [0, 1] or index not in [1, 2]:
