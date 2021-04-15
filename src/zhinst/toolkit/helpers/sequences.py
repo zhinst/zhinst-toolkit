@@ -26,37 +26,39 @@ def amp_smaller_1(self, attribute, value):
 @attr.s
 class Sequence(object):
     """Base class for an AWG sequence to be programmed on a :class:`AWGCore` .
-    
+
     Attributes:
         period (double): Period in seconds at which the experiment is repeated.
-        trigger_mode (str or :class:`TriggerMode` enum): The trigger mode of the 
-            sequence, i.e if the AWG Core is used to send out the triger signal 
-            (*'Send Triger'* or :class:`TriggerMode.SEND_TRIGGER`) or to wait 
-            for an external trigger signal (*'External Triger'* or 
-            :class:`TriggerMode.EXTERNAL_TRIGGER`). (default: 
-            :class:`TriggerMode.NONE`) 
+        trigger_mode (str or :class:`TriggerMode` enum): The trigger mode of the
+            sequence, i.e if the AWG Core is used to send out the triger signal
+            (*'Send Triger'* or :class:`TriggerMode.SEND_TRIGGER`), to wait
+            for an external trigger signal (*'Receive Triger'* or
+            :class:`TriggerMode.RECEIVE_TRIGGER`) or to wait for an external
+            signal to send out the triger signal (*'Send and Receive Triger'* or
+            :class:`TriggerMode.SEND_AND_RECEIVE_TRIGGER`). (default:
+            :class:`TriggerMode.NONE`)
         repetitions (int): The number of repetitions of the experiment.
-        alignment (str): The alignment of the played waveform with the trigger 
-            signal, i.e. if the waveform should start with the trigger (or the 
-            time origin `t=0` of the sequence). Waveforms can either *'Start 
-            with Trigger'* (:class:`Alignment.START_WITH_TRIGGER`) or *'End with 
+        alignment (str): The alignment of the played waveform with the trigger
+            signal, i.e. if the waveform should start with the trigger (or the
+            time origin `t=0` of the sequence). Waveforms can either *'Start
+            with Trigger'* (:class:`Alignment.START_WITH_TRIGGER`) or *'End with
             Trigger'* (:class:`Alignment.END_WITH_TRIGGER`).
-        dead_time (double): The `dead time` of a sequence is the time in seconds 
-            after the time origin of the sequence before the next  trigger 
-            signal is sent / expected. This time defines the maximum length of a 
-            waveform played after the time origin, otherwise triggers can be 
+        dead_time (double): The `dead time` of a sequence is the time in seconds
+            after the time origin of the sequence before the next  trigger
+            signal is sent / expected. This time defines the maximum length of a
+            waveform played after the time origin, otherwise triggers can be
             missed. (default: 5 us)
-        trigger_delay (double): The `trigger delay` is an addittional delay in 
-            seconds that shifts the time origin `t=0` with respect to the 
+        trigger_delay (double): The `trigger delay` is an addittional delay in
+            seconds that shifts the time origin `t=0` with respect to the
             trigger signal. (default: 0)
-        latency (double): The `latency` is a time in seconds that compensated 
-            for different trigger latencies of different instruments. It works 
-            as a constant `trigger_delay`.  
-        reset_phase (bool): A flag that specifies if the phase of the modulation 
-            oscillator should be reset to 0 for every repetition of the 
-            experiment before the waveform is played. This value only applies 
+        latency (double): The `latency` is a time in seconds that compensated
+            for different trigger latencies of different instruments. It works
+            as a constant `trigger_delay`.
+        reset_phase (bool): A flag that specifies if the phase of the modulation
+            oscillator should be reset to 0 for every repetition of the
+            experiment before the waveform is played. This value only applies
             for AWG Cores of the HDAWG when IQ Modulation is enabled.
-    
+
     """
 
     target = attr.ib(
@@ -120,7 +122,10 @@ class Sequence(object):
             self.trigger_cmd_1 = SequenceCommand.trigger(1)
             self.trigger_cmd_2 = SequenceCommand.trigger(0)
             self.dead_cycles = self.time_to_cycles(self.dead_time)
-        elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
+        elif self.trigger_mode in [
+            TriggerMode.EXTERNAL_TRIGGER,
+            TriggerMode.RECEIVE_TRIGGER,
+        ]:
             self.trigger_cmd_1 = SequenceCommand.wait_dig_trigger(
                 index=int(self.target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI])
             )
@@ -245,7 +250,10 @@ class SimpleSequence(Sequence):
             self.wait_cycles = self.time_to_cycles(self.period)
         elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
-        elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
+        elif self.trigger_mode in [
+            TriggerMode.EXTERNAL_TRIGGER,
+            TriggerMode.RECEIVE_TRIGGER,
+        ]:
             self.wait_cycles = self.time_to_cycles(
                 self.period - self.dead_time - self.latency + self.trigger_delay
             )
@@ -367,7 +375,10 @@ class RabiSequence(Sequence):
                 self.wait_cycles -= self.gauss_params[0] / 8
             elif self.alignment == Alignment.START_WITH_TRIGGER:
                 self.dead_cycles -= self.gauss_params[0] / 8
-        elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
+        elif self.trigger_mode in [
+            TriggerMode.EXTERNAL_TRIGGER,
+            TriggerMode.RECEIVE_TRIGGER,
+        ]:
             self.wait_cycles = self.time_to_cycles(
                 self.period - self.dead_time - self.latency + self.trigger_delay
             )
@@ -447,7 +458,10 @@ class T1Sequence(Sequence):
         self.get_gauss_params(self.pulse_width, self.pulse_truncation)
         if self.trigger_mode in [TriggerMode.NONE, TriggerMode.SEND_TRIGGER]:
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
-        elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
+        elif self.trigger_mode in [
+            TriggerMode.EXTERNAL_TRIGGER,
+            TriggerMode.RECEIVE_TRIGGER,
+        ]:
             self.wait_cycles = self.time_to_cycles(
                 self.period - self.dead_time - self.latency + self.trigger_delay
             )
@@ -624,7 +638,10 @@ class ReadoutSequence(Sequence):
             self.wait_cycles = self.time_to_cycles(temp)
         elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
             self.wait_cycles = self.time_to_cycles(temp)
-        elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
+        elif self.trigger_mode in [
+            TriggerMode.EXTERNAL_TRIGGER,
+            TriggerMode.RECEIVE_TRIGGER,
+        ]:
             self.wait_cycles = self.time_to_cycles(
                 temp - self.latency + self.trigger_delay
             )
@@ -702,7 +719,10 @@ class PulsedSpectroscopySequence(Sequence):
             self.wait_cycles = self.time_to_cycles(temp)
         elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
             self.wait_cycles = self.time_to_cycles(temp)
-        elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
+        elif self.trigger_mode in [
+            TriggerMode.EXTERNAL_TRIGGER,
+            TriggerMode.RECEIVE_TRIGGER,
+        ]:
             self.wait_cycles = self.time_to_cycles(
                 temp - self.latency + self.trigger_delay
             )
@@ -734,7 +754,10 @@ class CWSpectroscopySequence(Sequence):
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
         elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
-        elif self.trigger_mode == TriggerMode.EXTERNAL_TRIGGER:
+        elif self.trigger_mode in [
+            TriggerMode.EXTERNAL_TRIGGER,
+            TriggerMode.RECEIVE_TRIGGER,
+        ]:
             self.wait_cycles = self.time_to_cycles(
                 self.period - self.dead_time - self.latency + self.trigger_delay
             )
