@@ -7,10 +7,12 @@ import textwrap
 import attr
 import numpy as np
 from pathlib import Path
+import deprecation
 
 from .sequence_commands import SequenceCommand
 from .utils import SequenceType, TriggerMode, Alignment
 from zhinst.toolkit.interface import DeviceTypes
+from zhinst.toolkit._version import version as __version__
 
 
 def is_positive(self, attribute, value):
@@ -127,12 +129,21 @@ class Sequence(object):
             self.trigger_cmd_2 = SequenceCommand.comment_line()
             self.dead_cycles = 0
 
+    @deprecation.deprecated(
+        deprecated_in="0.2.0",
+        current_version=__version__,
+        details="Use the time_to_samples function instead",
+    )
     def time_to_cycles(self, time, wait_time=True):
         """Helper method to convert time to FPGA clock cycles."""
         if wait_time:
             return int(time * self.clock_rate / 8)
         else:
             return int(time * self.clock_rate)
+
+    def time_to_samples(self, time):
+        """Helper method to convert time to number of samples."""
+        return round(time * self.clock_rate)
 
     def get_gauss_params(self, width, truncation):
         """Calculates the attribute `gauss_params` from width and truncation.
