@@ -60,6 +60,8 @@ class SequenceProgramMachine(RuleBasedStateMachine):
             0: TriggerMode.NONE,
             1: TriggerMode.SEND_TRIGGER,
             2: TriggerMode.EXTERNAL_TRIGGER,
+            3: TriggerMode.SEND_TRIGGER,
+            4: TriggerMode.SEND_AND_RECEIVE_TRIGGER,
         }
         self.sequenceProgram.set_params(trigger_mode=types[t])
         params = self.sequenceProgram.list_params()
@@ -74,6 +76,8 @@ class SequenceProgramMachine(RuleBasedStateMachine):
             0: None,
             1: "Send Trigger",
             2: "External Trigger",
+            3: "Receive Trigger",
+            4: "Send and Receive Trigger",
         }
         self.sequenceProgram.set_params(trigger_mode=types[t])
         params = self.sequenceProgram.list_params()

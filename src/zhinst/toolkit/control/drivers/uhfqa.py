@@ -359,7 +359,10 @@ class AWG(AWGCore):
                 self._apply_base_settings()
         # apply settings dependent on trigger type
         if "trigger_mode" in kwargs.keys():
-            if TriggerMode(kwargs["trigger_mode"]) == TriggerMode.EXTERNAL_TRIGGER:
+            if TriggerMode(kwargs["trigger_mode"]) in [
+                TriggerMode.EXTERNAL_TRIGGER,
+                TriggerMode.RECEIVE_TRIGGER,
+            ]:
                 self._apply_trigger_settings()
 
     def _apply_base_settings(self):

@@ -298,7 +298,10 @@ class AWG(AWGCore):
                     f"Sequence type {t} must be one of {allowed_sequences}!"
                 )
         if "trigger_mode" in kwargs.keys():
-            if TriggerMode(kwargs["trigger_mode"]) == TriggerMode.EXTERNAL_TRIGGER:
+            if TriggerMode(kwargs["trigger_mode"]) in [
+                TriggerMode.EXTERNAL_TRIGGER,
+                TriggerMode.RECEIVE_TRIGGER,
+            ]:
                 self._apply_trigger_settings()
 
     def _apply_trigger_settings(self):
