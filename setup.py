@@ -8,7 +8,13 @@ import os
 import setuptools
 
 
-requirements = ["numpy>=1.13", "setuptools>=40.1.0", "zhinst>=20.01", "attrs"]
+requirements = [
+    "numpy>=1.13",
+    "setuptools>=40.1.0",
+    "zhinst>=20.01",
+    "attrs",
+    "deprecation>=2.1.0",
+]
 
 
 with open("README.md", "r") as fh:
