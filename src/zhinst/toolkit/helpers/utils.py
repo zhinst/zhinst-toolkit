@@ -32,6 +32,7 @@ class SequenceType(Enum):
     CUSTOM = "Custom"
     TRIGGER = "Trigger"
     PULSETRAIN = "Pulse Train"
+    PULSETRAIN2 = "Pulse Train2"
 
 
 class TriggerMode(Enum):

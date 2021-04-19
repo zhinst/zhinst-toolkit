@@ -181,7 +181,7 @@ class AWGCore:
             buffer_lengths = [w.buffer_length for w in self._waveforms]
             delays = [w.delay for w in self._waveforms]
             self.set_sequence_params(buffer_lengths=buffer_lengths, delay_times=delays)
-        if self._program.sequence_type == SequenceType.PULSETRAIN:
+        if (self._program.sequence_type == SequenceType.PULSETRAIN) or (self._program.sequence_type == SequenceType.PULSETRAIN2):
             buffer_lengths = [w.buffer_length for w in self._waveforms]
             self.set_sequence_params(buffer_lengths=buffer_lengths)
         self._module.set("compiler/sourcestring", self._program.get_seqc())
@@ -239,6 +239,7 @@ class AWGCore:
         if self._program.sequence_type not in [
             SequenceType.SIMPLE,
             SequenceType.PULSETRAIN,
+            SequenceType.PULSETRAIN2,
         ]:
             raise Exception(
                 "Waveform upload only possible for 'Simple' sequence program!"
@@ -286,6 +287,7 @@ class AWGCore:
         ]
         tok = time.time()
         self._parent._set(zip(nodes, waveform_data))
+ 
         tik = time.time()
         print(f"Upload of {len(waveform_data)} waveforms took {tik - tok:.5} s")
 

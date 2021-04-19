@@ -17,6 +17,7 @@ from .sequences import (
     CustomSequence,
     TriggerSequence,
     PulseTrainSequence,
+    PulseTrain2Sequence,
 )
 
 
@@ -86,6 +87,7 @@ class SequenceProgram(object):
             SequenceType.CUSTOM: CustomSequence,
             SequenceType.TRIGGER: TriggerSequence,
             SequenceType.PULSETRAIN: PulseTrainSequence,
+            SequenceType.PULSETRAIN2: PulseTrain2Sequence,
         }
         self.sequence_class = sequence_classes[t]
         self._sequence_type = t

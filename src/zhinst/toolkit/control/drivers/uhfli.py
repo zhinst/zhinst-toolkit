@@ -191,6 +191,7 @@ class AWG(AWGCore):
             allowed_sequences = [
                 SequenceType.NONE,
                 SequenceType.PULSETRAIN,
+                SequenceType.PULSETRAIN2,
                 SequenceType.CUSTOM,
             ]
             if t not in allowed_sequences:
