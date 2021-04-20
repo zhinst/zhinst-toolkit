@@ -5,8 +5,10 @@
 
 from datetime import datetime
 import numpy as np
+import deprecation
 
 from zhinst.toolkit.interface import DeviceTypes
+from zhinst.toolkit._version import version as __version__
 
 
 class SequenceCommand(object):
@@ -76,12 +78,37 @@ class SequenceCommand(object):
         return "waitWave();\n"
 
     @staticmethod
+    @deprecation.deprecated(
+        deprecated_in="0.2.0",
+        current_version=__version__,
+        details="Use the define_trigger and play_trigger functions instead",
+    )
     def trigger(value, index=1):
         if value not in [0, 1]:
             raise ValueError("Invalid Trigger Value!")
         if index not in [1, 2]:
             raise ValueError("Invalid Trigger Index!")
         return f"setTrigger({value << (index - 1)});\n"
+
+    @staticmethod
+    def define_trigger(length=32):
+        """Define a marker waveform to be used to send out trigger signals.
+
+        The analog part of the waveform is zero.
+
+        Arguments:
+            length (int): length of marker waveform in number of samples. (default: 32)
+        """
+        if length < 32:
+            raise ValueError("Trigger cannot be shorter than 32 samples!")
+        if length % 16:
+            raise ValueError("Trigger Length has to be multiple of 16!")
+        return f"wave start_trigger = marker({length},1);\n"
+
+    @staticmethod
+    def play_trigger():
+        """Play the marker waveform which is used as trigger."""
+        return "playWave(1, start_trigger);\n"
 
     @staticmethod
     def count_waveform(i, n):
