@@ -71,6 +71,15 @@ def test_trigger(value, index):
         SequenceCommand.trigger(value, index)
 
 
+@given(length=st.integers(-10, 100))
+def test_define_trigger(length):
+    if length % 16 or length < 32:
+        with pytest.raises(ValueError):
+            SequenceCommand.define_trigger(length)
+    else:
+        assert str(length) in SequenceCommand.define_trigger(length)
+
+
 @given(i=st.integers(0, 1000), n=st.integers(0, 1000))
 def test_count_waveform(i, n):
     line = SequenceCommand.count_waveform(i, n)
