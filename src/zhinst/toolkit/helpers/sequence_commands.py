@@ -84,6 +84,26 @@ class SequenceCommand(object):
         return f"setTrigger({value << (index - 1)});\n"
 
     @staticmethod
+    def define_trigger(length=32):
+        """Define a marker waveform to be used to send out trigger signals.
+
+        The analog part of the waveform is zero.
+
+        Arguments:
+            length (int): length of marker waveform in number of samples. (default: 32)
+        """
+        if length < 32:
+            raise ValueError("Trigger cannot be shorter than 32 samples!")
+        if length % 16:
+            raise ValueError("Trigger Length has to be multiple of 16!")
+        return f"wave start_trigger = marker({length},1);\n"
+        
+    @staticmethod
+    def play_trigger():
+        """Play the marker waveform which is used as trigger."""
+        return "playWave(1, start_trigger);\n"
+
+    @staticmethod
     def count_waveform(i, n):
         return f"// waveform {i+1} / {n}\n"
 
