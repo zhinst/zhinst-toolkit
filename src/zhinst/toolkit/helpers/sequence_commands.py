@@ -5,8 +5,10 @@
 
 from datetime import datetime
 import numpy as np
+import deprecation
 
 from zhinst.toolkit.interface import DeviceTypes
+from zhinst.toolkit._version import version as __version__
 
 
 class SequenceCommand(object):
@@ -76,6 +78,11 @@ class SequenceCommand(object):
         return "waitWave();\n"
 
     @staticmethod
+    @deprecation.deprecated(
+        deprecated_in="0.2.0",
+        current_version=__version__,
+        details="Use the define_trigger and play_trigger functions instead"
+    )
     def trigger(value, index=1):
         if value not in [0, 1]:
             raise ValueError("Invalid Trigger Value!")
