@@ -15,11 +15,11 @@ from zhinst.toolkit.control.drivers.base import ToolkitError, BaseInstrument
 
 class MultiDeviceConnection:
     """A data server connection shared by multiple devices.
-    
-    A container for devices that ensures a single instrument connection 
-    (Data Server) is shared between multiple devices. The 
-    :class:`MultiDeviceConnection` holds dictionaries of different device types. 
-    The devices are identified by the name they are given. The 
+
+    A container for devices that ensures a single instrument connection
+    (Data Server) is shared between multiple devices. The
+    :class:`MultiDeviceConnection` holds dictionaries of different device types.
+    The devices are identified by the name they are given. The
     *MultiDeviceConnection* connects to a Data Server with `mdc.setup()` ...
 
         >>> import zhinst.toolkit as tk
@@ -36,7 +36,7 @@ class MultiDeviceConnection:
         Successfully connected to device DEV5678 on interface 1GBE
         Successfully connected to device DEV9999 on interface 1GBE
 
-    The :class:`MultiDeviceConnection` holds dictionaries for every device type 
+    The :class:`MultiDeviceConnection` holds dictionaries for every device type
     with the device name as keys:
 
         >>> hdawg1 = mdc.hdawgs["hdawg 1"]
@@ -49,21 +49,21 @@ class MultiDeviceConnection:
         host (str): the host of the data server (default: 'localhost')
         port (int): the port for the data server (default: 8004)
         api (int): the API level for the data server (default: 6)
-    
+
     Attributes:
-        hdawgs (dict): A dictionary of :class:`HDAWG` s with the device names as 
+        hdawgs (dict): A dictionary of :class:`HDAWG` s with the device names as
             keys.
-        uhfqas (dict): A dictionary of :class:`UHFQA` s with the device names as 
+        uhfqas (dict): A dictionary of :class:`UHFQA` s with the device names as
             keys.
-        uhflis (dict): A dictionary of :class:`UHFLI` s with the device names as 
+        uhflis (dict): A dictionary of :class:`UHFLI` s with the device names as
             keys.
-        mflis (dict): A dictionary of :class:`MFLI` s with the device names as 
+        mflis (dict): A dictionary of :class:`MFLI` s with the device names as
             keys.
         pqsc (:class:`PQSC`): A PQSC if one is added, otherwise None
-    
+
     Raises:
         ToolkitError: if an unknown device is added
-    
+
     """
 
     def __init__(self, **kwargs) -> None:
@@ -87,19 +87,19 @@ class MultiDeviceConnection:
     def connect_device(self, device: BaseInstrument) -> None:
         """Connects a device to the :class:`MultiDeviceConnection`.
 
-        Adds a device to the :class:`MultiDeviceConnection` and connects the 
-        device to the shared Data Server. Depending on the device type, the 
-        device is added to respective dictionary and can then be accessed from 
+        Adds a device to the :class:`MultiDeviceConnection` and connects the
+        device to the shared Data Server. Depending on the device type, the
+        device is added to respective dictionary and can then be accessed from
         there.
-        
+
         Arguments:
-            device (BaseInstrument): the device to be added to the 
-                MultiDeviceConnection, has to be one of :class:`HDAWG`, 
+            device (BaseInstrument): the device to be added to the
+                MultiDeviceConnection, has to be one of :class:`HDAWG`,
                 :class:`UHFQA`, :class:`UHFLI`, :class:`MFLI`, :class:`PQSC`
-        
+
         Raises:
             ToolkitError: if the device is not recognized
-            
+
         """
         if isinstance(device, HDAWG):
             self._hdawgs[device.name] = device

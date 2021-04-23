@@ -16,7 +16,11 @@ DUMMY_DICT = {
         "second": DUMMY_PARAMETER,
         "third": DUMMY_PARAMETER,
     },
-    "second": {1: DUMMY_PARAMETER, 2: DUMMY_PARAMETER, 3: DUMMY_PARAMETER,},
+    "second": {
+        1: DUMMY_PARAMETER,
+        2: DUMMY_PARAMETER,
+        3: DUMMY_PARAMETER,
+    },
     "third": DUMMY_PARAMETER,
     "fourths": {1: DUMMY_PARAMETER},
 }
@@ -86,4 +90,3 @@ def test_nodelist_init(n):
     assert lst.__repr__() != ""
     if n > 0:
         assert f"Node {n}" in lst.__repr__()
-

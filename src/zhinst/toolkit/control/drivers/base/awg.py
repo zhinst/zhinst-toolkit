@@ -14,24 +14,24 @@ from .base import ToolkitError, BaseInstrument
 class AWGCore:
     """Implements an AWG Core representation.
 
-    The :class:`AWGCore` class implements basic functionality of the AWG 
+    The :class:`AWGCore` class implements basic functionality of the AWG
     sequencer without the need for the user to write their own *'.seqC'* code.
-    The :class:`AWGCore` holds a :class:`SequenceProgram` object whose 
-    parameters can be set using the `set_sequence_params(...)` method of the 
+    The :class:`AWGCore` holds a :class:`SequenceProgram` object whose
+    parameters can be set using the `set_sequence_params(...)` method of the
     AWG.
-    
-    This module takes over the functionality of configuring the seuqence program 
-    and compiling it on the instrument. Given the 'Simple' sequence type, 
-    sample-defined waveforms can be queued and uploaded to the AWG. 
 
-    This base class :class:`AWGCore` is inherited by device-specific AWGs for 
-    the HDAWG or the UHFQA/UHFLI. The device-specific AWGs add certain 
-    `zhinst-toolkit` :class:`Parameters` and apply certain 
-    instrument settings, depending on the `sequence_type` and the `trigger_mode` 
-    (sending out a trigger signal or waiting for a trigger) of the sequence 
-    program. 
+    This module takes over the functionality of configuring the seuqence program
+    and compiling it on the instrument. Given the 'Simple' sequence type,
+    sample-defined waveforms can be queued and uploaded to the AWG.
 
-    For example, a predefined Rabi sequence with a sweep over 101 different 
+    This base class :class:`AWGCore` is inherited by device-specific AWGs for
+    the HDAWG or the UHFQA/UHFLI. The device-specific AWGs add certain
+    `zhinst-toolkit` :class:`Parameters` and apply certain
+    instrument settings, depending on the `sequence_type` and the `trigger_mode`
+    (sending out a trigger signal or waiting for a trigger) of the sequence
+    program.
+
+    For example, a predefined Rabi sequence with a sweep over 101 different
     amplitudes could be programmed like this:
 
         >>> awg = hdawg.awgs[0]
@@ -49,8 +49,8 @@ class AWGCore:
         >>> awg.run()
         >>> awg.wait_done()
 
-    The sequence type *'Simple'* allows the user to upload sample-defined 
-    waveforms as numpy arrays. The waveforms in the queue are played one after 
+    The sequence type *'Simple'* allows the user to upload sample-defined
+    waveforms as numpy arrays. The waveforms in the queue are played one after
     the other with a specified period and alignment/delay to a time origin.
 
         >>> awg.set_sequence_params(
@@ -72,20 +72,20 @@ class AWGCore:
         hd1-0: Sequencer status: ELF file uploaded
         Upload of 101 waveforms took 0.20005226135253906 s
         >>> awg.run()
-        >>> awg.wait_done() 
+        >>> awg.wait_done()
 
     Attributes:
-        parent (:class:`BaseInstrument`): The parent instrument that this 
+        parent (:class:`BaseInstrument`): The parent instrument that this
             :class:`AWGCore` is associated to.
         index (int): An integer specifying the index in the parent instrument.
-        waveforms (list): A list of :class:`Waveforms` that represent the 
-            queued up waveforms in for a *'Simple'* sequence.  
-        program (:class:`SequenceProgram`): A :class:`SequenceProgram` object 
+        waveforms (list): A list of :class:`Waveforms` that represent the
+            queued up waveforms in for a *'Simple'* sequence.
+        program (:class:`SequenceProgram`): A :class:`SequenceProgram` object
             used to program predefined *'.seqC'* sequences on the device.
         name (str): The name of the `AWG Core`.
-        is_running (bool): A flag that shows if the `AWG Core` is currently 
+        is_running (bool): A flag that shows if the `AWG Core` is currently
             running or not.
-        sequence_params (dict): A dictionary of all the sequence parameters 
+        sequence_params (dict): A dictionary of all the sequence parameters
             currently set on the `SequenceProgram`.
 
     """
@@ -142,9 +142,9 @@ class AWGCore:
 
     def wait_done(self, timeout: float = 10) -> None:
         """Waits until the AWG Core is finished.
-        
+
         Keyword Arguments:
-            timeout (int): The maximum waiting time in seconds for the AWG Core. 
+            timeout (int): The maximum waiting time in seconds for the AWG Core.
                 (default: 10)
 
         """
@@ -157,7 +157,7 @@ class AWGCore:
 
     def compile(self) -> None:
         """Compiles the current SequenceProgram on the AWG Core.
-        
+
         Raises:
             ToolkitError: If the AWG Core has not been set up yet.
             ToolkitError: If the compilation has failed.
@@ -187,9 +187,11 @@ class AWGCore:
         if self._module.get_int("compiler/status") == 0:
             print("Compilation successful")
         tik = time.time()
-        while (self._module.get_double("progress") < 1.0) and (self._module.get_int("/elf/status") != 1):
+        while (self._module.get_double("progress") < 1.0) and (
+            self._module.get_int("/elf/status") != 1
+        ):
             time.sleep(0.1)
-            if time.time() - tik >= 100: # 100s timeout
+            if time.time() - tik >= 100:  # 100s timeout
                 raise ToolkitError("Program upload timed out!")
         status = self._module.get_int("/elf/status")
         print(
@@ -206,18 +208,18 @@ class AWGCore:
         wave2: Union[List, np.array],
         delay: float = 0,
     ) -> None:
-        """Adds a new waveform to the queue. 
-        
+        """Adds a new waveform to the queue.
+
         Arguments:
-            wave1 (array): The waveform to be queued for Channel 1 as a 1D numpy 
-                array. 
-            wave2 (array): The waveform to be queued for Channel 2 as a 1D numpy 
-                array. 
-        
+            wave1 (array): The waveform to be queued for Channel 1 as a 1D numpy
+                array.
+            wave2 (array): The waveform to be queued for Channel 2 as a 1D numpy
+                array.
+
         Keyword Arguments:
-            delay (int): An individual delay in seconds for this waveform w.r.t. 
+            delay (int): An individual delay in seconds for this waveform w.r.t.
                 the time origin of the sequence. (default: 0)
-        
+
         Raises:
             Exception: If the sequence is not of type *'Simple'*.
 
@@ -237,16 +239,16 @@ class AWGCore:
         delay: float = 0,
     ) -> None:
         """Replaces a waveform in the queue at a given index.
-        
+
         Arguments:
             wave1 (array): Waveform to replace current wave for Channel 1.
             wave2 (array): Waveform to replace current wave for Channel 2.
-        
+
         Keyword Arguments:
             i (int): The index of the waveform in the queue to be replaced.
-            delay (int): An individual delay in seconds for this waveform w.r.t. 
+            delay (int): An individual delay in seconds for this waveform w.r.t.
                 the time origin of the sequence. (default: 0)
-        
+
         Raises:
             ToolkitError: If the given index is out of range.
 
@@ -258,10 +260,10 @@ class AWGCore:
     def upload_waveforms(self) -> None:
         """Uploads all waveforms in the queue to the AWG Core.
 
-        This method only works as expected if the Sequence Program is in 
-        *'Simple'* mode and has been compiled beforehand. See 
+        This method only works as expected if the Sequence Program is in
+        *'Simple'* mode and has been compiled beforehand. See
         :func:`compile_and_upload_waveforms(...)`.
-        
+
         """
         waveform_data = [w.data for w in self._waveforms]
         nodes = [
@@ -275,9 +277,9 @@ class AWGCore:
     def compile_and_upload_waveforms(self) -> None:
         """Compiles the Sequence Program and uploads the queued waveforms.
 
-        Simply combines the two methods to make sure the sequence is compiled 
+        Simply combines the two methods to make sure the sequence is compiled
         before the waveform queue is uplaoded.
-        
+
         """
         self.compile()
         self.upload_waveforms()
@@ -285,12 +287,12 @@ class AWGCore:
     def set_sequence_params(self, **kwargs) -> None:
         """Sets the parameters of the Sequence Program.
 
-        Passes all the keyword arguments to the `set_param(...)` method of the 
-        Sequence Program. The available sequence parameters may vary between 
-        different sequences. For a list of all current sequence parameters see 
-        the property `sequence_params`. 
+        Passes all the keyword arguments to the `set_param(...)` method of the
+        Sequence Program. The available sequence parameters may vary between
+        different sequences. For a list of all current sequence parameters see
+        the property `sequence_params`.
 
-        They include *'sequence_type'*, *'period'*, *'repetitions'*, 
+        They include *'sequence_type'*, *'period'*, *'repetitions'*,
         *'trigger_mode'*, *'trigger_delay'*, ...
 
             >>> hdawg.awgs[0]
@@ -312,7 +314,7 @@ class AWGCore:
             >>>     repetitions=1e6,
             >>>     alignemnt="Start with Trigger"
             >>> )
-              
+
         """
         self._program.set_params(**kwargs)
         self._apply_sequence_settings(**kwargs)

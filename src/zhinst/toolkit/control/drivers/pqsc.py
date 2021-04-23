@@ -11,17 +11,17 @@ from zhinst.toolkit.interface import DeviceTypes
 
 class PQSC(BaseInstrument):
     """High-level driver for the Zurich Instruments PQSC.
-    
+
         >>> import zhinst.toolkit as tk
         >>> pqsc = tk.PQSC("pqsc", "dev1234")
         >>> pqsc.setup()
         >>> pqsc.connect_device()
         >>> pqsc.nodetree
         >>> ...
-    
+
     Arguments:
         name (str): Identifier for the PQSC.
-        serial (str): Serial number of the device, e.g. 'dev1234'. The serial 
+        serial (str): Serial number of the device, e.g. 'dev1234'. The serial
             number can be found on the back panel of the instrument.
         discovery: an instance of ziDiscovery
     """
