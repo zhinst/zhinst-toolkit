@@ -7,10 +7,23 @@ from zhinst.toolkit.control.node_tree import Parameter
 
 
 MAPPINGS = {
-    "bandwidthcontrol": {0: "manual", 1: "fixed", 2: "automatic",},
-    "save_fileformat": {0: "matlab", 1: "csv", 2: "zview", 3: "sxm", 4: "hdf5",},
+    "bandwidthcontrol": {
+        0: "manual",
+        1: "fixed",
+        2: "automatic",
+    },
+    "save_fileformat": {
+        0: "matlab",
+        1: "csv",
+        2: "zview",
+        3: "sxm",
+        4: "hdf5",
+    },
     "scan": {0: "sequential", 1: "binary", 2: "bidirectional", 3: "reverse"},
-    "xmapping": {0: "linear", 1: "logarithmic",},
+    "xmapping": {
+        0: "linear",
+        1: "logarithmic",
+    },
     "signal_sources": {
         "demod0": "/demods/0/sample",
         "demod1": "/demods/1/sample",
@@ -83,20 +96,20 @@ APPLICATIONS = {
 
 
 class SweeperModule:
-    """Implements a base Sweeper Module for Lock-In instruments. 
-    
-    The Sweeper Module allows for simple and efficient parameter sweeps while 
-    acquiring data streams from mutiple different signal sources. The  module 
-    supports well defined sweeps of various parameters as well as application 
-    specific measurement presets. For more information on how to use the Sweeper 
+    """Implements a base Sweeper Module for Lock-In instruments.
+
+    The Sweeper Module allows for simple and efficient parameter sweeps while
+    acquiring data streams from mutiple different signal sources. The  module
+    supports well defined sweeps of various parameters as well as application
+    specific measurement presets. For more information on how to use the Sweeper
     Module, have a look at the LabOne Programming Manual.
 
-    This base class is overwritten by device specific Sweeper Modules with 
-    additional signal sources and types. After setup, the nodetree of the module 
-    is retrieved from the API and added to the Sweeper object attributes as 
+    This base class is overwritten by device specific Sweeper Modules with
+    additional signal sources and types. After setup, the nodetree of the module
+    is retrieved from the API and added to the Sweeper object attributes as
     `zhinst-toolkit` :class:`Parameters`.
 
-    For a list of device parameters that support sweeping, use the 
+    For a list of device parameters that support sweeping, use the
     `sweep_parameter_list()` method.
 
         >>> mfli.sweeper.sweep_parameter_list()
@@ -110,7 +123,7 @@ class SweeperModule:
         'output0amp',
         'output0offset']
 
-    A typical measurement configuration for a simple frequency sweep would look 
+    A typical measurement configuration for a simple frequency sweep would look
     like this:
 
         >>> mfli.sweeper.start(1e3)
@@ -118,16 +131,16 @@ class SweeperModule:
         >>> mfli.sweeper.samplecount(100)
         >>> mfli.sweeper.sweep_parameter("frequency")
         set sweep parameter to 'frequency': 'oscs/0/freq'
-        
-    Similarly to the :class:`DAQModule`, signals can be listed with 
+
+    Similarly to the :class:`DAQModule`, signals can be listed with
     `signals_list()` and added to the measurement with `signals_add(...)`.
 
         >>> mf.sweeper.signals_list()
         ['auxin0', 'demod0', 'demod1', 'imp0']
         >>> signal = mfli.sweeper.signals_add("demod0")
-        
-    The sweep is performed and the measurement result for the acquired signal is 
-    added as an entry in the `results` dictionary of the Sweeper Module.  
+
+    The sweep is performed and the measurement result for the acquired signal is
+    added as an entry in the `results` dictionary of the Sweeper Module.
 
         >>> mfli.sweeper.measure()
         Subscribed to: '/dev3337/demods/0/sample'
@@ -142,11 +155,11 @@ class SweeperModule:
     :class:`zhinst.toolkit.control.drivers.base.sweeper.SweeperResult` below.
 
     Attributes:
-        signals (list): A list of node strings of signals that are added to the 
+        signals (list): A list of node strings of signals that are added to the
             measurement and will be subscribed to before data acquisition.
-        results (dict):  A dictionary with signal strings as keys and 
-            :class:`zhinst.toolkit.control.drivers.base.daq.SweeperResult` 
-            objects as values that hold all the data of the measurement result.  
+        results (dict):  A dictionary with signal strings as keys and
+            :class:`zhinst.toolkit.control.drivers.base.daq.SweeperResult`
+            objects as values that hold all the data of the measurement result.
 
     """
 
@@ -183,19 +196,19 @@ class SweeperModule:
 
     def signals_add(self, signal_source: str) -> str:
         """Adds a signal to the measurement.
-        
-        The according signal node path will be generated and added to the 
-        module's `signal` list attribute. The signal node will be subscribed to 
-        before measurement and the :class:`SweeperResult` for this signal will 
-        be added as an item in the `results` attribute after measurement. 
+
+        The according signal node path will be generated and added to the
+        module's `signal` list attribute. The signal node will be subscribed to
+        before measurement and the :class:`SweeperResult` for this signal will
+        be added as an item in the `results` attribute after measurement.
         Available signal sources can be listed using `signals_list()`.
-        
+
         Arguments:
-            signal_source (str): A keyword string that specifies the source of 
+            signal_source (str): A keyword string that specifies the source of
                 the signal, e.g. "demod1".
-        
+
         Returns:
-            The exact node string that will be subscribed to, can be used as a 
+            The exact node string that will be subscribed to, can be used as a
             key in the results dict to get the measurement result to this signal.
 
         """
@@ -210,9 +223,9 @@ class SweeperModule:
         self._signals = []
 
     def signals_list(self) -> List:
-        """Lists the keywords for available signals that can be added to the 
+        """Lists the keywords for available signals that can be added to the
         measurement.
-        
+
         Returns:
             A list of the available signals.
 
@@ -220,9 +233,9 @@ class SweeperModule:
         return list(self._signal_sources.keys())
 
     def sweep_parameter_list(self) -> List:
-        """Lists the keywords for available parameters that can be swept during 
+        """Lists the keywords for available parameters that can be swept during
         the measurement.
-        
+
         Returns:
             A list with keywords of the available sweep parameters.
 
@@ -230,13 +243,13 @@ class SweeperModule:
         return list(self._sweep_params.keys())
 
     def sweep_parameter(self, param: str) -> None:
-        """Sets the sweep parameter. 
-        
-        The parameter to sweep should be given by a keyword string. The 
+        """Sets the sweep parameter.
+
+        The parameter to sweep should be given by a keyword string. The
         available parameters can be listed with `sweep_parameter_list()`.
-        
+
         Arguments:
-            param (str): The string corresponding to the parameter to sweep 
+            param (str): The string corresponding to the parameter to sweep
                 during measurement.
 
         """
@@ -246,18 +259,18 @@ class SweeperModule:
 
     def measure(self, verbose: bool = True, timeout: bool = 20) -> None:
         """Performs the measurement.
-        
-        Starts a measurement and stores the result in `sweeper.results`. This 
-        method subscribes to all the paths previously added to 
-        `sweeper.signals`, then starts the measurement, waits until the 
+
+        Starts a measurement and stores the result in `sweeper.results`. This
+        method subscribes to all the paths previously added to
+        `sweeper.signals`, then starts the measurement, waits until the
         measurement is finished and eventually reads the result.
-        
+
         Keyword Arguments:
-            verbose (bool): A flag to enable or disable output on the console. 
+            verbose (bool): A flag to enable or disable output on the console.
                 (default: True)
-            timeout (int): The measurement will be stopped after timeout. The 
+            timeout (int): The measurement will be stopped after timeout. The
                 value is given in seconds. (default: 20)
-     
+
         """
         self._set("endless", 0)
         self._set("clearhistory", 1)
@@ -286,24 +299,24 @@ class SweeperModule:
 
     def application_list(self) -> List:
         """Lists the availbale application presets.
-        
+
         Returns:
             A list of keywprd strings with the available applications.
-        
+
         """
         return list(APPLICATIONS.keys())
 
     def application(self, application: str) -> None:
-        """Sets one of the available application presets. 
-        
+        """Sets one of the available application presets.
+
         The applications are defined in the global variable `APPLICATIONS`. They
-        include `parameter_sweep`, `noise_amplitude_sweep`, 
+        include `parameter_sweep`, `noise_amplitude_sweep`,
         `frequency_response_analyzer` and more.
-        
+
         Arguments:
-            application (str): The keyword for the application. See available 
+            application (str): The keyword for the application. See available
                 applications with `application_list()`.
-        
+
         """
         if application not in APPLICATIONS.keys():
             raise ToolkitError(
@@ -383,15 +396,15 @@ class SweeperModule:
 
 
 class SweeperResult:
-    """A wrapper class around the result of a :class:`SweeperModule` 
-    measurement. 
-    
-    Adds all the items of the dictionary returned from the API as attributes to 
-    the class, e.g. attributes like `value`, `grid`, etc. 
+    """A wrapper class around the result of a :class:`SweeperModule`
+    measurement.
+
+    Adds all the items of the dictionary returned from the API as attributes to
+    the class, e.g. attributes like `value`, `grid`, etc.
 
     Attributes:
-        attributes (list): A list of all the attributes that were returned from 
-            the API as a measurement result. 
+        attributes (list): A list of all the attributes that were returned from
+            the API as a measurement result.
 
     """
 

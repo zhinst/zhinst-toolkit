@@ -27,13 +27,15 @@ class Device:
     interface = "usb"
     device_type = DeviceTypes.HDAWG
 
+
 class DiscoveryMock:
     def find(self, serial):
         return serial.upper()
-    
+
     def get(self, serial):
-        assert(serial == serial.upper())
-        return { "deviceid": serial }
+        assert serial == serial.upper()
+        return {"deviceid": serial}
+
 
 def test_init_zi_connection():
     c = ZIConnection(Details())
@@ -77,6 +79,7 @@ def test_device_connection_connect():
         c.set("tests/test", 1)
     with pytest.raises(ToolkitConnectionError):
         c.get_nodetree("*")
+
 
 def test_device_normalized_serial():
     c = DeviceConnection(Device(), DiscoveryMock())

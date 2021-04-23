@@ -7,29 +7,29 @@ import numpy as np
 
 
 class Waveform(object):
-    """Implements a waveform for two channels. 
-    
-    The 'data' attribute holds the waveform samples with the proper scaling, 
-    granularity and minimal length. The 'data' attribute holds the actual 
-    waveform array that can be sent to the instrument. 
+    """Implements a waveform for two channels.
+
+    The 'data' attribute holds the waveform samples with the proper scaling,
+    granularity and minimal length. The 'data' attribute holds the actual
+    waveform array that can be sent to the instrument.
 
     Arguments:
-        wave1 (array): list or numpy array for the waveform on channel 1, will 
+        wave1 (array): list or numpy array for the waveform on channel 1, will
             be scaled to have a maximum amplitude of 1
-        wave2 (array): list or numpy array for the waveform on channel 2, will 
+        wave2 (array): list or numpy array for the waveform on channel 2, will
             be scaled to have a maximum amplitude of 1
-        delay (float): individual waveform delay in seconds with respect to the 
-            time origin of the sequence, a positive value shifts the start of 
+        delay (float): individual waveform delay in seconds with respect to the
+            time origin of the sequence, a positive value shifts the start of
             the waveform forward in time (default: 0)
-        granularity (int): granularity that the number of samples are aligned 
+        granularity (int): granularity that the number of samples are aligned
             to (default: 16)
-        align_start (bool): the waveform will be padded with zeros to match the 
+        align_start (bool): the waveform will be padded with zeros to match the
             granularity, either before or after the samples (default: True)
 
     Properties:
-        data (array): interleaved and normalized waveform data of the two 
+        data (array): interleaved and normalized waveform data of the two
             channels to be uplaoded to the AWG
-        delay (double): delay in seconds of the individual waveform w.r.t. the 
+        delay (double): delay in seconds of the individual waveform w.r.t. the
             sequence time origin
         buffer_length (int): number of samples for the seuqence c buffer wave
 
@@ -72,10 +72,10 @@ class Waveform(object):
         self._data = self._interleave_waveforms(self._waves[0], self._waves[1])
 
     def _interleave_waveforms(self, x1, x2):
-        """Interleaves the waveforms of both channels and adjusts the scaling. 
-        
+        """Interleaves the waveforms of both channels and adjusts the scaling.
+
         The data is actually sent as values in the range of +/- (2^15 - 1).
-        
+
         """
         if len(x1) == 0:
             x1 = np.zeros(1)
