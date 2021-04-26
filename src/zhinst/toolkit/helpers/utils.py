@@ -50,7 +50,9 @@ class TriggerMode(Enum):
 
     NONE = None
     SEND_TRIGGER = "Send Trigger"
-    EXTERNAL_TRIGGER = "External Trigger"
+    EXTERNAL_TRIGGER = "External Trigger"  # deprecated
+    RECEIVE_TRIGGER = "Receive Trigger"
+    SEND_AND_RECEIVE_TRIGGER = "Send and Receive Trigger"
 
 
 class Alignment(Enum):
