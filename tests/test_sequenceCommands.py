@@ -7,7 +7,7 @@ import pytest
 from hypothesis import given, assume, strategies as st
 import numpy as np
 
-from .context import SequenceCommand
+from .context import SequenceCommand, DeviceTypes
 
 
 @given(t=st.integers(0, 3))
@@ -90,13 +90,25 @@ def test_play_wave_indexed_scaled(i, amp):
         assert str(amp) in SequenceCommand.play_wave_indexed_scaled(amp, amp, i)
 
 
-@given(l=st.integers(-10, 100), i=st.integers(-1, 10))
-def test_init_buffer_indexed(l, i):
-    if i < 0 or l % 16 or l < 16:
+@given(
+    l=st.integers(-10, 100),
+    i=st.integers(-1, 10),
+    target=st.sampled_from(
+        [getattr(DeviceTypes, x) for x in ["HDAWG", "UHFQA", "UHFLI"]]
+    ),
+)
+def test_init_buffer_indexed(l, i, target):
+    if i < 0:
         with pytest.raises(ValueError):
-            SequenceCommand.init_buffer_indexed(l, i)
+            SequenceCommand.init_buffer_indexed(l, i, target)
+    elif target in [DeviceTypes.HDAWG] and (l % 16 or l < 32):
+        with pytest.raises(ValueError):
+            SequenceCommand.init_buffer_indexed(l, i, target)
+    elif target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI] and (l % 8 or l < 16):
+        with pytest.raises(ValueError):
+            SequenceCommand.init_buffer_indexed(l, i, target)
     else:
-        line = SequenceCommand.init_buffer_indexed(l, i)
+        line = SequenceCommand.init_buffer_indexed(l, i, target)
         assert str(i + 1) in line
         assert str(l) in line
 
