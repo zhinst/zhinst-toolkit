@@ -54,12 +54,14 @@ class SequenceProgramMachine(RuleBasedStateMachine):
         else:
             assert self.sequenceProgram.sequence_type.value == types[t]
 
-    @rule(t=st.integers(0, 2))
+    @rule(t=st.integers(0, 4))
     def change_trigger_by_enum(self, t):
         types = {
             0: TriggerMode.NONE,
             1: TriggerMode.SEND_TRIGGER,
             2: TriggerMode.EXTERNAL_TRIGGER,
+            3: TriggerMode.RECEIVE_TRIGGER,
+            4: TriggerMode.SEND_AND_RECEIVE_TRIGGER,
         }
         self.sequenceProgram.set_params(trigger_mode=types[t])
         params = self.sequenceProgram.list_params()
@@ -67,13 +69,15 @@ class SequenceProgramMachine(RuleBasedStateMachine):
             params = params["sequence_parameters"]
             assert params["trigger_mode"] == types[t]
 
-    @rule(t=st.integers(-1, 2))
+    @rule(t=st.integers(-1, 4))
     def change_trigger_by_string(self, t):
         types = {
             -1: "None",
             0: None,
             1: "Send Trigger",
             2: "External Trigger",
+            3: "Receive Trigger",
+            4: "Send and Receive Trigger",
         }
         self.sequenceProgram.set_params(trigger_mode=types[t])
         params = self.sequenceProgram.list_params()
