@@ -170,7 +170,7 @@ class Sequence(object):
 class SimpleSequence(Sequence):
     """Sequence for *simple* playback of waveform arrays.
 
-    Initializes placeholders (`randomUniform(...)`) of the correct length for
+    Initializes placeholders (`placeholder(...)`) of the correct length for
     the waveforms in the queue of the AWG Core. The data of the waveform
     placeholders is then replaced in memory when uploading the waveform using
     `upload_waveforms()`. The waveforms are played sequentially within the main
@@ -197,8 +197,9 @@ class SimpleSequence(Sequence):
     def write_sequence(self):
         self.sequence = SequenceCommand.header_comment(sequence_type="Simple")
         for i in range(self.n_HW_loop):
+            # Loop over the waveforms and initialize placeholders
             self.sequence += SequenceCommand.init_buffer_indexed(
-                self.buffer_lengths[i], i
+                self.buffer_lengths[i], i, self.target
             )
         self.sequence += SequenceCommand.trigger(0)
         self.sequence += SequenceCommand.repeat(self.repetitions)
