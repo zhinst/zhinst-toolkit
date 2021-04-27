@@ -35,5 +35,5 @@ jobs:
 
       - name: "Run pytest targets for ${{ matrix.python-version }}"
         run: |
-          pytest --cov=. .
+          pytest --cov=zhinst.toolkit tests/
           codecov
