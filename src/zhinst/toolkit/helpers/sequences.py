@@ -152,6 +152,12 @@ class Sequence(object):
     dead_cycles = attr.ib(
         default=1500, validator=is_greater_equal(0)
     )  # 5 us by default
+    wait_samples = attr.ib(
+        default=228000, validator=is_greater_equal(0)
+    )  # 95 us by default (Assuming HDAWG)
+    dead_samples = attr.ib(
+        default=12000, validator=is_greater_equal(0)
+    )  # 5 us by default (Assuming HDAWG)
     reset_phase = attr.ib(default=False)
 
     def set(self, **settings):
@@ -184,6 +190,12 @@ class Sequence(object):
 
     def update_params(self):
         """Update interrelated parameters."""
+        # Convert wait_time to number of samples
+        self.wait_samples = self.time_to_samples(
+            self.period - self.dead_time + self.trigger_delay
+        )
+        # Convert dead_time to number of samples
+        self.dead_samples = self.time_to_samples(self.dead_time - self.trigger_delay)
         # Set the correct clock rate and trigger latency compensation
         # depending on the device type
         if self.target in [DeviceTypes.HDAWG]:
