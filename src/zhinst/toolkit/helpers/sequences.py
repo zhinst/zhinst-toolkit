@@ -103,6 +103,14 @@ class Sequence(object):
         latency (double): The `latency` is a time in seconds that compensated
             for different trigger latencies of different instruments. It works
             as a constant `trigger_delay`.
+        latency_adjustment (int): In order to compensate for different trigger
+            latencies of different instrument types, it is necessary for some
+            instruments to wait for certain number of sequencer cycles after
+            receiving the trigger. This way, it is possible to align the
+            waveforms sent out from different instruments. The attribute
+            `latency_adjustment` is an additional latency given as number of
+            sequencer cycles that is used to increase the time an instrument
+            waits after receiving the trigger signal. (default: 0)
         reset_phase (bool): A flag that specifies if the phase of the modulation
             oscillator should be reset to 0 for every repetition of the
             experiment before the waveform is played. This value only applies
@@ -134,6 +142,8 @@ class Sequence(object):
     dead_time = attr.ib(default=5e-6, validator=is_greater_equal(0))
     trigger_delay = attr.ib(default=0)
     latency = attr.ib(default=160e-9, validator=is_greater_equal(0))
+    latency_cycles = attr.ib(default=27, validator=is_greater_equal(0))
+    latency_adjustment = attr.ib(default=0, validator=is_greater_equal(0))
     trigger_cmd_1 = attr.ib(default="//")
     trigger_cmd_2 = attr.ib(default="//")
     wait_cycles = attr.ib(
@@ -165,11 +175,16 @@ class Sequence(object):
 
     def update_params(self):
         """Update interrelated parameters."""
-        # Set the correct clock rate depending on the device type
+        # Set the correct clock rate and trigger latency compensation
+        # depending on the device type
         if self.target in [DeviceTypes.HDAWG]:
             self.clock_rate = 2.4e9
+            # Default trigger latency compensation for HDAWG = 27 cycles
+            self.latency_cycles = 27 + self.latency_adjustment
         elif self.target in [DeviceTypes.UHFLI, DeviceTypes.UHFQA]:
             self.clock_rate = 1.8e9
+            # Default trigger latency compensation for UHFQA = 0 cycles
+            self.latency_cycles = 0 + self.latency_adjustment
         # Set the trigger commands depending on the trigger mode
         if self.trigger_mode == TriggerMode.NONE:
             self.trigger_cmd_1 = SequenceCommand.comment_line()
