@@ -84,6 +84,8 @@ class Sequence(object):
             signal to send out the triger signal (*'Send and Receive Triger'* or
             :class:`TriggerMode.SEND_AND_RECEIVE_TRIGGER`). (default:
             :class:`TriggerMode.NONE`)
+        trigger_samples (int): The duration of the trigger signal sent out by
+            the AWG Core. It is given in number of samples. (default: 32)
         repetitions (int): The number of repetitions of the experiment.
         alignment (str): The alignment of the played waveform with the trigger
             signal, i.e. if the waveform should start with the trigger (or the
@@ -119,6 +121,10 @@ class Sequence(object):
     trigger_mode = attr.ib(
         default=TriggerMode.SEND_TRIGGER,
         converter=lambda m: TriggerMode.NONE if m == "None" else TriggerMode(m),
+    )
+    trigger_samples = attr.ib(
+        default=32,
+        validator=[is_greater_equal(32), is_multiple(16)],
     )
     repetitions = attr.ib(default=1)
     alignment = attr.ib(
