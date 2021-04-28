@@ -239,12 +239,25 @@ class SequenceCommand(object):
         return "\n}"
 
     @staticmethod
-    def wait_dig_trigger(index=0):
-        if index not in [0, 1, 2]:
+    def wait_dig_trigger(index=1, target=DeviceTypes.HDAWG):
+        """Insert waitDigTrigger(...) command to the sequencer.
+
+        The arguments of waitDigTrigger(...) function are different
+        for HDAWG and UHFQA/UHFLI.
+
+        Arguments:
+            index (int): index of the digital trigger input;
+                can be either 1 or 2. (default: 1)
+            target (str): type of the target device which
+                determines the arguments to pass to the
+                function. (default: DeviceTypes.HDAWG)
+        """
+
+        if index not in [1, 2]:
             raise ValueError("Invalid Trigger Index!")
-        if index == 0:
-            return "waitDigTrigger(1);\n"
-        else:
+        if target in [DeviceTypes.HDAWG]:
+            return f"waitDigTrigger({index});\n"
+        elif target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
             return f"waitDigTrigger({index}, 1);\n"
 
     @staticmethod

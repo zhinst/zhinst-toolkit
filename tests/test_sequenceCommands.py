@@ -174,10 +174,15 @@ def test_init_gauss_scaled(amp, l, p, w):
         assert str(amp) in line
 
 
-@given(i=st.integers(-1, 5))
-def test_wait_trigger(i):
-    if i not in [0, 1, 2]:
+@given(
+    i=st.integers(-1, 5),
+    target=st.sampled_from(
+        [getattr(DeviceTypes, x) for x in ["HDAWG", "UHFQA", "UHFLI"]]
+    ),
+)
+def test_wait_dig_trigger(i, target):
+    if i not in [1, 2]:
         with pytest.raises(ValueError):
-            SequenceCommand.wait_dig_trigger(i)
+            SequenceCommand.wait_dig_trigger(i, target)
     else:
-        SequenceCommand.wait_dig_trigger(i)
+        SequenceCommand.wait_dig_trigger(i, target)
