@@ -134,6 +134,16 @@ class SequenceProgramMachine(RuleBasedStateMachine):
             params = self.sequenceProgram.list_params()
             assert params["sequence_parameters"]["trigger_samples"] == i
 
+    @rule(i=st.integers(-10, 100))
+    def change_latency_adjustment(self, i):
+        if i < 0:
+            with pytest.raises(ValueError):
+                self.sequenceProgram.set_params(latency_adjustment=i)
+        else:
+            self.sequenceProgram.set_params(latency_adjustment=i)
+            params = self.sequenceProgram.list_params()
+            assert params["sequence_parameters"]["latency_adjustment"] == i
+
     # @rule(l=st.integers(1, 1000), t=st.floats(100e-9, 10e-6))
     # def change_delays(self, l, t):
     #     test_array = np.linspace(0, t, l)
