@@ -122,6 +122,18 @@ class SequenceProgramMachine(RuleBasedStateMachine):
         else:
             assert "pulse_amplitudes" not in params["sequence_parameters"].keys()
 
+    @rule(i=st.integers(-10, 1000))
+    def change_trigger_samples(self, i):
+        granularity = 16
+        minimum_length = 32
+        if i % granularity != 0 or i < minimum_length:
+            with pytest.raises(ValueError):
+                self.sequenceProgram.set_params(trigger_samples=i)
+        else:
+            self.sequenceProgram.set_params(trigger_samples=i)
+            params = self.sequenceProgram.list_params()
+            assert params["sequence_parameters"]["trigger_samples"] == i
+
     # @rule(l=st.integers(1, 1000), t=st.floats(100e-9, 10e-6))
     # def change_delays(self, l, t):
     #     test_array = np.linspace(0, t, l)
