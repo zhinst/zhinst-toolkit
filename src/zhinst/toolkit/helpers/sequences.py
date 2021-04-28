@@ -128,9 +128,7 @@ class Sequence(object):
             TriggerMode.EXTERNAL_TRIGGER,
             TriggerMode.RECEIVE_TRIGGER,
         ]:
-            self.trigger_cmd_1 = SequenceCommand.wait_dig_trigger(
-                index=int(self.target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI])
-            )
+            self.trigger_cmd_1 = SequenceCommand.wait_dig_trigger(1, self.target)
             self.trigger_cmd_2 = SequenceCommand.comment_line()
             self.dead_cycles = 0
 
