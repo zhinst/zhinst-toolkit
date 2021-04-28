@@ -15,14 +15,59 @@ from zhinst.toolkit.interface import DeviceTypes
 from zhinst.toolkit._version import version as __version__
 
 
-def is_positive(self, attribute, value):
-    if value < 0:
-        raise ValueError("Must be positive!")
+def is_greater_equal(min_value):
+    """Check if the attribute value is greater than or equal to a minimum value.
+
+    This validator can handle both lists and single element attributes. If it
+    is a list, it checks if the element with the smallest value is greater than
+    or equal to the specified minimum value.
+    """
+
+    def compare(self, attribute, value):
+        if type(value) is not list:
+            value = [value]
+        if np.min(value) < min_value:
+            raise ValueError(f"{attribute.name} cannot be smaller than {min_value}!")
+
+    return compare
 
 
-def amp_smaller_1(self, attribute, value):
-    if np.max(np.abs(value)) > 1.0:
-        raise ValueError("Amplitude cannot be larger than 1.0!")
+def is_smaller_equal(max_value):
+    """Check if the attribute value is smaller than or equal to a maximum value.
+
+    This validator can handle both lists and single element attributes. If it
+    is a list, it checks if the element with the greatest value is smaller than
+    or equal to the specified maximum value.
+    """
+
+    def compare(self, attribute, value):
+        if type(value) is not list:
+            value = [value]
+        if np.max(value) > max_value:
+            raise ValueError(f"{attribute.name} cannot be greater than {max_value}!")
+
+    return compare
+
+
+def is_multiple(factor):
+    """Check if the attribute value is multiple of a certain factor.
+
+    This validator is the most useful for checking if an attribute related
+    to waveform length comply with the waveform granularity specification of
+    an instrument.
+
+    The validator can handle both lists and single element attributes. If it
+    is a list, it checks if each element is multiple of the given factor.
+    """
+
+    def compare(self, attribute, value):
+        if type(value) is not list:
+            value = [value]
+        for i in value:
+            if i % factor != 0:
+                raise ValueError(f"{attribute.name} must be multiple of {factor}!")
+
+    return compare
 
 
 @attr.s
@@ -69,8 +114,8 @@ class Sequence(object):
             [DeviceTypes.HDAWG, DeviceTypes.UHFQA, DeviceTypes.UHFLI]
         ),
     )
-    clock_rate = attr.ib(default=2.4e9, validator=is_positive)
-    period = attr.ib(default=100e-6, validator=is_positive)
+    clock_rate = attr.ib(default=2.4e9, validator=is_greater_equal(0))
+    period = attr.ib(default=100e-6, validator=is_greater_equal(0))
     trigger_mode = attr.ib(
         default=TriggerMode.SEND_TRIGGER,
         converter=lambda m: TriggerMode.NONE if m == "None" else TriggerMode(m),
@@ -79,14 +124,18 @@ class Sequence(object):
     alignment = attr.ib(
         default=Alignment.END_WITH_TRIGGER, converter=lambda a: Alignment(a)
     )
-    n_HW_loop = attr.ib(default=1, converter=int, validator=is_positive)
-    dead_time = attr.ib(default=5e-6, validator=is_positive)
+    n_HW_loop = attr.ib(default=1, converter=int, validator=is_greater_equal(0))
+    dead_time = attr.ib(default=5e-6, validator=is_greater_equal(0))
     trigger_delay = attr.ib(default=0)
-    latency = attr.ib(default=160e-9, validator=is_positive)
+    latency = attr.ib(default=160e-9, validator=is_greater_equal(0))
     trigger_cmd_1 = attr.ib(default="//")
     trigger_cmd_2 = attr.ib(default="//")
-    wait_cycles = attr.ib(default=0)
-    dead_cycles = attr.ib(default=1500)  # 5 us by default
+    wait_cycles = attr.ib(
+        default=28500, validator=is_greater_equal(0)
+    )  # 95 us by default
+    dead_cycles = attr.ib(
+        default=1500, validator=is_greater_equal(0)
+    )  # 5 us by default
     reset_phase = attr.ib(default=False)
 
     def set(self, **settings):
@@ -348,9 +397,12 @@ class RabiSequence(Sequence):
 
     """
 
-    pulse_amplitudes = attr.ib(default=[1.0], validator=amp_smaller_1)
-    pulse_width = attr.ib(default=50e-9, validator=is_positive)
-    pulse_truncation = attr.ib(default=3, validator=is_positive)
+    pulse_amplitudes = attr.ib(
+        default=[1.0],
+        validator=[is_greater_equal(-1.0), is_smaller_equal(1.0)],
+    )
+    pulse_width = attr.ib(default=50e-9, validator=is_greater_equal(0))
+    pulse_truncation = attr.ib(default=3, validator=is_greater_equal(0))
 
     def write_sequence(self):
         self.sequence = SequenceCommand.header_comment(sequence_type="Rabi")
@@ -437,9 +489,12 @@ class T1Sequence(Sequence):
 
     """
 
-    pulse_amplitude = attr.ib(default=1, validator=amp_smaller_1)
-    pulse_width = attr.ib(default=50e-9, validator=is_positive)
-    pulse_truncation = attr.ib(default=3, validator=is_positive)
+    pulse_amplitude = attr.ib(
+        default=1,
+        validator=[is_greater_equal(-1.0), is_smaller_equal(1.0)],
+    )
+    pulse_width = attr.ib(default=50e-9, validator=is_greater_equal(0))
+    pulse_truncation = attr.ib(default=3, validator=is_greater_equal(0))
     delay_times = attr.ib(default=[1e-6])
 
     def write_sequence(self):
@@ -609,7 +664,7 @@ class ReadoutSequence(Sequence):
 
     """
 
-    readout_length = attr.ib(default=2e-6, validator=is_positive)
+    readout_length = attr.ib(default=2e-6, validator=is_greater_equal(0))
     readout_amplitudes = attr.ib(default=[1])
     readout_frequencies = attr.ib(default=[100e6])
     phase_shifts = attr.ib(default=[0])
@@ -697,7 +752,7 @@ class PulsedSpectroscopySequence(Sequence):
 
     """
 
-    pulse_length = attr.ib(default=2e-6, validator=is_positive)
+    pulse_length = attr.ib(default=2e-6, validator=is_greater_equal(0))
     pulse_amplitude = attr.ib(default=1)
 
     def write_sequence(self):
