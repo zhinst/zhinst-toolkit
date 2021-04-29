@@ -27,6 +27,19 @@ def test_header_info(trigger_mode, alignment):
     assert str(alignment.value) in line
 
 
+@given(
+    sequence_type=st.sampled_from(SequenceType),
+    trigger_mode=st.sampled_from(TriggerMode),
+    alignment=st.sampled_from(Alignment),
+)
+def test_replace_sequence_type(sequence_type, trigger_mode, alignment):
+    default_header = SequenceCommand.header_info(
+        SequenceType.NONE, trigger_mode, alignment
+    )
+    line = SequenceCommand.replace_sequence_type(default_header, sequence_type)
+    assert str(sequence_type.value) in line
+
+
 @given(i=st.integers(-1000, -1))
 def test_repeat_negative(i):
     with pytest.raises(ValueError):

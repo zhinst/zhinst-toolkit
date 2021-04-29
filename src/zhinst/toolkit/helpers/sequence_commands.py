@@ -4,6 +4,7 @@
 # of the MIT license. See the LICENSE file for details.
 
 from datetime import datetime
+import re
 import numpy as np
 import deprecation
 
@@ -50,6 +51,28 @@ class SequenceCommand(object):
             f"// alignment:                  {alignment.value}\n"
             f"// automatically generated:    {now_string}\n\n"
         )
+
+    @staticmethod
+    def replace_sequence_type(sequence, sequence_type):
+        """Replace the sequence type in the header information of the sequencer
+        program.
+
+        The header information is initiated in the parent class with the
+        default sequence type `None`. This default value should be replaced in
+        the child class with the correct sequence type.
+
+        Arguments:
+            sequence (str): sequencer program that contains the initial header
+            sequence_type (:class:`SequenceType` enum): correct sequence type
+
+        """
+        sequence_updated = re.sub(
+            "// sequence type:              .*?\n",
+            f"// sequence type:              {sequence_type.value}\n",
+            sequence,
+            flags=re.DOTALL,
+        )
+        return sequence_updated
 
     @staticmethod
     def repeat(i):
