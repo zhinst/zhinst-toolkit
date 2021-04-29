@@ -146,6 +146,10 @@ class Sequence(object):
     latency_adjustment = attr.ib(default=0, validator=is_greater_equal(0))
     trigger_cmd_1 = attr.ib(default="//")
     trigger_cmd_2 = attr.ib(default="//")
+    trigger_cmd_define = attr.ib(default="//\n")
+    trigger_cmd_send = attr.ib(default="//\n")
+    trigger_cmd_wait = attr.ib(default="//\n")
+    trigger_cmd_latency = attr.ib(default="//\n")
     wait_cycles = attr.ib(
         default=28500, validator=is_greater_equal(0)
     )  # 95 us by default
@@ -206,15 +210,67 @@ class Sequence(object):
             self.clock_rate = 1.8e9
             # Default trigger latency compensation for UHFQA = 0 cycles
             self.latency_cycles = 0 + self.latency_adjustment
+        # Set the trigger latency command depending on the `latency_cycles`
+        if self.latency_cycles == 0:
+            self.trigger_cmd_latency = SequenceCommand.comment_line()
+        else:
+            # strip '\n' at the end and add an inline comment
+            self.trigger_cmd_latency = (
+                SequenceCommand.wait(self.latency_cycles).rstrip()
+                + SequenceCommand.space()
+                + SequenceCommand.inline_comment(
+                    f"Wait to compensate for trigger latency"
+                )
+            )
         # Set the trigger commands depending on the trigger mode
         if self.trigger_mode == TriggerMode.NONE:
             self.trigger_cmd_1 = SequenceCommand.comment_line()
             self.trigger_cmd_2 = SequenceCommand.comment_line()
             self.dead_cycles = self.time_to_cycles(self.dead_time)
+            self.trigger_cmd_define = SequenceCommand.comment_line()
+            self.trigger_cmd_send = SequenceCommand.comment_line()
+            self.trigger_cmd_wait = SequenceCommand.comment_line()
+            # No trigger latency compensation in TriggerMode.NONE
+            self.trigger_cmd_latency = SequenceCommand.comment_line()
+        elif self.trigger_mode == TriggerMode.SEND_AND_RECEIVE_TRIGGER:
+            # Define a waveform to send out as trigger
+            self.trigger_cmd_define = SequenceCommand.define_trigger(
+                self.trigger_samples
+            )
+            # Wait for an external clock to send out the trigger signal
+            # strip '\n' at the end and add an inline comment
+            self.trigger_cmd_send = (
+                SequenceCommand.wait_dig_trigger(2, self.target).rstrip()
+                + SequenceCommand.space()
+                + SequenceCommand.inline_comment("Wait for external clock")
+                + SequenceCommand.play_trigger()
+            )
+            # Wait for self triggering
+            # strip '\n' at the end and add an inline comment
+            self.trigger_cmd_wait = (
+                SequenceCommand.wait_dig_trigger(1, self.target).rstrip()
+                + SequenceCommand.space()
+                + SequenceCommand.inline_comment("Wait for self trigger")
+            )
         elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
             self.trigger_cmd_1 = SequenceCommand.trigger(1)
             self.trigger_cmd_2 = SequenceCommand.trigger(0)
             self.dead_cycles = self.time_to_cycles(self.dead_time)
+            # Define a waveform to send out as trigger
+            self.trigger_cmd_define = SequenceCommand.define_trigger(
+                self.trigger_samples
+            )
+            # Send out the trigger signal
+            self.trigger_cmd_send = (
+                SequenceCommand.comment_line() + SequenceCommand.play_trigger()
+            )
+            # Wait for self triggering
+            # strip '\n' at the end and add an inline comment
+            self.trigger_cmd_wait = (
+                SequenceCommand.wait_dig_trigger(1, self.target).rstrip()
+                + SequenceCommand.space()
+                + SequenceCommand.inline_comment("Wait for self trigger")
+            )
         elif self.trigger_mode in [
             TriggerMode.EXTERNAL_TRIGGER,
             TriggerMode.RECEIVE_TRIGGER,
@@ -222,6 +278,12 @@ class Sequence(object):
             self.trigger_cmd_1 = SequenceCommand.wait_dig_trigger(1, self.target)
             self.trigger_cmd_2 = SequenceCommand.comment_line()
             self.dead_cycles = 0
+            self.trigger_cmd_define = SequenceCommand.comment_line()
+            self.trigger_cmd_send = (
+                SequenceCommand.comment_line() + SequenceCommand.comment_line()
+            )
+            # Wait for external trigger
+            self.trigger_cmd_wait = SequenceCommand.wait_dig_trigger(1, self.target)
 
     @deprecation.deprecated(
         deprecated_in="0.2.0",
