@@ -7,7 +7,7 @@ import pytest
 from hypothesis import given, assume, strategies as st
 import numpy as np
 
-from .context import SequenceCommand, DeviceTypes
+from .context import SequenceCommand, DeviceTypes, SequenceType, TriggerMode, Alignment
 
 
 @given(t=st.integers(0, 3))
@@ -15,6 +15,16 @@ def test_header_comment(t):
     types = ["None", "Simple", "T1", "T2", "T2*"]
     type = types[t]
     assert type in SequenceCommand.header_comment(type)
+
+
+@given(
+    trigger_mode=st.sampled_from(TriggerMode),
+    alignment=st.sampled_from(Alignment),
+)
+def test_header_info(trigger_mode, alignment):
+    line = SequenceCommand.header_info(SequenceType.NONE, trigger_mode, alignment)
+    assert str(trigger_mode.value) in line
+    assert str(alignment.value) in line
 
 
 @given(i=st.integers(-1000, -1))
@@ -28,6 +38,22 @@ def test_repeat_positive(i):
     assert str(i) in SequenceCommand.repeat(i)
 
 
+def test_space():
+    line = SequenceCommand.space()
+    assert " " in line
+
+
+def test_tab():
+    line = SequenceCommand.tab()
+    assert "\t" in line
+
+
+@given(comment=st.text(min_size=1, max_size=100))
+def test_inline_comment(comment):
+    line = SequenceCommand.inline_comment(comment)
+    assert str(comment) in line
+
+
 @given(i=st.integers(-1000, -1))
 def test_wait_negative(i):
     with pytest.raises(ValueError):
@@ -37,7 +63,7 @@ def test_wait_negative(i):
 @given(i=st.integers(0, 1000))
 def test_wait_positive(i):
     if i == 0:
-        assert SequenceCommand.wait(i) == ""
+        assert SequenceCommand.wait(i) == "//\n"
     else:
         assert str(i) in SequenceCommand.wait(i)
 
@@ -91,6 +117,17 @@ def test_count_waveform(i, n):
     line = SequenceCommand.count_waveform(i, n)
     assert str(i + 1) in line
     assert str(n) in line
+
+
+@given(i=st.integers(-10, 1000))
+def test_assign_wave_index(i):
+    if i < 0:
+        with pytest.raises(ValueError):
+            SequenceCommand.assign_wave_index(i)
+    else:
+        line = SequenceCommand.assign_wave_index(i)
+        assert f"w{i + 1}" in line
+        assert str(i) in line
 
 
 @given(amp1=st.floats(-1, 1), amp2=st.floats(-1, 1))
@@ -174,6 +211,11 @@ def test_init_gauss_scaled(amp, l, p, w):
         assert str(amp) in line
 
 
+def test_close_bracket():
+    line = SequenceCommand.close_bracket()
+    assert "}" in line
+
+
 @given(
     i=st.integers(-1, 5),
     target=st.sampled_from(
@@ -186,3 +228,9 @@ def test_wait_dig_trigger(i, target):
             SequenceCommand.wait_dig_trigger(i, target)
     else:
         SequenceCommand.wait_dig_trigger(i, target)
+
+
+def test_readout_trigger():
+    line = SequenceCommand.readout_trigger()
+    assert "startQA" in line
+    assert "QA_INT_0 | QA_INT_1" in line

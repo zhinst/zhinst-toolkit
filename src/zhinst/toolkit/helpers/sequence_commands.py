@@ -15,6 +15,11 @@ class SequenceCommand(object):
     """A collection of sequence commands used for an AWG program."""
 
     @staticmethod
+    @deprecation.deprecated(
+        deprecated_in="0.2.0",
+        current_version=__version__,
+        details="Use the header_info function instead",
+    )
     def header_comment(sequence_type="None"):
         now = datetime.now()
         now_string = now.strftime("%d/%m/%Y @%H:%M")
@@ -25,27 +30,72 @@ class SequenceCommand(object):
         )
 
     @staticmethod
+    def header_info(sequence_type, trigger_mode, alignment):
+        """Insert header information to the sequencer program.
+
+        This function is used to display the sequence type, trigger mode and alignment
+        information at the top of the sequencer program.
+
+        Arguments:
+            sequence_type (:class:`SequenceType` enum)
+            trigger_mode (:class:`TriggerMode` enum)
+            alignment (:class:`Alignment` enum)
+        """
+        now = datetime.now()
+        now_string = now.strftime("%d/%m/%Y @%H:%M")
+        return (
+            f"// Zurich Instruments sequencer program\n"
+            f"// sequence type:              {sequence_type.value}\n"
+            f"// trigger mode:               {trigger_mode.value}\n"
+            f"// alignment:                  {alignment.value}\n"
+            f"// automatically generated:    {now_string}\n\n"
+        )
+
+    @staticmethod
     def repeat(i):
         if i == "inf":
-            return f"\nwhile(true){{\n\n"
+            return f"while(true){{\n"
         if i < 0:
             raise ValueError("Invalid number of repetitions!")
-        return f"\nrepeat({int(i)}){{\n\n"
+        return f"repeat({int(i)}){{\n"
 
     @staticmethod
     def new_line():
         return "\n"
 
     @staticmethod
+    def space():
+        return " "
+
+    @staticmethod
+    def tab():
+        return "\t"
+
+    @staticmethod
     def comment_line():
         return "//\n"
 
     @staticmethod
+    def inline_comment(comment):
+        """Insert inline comment to the sequence.
+
+        Arguments:
+            comment (str): inline comment to be added
+        """
+        return f"// {comment}\n"
+
+    @staticmethod
     def wait(i):
+        """Inserts wait(...) command to the sequencer.
+
+        Arguments:
+            i (int): number of sequencer cycles to wait for
+
+        """
         if i < 0:
             raise ValueError("Wait time cannot be negative!")
         if i == 0:
-            return ""
+            return "//\n"
         else:
             return f"wait({int(i)});\n"
 
@@ -113,6 +163,18 @@ class SequenceCommand(object):
     @staticmethod
     def count_waveform(i, n):
         return f"// waveform {i+1} / {n}\n"
+
+    @staticmethod
+    def assign_wave_index(i):
+        """Assign an index to the labeled waveforms.
+
+        Arguments:
+            i (int): index to be assigned for the labeled waveforms.
+
+        """
+        if i < 0:
+            raise ValueError("Waveform Index cannot be negative!")
+        return f"assignWaveIndex(w{i + 1}_1, w{i + 1}_2, {i});\n"
 
     @staticmethod
     def play_wave():
@@ -236,7 +298,7 @@ class SequenceCommand(object):
 
     @staticmethod
     def close_bracket():
-        return "\n}"
+        return "}"
 
     @staticmethod
     def wait_dig_trigger(index=1, target=DeviceTypes.HDAWG):
@@ -262,7 +324,12 @@ class SequenceCommand(object):
 
     @staticmethod
     def readout_trigger():
-        return "startQAMonitor(); startQAResult();\n"
+        """Start the Quantum Analyzer Result and Input units.
+
+        Reads only qubit result 1 and 2 among ten possible results.
+
+        """
+        return "startQA(QA_INT_0 | QA_INT_1, true);\n"
 
     @staticmethod
     def init_ones(amp, length):
