@@ -379,67 +379,90 @@ class SimpleSequence(Sequence):
 
     buffer_lengths = attr.ib(default=[800], validator=attr.validators.instance_of(list))
     delay_times = attr.ib(default=[0])
+    wait_samples_updated = attr.ib(default=[0])
+    dead_samples_updated = attr.ib(default=[0])
 
     def write_sequence(self):
-        self.sequence = SequenceCommand.header_comment(sequence_type="Simple")
+        # Call the method from parent class `Sequence` and then overwrite it
+        super().write_sequence()
+        # Update the sequence type information in the header
+        self.sequence = SequenceCommand.replace_sequence_type(
+            self.sequence, SequenceType.SIMPLE
+        )
+        # Loop over the waveforms and initialize placeholders
+        self.sequence += SequenceCommand.inline_comment("Waveform definitions")
         for i in range(self.n_HW_loop):
-            # Loop over the waveforms and initialize placeholders
             self.sequence += SequenceCommand.init_buffer_indexed(
                 self.buffer_lengths[i], i, self.target
             )
-        self.sequence += SequenceCommand.trigger(0)
-        self.sequence += SequenceCommand.repeat(self.repetitions)
+        # Define trigger waveform (depends on the trigger mode)
+        self.sequence += self.trigger_cmd_define
+        self.sequence += SequenceCommand.new_line()
+        # Loop over the waveforms and assign indices
         for i in range(self.n_HW_loop):
-            self.sequence += SequenceCommand.count_waveform(i, self.n_HW_loop)
-            self.sequence += self.trigger_cmd_1
-            if self.target == DeviceTypes.HDAWG and self.reset_phase:
-                self.sequence += SequenceCommand.reset_osc_phase()
-            if self.alignment == Alignment.START_WITH_TRIGGER:
-                temp = self.wait_cycles
-            elif self.alignment == Alignment.END_WITH_TRIGGER:
-                temp = self.wait_cycles - self.buffer_lengths[i] / 8
-            self.sequence += SequenceCommand.wait(
-                temp - self.time_to_cycles(self.delay_times[i])
+            self.sequence += SequenceCommand.assign_wave_index(i)
+        self.sequence += SequenceCommand.new_line()
+        self.sequence += SequenceCommand.inline_comment("Trigger commands")
+        # Send trigger (depends on the trigger mode)
+        self.sequence += self.trigger_cmd_send
+        # Wait for external trigger (depends on the trigger mode)
+        self.sequence += self.trigger_cmd_wait
+        # Compensate for trigger latency differences (depends on the device type)
+        self.sequence += self.trigger_cmd_latency
+        self.sequence += SequenceCommand.new_line()
+        self.sequence += SequenceCommand.inline_comment("Start main sequence")
+        # Start repeat loop in sequencer
+        self.sequence += SequenceCommand.repeat(self.repetitions)
+        # Loop over the waveforms
+        for i in range(self.n_HW_loop):
+            self.sequence += SequenceCommand.tab() + SequenceCommand.count_waveform(
+                i, self.n_HW_loop
             )
-            self.sequence += self.trigger_cmd_2
-            if self.target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
-                self.sequence += SequenceCommand.readout_trigger()
-            self.sequence += SequenceCommand.play_wave_indexed(i)
-            self.sequence += SequenceCommand.wait_wave()
-            if self.trigger_mode == TriggerMode.SEND_TRIGGER:
-                if self.alignment == Alignment.START_WITH_TRIGGER:
-                    temp = self.dead_cycles - self.buffer_lengths[i] / 8
-                elif self.alignment == Alignment.END_WITH_TRIGGER:
-                    temp = self.dead_cycles
-            else:
-                temp = 0
-            self.sequence += SequenceCommand.wait(
-                temp + self.time_to_cycles(self.delay_times[i])
+            # Play zeros to wait before playing the waveform.
+            # (depends on `period`, `dead_time` and alignment options)
+            self.sequence += SequenceCommand.tab() + SequenceCommand.play_zero(
+                self.wait_samples_updated[i], self.target
             )
-            self.sequence += SequenceCommand.new_line()
+            # Reset oscillator phase (depends on `reset_phase` option)
+            self.sequence += SequenceCommand.tab() + self.osc_cmd_reset
+            # Play the waveforms
+            self.sequence += SequenceCommand.tab() + SequenceCommand.play_wave_indexed(
+                i
+            )
+            # Trigger quantum analyzer (depends on the device type)
+            self.sequence += SequenceCommand.tab() + self.readout_cmd_trigger
+            # Play zeros to wait until end of period.
+            # (depends on `dead_time` and alignment options)
+            self.sequence += SequenceCommand.tab() + SequenceCommand.play_zero(
+                self.dead_samples_updated[i], self.target
+            )
+        # Finish repeat loop
         self.sequence += SequenceCommand.close_bracket()
 
     def update_params(self):
         super().update_params()
-        if self.trigger_mode == TriggerMode.NONE:
-            self.wait_cycles = self.time_to_cycles(self.period)
-        elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
-            self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
-        elif self.trigger_mode in [
-            TriggerMode.EXTERNAL_TRIGGER,
-            TriggerMode.RECEIVE_TRIGGER,
-        ]:
-            self.wait_cycles = self.time_to_cycles(
-                self.period - self.dead_time - self.latency + self.trigger_delay
-            )
         if len(self.buffer_lengths) != self.n_HW_loop:
             self.n_HW_loop = len(self.buffer_lengths)
-
         if len(self.buffer_lengths) < len(self.delay_times):
             self.delay_times = self.delay_times[: len(self.buffer_lengths)]
         if len(self.buffer_lengths) > len(self.delay_times):
             n = len(self.buffer_lengths) - len(self.delay_times)
             self.delay_times = np.append(self.delay_times, np.zeros(n))
+        # Update the number of samples to wait before and after playing the waveform
+        # according to the list of delay_times, buffer lengths and alignment option.
+        self.wait_samples_updated = [self.wait_samples for i in range(self.n_HW_loop)]
+        self.dead_samples_updated = [self.dead_samples for i in range(self.n_HW_loop)]
+        for i in range(self.n_HW_loop):
+            if self.alignment == Alignment.START_WITH_TRIGGER:
+                self.wait_samples_updated[i] += self.delay_times[i]
+                self.dead_samples_updated[i] -= (
+                    self.delay_times[i] + self.buffer_lengths[i]
+                )
+            elif self.alignment == Alignment.END_WITH_TRIGGER:
+                self.wait_samples_updated[i] += (
+                    self.delay_times[i] - self.buffer_lengths[i]
+                )
+                self.dead_samples_updated[i] -= self.delay_times[i]
 
     def check_attributes(self):
         super().check_attributes()
