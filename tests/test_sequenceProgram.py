@@ -144,6 +144,12 @@ class SequenceProgramMachine(RuleBasedStateMachine):
             params = self.sequenceProgram.list_params()
             assert params["sequence_parameters"]["latency_adjustment"] == i
 
+    @rule(i=st.booleans())
+    def change_reset_phase(self, i):
+        self.sequenceProgram.set_params(reset_phase=i)
+        params = self.sequenceProgram.list_params()
+        assert params["sequence_parameters"]["reset_phase"] == i
+
     # @rule(l=st.integers(1, 1000), t=st.floats(100e-9, 10e-6))
     # def change_delays(self, l, t):
     #     test_array = np.linspace(0, t, l)
