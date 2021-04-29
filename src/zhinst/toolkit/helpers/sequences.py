@@ -113,8 +113,7 @@ class Sequence(object):
             waits after receiving the trigger signal. (default: 0)
         reset_phase (bool): A flag that specifies if the phase of the modulation
             oscillator should be reset to 0 for every repetition of the
-            experiment before the waveform is played. This value only applies
-            for AWG Cores of the HDAWG when IQ Modulation is enabled.
+            experiment before the waveform is played.
 
     """
 
@@ -150,6 +149,8 @@ class Sequence(object):
     trigger_cmd_send = attr.ib(default="//\n")
     trigger_cmd_wait = attr.ib(default="//\n")
     trigger_cmd_latency = attr.ib(default="//\n")
+    readout_cmd_trigger = attr.ib(default="//\n")
+    osc_cmd_reset = attr.ib(default="//\n")
     wait_cycles = attr.ib(
         default=28500, validator=is_greater_equal(0)
     )  # 95 us by default
@@ -200,16 +201,28 @@ class Sequence(object):
         )
         # Convert dead_time to number of samples
         self.dead_samples = self.time_to_samples(self.dead_time - self.trigger_delay)
-        # Set the correct clock rate and trigger latency compensation
-        # depending on the device type
+        # Set the correct clock rate, trigger latency compensation
+        # and QA trigger command depending on the device type
         if self.target in [DeviceTypes.HDAWG]:
             self.clock_rate = 2.4e9
             # Default trigger latency compensation for HDAWG = 27 cycles
             self.latency_cycles = 27 + self.latency_adjustment
+            # HDAWG has no quantum analyzer
+            self.readout_cmd_trigger = SequenceCommand.comment_line()
         elif self.target in [DeviceTypes.UHFLI, DeviceTypes.UHFQA]:
             self.clock_rate = 1.8e9
             # Default trigger latency compensation for UHFQA = 0 cycles
             self.latency_cycles = 0 + self.latency_adjustment
+            # UHFLI has no has quantum analyzer, only UHFQA has quantum analyzer
+            if self.target in [DeviceTypes.UHFQA]:
+                self.readout_cmd_trigger = SequenceCommand.readout_trigger()
+            else:
+                self.readout_cmd_trigger = SequenceCommand.comment_line()
+        # Set the oscillator phase to 0 if the reset_phase option is on
+        if self.reset_phase:
+            self.osc_cmd_reset = SequenceCommand.reset_osc_phase()
+        else:
+            self.osc_cmd_reset = SequenceCommand.comment_line()
         # Set the trigger latency command depending on the `latency_cycles`
         if self.latency_cycles == 0:
             self.trigger_cmd_latency = SequenceCommand.comment_line()
