@@ -159,11 +159,8 @@ class SequenceProgramMachine(RuleBasedStateMachine):
     @rule()
     def get_sequence(self):
         sequence = self.sequenceProgram.get_seqc()
-        t = self.sequenceProgram.sequence_type.value
-        if t is None:
-            assert sequence is None
-        else:
-            assert t in sequence
+        sequence_type = self.sequenceProgram.sequence_type
+        assert str(sequence_type.value) in sequence
 
 
 TestPrograms = SequenceProgramMachine.TestCase

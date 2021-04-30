@@ -170,8 +170,17 @@ class Sequence(object):
         return self.sequence
 
     def write_sequence(self):
-        """To be overridden by children classes."""
-        self.sequence = None
+        """Create header for the sequencer program.
+
+        The header displays the sequence type, trigger mode and alignment
+        information of the program. Sequence type is temporarily selected as
+        `None` here. It will be overwritten by the children classes depending
+        on the actual sequence type.
+
+        """
+        self.sequence = SequenceCommand.header_info(
+            SequenceType.NONE, self.trigger_mode, self.alignment
+        )
 
     def update_params(self):
         """Update interrelated parameters."""
