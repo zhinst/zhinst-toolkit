@@ -9,13 +9,13 @@ from enum import Enum
 class SequenceType(Enum):
     """Enums for the `sequence_type` sequence parameter.
 
-    Can be used as inputs to the `set_seuqence_params(...)` method of the AWG
+    Can be used as inputs to the `set_sequence_params(...)` method of the AWG
     Cores. For example like this:
 
-        >>> from zhinst.toolkit import SequenceTypes
+        >>> from zhinst.toolkit import SequenceType
         >>> ...
         >>> uhfqa.awg.set_sequence_params(
-        >>>     sequence_type=SequenceTypes.READOUT,
+        >>>     sequence_type=SequenceType.READOUT,
         >>>     ...
         >>> )
 
