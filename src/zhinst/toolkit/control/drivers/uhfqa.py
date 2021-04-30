@@ -647,7 +647,6 @@ class ReadoutChannel:
         """Enables weighted integration for this channel."""
         self._enabled = True
         self._parent._set("qas/0/integration/mode", 0)
-        self._parent.integration_time(2e-6)
         self._set_int_weights()
 
     def disable(self) -> None:
