@@ -65,9 +65,12 @@ class SequenceProgramMachine(RuleBasedStateMachine):
         }
         self.sequenceProgram.set_params(trigger_mode=types[t])
         params = self.sequenceProgram.list_params()
-        if params["sequence_type"] != SequenceType.TRIGGER:
-            params = params["sequence_parameters"]
-            assert params["trigger_mode"] == types[t]
+        sequence_type = params["sequence_type"]
+        trigger_mode = params["sequence_parameters"]["trigger_mode"]
+        if t not in [1, 4] and sequence_type == SequenceType.TRIGGER:
+            assert trigger_mode == types[1]
+        else:
+            assert trigger_mode == types[t]
 
     @rule(t=st.integers(-1, 4))
     def change_trigger_by_string(self, t):
@@ -81,12 +84,14 @@ class SequenceProgramMachine(RuleBasedStateMachine):
         }
         self.sequenceProgram.set_params(trigger_mode=types[t])
         params = self.sequenceProgram.list_params()
-        if params["sequence_type"] != SequenceType.TRIGGER:
-            params = params["sequence_parameters"]
-            if t == -1:
-                assert params["trigger_mode"].value is None
-            else:
-                assert params["trigger_mode"].value == types[t]
+        sequence_type = params["sequence_type"]
+        trigger_mode = params["sequence_parameters"]["trigger_mode"]
+        if t not in [1, 4] and sequence_type == SequenceType.TRIGGER:
+            assert trigger_mode.value == types[1]
+        elif t == -1:
+            assert trigger_mode.value is None
+        else:
+            assert trigger_mode.value == types[t]
 
     @rule(t=st.integers(0, 1))
     def change_alignment_by_enum(self, t):
