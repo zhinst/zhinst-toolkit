@@ -889,20 +889,29 @@ class ReadoutSequence(Sequence):
 class PulsedSpectroscopySequence(Sequence):
     """Predefined Sequence for Pulsed Spectroscopy.
 
-    This sequence plays a rectangular pulse of duration `pulse_length` (in
-    seconds). When this sequence is configured, the AWG output modulation of the
-    *UHFQA* is enabled and the two output channels are modualted with the *sine*
-    and *cosine* of the internal oscillator. The oscillators frequency can be
-    set with the *Parameter* `uhfqa.nodetree.osc.freq`.
+    This sequence plays a rectangular pulse of duration `pulse_length`
+    (in seconds). When this sequence is configured, the AWG output
+    modulation of the *UHFQA* is enabled and the two output channels are
+    modulated with the *sine* and *cosine* of the internal oscillator.
+    The oscillators frequency can be set with the *Parameter*
+    `uhfqa.nodetree.osc.freq`.
 
-    Similarly, the *integration mode* of the *UHFQA* is set to *Spectroscopy* to
-    demodulate the input signals with the *sine* and *cosine* of the same
-    internal oscillator. Note that when modulating the AWG output, the value for
-    *integration time* has to be set to at least as long as the *pulse duration*
-    of the modulated pulse.
+    In this sequence the sine generators are enabled, so the oscillator
+    runs continouosly. Therefore, it is required that the oscillator
+    phase is set to zero with the `resetOscPhase` instruction before
+    playing the pulse. Therefore, `reset_phase` parameter is set to
+    `True`.
+
+    Similarly, the *integration mode* of the *UHFQA* is set to
+    *Spectroscopy* to demodulate the input signals with the *sine* and
+    *cosine* of the same internal oscillator. Note that when modulating
+    the AWG output, the value for *integration time* has to be set to at
+    least as long as the *pulse duration* of the modulated pulse.
+
 
         >>> awg.set_sequence_params(
         >>>     sequence_type="Pulsed Spectroscopy",
+        >>>     trigger_mode="Receive Trigger",
         >>>     pulse_length=5e-6,
         >>>     pulse_amplitude=0.567,
         >>> )
@@ -910,49 +919,87 @@ class PulsedSpectroscopySequence(Sequence):
     Attributes:
         pulse_length (double): The duration of the spectroscopy pulse in
             seconds.
-        pulse_amplitude (double): The amplitude of the generated rectangular
-            pulse.
+        pulse_amplitude (double): The amplitude of the generated
+            rectangular pulse.
 
     """
 
     pulse_length = attr.ib(default=2e-6, validator=is_greater_equal(0))
     pulse_amplitude = attr.ib(default=1)
+    pulse_samples = attr.ib(default=3600, validator=is_greater_equal(0))
+    wait_samples_updated = attr.ib(default=0, validator=is_greater_equal(0))
+    dead_samples_updated = attr.ib(default=0, validator=is_greater_equal(0))
 
     def write_sequence(self):
-        self.sequence = SequenceCommand.header_comment(
-            sequence_type="Pulsed Spectroscopy"
+        # Call the method from parent class `Sequence` and then
+        # overwrite it
+        super().write_sequence()
+        # Update the sequence type information in the header
+        self.sequence = SequenceCommand.replace_sequence_type(
+            self.sequence, SequenceType.PULSED_SPEC
         )
-        length = self.time_to_cycles(self.pulse_length, wait_time=False) // 16 * 16
-        self.sequence += SequenceCommand.init_ones(self.pulse_amplitude, length)
+        self.sequence += SequenceCommand.inline_comment("Waveform definitions")
+        # Define a square pulse of specified length
+        self.sequence += SequenceCommand.init_ones(
+            self.pulse_amplitude, self.pulse_samples
+        )
+        self.sequence += SequenceCommand.inline_comment("Trigger commands")
+        # Wait for external trigger (depends on the trigger mode)
+        self.sequence += self.trigger_cmd_wait
+        # Compensate for trigger latency differences
+        self.sequence += self.trigger_cmd_latency
+        self.sequence += SequenceCommand.new_line()
+        self.sequence += SequenceCommand.inline_comment("Start main sequence")
+        # Start repeat loop in sequencer
         self.sequence += SequenceCommand.repeat(self.repetitions)
-        self.sequence += self.trigger_cmd_1
-        self.sequence += SequenceCommand.wait(self.wait_cycles)
-        self.sequence += self.trigger_cmd_2
-        self.sequence += SequenceCommand.readout_trigger()
-        self.sequence += SequenceCommand.play_wave()
-        self.sequence += SequenceCommand.wait_wave()
-        self.sequence += SequenceCommand.wait(self.dead_cycles)
+        # Play zeros to wait before playing the waveform (depends on
+        # period, dead_time and alignment setting).
+        self.sequence += SequenceCommand.tab() + SequenceCommand.play_zero(
+            self.wait_samples_updated, self.target
+        )
+        # Reset oscillator phase
+        self.sequence += SequenceCommand.tab() + self.osc_cmd_reset
+        # Play the waveforms
+        self.sequence += SequenceCommand.tab() + SequenceCommand.play_wave()
+        # Trigger quantum analyzer
+        self.sequence += SequenceCommand.tab() + self.readout_cmd_trigger
+        # Play zeros to wait until end of period.
+        self.sequence += SequenceCommand.tab() + SequenceCommand.play_zero(
+            self.dead_samples_updated, self.target
+        )
+        # Finish repeat loop
         self.sequence += SequenceCommand.close_bracket()
 
     def update_params(self):
+        # Phase of the modulation oscillator must be reset to 0 in this
+        # sequence type, overwriting user preference
+        self.reset_phase = True
+        # Call the parent function to update all parameters including
+        # the ones that depend on the `reset_phase` option. Note that
+        # the parent class should not change `reset_phase` setting.
         super().update_params()
-        self.target = DeviceTypes.UHFQA
-        temp = self.period - self.dead_time
+        # Convert pulse length to number of samples. Use floor division
+        # operator `//` and round down to greatest multiple of 8.
+        self.pulse_samples = self.time_to_samples(self.pulse_length) // 8 * 8
+        # Update the number of samples to wait before and after playing
+        # the pulse according to the alignment and pulse length.
         if self.alignment == Alignment.END_WITH_TRIGGER:
-            temp -= self.pulse_length
+            self.wait_samples_updated = self.wait_samples - self.pulse_samples
+            self.dead_samples_updated = self.dead_samples
         elif self.alignment == Alignment.START_WITH_TRIGGER:
-            self.dead_cycles = self.time_to_cycles(self.dead_time - self.pulse_length)
-        if self.trigger_mode == TriggerMode.NONE:
-            self.wait_cycles = self.time_to_cycles(temp)
-        elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
-            self.wait_cycles = self.time_to_cycles(temp)
-        elif self.trigger_mode in [
-            TriggerMode.EXTERNAL_TRIGGER,
-            TriggerMode.RECEIVE_TRIGGER,
-        ]:
-            self.wait_cycles = self.time_to_cycles(
-                temp - self.latency + self.trigger_delay
-            )
+            self.wait_samples_updated = self.wait_samples
+            self.dead_samples_updated = self.dead_samples - self.pulse_samples
+
+    def check_attributes(self):
+        super().check_attributes()
+        if self.alignment == Alignment.END_WITH_TRIGGER:
+            if (
+                self.period - self.dead_time + self.trigger_delay - self.pulse_length
+            ) < 0:
+                raise ValueError("Wait time cannot be shorter than pulse length!")
+        elif self.alignment == Alignment.START_WITH_TRIGGER:
+            if (self.dead_time - self.trigger_delay - self.pulse_length) < 0:
+                raise ValueError("Dead time cannot be shorter than pulse length!")
 
 
 @attr.s

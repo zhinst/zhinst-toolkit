@@ -153,7 +153,12 @@ class SequenceProgramMachine(RuleBasedStateMachine):
     def change_reset_phase(self, i):
         self.sequenceProgram.set_params(reset_phase=i)
         params = self.sequenceProgram.list_params()
-        assert params["sequence_parameters"]["reset_phase"] == i
+        sequence_type = params["sequence_type"]
+        reset_phase = params["sequence_parameters"]["reset_phase"]
+        if sequence_type == SequenceType.PULSED_SPEC:
+            assert reset_phase is True
+        else:
+            assert reset_phase is i
 
     # @rule(l=st.integers(1, 1000), t=st.floats(100e-9, 10e-6))
     # def change_delays(self, l, t):
