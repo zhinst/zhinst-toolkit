@@ -67,3 +67,11 @@ def test_set_get_params_channel():
         ch.disable()
     with pytest.raises(Exception):
         ch.readout_frequency(1)
+
+
+@given(delay_adj=st.integers(-300, 1300))
+def test_qa_delay(delay_adj):
+    qa = UHFQA("name", "dev1234")
+    assert 0 == qa.qa_delay()
+    with pytest.raises(Exception):
+        qa.qa_delay(delay_adj)

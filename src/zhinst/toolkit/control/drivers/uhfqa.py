@@ -32,9 +32,9 @@ MAPPINGS = {
 class UHFQA(BaseInstrument):
     """High-level driver for the Zurich Instruments UHFQA Quantum Analyzer.
 
-    Inherits from :class:`BaseInstrument` and adds an :class:`AWGCore` and a
-    list of :class:`ReadoutChannels`. They can be accessed as properties of the
-    UHFQA.
+    Inherits from :class:`BaseInstrument` and adds an :class:`AWGCore`
+    and a list of :class:`ReadoutChannels`. They can be accessed as
+    properties of the UHFQA.
 
         >>> import zhinst.toolkit as tk
         >>> ...
@@ -67,6 +67,7 @@ class UHFQA(BaseInstrument):
         >>> uhfqa.awg.set_sequence_params(...)
         >>> uhfqa.channels[0].enable()
         >>> uhfqa.channels[0].readout_frequency(123e6)
+        >>> uhfqa.qa_delay(8) # adjust quantum analyzer delay
         >>> ...
         >>> uhfqa.arm(length=100, averages=1)   # arm the QA Readout, set length and averages
         >>> uhfqa.awg.run()                     # start the AWG
@@ -75,38 +76,40 @@ class UHFQA(BaseInstrument):
 
     Arguments:
         name (str): Identifier for the UHFQA.
-        serial (str): Serial number of the device, e.g. *'dev1234'*. The serial
-            number can be found on the back panel of the instrument.
+        serial (str): Serial number of the device, e.g. *'dev1234'*. The
+            serial number can be found on the back panel of the
+            instrument.
         discovery: an instance of ziDiscovery
 
     Attributes:
         awg (:class:`zhinst.toolkit.control.drivers.uhfqa.AWG`):
             A device-specific :class:`AWGCore` for the UHFQA.
         channels (list): A list of ten
-            :class:`zhinst.toolkit.control.drivers.uhfqa.ReadoutChannel` s that
-            each represent the digital signal processing path on the instrument.
+            :class:`zhinst.toolkit.control.drivers.uhfqa.ReadoutChannel` s
+            that each represent the digital signal processing path on
+            the instrument.
         integration_time (:class:`zhinst.toolkit.control.node_tree.Parameter`):
-            The time in seconds used for signal integration. The value must be
-            positive. The maximum value when using weighted integration is 4096
-            samples or ca. 2.275 us (default: 2.0 us).
+            The time in seconds used for signal integration. The value
+            must be positive. The maximum value when using weighted
+            integration is 4096 samples or ca. 2.275 us (default: 2.0 us).
         result_source (:class:`zhinst.toolkit.control.node_tree.Parameter`):
-            This parameter selects the stage in the signal processing path that
-            is used as the source for the QA results. It can be one of
-            {`"Crosstalk"`, `"Threshold"`, `"Rotation"`, `"Crosstalk
-            Correlation"`, `"Threshold Correlation"`, `"Integration"`}.
+            This parameter selects the stage in the signal processing
+            path that is used as the source for the QA results. It can
+            be one of {`"Crosstalk"`, `"Threshold"`, `"Rotation"`,
+            `"Crosstalk Correlation"`, `"Threshold Correlation"`,
+            `"Integration"`}.
         averaging_mode (:class:`zhinst.toolkit.control.node_tree.Parameter`):
-            Mode of averaing in the QA Result Acquisition. Either `"Sequential"`
-            or `"Cyclic"`.
-            `"Sequential"`: The first point of the Result vector is the average
-            of the first *N* results where *N* is the value of the *result
-            averages* setting. The second point is the average of the next *N*
-            results, and so forth.
-            `"Cyclic"`: The first point in the Result vector is the average of
-            the results *1, M+1, 2M+1, ...*, where *M* is the value of the
-            *result length* setting. The second point is the average of the
-            results number *2, M+2, 2M+2, ...*, and so forth.
-
-
+            Mode of averaing in the QA Result Acquisition. Either
+            `"Sequential"` or `"Cyclic"`.
+            `"Sequential"`: The first point of the Result vector is the
+            average of the first *N* results where *N* is the value of
+            the *result averages* setting. The second point is the
+            average of the next *N* results, and so forth.
+            `"Cyclic"`: The first point in the Result vector is the
+            average of the results *1, M+1, 2M+1, ...*, where *M* is the
+            value of the *result length* setting. The second point is
+            the average of the results number *2, M+2, 2M+2, ...*, and
+            so forth.
 
     """
 
@@ -151,6 +154,7 @@ class UHFQA(BaseInstrument):
             device=self,
             mapping=MAPPINGS["averaging_mode"],
         )
+        self._qa_delay_user = 0
 
     def connect_device(self, nodetree: bool = True) -> None:
         """Connects the device to the data server and initializes the AWG.
@@ -248,6 +252,56 @@ class UHFQA(BaseInstrument):
         # toggle node value from 0 to 1 for reset
         self._set("qas/0/result/reset", 0)
         self._set("qas/0/result/reset", 1)
+
+    def qa_delay(self, value=None):
+        """Set or get the adjustment in the the quantum analyzer delay.
+
+        Keyword Arguments:
+            value (int): Number of additional samples to adjust the delay
+                (default: None)
+
+        Returns:
+            The adjustment in delay in units of samples.
+
+        """
+        node = f"qas/0/delay"
+        # Return the current adjustment if not argument is passed
+        if value is None:
+            return self._qa_delay_user
+        else:
+            # Round down to greatest multiple of 4, as in LabOne
+            qa_delay_user_temp = int(value // 4) * 4
+            # Calculate final value of adjusted QA delay.
+            qa_delay_adjusted = qa_delay_user_temp + self._qa_delay_default()
+            # Check if final delay is between 0 and 1020
+            if qa_delay_adjusted not in range(0, 1021):
+                raise ValueError("The quantum analyzer delay is out of range!")
+            else:
+                # Overwrite the previous adjustment if range is correct
+                self._qa_delay_user = qa_delay_user_temp
+                # Write the adjusted delay value to the node
+                self._set(node, qa_delay_adjusted)
+                # Return the final adjustment
+                return self._qa_delay_user
+
+    def _qa_delay_default(self):
+        """Return the default value for the quantum analyzer delay.
+
+        Quantum analyzer delay adjusts the time at which the integration
+        starts in relation to the trigger signal of the weighted
+        integration units.
+
+        The default delay value is:
+        184 samples if deskew matrix is bypassed
+        200 samples if deskew matrix is active
+
+        """
+        node = f"qas/0/bypass/deskew"
+        # Check if deskew is bypassed or not
+        if self._get(node):
+            return 184
+        else:
+            return 200
 
     def _init_settings(self):
         settings = [
@@ -391,12 +445,38 @@ class AWG(AWGCore):
 
     def _apply_pulsed_settings(self):
         settings = [
-            ("sigouts/*/enables/*", 0),
-            ("sigouts/*/amplitudes/*", 0),
-            ("awgs/0/outputs/*/mode", 1),
-            ("qas/0/integration/mode", 1),
+            # Enable modulation mode of AWG to modulate two output
+            # channels with *sine* and *cosine* of internal oscillator.
+            ("awgs/0/outputs/0/mode", "modulation"),
+            ("awgs/0/outputs/1/mode", "modulation"),
+            # Enable sine generator 0 to Wave output 0 and
+            # sine generator 1 to Wave output 1
+            ("sigouts/0/enables/0", 1),
+            ("sigouts/1/enables/1", 1),
+            # Set amplitudes of the sine generators to zero, so they
+            # are enabled, but no continuous wave output is produced.
+            ("sigouts/0/amplitudes/0", 0),
+            ("sigouts/1/amplitudes/1", 0),
+            # Set the integration mod to the spectroscopy mode to
+            # demodulate the input signals with the *sine* and *cosine*
+            # of the same internal oscillator
+            ("qas/0/integration/mode", "spectroscopy"),
+            # Configure two readout channels such that their outputs are
+            # equal to real and imaginary part of the complex amplitude
+            ("qas/0/bypass/rotation", 0),  # Do not bypass rotation
+            ("qas/0/integration/sources/0", "sigin1_real_sigin0_imag"),
+            ("qas/0/rotations/0", 1 - 1j),
+            ("qas/0/integration/sources/1", "sigin0_real_sigin1_imag"),
+            ("qas/0/rotations/1", 1 + 1j),
+            # Result after Rotation unit
+            ("qas/0/result/source", "result_after_rotation_unit"),
         ]
+        # Apply the settings above
         self._parent._set(settings)
+        # Set the Quantum Analyzer delay. Enabling of deskew matrix
+        # and previous user adjustment are taken into account automatically.
+        self._parent.qa_delay(self._parent._qa_delay_user)
+        # Disable readout channels
         self._parent.disable_readout_channels(range(10))
 
     def _apply_readout_settings(self):
