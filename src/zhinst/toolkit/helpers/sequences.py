@@ -8,11 +8,14 @@ import attr
 import numpy as np
 from pathlib import Path
 import deprecation
+import logging
 
 from .sequence_commands import SequenceCommand
 from .utils import SequenceType, TriggerMode, Alignment
 from zhinst.toolkit.interface import DeviceTypes
 from zhinst.toolkit._version import version as __version__
+
+_logger = logging.getLogger(__name__)
 
 
 def is_greater_equal(min_value):
@@ -476,10 +479,14 @@ class SimpleSequence(Sequence):
 class TriggerSequence(Sequence):
     """Predefined sequence for *Master Trigger*.
 
-    This sequence does not play any waveforms but only sends the trigger signal
-    at the start of every period. The `trigger_mode` parameter will be
-    overwritten to be *'Send Trigger'*. The trigger signal will be played on the
-    *Mark* output of the lower channel.
+    This sequence does not play any waveforms but only sends out the
+    trigger signal once at the start of the sequence program.
+    The `trigger_mode` parameter must be chosen as *'Send Trigger'* or
+    *'Send and Receive Trigger'*. Otherwise, it will automatically be
+    overwritten to be *'Send Trigger'*. The trigger signal will be
+    played on the AWG core output 1. However, this signal should still
+    be manually assigned to the desired *Mark* output in DIO settings by
+    selecting `Output 1 Marker 1`.
 
         >>> awg.set_sequence_params(
         >>>     sequence_type="Trigger",
@@ -490,24 +497,40 @@ class TriggerSequence(Sequence):
     """
 
     def write_sequence(self):
-        self.sequence = SequenceCommand.header_comment(sequence_type="Master Trigger")
-        self.sequence += self.trigger_cmd_2
-        self.sequence += SequenceCommand.repeat(self.repetitions)
-        self.sequence += self.trigger_cmd_1
-        self.sequence += SequenceCommand.wait(self.wait_cycles)
-        self.sequence += self.trigger_cmd_2
-        self.sequence += SequenceCommand.wait(self.dead_cycles)
-        self.sequence += SequenceCommand.close_bracket()
+        # Call the method from parent class `Sequence` and then overwrite it
+        super().write_sequence()
+        # Update the sequence type information in the header
+        self.sequence = SequenceCommand.replace_sequence_type(
+            self.sequence, SequenceType.TRIGGER
+        )
+        # Define trigger waveform
+        self.sequence += SequenceCommand.inline_comment("Trigger waveform definition")
+        self.sequence += self.trigger_cmd_define
+        self.sequence += SequenceCommand.new_line()
+        self.sequence += SequenceCommand.inline_comment("Trigger commands")
+        # Send trigger (depends on the trigger mode)
+        self.sequence += self.trigger_cmd_send.rstrip()  # strip '\n' at the end
 
     def update_params(self):
-        self.trigger_mode = TriggerMode.SEND_TRIGGER
-        self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
+        # Set the trigger mode to "Send Trigger" if the selected
+        # trigger mode is not correct.
+        if self.trigger_mode not in [
+            TriggerMode.SEND_TRIGGER,
+            TriggerMode.SEND_AND_RECEIVE_TRIGGER,
+        ]:
+            _logger.warning(
+                f"The selected trigger mode {self.trigger_mode.value} does not work \n"
+                f"with Master Trigger sequence. The trigger mode is set \n"
+                f"to {TriggerMode.SEND_TRIGGER.value}."
+            )
+            self.trigger_mode = TriggerMode.SEND_TRIGGER
+        # Call the parent function to update all parameters that depend
+        # on the trigger mode after overwiritng the trigger mode above.
+        # Note that the parent class should not change the trigger mode.
         super().update_params()
 
     def check_attributes(self):
         super().check_attributes()
-        if (self.period - self.dead_time) < 0:
-            raise ValueError("Wait time cannot be negative!")
 
 
 @attr.s
