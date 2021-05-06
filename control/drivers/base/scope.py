@@ -148,7 +148,8 @@ class ScopeModule:
 class ScopeWaves:
     def __init__(self, data, serial, clk_base=60e6, scope_time=1):
         self._data = data
-        self._fft = True if self._data["/mode"] == 3 else False
+      #  self._fft = True if self._data["/mode"] == 3 else False # This atrribute does not always exist
+        self._fft = False
         self._wave_data = data[f"/{serial}/scopes/0/wave"][0][0]
         self._header = self._wave_data["header"]
         self._waves = self._wave_data["wave"]
