@@ -53,6 +53,7 @@ class TriggerMode(Enum):
     EXTERNAL_TRIGGER = "External Trigger"  # deprecated
     RECEIVE_TRIGGER = "Receive Trigger"
     SEND_AND_RECEIVE_TRIGGER = "Send and Receive Trigger"
+    ZSYNC_TRIGGER = "ZSync Trigger"
 
 
 class Alignment(Enum):

@@ -76,6 +76,22 @@ class HDAWG(BaseInstrument):
         """Loads the factory default settings."""
         super().factory_reset()
 
+    def enable_qccs_mode(self) -> None:
+        settings = [
+            # Set ZSync clock to be used as reference
+            ("/system/clocks/referenceclock/source", "zsync"),
+            # Configure DIO
+            # Set interface standard to use on the 32-bit DIO to LVCMOS
+            ("/dios/0/interface", 0),
+            # Set DIO output values to ZSync input values.
+            # Forward the ZSync input values to the AWG sequencer.
+            # Forward the DIO input values to the ZSync output.
+            ("/dios/0/mode", "qccs"),
+            # Drive the two most significant bytes of the DIO port
+            ("/dios/0/drive", 0b1100),
+        ]
+        self._set(settings)
+
     def _init_settings(self):
         """Sets initial device settings on startup."""
         settings = [
@@ -140,7 +156,6 @@ class AWG(AWGCore):
     def __init__(self, parent: BaseInstrument, index: int) -> None:
         super().__init__(parent, index)
         self._iq_modulation = False
-        self._trigger_level = 0.25
         self.output1 = Parameter(
             self,
             dict(
@@ -288,6 +303,7 @@ class AWG(AWGCore):
         self._parent._set("system/awg/oscillatorcontrol", 0)
 
     def _apply_sequence_settings(self, **kwargs):
+        # check sequence type
         if "sequence_type" in kwargs.keys():
             t = SequenceType(kwargs["sequence_type"])
             allowed_sequences = [
@@ -301,20 +317,43 @@ class AWG(AWGCore):
             ]
             if t not in allowed_sequences:
                 raise ToolkitError(
-                    f"Sequence type {t} must be one of {allowed_sequences}!"
+                    f"Sequence type {t} must be one of {[s.value for s in allowed_sequences]}!"
                 )
+        # apply settings dependent on trigger mode
         if "trigger_mode" in kwargs.keys():
-            if TriggerMode(kwargs["trigger_mode"]) in [
+            t = TriggerMode(kwargs["trigger_mode"])
+            allowed_trigger_modes = [
+                TriggerMode.NONE,
+                TriggerMode.SEND_TRIGGER,
                 TriggerMode.EXTERNAL_TRIGGER,
                 TriggerMode.RECEIVE_TRIGGER,
-            ]:
-                self._apply_trigger_settings()
+                TriggerMode.SEND_AND_RECEIVE_TRIGGER,
+                TriggerMode.ZSYNC_TRIGGER,
+            ]
+            if t not in allowed_trigger_modes:
+                raise ToolkitError(
+                    f"Trigger mode {t} must be one of {[s.value for s in allowed_trigger_modes]}!"
+                )
+            elif t in [TriggerMode.EXTERNAL_TRIGGER, TriggerMode.RECEIVE_TRIGGER]:
+                self._apply_receive_trigger_settings()
+            elif t == TriggerMode.ZSYNC_TRIGGER:
+                self._apply_zsync_trigger_settings()
 
-    def _apply_trigger_settings(self):
+    def _apply_receive_trigger_settings(self):
         i = self._index
-        self._parent._set(f"/triggers/in/{2*i}/level", self._trigger_level)
         self._parent._set(f"/awgs/{i}/auxtriggers/*/channel", 2 * i)
         self._parent._set(f"/awgs/{i}/auxtriggers/*/slope", 1)  # rise
+
+    def _apply_zsync_trigger_settings(self):
+        i = self._index
+        settings = [
+            # Configure DIO trigger
+            # Set signal edge of the STROBE signal to off
+            (f"/awgs/{i}/dio/strobe/slope", "off"),
+            # Ignore VALID bit, trigger on any valid input
+            (f"/awgs/{i}/dio/valid/polarity", "none"),
+        ]
+        self._parent._set(settings)
 
     def __repr__(self):
         s = f"{super().__repr__()}"

@@ -12,6 +12,8 @@ def test_init_hdawg():
     assert hd.device_type == DeviceTypes.HDAWG
     with pytest.raises(Exception):
         hd._init_settings()
+    with pytest.raises(Exception):
+        hd.enable_qccs_mode()
 
 
 def test_init_hdawg_awg():
@@ -44,4 +46,6 @@ def test_hdawg_awg_set_get():
     with pytest.raises(Exception):
         awg._apply_sequence_settings(sequence_type=SequenceType.READOUT)
     with pytest.raises(Exception):
-        awg._apply_trigger_settings()
+        awg._apply_receive_trigger_settings()
+    with pytest.raises(Exception):
+        awg._apply_zsync_trigger_settings()

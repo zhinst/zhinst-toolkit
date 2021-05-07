@@ -346,6 +346,11 @@ class SequenceCommand(object):
             return f"waitDigTrigger({index}, 1);\n"
 
     @staticmethod
+    def wait_zsync_trigger():
+        """Insert waitZSyncTrigger(...) command to the sequencer."""
+        return "waitZSyncTrigger();\n"
+
+    @staticmethod
     def readout_trigger():
         """Start the Quantum Analyzer Result and Input units.
 
