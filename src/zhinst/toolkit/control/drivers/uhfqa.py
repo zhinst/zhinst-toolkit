@@ -229,6 +229,20 @@ class UHFQA(BaseInstrument):
                 raise ValueError(f"The channel index {i} is out of range!")
             self.channels[i].disable()
 
+    def enable_qccs_mode(self) -> None:
+        settings = [
+            # Use external 10 MHz clock as reference
+            ("/system/extclk", "external"),
+            # Configure DIO
+            # Clock DIO internally with a frequency of 50 MHz
+            ("/dios/0/extclk", "internal"),
+            # Set DIO output values to QA results compatible with QCCS.
+            ("/dios/0/mode", "qa_result_qccs"),
+            # Drive the two least significant bytes of the DIO port
+            ("/dios/0/drive", 0b0011),
+        ]
+        self._set(settings)
+
     def arm(self, length=None, averages=None) -> None:
         """Prepare UHFQA for result acquisition.
 
@@ -391,6 +405,7 @@ class AWG(AWGCore):
         )
 
     def _apply_sequence_settings(self, **kwargs):
+        # apply settings depending on the sequence type
         if "sequence_type" in kwargs.keys():
             t = SequenceType(kwargs["sequence_type"])
             allowed_sequences = [
@@ -405,7 +420,6 @@ class AWG(AWGCore):
                 raise ToolkitError(
                     f"Sequence type {t} must be one of {[s.value for s in allowed_sequences]}!"
                 )
-            # apply settings depending on sequence type
             elif t == SequenceType.CW_SPEC:
                 self._apply_cw_settings()
             elif t == SequenceType.PULSED_SPEC:
@@ -414,13 +428,25 @@ class AWG(AWGCore):
                 self._apply_readout_settings()
             else:
                 self._apply_base_settings()
-        # apply settings dependent on trigger type
+        # apply settings dependent on trigger mode
         if "trigger_mode" in kwargs.keys():
-            if TriggerMode(kwargs["trigger_mode"]) in [
+            t = TriggerMode(kwargs["trigger_mode"])
+            allowed_trigger_modes = [
+                TriggerMode.NONE,
+                TriggerMode.SEND_TRIGGER,
                 TriggerMode.EXTERNAL_TRIGGER,
                 TriggerMode.RECEIVE_TRIGGER,
-            ]:
-                self._apply_trigger_settings()
+                TriggerMode.SEND_AND_RECEIVE_TRIGGER,
+                TriggerMode.ZSYNC_TRIGGER,
+            ]
+            if t not in allowed_trigger_modes:
+                raise ToolkitError(
+                    f"Trigger mode {t} must be one of {[s.value for s in allowed_trigger_modes]}!"
+                )
+            elif t in [TriggerMode.EXTERNAL_TRIGGER, TriggerMode.RECEIVE_TRIGGER]:
+                self._apply_receive_trigger_settings()
+            elif t == TriggerMode.ZSYNC_TRIGGER:
+                self._apply_zsync_trigger_settings()
 
     def _apply_base_settings(self):
         settings = [
@@ -487,10 +513,22 @@ class AWG(AWGCore):
         ]
         self._parent._set(settings)
 
-    def _apply_trigger_settings(self):
+    def _apply_receive_trigger_settings(self):
         settings = [
             ("/awgs/0/auxtriggers/*/channel", 0),
             ("/awgs/0/auxtriggers/*/slope", 1),
+        ]
+        self._parent._set(settings)
+
+    def _apply_zsync_trigger_settings(self):
+        settings = [
+            # Configure DIO triggering based on HDAWG DIO protocol
+            # Set signal edge of the STROBE signal to off
+            ("/awgs/0/dio/strobe/slope", "off"),
+            # Set VALID bit polarity to indicate that input is valid
+            ("/awgs/0/dio/valid/polarity", "high"),
+            # Set DIO bit to use as VALID signal to indicate valid input
+            ("/awgs/0/dio/valid/index", 16),
         ]
         self._parent._set(settings)
 

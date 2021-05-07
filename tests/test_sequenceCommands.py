@@ -243,6 +243,10 @@ def test_wait_dig_trigger(i, target):
         SequenceCommand.wait_dig_trigger(i, target)
 
 
+def test_wait_zsync_trigger():
+    assert "waitZSyncTrigger" in SequenceCommand.wait_zsync_trigger()
+
+
 def test_readout_trigger():
     line = SequenceCommand.readout_trigger()
     assert "startQA" in line

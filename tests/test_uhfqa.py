@@ -15,6 +15,8 @@ def test_init_uhfqa():
     assert qa.result_source is not None
     with pytest.raises(Exception):
         qa._init_settings()
+    with pytest.raises(Exception):
+        qa.enable_qccs_mode()
 
 
 def test_init_uhfqa_awg():
@@ -37,6 +39,10 @@ def test_init_uhfqa_awg():
     with pytest.raises(Exception):
         awg.set_sequence_params(sequence_type="Readout")
         awg.update_readout_params()
+    with pytest.raises(Exception):
+        awg._apply_receive_trigger_settings()
+    with pytest.raises(Exception):
+        awg._apply_zsync_trigger_settings()
 
 
 @given(st.integers(12))

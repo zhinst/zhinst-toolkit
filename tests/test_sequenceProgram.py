@@ -8,13 +8,25 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import SequenceProgram, SequenceType, TriggerMode, Alignment
+from .context import SequenceProgram, SequenceType, TriggerMode, Alignment, DeviceTypes
 
 
 class SequenceProgramMachine(RuleBasedStateMachine):
     def __init__(self):
         super().__init__()
         self.sequenceProgram = SequenceProgram()
+
+    @rule(t=st.integers(1, 3))
+    def change_device_type(self, t):
+        types = {
+            1: DeviceTypes.HDAWG,
+            2: DeviceTypes.UHFQA,
+            3: DeviceTypes.UHFLI,
+        }
+        self.sequenceProgram.set_params(target=types[t])
+        params = self.sequenceProgram.list_params()
+        target = params["sequence_parameters"]["target"]
+        assert target == types[t]
 
     @rule(t=st.integers(0, 9))
     def change_sequence_by_enum(self, t):
@@ -54,7 +66,7 @@ class SequenceProgramMachine(RuleBasedStateMachine):
         else:
             assert self.sequenceProgram.sequence_type.value == types[t]
 
-    @rule(t=st.integers(0, 4))
+    @rule(t=st.integers(0, 5))
     def change_trigger_by_enum(self, t):
         types = {
             0: TriggerMode.NONE,
@@ -62,6 +74,7 @@ class SequenceProgramMachine(RuleBasedStateMachine):
             2: TriggerMode.EXTERNAL_TRIGGER,
             3: TriggerMode.RECEIVE_TRIGGER,
             4: TriggerMode.SEND_AND_RECEIVE_TRIGGER,
+            5: TriggerMode.ZSYNC_TRIGGER,
         }
         self.sequenceProgram.set_params(trigger_mode=types[t])
         params = self.sequenceProgram.list_params()
@@ -72,7 +85,7 @@ class SequenceProgramMachine(RuleBasedStateMachine):
         else:
             assert trigger_mode == types[t]
 
-    @rule(t=st.integers(-1, 4))
+    @rule(t=st.integers(-1, 5))
     def change_trigger_by_string(self, t):
         types = {
             -1: "None",
@@ -81,6 +94,7 @@ class SequenceProgramMachine(RuleBasedStateMachine):
             2: "External Trigger",
             3: "Receive Trigger",
             4: "Send and Receive Trigger",
+            5: "ZSync Trigger",
         }
         self.sequenceProgram.set_params(trigger_mode=types[t])
         params = self.sequenceProgram.list_params()
@@ -147,7 +161,18 @@ class SequenceProgramMachine(RuleBasedStateMachine):
         else:
             self.sequenceProgram.set_params(latency_adjustment=i)
             params = self.sequenceProgram.list_params()
-            assert params["sequence_parameters"]["latency_adjustment"] == i
+            target = params["sequence_parameters"]["target"]
+            trigger_mode = params["sequence_parameters"]["trigger_mode"]
+            latency_adjustment = params["sequence_parameters"]["latency_adjustment"]
+            latency_cycles = params["sequence_parameters"]["latency_cycles"]
+            assert latency_adjustment == i
+            if target in [DeviceTypes.HDAWG]:
+                if trigger_mode in [TriggerMode.ZSYNC_TRIGGER]:
+                    assert latency_cycles == 0 + latency_adjustment
+                else:
+                    assert latency_cycles == 27 + latency_adjustment
+            elif target in [DeviceTypes.UHFLI, DeviceTypes.UHFQA]:
+                assert latency_cycles == 0 + latency_adjustment
 
     @rule(i=st.booleans())
     def change_reset_phase(self, i):

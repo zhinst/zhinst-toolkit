@@ -208,8 +208,14 @@ class Sequence(object):
         # and QA trigger command depending on the device type
         if self.target in [DeviceTypes.HDAWG]:
             self.clock_rate = 2.4e9
-            # Default trigger latency compensation for HDAWG = 27 cycles
-            self.latency_cycles = 27 + self.latency_adjustment
+            if self.trigger_mode in [TriggerMode.ZSYNC_TRIGGER]:
+                # Default trigger latency for HDAWG with ZSync trigger
+                # = 0 cycles
+                self.latency_cycles = 0 + self.latency_adjustment
+            else:
+                # Default trigger latency for HDAWG with Master trigger
+                # = 27 cycles
+                self.latency_cycles = 27 + self.latency_adjustment
             # HDAWG has no quantum analyzer
             self.readout_cmd_trigger = SequenceCommand.comment_line()
         elif self.target in [DeviceTypes.UHFLI, DeviceTypes.UHFQA]:
@@ -300,6 +306,16 @@ class Sequence(object):
             )
             # Wait for external trigger
             self.trigger_cmd_wait = SequenceCommand.wait_dig_trigger(1, self.target)
+        elif self.trigger_mode == TriggerMode.ZSYNC_TRIGGER:
+            self.trigger_cmd_define = SequenceCommand.comment_line()
+            self.trigger_cmd_send = SequenceCommand.comment_line()
+            # Wait for ZSYNC trigger
+            # strip '\n' at the end and add an inline comment
+            self.trigger_cmd_wait = (
+                SequenceCommand.wait_zsync_trigger().rstrip()
+                + SequenceCommand.space()
+                + SequenceCommand.inline_comment("Wait for ZSYNC trigger")
+            )
 
     @deprecation.deprecated(
         deprecated_in="0.2.0",
@@ -1078,6 +1094,7 @@ class CustomSequence(Sequence):
         self.sequence += self.program
 
     def update_params(self):
+        super().update_params()
         if self.path:
             self.program = Path(self.path).read_text()
         for i, p in enumerate(self.custom_params):
