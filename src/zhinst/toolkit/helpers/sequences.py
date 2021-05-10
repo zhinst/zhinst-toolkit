@@ -410,12 +410,24 @@ class PulseTrainSequence(Sequence):
             self.sequence += SequenceCommand.init_buffer_indexed(
                 self.buffer_lengths[i], i
             )
-        self.sequence += SequenceCommand.trigger(0)
+        
+        if self.trigger_mode == TriggerMode.SEND_TRIGGER:
+            self.sequence += self.trigger_cmd_1
+        else:
+            self.sequence += SequenceCommand.trigger(0)
+
         self.sequence += SequenceCommand.repeat(self.repetitions)
+
         for i in range(self.n_HW_loop):
             self.sequence += SequenceCommand.count_waveform(i, self.n_HW_loop)
             self.sequence += SequenceCommand.play_wave_indexed(i)
+
+        if self.trigger_mode == TriggerMode.SEND_TRIGGER:
+            self.sequence += self.trigger_cmd_2
+
         self.sequence += SequenceCommand.close_bracket()
+
+
 
     def update_params(self):
         super().update_params()
