@@ -58,7 +58,9 @@ class HDAWG(BaseInstrument):
 
     def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
         super().__init__(name, DeviceTypes.HDAWG, serial, discovery, **kwargs)
-        self._awgs = [AWG(self, i) for i in range(4)]
+        self._awgs = []
+        self.ref_clock = None
+        self.ref_clock_status = None
 
     def connect_device(self, nodetree: bool = True) -> None:
         """Connects the device to the data server and initializes the AWGs.
@@ -70,7 +72,21 @@ class HDAWG(BaseInstrument):
 
         """
         super().connect_device(nodetree=nodetree)
+        self._awgs = [AWG(self, i) for i in range(4)]
         [awg._setup() for awg in self.awgs]
+        self.ref_clock = Parameter(
+            self,
+            self._get_node_dict(f"system/clocks/referenceclock/source"),
+            device=self,
+            set_parser=Parse.set_ref_clock_w_zsync,
+            get_parser=Parse.get_ref_clock_w_zsync,
+        )
+        self.ref_clock_status = Parameter(
+            self,
+            self._get_node_dict(f"system/clocks/referenceclock/status"),
+            device=self,
+            get_parser=Parse.get_locked_status,
+        )
 
     def factory_reset(self) -> None:
         """Loads the factory default settings."""
@@ -92,10 +108,23 @@ class HDAWG(BaseInstrument):
         ]
         self._set(settings)
 
+    def enable_manual_mode(self) -> None:
+        settings = [
+            # Set internal clock to be used as reference
+            ("/system/clocks/referenceclock/source", "internal"),
+            # Configure DIO settigns to factory default values
+            # Set interface standard to use on the 32-bit DIO to LVCMOS
+            ("/dios/0/interface", 0),
+            # Enable manual control of the DIO output bits
+            ("/dios/0/mode", "manual"),
+            # Disable drive for all DIO bits
+            ("/dios/0/drive", 0b0000),
+        ]
+        self._set(settings)
+
     def _init_settings(self):
         """Sets initial device settings on startup."""
         settings = [
-            ("/system/clocks/referenceclock/source", 1),
             ("awgs/*/single", 1),
         ]
         self._set(settings)
@@ -158,75 +187,39 @@ class AWG(AWGCore):
         self._iq_modulation = False
         self.output1 = Parameter(
             self,
-            dict(
-                Node=f"sigouts/{2*self._index}/on",
-                Description="Enables or disables both ouputs of the AWG. Either can be {'1', '0'} or {'on', 'off'}.",
-                Type="Integer",
-                Properties="Read, Write",
-                Unit="None",
-            ),
+            self._parent._get_node_dict(f"sigouts/{2*self._index}/on"),
             device=self._parent,
             set_parser=Parse.set_on_off,
             get_parser=Parse.get_on_off,
         )
         self.output2 = Parameter(
             self,
-            dict(
-                Node=f"sigouts/{2*self._index+1}/on",
-                Description="Enables or disables both ouputs of the AWG. Either can be {'1', '0'} or {'on', 'off'}.",
-                Type="Integer",
-                Properties="Read, Write",
-                Unit="None",
-            ),
+            self._parent._get_node_dict(f"sigouts/{2*self._index+1}/on"),
             device=self._parent,
             set_parser=Parse.set_on_off,
             get_parser=Parse.get_on_off,
         )
         self.modulation_freq = Parameter(
             self,
-            dict(
-                Node=f"oscs/{4 * self._index}/freq",
-                Description="Sets the modulation frequency of the AWG output channels.",
-                Type="Double",
-                Properties="Read, Write",
-                Unit="Hz",
-            ),
+            self._parent._get_node_dict(f"oscs/{4 * self._index}/freq"),
             device=self._parent,
             set_parser=Parse.greater0,
         )
         self.modulation_phase_shift = Parameter(
             self,
-            dict(
-                Node=f"sines/{2 * self._index + 1}/phaseshift",
-                Description="Sets the modulation phase shift between the two AWG output channels.",
-                Type="Double",
-                Properties="Read, Write",
-                Unit="Degrees",
-            ),
+            self._parent._get_node_dict(f"sines/{2 * self._index + 1}/phaseshift"),
             device=self._parent,
             set_parser=Parse.phase,
         )
         self.gain1 = Parameter(
             self,
-            dict(
-                Node=f"awgs/{self._index}/outputs/0/gains/0",
-                Description="Sets the gain of the first output channel.",
-                Type="Double",
-                Properties="Read, Write",
-                Unit="None",
-            ),
+            self._parent._get_node_dict(f"awgs/{self._index}/outputs/0/gains/0"),
             device=self._parent,
             set_parser=Parse.amp1,
         )
         self.gain2 = Parameter(
             self,
-            dict(
-                Node=f"awgs/{self._index}/outputs/1/gains/1",
-                Description="Sets the gain of the second output channel.",
-                Type="Double",
-                Properties="Read, Write",
-                Unit="None",
-            ),
+            self._parent._get_node_dict(f"awgs/{self._index}/outputs/1/gains/1"),
             device=self._parent,
             set_parser=Parse.amp1,
         )

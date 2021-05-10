@@ -9,14 +9,36 @@ from .context import UHFQA, UHFQA_AWG, ReadoutChannel, DeviceTypes
 def test_init_uhfqa():
     qa = UHFQA("name", "dev1234")
     assert qa.device_type == DeviceTypes.UHFQA
-    assert qa._awg is not None
-    assert len(qa.channels) == 10
-    assert qa.integration_time is not None
-    assert qa.result_source is not None
+    assert qa._awg is None
+    assert len(qa.channels) == 0
+    assert qa.integration_time is None
+    assert qa.result_source is None
+    assert qa.ref_clock is None
+    assert qa._qa_delay_user is None
     with pytest.raises(Exception):
         qa._init_settings()
+
+
+def test_methods_uhfqa():
+    qa = UHFQA("name", "dev1234")
+    with pytest.raises(Exception):
+        qa.connect_device()
+    with pytest.raises(Exception):
+        qa.factory_reset()
+    with pytest.raises(Exception):
+        qa.crosstalk_matrix()
+    with pytest.raises(Exception):
+        qa.enable_readout_channels()
+    with pytest.raises(Exception):
+        qa.disable_readout_channels()
     with pytest.raises(Exception):
         qa.enable_qccs_mode()
+    with pytest.raises(Exception):
+        qa.enable_manual_mode()
+    with pytest.raises(Exception):
+        qa.arm()
+    with pytest.raises(Exception):
+        qa._qa_delay_default()
 
 
 def test_init_uhfqa_awg():

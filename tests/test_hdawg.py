@@ -10,10 +10,22 @@ def test_init_hdawg():
     hd = HDAWG("name", "dev1234")
     assert len(hd._awgs) == 4
     assert hd.device_type == DeviceTypes.HDAWG
+    assert hd.ref_clock is None
+    assert hd.ref_clock_status is None
     with pytest.raises(Exception):
         hd._init_settings()
+
+
+def test_methods_hdawg():
+    hd = HDAWG("name", "dev1234")
+    with pytest.raises(Exception):
+        hd.connect_device()
+    with pytest.raises(Exception):
+        hd.factory_reset()
     with pytest.raises(Exception):
         hd.enable_qccs_mode()
+    with pytest.raises(Exception):
+        hd.enable_manual_mode()
 
 
 def test_init_hdawg_awg():

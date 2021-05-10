@@ -35,6 +35,56 @@ class Parse:
         return map[v]
 
     @staticmethod
+    def set_ref_clock_wo_zsync(v):
+        if isinstance(v, str):
+            map = {"internal": 0, "external": 1}
+            if v.lower() not in map.keys():
+                raise ValueError(f"The input value must be in {map.keys()}.")
+            v = map[v.lower()]
+        elif not isinstance(v, int):
+            raise ValueError(
+                "This value must be either 'internal' or 'external' or an integer."
+            )
+        return v
+
+    @staticmethod
+    def get_ref_clock_wo_zsync(v):
+        v = int(v)
+        map = {0: "internal", 1: "external"}
+        if v not in map.keys():
+            raise ValueError("Invalid value returned from the instrument!")
+        return map[v]
+
+    @staticmethod
+    def set_ref_clock_w_zsync(v):
+        if isinstance(v, str):
+            map = {"internal": 0, "external": 1, "zsync": 2}
+            if v.lower() not in map.keys():
+                raise ValueError(f"The input value must be in {map.keys()}.")
+            v = map[v.lower()]
+        elif not isinstance(v, int):
+            raise ValueError(
+                "This value must be either 'internal', 'external', 'zsync' or an integer."
+            )
+        return v
+
+    @staticmethod
+    def get_ref_clock_w_zsync(v):
+        v = int(v)
+        map = {0: "internal", 1: "external", 2: "zsync"}
+        if v not in map.keys():
+            raise ValueError("Invalid value returned from the instrument!")
+        return map[v]
+
+    @staticmethod
+    def get_locked_status(v):
+        v = int(v)
+        map = {0: "locked", 1: "error", 2: "busy"}
+        if v not in map.keys():
+            raise ValueError("Invalid value returned from the instrument!")
+        return map[v]
+
+    @staticmethod
     def amp1(v):
         if abs(v) > 1:
             raise ValueError(f"The given value {v} must be within -1 and +1.")
