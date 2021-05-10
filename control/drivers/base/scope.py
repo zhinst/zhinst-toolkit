@@ -110,6 +110,11 @@ class ScopeModule:
 
     def _init_settings(self):
         pass
+    
+    def armtrigger(self):
+        self._module.subscribe(f"{self._parent.serial}/scopes/0/wave")
+        self._module.execute()
+        self._parent._set(f"/scopes/0/enable", 1)
 
     def measure(self, timeout=10):
         self._module.subscribe(f"{self._parent.serial}/scopes/0/wave")
@@ -127,6 +132,23 @@ class ScopeModule:
         )
         self._module.finish()
         return self._result
+    
+    def stop(self, timeout=10000):
+
+        start = time.time()
+        while not self._get("records") and time.time() - start < timeout:
+            time.sleep(0.001)
+
+        self._parent._set(f"/scopes/0/enable", 0)
+        self._result = ScopeWaves(
+            self._module.read(flat=True),
+            self._parent.serial,
+            clk_base=self._parent._get("clockbase"),
+            scope_time=self._parent._get("scopes/0/time"),
+        )
+        self._module.finish()
+        return self._result
+
 
     def __repr__(self):
         s = "result:\n"

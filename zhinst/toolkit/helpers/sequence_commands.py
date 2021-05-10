@@ -163,7 +163,7 @@ class SequenceCommand(object):
 
     @staticmethod
     def close_bracket():
-        return "\n}"
+        return "\n}\n"
 
     @staticmethod
     def wait_dig_trigger(index=0):
