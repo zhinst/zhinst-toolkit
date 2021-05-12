@@ -123,12 +123,22 @@ class BaseInstrument:
         if nodetree:
             self._nodetree = NodeTree(self)
         self._options = self._get("/features/options").split("\n")
+        self._init_params()
         self._init_settings()
 
     def factory_reset(self) -> None:
         """Loads the factory default settings."""
         self._set(f"/system/preset/load", 1)
         _logger.info(f"Factory preset is loaded to device {self.serial.upper()}.")
+
+    def _init_params(self):
+        """Initialize parameters associated with device nodes.
+
+        Can be overwritten by any instrument that inherits from the
+        :class:`BaseInstrument`.
+
+        """
+        pass
 
     def _init_settings(self):
         """Initial device settings.
@@ -249,6 +259,34 @@ class BaseInstrument:
         self._check_connected()
         return self._controller.get_nodetree(prefix, **kwargs)
 
+    def _get_node_dict(self, node: str) -> Dict:
+        """Gets the dictionary associated with the specified node.
+
+        This method uses `_get_nodetree()` to retrieve the nested
+        dictionary associated with the specified node of the device.
+        Then it extracts the value of the outer dictionary to return the
+        inner dictionary containing the keys: 'Node', 'Description',
+        'Unit', etc.
+
+        Arguments:
+            node (str): A string that specifies the node address.
+
+        Raises:
+            ToolkitError: if called and the device is not yet connected to
+                the data server or the node does not exist.
+
+        Returns:
+            The dictionary that containing the keys: 'Node',
+        'Description', 'Unit', etc.
+
+        """
+        # self._check_connected()
+        self._check_node_exists(node)
+        device_node = self.serial + "/" + node
+        nested_dict = self._get_nodetree(device_node)
+        inner_dict = list(nested_dict.values())[0]
+        return inner_dict
+
     def _get_streamingnodes(self) -> List:
         self._check_connected()
         nodes = self._controller.get_nodetree(f"/{self.serial}/*", streamingonly=True)
@@ -273,6 +311,20 @@ class BaseInstrument:
         if not self.is_connected:
             raise ToolkitError(
                 f"The device {self.name} ({self.serial}) is not connected to a Data Server! Use device.setup() to establish a data server connection."
+            )
+
+    def _check_node_exists(self, node: str):
+        """Checks if the the specified node of the device exists.
+
+        Raises:
+            ToolkitError if the node does not exist.
+
+        """
+        device_node = self.serial + "/" + node
+        if self._get_nodetree(device_node) == {}:
+            raise ToolkitError(
+                f"The device {self.name} ({self.serial}) does not have "
+                f"the node {device_node}. Please check the node address."
             )
 
     @property

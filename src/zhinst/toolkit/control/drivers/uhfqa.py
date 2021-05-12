@@ -115,45 +115,12 @@ class UHFQA(BaseInstrument):
 
     def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
         super().__init__(name, DeviceTypes.UHFQA, serial, discovery, **kwargs)
-        self._awg = AWG(self, 0)
-        self._channels = [ReadoutChannel(self, i) for i in range(10)]
-        self.integration_time = Parameter(
-            self,
-            dict(
-                Node="qas/0/integration/length",
-                Description="The integration time of the QA Integration unit.",
-                Type="Double",
-                Properties="Read, Write",
-                Unit="s",
-            ),
-            device=self,
-            set_parser=Parse.uhfqa_time2samples,
-            get_parser=Parse.uhfqa_samples2time,
-        )
-        self.result_source = Parameter(
-            self,
-            dict(
-                Node="qas/0/result/source",
-                Description="The signal source for the QA Results unit. One of {'Crosstalk', 'Threshold', 'Rotation', 'Crosstalk Correlation', 'Threshold Correlation', 'Integration'}.",
-                Type="Integer",
-                Properties="Read, Write",
-                Unit="None",
-            ),
-            device=self,
-            mapping=MAPPINGS["result_source"],
-        )
-        self.averaging_mode = Parameter(
-            self,
-            dict(
-                Node="qas/0/result/mode",
-                Description="Selects the order of the result logger. One of {'Cyclic', 'Sequential'}.",
-                Type="Integer",
-                Properties="Read, Write",
-                Unit="None",
-            ),
-            device=self,
-            mapping=MAPPINGS["averaging_mode"],
-        )
+        self._awg = None
+        self._channels = []
+        self.integration_time = None
+        self.result_source = None
+        self.averaging_mode = None
+        self.ref_clock = None
         self._qa_delay_user = 0
 
     def connect_device(self, nodetree: bool = True) -> None:
@@ -166,7 +133,8 @@ class UHFQA(BaseInstrument):
 
         """
         super().connect_device(nodetree=nodetree)
-        self.awg._setup()
+        self._init_awg_cores()
+        self._init_readout_channels()
 
     def factory_reset(self) -> None:
         """Loads the factory default settings."""
@@ -317,6 +285,45 @@ class UHFQA(BaseInstrument):
         else:
             return 200
 
+    def _init_awg_cores(self):
+        """Initialize the AWGs cores of the device."""
+        self._awg = AWG(self, 0)
+        self.awg._setup()
+        self.awg._init_awg_params()
+
+    def _init_readout_channels(self):
+        """Initialize the readout channels of the device."""
+        self._channels = [ReadoutChannel(self, i) for i in range(10)]
+        [channel._init_channel_params() for channel in self.channels]
+
+    def _init_params(self):
+        self.integration_time = Parameter(
+            self,
+            self._get_node_dict("qas/0/integration/length"),
+            device=self,
+            set_parser=Parse.uhfqa_time2samples,
+            get_parser=Parse.uhfqa_samples2time,
+        )
+        self.result_source = Parameter(
+            self,
+            self._get_node_dict("qas/0/result/source"),
+            device=self,
+            mapping=MAPPINGS["result_source"],
+        )
+        self.averaging_mode = Parameter(
+            self,
+            self._get_node_dict("qas/0/result/mode"),
+            device=self,
+            mapping=MAPPINGS["averaging_mode"],
+        )
+        self.ref_clock = Parameter(
+            self,
+            self._get_node_dict(f"system/extclk"),
+            device=self,
+            set_parser=Parse.set_ref_clock_wo_zsync,
+            get_parser=Parse.get_ref_clock_wo_zsync,
+        )
+
     def _init_settings(self):
         settings = [
             ("awgs/0/single", 1),
@@ -353,53 +360,35 @@ class AWG(AWGCore):
 
     def __init__(self, parent: BaseInstrument, index: int) -> None:
         super().__init__(parent, index)
+        self.output1 = None
+        self.output2 = None
+        self.gain1 = None
+        self.gain2 = None
+
+    def _init_awg_params(self):
         self.output1 = Parameter(
             self,
-            dict(
-                Node="sigouts/0/on",
-                Description="Enables or disables both ouputs of the AWG. Either can be {'1', '0'} or {'on', 'off'}.",
-                Type="Integer",
-                Properties="Read, Write",
-                Unit="None",
-            ),
+            self._parent._get_node_dict("sigouts/0/on"),
             device=self._parent,
             set_parser=Parse.set_on_off,
             get_parser=Parse.get_on_off,
         )
         self.output2 = Parameter(
             self,
-            dict(
-                Node="sigouts/1/on",
-                Description="Enables or disables both ouputs of the AWG. Either can be {'1', '0'} or {'on', 'off'}.",
-                Type="Integer",
-                Properties="Read, Write",
-                Unit="None",
-            ),
+            self._parent._get_node_dict("sigouts/1/on"),
             device=self._parent,
             set_parser=Parse.set_on_off,
             get_parser=Parse.get_on_off,
         )
         self.gain1 = Parameter(
             self,
-            dict(
-                Node="awgs/0/outputs/0/amplitude",
-                Description="Sets the gain of the first output channel.",
-                Type="Double",
-                Properties="Read, Write",
-                Unit="None",
-            ),
+            self._parent._get_node_dict("awgs/0/outputs/0/amplitude"),
             device=self._parent,
             set_parser=Parse.amp1,
         )
         self.gain2 = Parameter(
             self,
-            dict(
-                Node="awgs/0/outputs/1/amplitude",
-                Description="Sets the gain of the second output channel.",
-                Type="Double",
-                Properties="Read, Write",
-                Unit="None",
-            ),
+            self._parent._get_node_dict("awgs/0/outputs/1/amplitude"),
             device=self._parent,
             set_parser=Parse.amp1,
         )
@@ -636,39 +625,26 @@ class ReadoutChannel:
         self._readout_frequency = 100e6
         self._readout_amplitude = 1
         self._phase_shift = 0
+        self.rotation = None
+        self.threshold = None
+        self.result = None
+
+    def _init_channel_params(self):
         self.rotation = Parameter(
             self,
-            dict(
-                Node=f"qas/0/rotations/{self._index}",
-                Description="Sets the rotation of the readout channel in degrees.",
-                Type="Double",
-                Properties="Read, Write",
-                Unit="Degrees",
-            ),
+            self._parent._get_node_dict(f"qas/0/rotations/{self._index}"),
             device=self._parent,
             set_parser=Parse.deg2complex,
             get_parser=Parse.complex2deg,
         )
         self.threshold = Parameter(
             self,
-            dict(
-                Node=f"qas/0/thresholds/{self._index}/level",
-                Description="Sets the threshold of the readout channel.",
-                Type="Double",
-                Properties="Read, Write",
-                Unit="None",
-            ),
+            self._parent._get_node_dict(f"qas/0/thresholds/{self._index}/level"),
             device=self._parent,
         )
         self.result = Parameter(
             self,
-            dict(
-                Node=f"qas/0/result/data/{self._index}/wave",
-                Description="Returns the result vector of the readout channel.",
-                Type="Numpy array",
-                Properties="Read",
-                Unit="None",
-            ),
+            self._parent._get_node_dict(f"qas/0/result/data/{self._index}/wave"),
             device=self._parent,
             get_parser=self._average_result,
         )
