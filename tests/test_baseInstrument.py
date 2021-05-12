@@ -54,11 +54,15 @@ def test_check_connection():
     with pytest.raises(ToolkitError):
         instr._check_connected()
     with pytest.raises(ToolkitError):
+        instr._check_node_exists("sigouts/0/on")
+    with pytest.raises(ToolkitError):
         instr.connect_device()
     with pytest.raises(ToolkitError):
         instr._get("sigouts/0/on")
     with pytest.raises(ToolkitError):
         instr._set("sigouts/0/on", 1)
+    with pytest.raises(ToolkitError):
+        instr._get_node_dict("sigouts/0/on")
 
 
 def test_serials():

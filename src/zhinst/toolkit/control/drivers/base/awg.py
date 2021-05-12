@@ -101,6 +101,15 @@ class AWGCore:
     def _setup(self):
         self._module = self._parent._controller._connection.awg_module
 
+    def _init_awg_params(self):
+        """Initialize parameters associated with device AWG nodes.
+
+        Can be overwritten by any AWG core that inherits from the
+        :class:`AWGCore`.
+
+        """
+        pass
+
     @property
     def index(self):
         return self._index
