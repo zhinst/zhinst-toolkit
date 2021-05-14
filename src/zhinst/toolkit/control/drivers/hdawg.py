@@ -94,6 +94,20 @@ class HDAWG(BaseInstrument):
         ]
         self._set(settings)
 
+    def enable_manual_mode(self) -> None:
+        settings = [
+            # Set internal clock to be used as reference
+            ("/system/clocks/referenceclock/source", "internal"),
+            # Configure DIO settigns to factory default values
+            # Set interface standard to use on the 32-bit DIO to LVCMOS
+            ("/dios/0/interface", 0),
+            # Enable manual control of the DIO output bits
+            ("/dios/0/mode", "manual"),
+            # Disable drive for all DIO bits
+            ("/dios/0/drive", 0b0000),
+        ]
+        self._set(settings)
+
     def _init_awg_cores(self):
         """Initialize the AWGs cores of the device."""
         self._awgs = [AWG(self, i) for i in range(4)]

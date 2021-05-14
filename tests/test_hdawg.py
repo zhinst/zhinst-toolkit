@@ -29,6 +29,8 @@ def test_methods_hdawg():
         hd.factory_reset()
     with pytest.raises(Exception):
         hd.enable_qccs_mode()
+    with pytest.raises(Exception):
+        hd.enable_manual_mode()
 
 
 def test_init_hdawg_awg():

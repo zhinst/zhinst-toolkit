@@ -211,6 +211,20 @@ class UHFQA(BaseInstrument):
         ]
         self._set(settings)
 
+    def enable_manual_mode(self) -> None:
+        settings = [
+            # Use internal clock as reference
+            ("/system/extclk", "internal"),
+            # Configure DIO settigns to factory default values
+            # Clock DIO internally with a frequency of 56.25 MHz
+            ("/dios/0/extclk", 0),
+            # Enable manual control of the DIO output bits
+            ("/dios/0/mode", "manual"),
+            # Disable drive for all DIO bits
+            ("/dios/0/drive", 0b0000),
+        ]
+        self._set(settings)
+
     def arm(self, length=None, averages=None) -> None:
         """Prepare UHFQA for result acquisition.
 
