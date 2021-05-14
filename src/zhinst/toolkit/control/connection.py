@@ -108,7 +108,10 @@ class ZIConnection:
         print(
             f"Successfully connected to device {serial.upper()} on interface {interface.upper()}"
         )
-        self._awg_module.update(device=serial, index=0)
+        # Check if device has AWG functionality and update the module
+        device_awg_nodes = self._daq.listNodes(f"{serial}/AWG*")
+        if device_awg_nodes != []:
+            self._awg_module.update(device=serial, index=0)
 
     def set(self, *args):
         """Wrapper around the `zi.ziDAQServer.set()` method of the API.

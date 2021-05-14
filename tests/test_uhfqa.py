@@ -46,6 +46,8 @@ def test_methods_uhfqa():
         qa.arm(averages=10)
     with pytest.raises(Exception):
         qa.enable_qccs_mode()
+    with pytest.raises(Exception):
+        qa.enable_manual_mode()
 
 
 @given(delay_adj=st.integers(-300, 1300))
