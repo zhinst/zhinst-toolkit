@@ -219,23 +219,26 @@ class AWGCore:
     ) -> None:
         """Adds a new waveform to the queue.
 
-        Arguments:
-            wave1 (array): The waveform to be queued for Channel 1 as a 1D numpy
-                array.
-            wave2 (array): The waveform to be queued for Channel 2 as a 1D numpy
-                array.
+         Arguments:
+             wave1 (array): The waveform to be queued for Channel 1 as a 1D numpy
+                 array.
+             wave2 (array): The waveform to be queued for Channel 2 as a 1D numpy
+                 array.
 
-        Keyword Arguments:
-            delay (int): An individual delay in seconds for this waveform w.r.t.
-                the time origin of the sequence. (default: 0)
+         Keyword Arguments:
+             delay (int): An individual delay in seconds for this waveform w.r.t.
+                 the time origin of the sequence. (default: 0)
 
         Raises:
-            Exception: If the sequence is not of type *'Simple'*.
+             Exception: If the sequence is not of type *'Simple'* or *'Custom'*.
 
         """
-        if self._program.sequence_type != SequenceType.SIMPLE:
+        if self._program.sequence_type not in [
+            SequenceType.SIMPLE,
+            SequenceType.CUSTOM,
+        ]:
             raise Exception(
-                "Waveform upload only possible for 'Simple' sequence program!"
+                "Waveform upload only possible for 'Simple' and 'Custom' sequence programs!"
             )
         self._waveforms.append(Waveform(wave1, wave2, delay=delay))
         print(f"Current length of queue: {len(self._waveforms)}")

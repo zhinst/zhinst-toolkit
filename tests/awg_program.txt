@@ -1,0 +1,15 @@
+// Define an integer constant
+const N = 4096;
+// Create two Gaussian pulses with length N points,
+// amplitude +1.0 (-1.0), center at N/2, and a width of N/8
+wave gauss_pos = 1.0*gauss(N, N/2, N/8);
+wave gauss_neg = -1.0*gauss(N, N/2, N/8);
+// execute playback sequence 100 times
+repeat (100) {
+  // Play pulse on AWG channel 1
+  playWave(gauss_pos);
+  // Wait until waveform playback has ended
+  waitWave();
+  // Play pulses simultaneously on both AWG channels
+  playWave(gauss_pos, gauss_neg);
+}

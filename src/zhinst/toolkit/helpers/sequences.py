@@ -9,6 +9,7 @@ import numpy as np
 from pathlib import Path
 import deprecation
 import logging
+import re
 
 from .sequence_commands import SequenceCommand
 from .utils import SequenceType, TriggerMode, Alignment
@@ -1055,17 +1056,29 @@ class CWSpectroscopySequence(Sequence):
 
 @attr.s
 class CustomSequence(Sequence):
-    """A *Custom Sequence* for compiling an existing `.seqC` program.
+    """A *Custom Sequence* for compiling an existing AWG program.
 
-    The *Custom Sequence* allows the user to specify the file path to an
-    existing `.seqC` program. It needs to be located in the folder
-    *".../Zurich Instruments/LabOne/WebServer/awg/src"*.
+    The *Custom Sequence* allows the user to specify the Python string
+    variable that stores the AWG program or a path to an existing
+    `.seqC` file.
 
-    Additionally, the *Custom Sequence* gives the user the ability to define
-    variable placeholders in their `.seqC` program. So parameter `custom_params`
-    expects a list of values that replace placeholders in the program. The
-    placeholders are specified as special in the format `"$param{i}$"` where `i`
-    is the index of the value in the *custom_params* list.
+    Additionally, the *Custom Sequence* gives the user the ability to
+    define variable placeholders in their `.seqC` program. So parameter
+    `custom_params` expects a list of values that replace placeholders
+    in the program. The placeholders are specified as special in the
+    format `"$param{i}$"` where `i` is the index of the value in the
+    *custom_params* list.
+
+    If the AWG program is given as a string variable, *string* parameter
+    needs to be used.
+
+        >>> awg.set_sequence_params(
+        >>>    sequence_type="Custom",
+        >>>    string=awg_program,
+        >>> )
+
+    If a file path is used instead of string variable, the *path*
+    parameter needs to be used.
 
         >>> awg.set_sequence_params(
         >>>    sequence_type="Custom",
@@ -1073,35 +1086,73 @@ class CustomSequence(Sequence):
         >>>    custom_params=[1000, 99, 1],
         >>> )
 
-    If the specified *'myProgram.seqC'* sequence program has placeholders
-    `"$param0$"`, `"$param1$"`, `"$param2$"`, they will be replaced by `"1000"`,
-    `"99"`, `"1"`.
+    If the specified *'myProgram.seqC'* sequence program in the example
+    above has placeholders `"$param0$"`, `"$param1$"` and `"$param2$"`,
+    they will be replaced by `"1000"`, `"99"` and `"1"`.
 
     Attributes:
-        path (str): The file path to a preexisting `.seqC` program.
-        custom_params (list): A list of parameter values to replace placeholders
-            in the program.
+        path (str): The path to a preexisting `.seqC` file. (default: "")
+        string (str): The string variable that stores a preexisting
+            AWG program (default: "").
+        custom_params (list): A list of parameter values to replace
+            placeholders in the program (default: []).
 
     """
 
     path = attr.ib(default="")
-    program = attr.ib(default="")
+    string = attr.ib(default="")
+    path_updated = attr.ib(default=False)
+    string_updated = attr.ib(default=False)
     custom_params = attr.ib(default=[])
+    program = attr.ib(default="")
+    additonal_info = attr.ib(default="")
 
     def write_sequence(self):
-        self.sequence = SequenceCommand.header_comment(sequence_type="Custom")
-        self.sequence += f"// from file: {self.path}\n\n"
+        # Call the method from parent class `Sequence` and then overwrite it
+        super().write_sequence()
+        # Update the sequence type information in the header
+        self.sequence = SequenceCommand.replace_sequence_type(
+            self.sequence, SequenceType.CUSTOM
+        )
+        # Delete trigger mode and alignment from header since
+        # they are irrelevant in Custom sequence type
+        self.sequence = re.sub(".*trigger mode.*\n?", "", self.sequence)
+        self.sequence = re.sub(".*alignment.*\n?", "", self.sequence)
+        # Add sequence program source info to the header
+        self.sequence = self.sequence.rstrip() + self.additonal_info
+        # Insert the program
         self.sequence += self.program
 
     def update_params(self):
         super().update_params()
-        if self.path:
-            self.program = Path(self.path).read_text()
+        if self.path != "":
+            self.path_updated = True
+        else:
+            self.path_updated = False
+        if self.string != "":
+            self.string_updated = True
+        else:
+            self.string_updated = False
+        if self.path_updated:
+            if Path(self.path).exists():
+                self.additonal_info = f"\n// from custom .seqc file: {self.path}\n\n"
+                self.program = Path(self.path).read_text()
+            else:
+                self.path = ""
+                raise ValueError("Specified file does not exist!")
+        if self.string_updated:
+            self.additonal_info = f"\n// from custom sequence string\n"
+            self.program = self.string
         for i, p in enumerate(self.custom_params):
-            self.program = self.program.replace(f"$param{i+1}$", str(p))
+            self.program = self.program.replace(f"$param{i}$", str(p))
+        self.path = ""
+        self.string = ""
 
     def check_attributes(self):
-        if self.path:
-            p = Path(self.path)
-            if p.suffix != ".seqc":
+        super().check_attributes()
+        if self.path_updated and self.string_updated:
+            raise Exception("Custom Sequence expects only path or string, not both!")
+        elif self.path_updated and not self.string_updated:
+            p = Path(self.additonal_info.rstrip())
+            if str(p.suffix) != ".seqc":
                 raise ValueError("Specified file is not a .seqc file!")

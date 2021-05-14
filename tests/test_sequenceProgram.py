@@ -4,6 +4,7 @@
 # of the MIT license. See the LICENSE file for details.
 
 import pytest
+import os
 from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
@@ -185,6 +186,49 @@ class SequenceProgramMachine(RuleBasedStateMachine):
         else:
             assert reset_phase is i
 
+    @rule(
+        set_path=st.booleans(),
+        set_string=st.booleans(),
+        path=st.sampled_from(
+            ["awg_program.seqc", "awg_program.txt", "awg_program.none"]
+        ),
+    )
+    def change_custom_sequence_params(self, set_path, set_string, path):
+        rootdir = os.path.dirname(os.path.abspath(__file__))
+        path_abs = os.path.join(rootdir, path)
+        params = self.sequenceProgram.list_params()
+        sequence_type = params["sequence_type"]
+        if sequence_type == SequenceType.CUSTOM:
+            if set_path and not set_string:
+                if path == "awg_program.seqc":
+                    self.sequenceProgram.set_params(path=path_abs)
+                    params = self.sequenceProgram.list_params()
+                    assert path_abs in params["sequence_parameters"]["additonal_info"]
+                    assert (
+                        "// Create two Gaussian pulses with length N points"
+                        in params["sequence_parameters"]["program"]
+                    )
+                elif path == "awg_program.txt":
+                    with pytest.raises(ValueError):
+                        self.sequenceProgram.set_params(path=path_abs)
+                elif path == "awg_program.none":
+                    with pytest.raises(ValueError):
+                        self.sequenceProgram.set_params(path=path_abs)
+            elif not set_path and set_string:
+                self.sequenceProgram.set_params(string="program_string")
+                params = self.sequenceProgram.list_params()
+                assert (
+                    "custom sequence string"
+                    in params["sequence_parameters"]["additonal_info"]
+                )
+                assert "program_string" in params["sequence_parameters"]["program"]
+
+            elif set_path and set_string:
+                with pytest.raises(Exception):
+                    self.sequenceProgram.set_params(
+                        path=path_abs, string="program_string"
+                    )
+
     # @rule(l=st.integers(1, 1000), t=st.floats(100e-9, 10e-6))
     # def change_delays(self, l, t):
     #     test_array = np.linspace(0, t, l)
@@ -202,6 +246,11 @@ class SequenceProgramMachine(RuleBasedStateMachine):
         sequence = self.sequenceProgram.get_seqc()
         sequence_type = self.sequenceProgram.sequence_type
         assert str(sequence_type.value) in sequence
+        if sequence_type == SequenceType.CUSTOM:
+            params = self.sequenceProgram.list_params()
+            if params["sequence_parameters"]["path"]:
+                path = params["sequence_parameters"]["path"]
+                assert str(path) in sequence
 
 
 TestPrograms = SequenceProgramMachine.TestCase
