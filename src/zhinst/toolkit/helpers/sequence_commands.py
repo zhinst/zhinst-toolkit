@@ -340,7 +340,7 @@ class SequenceCommand(object):
 
         if index not in [1, 2]:
             raise ValueError("Invalid Trigger Index!")
-        if target in [DeviceTypes.HDAWG]:
+        if target in [DeviceTypes.HDAWG, DeviceTypes.SHFQA]:
             return f"waitDigTrigger({index});\n"
         elif target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
             return f"waitDigTrigger({index}, 1);\n"

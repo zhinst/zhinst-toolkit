@@ -123,7 +123,7 @@ class Sequence(object):
     target = attr.ib(
         default=DeviceTypes.HDAWG,
         validator=attr.validators.in_(
-            [DeviceTypes.HDAWG, DeviceTypes.UHFQA, DeviceTypes.UHFLI]
+            [DeviceTypes.HDAWG, DeviceTypes.UHFQA, DeviceTypes.UHFLI, DeviceTypes.SHFQA]
         ),
     )
     clock_rate = attr.ib(default=2.4e9, validator=is_greater_equal(0))
