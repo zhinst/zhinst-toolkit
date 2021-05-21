@@ -4,7 +4,7 @@
 # of the MIT license. See the LICENSE file for details.
 
 import json
-import zhinst.ziPython as zi
+
 from zhinst.toolkit.interface import DeviceTypes
 import zhinst.ziPython as zi
 
@@ -128,6 +128,20 @@ class ZIConnection:
         if not self.established:
             raise ToolkitConnectionError("The connection is not yet established.")
         return self._daq.set(*args)
+
+    def setVector(self, *args):
+        """Wrapper around the `zi.ziDAQServer.setVector()` method of the API.
+
+        Passes all arguments to the underlying method.
+
+        Raises:
+            ToolkitConnectionError: is the connection is not yet established
+
+        """
+        if not self.established:
+            raise ToolkitConnectionError("The connection is not yet established.")
+        for setting in args[0]:
+            self._daq.setVector(setting[0], setting[1])
 
     def get(self, *args, **kwargs):
         """Wrapper around the `zi.ziDAQServer.get(...)` method of the API.
@@ -470,6 +484,26 @@ class DeviceConnection(object):
             raise ToolkitConnectionError("Invalid number of arguments!")
         settings = self._commands_to_node(settings)
         return self._connection.set(settings)
+
+    def setVector(self, *args):
+        """Sets the vector value of the node for the connected device.
+
+        Parses the input arguments to either set a single node/vector
+        pair or a list of node/vector tuples. Eventually wraps around
+        the daq.setVector(...) of the API.
+
+        Raises:
+            ToolkitConnectionError if is the input arguments are invalid.
+
+        """
+        if len(args) == 2:
+            settings = [(args[0], args[1])]
+        elif len(args) == 1:
+            settings = args[0]
+        else:
+            raise ToolkitConnectionError("Invalid number of arguments!")
+        settings = self._commands_to_node(settings)
+        self._connection.setVector(settings)
 
     def get(self, command, valueonly=True):
         """Gets the value of the node for the connected device.

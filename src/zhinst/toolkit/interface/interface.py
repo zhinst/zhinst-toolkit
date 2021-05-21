@@ -15,11 +15,12 @@ class DeviceTypes(Enum):
     UHFLI = "uhfli"
     MFLI = "mfli"
     PQSC = "pqsc"
+    SHFQA = "shfqa"
 
 
 @attr.s
 class ZIDeviceConfig:
-    """Device configuration with serial, device_type and itnerface."""
+    """Device configuration with serial, device_type and interface."""
 
     serial: str = attr.ib(default="dev#####")
     device_type: str = attr.ib(default=DeviceTypes.HDAWG)

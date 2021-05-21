@@ -8,6 +8,7 @@ import logging
 import traceback
 
 UHFQA_SAMPLE_RATE = 1.8e9
+SHFQA_SAMPLE_RATE = 2e9
 logging.basicConfig(format="%(levelname)s: %(message)s")
 _logger = logging.getLogger(__name__)
 
@@ -52,6 +53,25 @@ class Parse:
     def get_on_off(v):
         v = int(v)
         map = {1: "on", 0: "off"}
+        if v not in map.keys():
+            raise ValueError("Invalid value returned from the instrument!")
+        return map[v]
+
+    @staticmethod
+    def set_true_false(v):
+        if isinstance(v, bool):
+            map = {True: 1, False: 0}
+            if v not in map.keys():
+                raise ValueError(f"The input value must be in {map.keys()}.")
+            v = map[v]
+        elif not isinstance(v, int):
+            raise ValueError("This value must be either True or False or an integer.")
+        return v
+
+    @staticmethod
+    def get_true_false(v):
+        v = int(v)
+        map = {1: True, 0: False}
         if v not in map.keys():
             raise ValueError("Invalid value returned from the instrument!")
         return map[v]
@@ -150,3 +170,20 @@ class Parse:
     @staticmethod
     def uhfqa_samples2time(v):
         return v / UHFQA_SAMPLE_RATE
+
+    @staticmethod
+    def shfqa_time2samples(v):
+        min_samples = 4
+        max_samples = ((2 ** 23) - 1) * 4
+        multiplicity_samples = 4
+        min_time = min_samples / SHFQA_SAMPLE_RATE
+        max_time = max_samples / SHFQA_SAMPLE_RATE
+        multiplicity_time = multiplicity_samples / SHFQA_SAMPLE_RATE
+        v_rounded = Parse.greater_equal(v, min_time)
+        v_rounded = Parse.smaller_equal(v_rounded, max_time)
+        v_rounded = Parse.multiple_of(v_rounded, multiplicity_time, "down")
+        return int(round(v_rounded * SHFQA_SAMPLE_RATE))
+
+    @staticmethod
+    def shfqa_samples2time(v):
+        return v / SHFQA_SAMPLE_RATE

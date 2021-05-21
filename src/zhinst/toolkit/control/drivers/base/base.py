@@ -225,6 +225,42 @@ class BaseInstrument:
         self._check_connected()
         return self._controller.set(*args)
 
+    def _setVector(self, *args):
+        """Vector setter for the instrument.
+
+        This method loads a vector to the device node, specified by a
+        node string. Passes the arguments to the setVector method of the
+        :class:`DeviceConnection` and the :class:`ZIConnection`.
+        Eventually this method wraps around `daq.setVector(...)` in
+        :mod:`zhinst.ziPython`.
+
+            >>> hdawg._setVector("awgs/0/commandtable/data", command_table)
+
+        The method also supports wildcards in the node path that can be
+        specified with ' * ' as a placeholder.
+
+            >>> hdawg._setVector("awgs/*/commandtable/data", command_table)
+
+        Instead of specifying a single node path and a vector, the user
+        is free to pass a list of node / vector pairs to the method to
+        apply several settings at once with one call of the method.
+
+            >>> settings = [
+            >>>     ("awgs/0/commandtable/data", command_table_0),
+            >>>     ("awgs/1/commandtable/data", command_table_1),
+            >>>     ("awgs/2/commandtable/data", command_table_2),
+            >>>     ("awgs/3/commandtable/data", command_table_3),
+            >>> ]
+            >>> hdawg._setVector(settings)
+
+        Raises:
+            ToolkitError: If called and the device in not yet connected
+                to the data server.
+
+        """
+        self._check_connected()
+        self._controller.setVector(*args)
+
     def _get(self, command: str, valueonly: bool = True):
         """Getter for the instrument.
 
