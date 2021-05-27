@@ -97,6 +97,8 @@ class ScopeModule:
             )
         self._init_settings()
 
+        self._module.subscribe(f"{self._parent.serial}/scopes/0/wave")
+
     def _set(self, *args):
         if self._module is None:
             raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
@@ -111,43 +113,37 @@ class ScopeModule:
     def _init_settings(self):
         pass
     
-    def armtrigger(self):
-        self._module.subscribe(f"{self._parent.serial}/scopes/0/wave")
+    def armtrigger(self, init = 0):
+            # self._parent._set(f"/scopes/0/enable", 1)
         self._module.execute()
-        self._parent._set(f"/scopes/0/enable", 1)
 
-    def measure(self, timeout=10):
-        self._module.subscribe(f"{self._parent.serial}/scopes/0/wave")
-        self._module.execute()
-        self._parent._set(f"/scopes/0/enable", 1)
-        start = time.time()
-        while not self._get("records") and time.time() - start < timeout:
-            time.sleep(0.001)
-        self._parent._set(f"/scopes/0/enable", 0)
-        self._result = ScopeWaves(
-            self._module.read(flat=True),
-            self._parent.serial,
-            clk_base=self._parent._get("clockbase"),
-            scope_time=self._parent._get("scopes/0/time"),
-        )
-        self._module.finish()
+    def measure(self, timeout = 100):
+        self.armtrigger()
+        self.acquire(timeout)
+        self.stop()
         return self._result
     
-    def stop(self, timeout=10000):
-
+    def acquire(self, timeout = 100 ):
         start = time.time()
-        while not self._get("records") and time.time() - start < timeout:
-            time.sleep(0.001)
 
-        self._parent._set(f"/scopes/0/enable", 0)
+        while self._module.progress() < 1 and time.time() - start < timeout: 
+            data = self._module.read(flat=True)
+
+        # while not self._get("records") and time.time() - start < timeout:
+        #    time.sleep(0.001)
+
         self._result = ScopeWaves(
-            self._module.read(flat=True),
+            data,
             self._parent.serial,
             clk_base=self._parent._get("clockbase"),
             scope_time=self._parent._get("scopes/0/time"),
         )
-        self._module.finish()
         return self._result
+
+    def stop(self):
+        self._parent._set(f"/scopes/0/enable", 0)
+        self._module.finish()
+       
 
 
     def __repr__(self):
