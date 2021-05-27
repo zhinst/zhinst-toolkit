@@ -22,16 +22,19 @@ MAPPINGS = {
         5: "Threshold Correlation",
         7: "Integration",
     },
-    "averaging_mode": {0: "Cyclic", 1: "Sequential",},
+    "averaging_mode": {
+        0: "Cyclic",
+        1: "Sequential",
+    },
 }
 
 
 class UHFQA(BaseInstrument):
-    """High-level driver for the Zurich Instruments UHFQA Quantum Analyzer. 
-    
-    Inherits from :class:`BaseInstrument` and adds an :class:`AWGCore` and a 
-    list of :class:`ReadoutChannels`. They can be accessed as properties of the 
-    UHFQA.
+    """High-level driver for the Zurich Instruments UHFQA Quantum Analyzer.
+
+    Inherits from :class:`BaseInstrument` and adds an :class:`AWGCore`
+    and a list of :class:`ReadoutChannels`. They can be accessed as
+    properties of the UHFQA.
 
         >>> import zhinst.toolkit as tk
         >>> ...
@@ -64,116 +67,93 @@ class UHFQA(BaseInstrument):
         >>> uhfqa.awg.set_sequence_params(...)
         >>> uhfqa.channels[0].enable()
         >>> uhfqa.channels[0].readout_frequency(123e6)
+        >>> uhfqa.qa_delay(8) # adjust quantum analyzer delay
         >>> ...
-        >>> uhfqa.arm(length=100, averages=1)   # arm the QA Readout, set length and averages 
-        >>> uhfqa.awg.run()                     # start the AWG    
+        >>> uhfqa.arm(length=100, averages=1)   # arm the QA Readout, set length and averages
+        >>> uhfqa.awg.run()                     # start the AWG
         >>> uhfqa.awg.wait_done()               # wait until AWG is finished
         >>> result = uhfqa.channels[0].result() # get the result vector
 
     Arguments:
         name (str): Identifier for the UHFQA.
-        serial (str): Serial number of the device, e.g. *'dev1234'*. The serial 
-            number can be found on the back panel of the instrument.
+        serial (str): Serial number of the device, e.g. *'dev1234'*. The
+            serial number can be found on the back panel of the
+            instrument.
+        discovery: an instance of ziDiscovery
 
     Attributes:
-        awg (:class:`zhinst.toolkit.control.drivers.uhfqa.AWG`): 
+        awg (:class:`zhinst.toolkit.control.drivers.uhfqa.AWG`):
             A device-specific :class:`AWGCore` for the UHFQA.
-        channels (list): A list of ten 
-            :class:`zhinst.toolkit.control.drivers.uhfqa.ReadoutChannel` s that 
-            each represent the digital signal processing path on the instrument.
-        integration_time (:class:`zhinst.toolkit.control.node_tree.Parameter`): 
-            The time in seconds used for signal integration. The value must be 
-            positive. The maximum value when using weighted integration is 4096 
-            samples or ca. 2.275 us (default: 2.0 us).
-        result_source (:class:`zhinst.toolkit.control.node_tree.Parameter`): 
-            This parameter selects the stage in the signal processing path that 
-            is used as the source for the QA results. It can be one of 
-            {`"Crosstalk"`, `"Threshold"`, `"Rotation"`, `"Crosstalk 
-            Correlation"`, `"Threshold Correlation"`, `"Integration"`}. 
+        channels (list): A list of ten
+            :class:`zhinst.toolkit.control.drivers.uhfqa.ReadoutChannel` s
+            that each represent the digital signal processing path on
+            the instrument.
+        integration_time (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            The time in seconds used for signal integration. The value
+            must be positive. The maximum value when using weighted
+            integration is 4096 samples or ca. 2.275 us (default: 2.0 us).
+        result_source (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            This parameter selects the stage in the signal processing
+            path that is used as the source for the QA results. It can
+            be one of {`"Crosstalk"`, `"Threshold"`, `"Rotation"`,
+            `"Crosstalk Correlation"`, `"Threshold Correlation"`,
+            `"Integration"`}.
         averaging_mode (:class:`zhinst.toolkit.control.node_tree.Parameter`):
-            Mode of averaing in the QA Result Acquisition. Either `"Sequential"` 
-            or `"Cyclic"`.
-            `"Sequential"`: The first point of the Result vector is the average 
-            of the first *N* results where *N* is the value of the *result 
-            averages* setting. The second point is the average of the next *N* 
-            results, and so forth.
-            `"Cyclic"`: The first point in the Result vector is the average of 
-            the results *1, M+1, 2M+1, ...*, where *M* is the value of the 
-            *result length* setting. The second point is the average of the 
-            results number *2, M+2, 2M+2, ...*, and so forth.
-              
-
+            Mode of averaing in the QA Result Acquisition. Either
+            `"Sequential"` or `"Cyclic"`.
+            `"Sequential"`: The first point of the Result vector is the
+            average of the first *N* results where *N* is the value of
+            the *result averages* setting. The second point is the
+            average of the next *N* results, and so forth.
+            `"Cyclic"`: The first point in the Result vector is the
+            average of the results *1, M+1, 2M+1, ...*, where *M* is the
+            value of the *result length* setting. The second point is
+            the average of the results number *2, M+2, 2M+2, ...*, and
+            so forth.
 
     """
 
-    def __init__(self, name: str, serial: str, **kwargs) -> None:
-        super().__init__(name, DeviceTypes.UHFQA, serial, **kwargs)
-        self._awg = AWG(self, 0)
-        self._channels = [ReadoutChannel(self, i) for i in range(10)]
-        self.integration_time = Parameter(
-            self,
-            dict(
-                Node="qas/0/integration/length",
-                Description="The integration time of the QA Integration unit.",
-                Type="Double",
-                Properties="Read, Write",
-                Unit="s",
-            ),
-            device=self,
-            set_parser=Parse.uhfqa_time2samples,
-            get_parser=Parse.uhfqa_samples2time,
-        )
-        self.result_source = Parameter(
-            self,
-            dict(
-                Node="qas/0/result/source",
-                Description="The signal source for the QA Results unit. One of {'Crosstalk', 'Threshold', 'Rotation', 'Crosstalk Correlation', 'Threshold Correlation', 'Integration'}.",
-                Type="Integer",
-                Properties="Read, Write",
-                Unit="None",
-            ),
-            device=self,
-            mapping=MAPPINGS["result_source"],
-        )
-        self.averaging_mode = Parameter(
-            self,
-            dict(
-                Node="qas/0/result/mode",
-                Description="Selects the order of the result logger. One of {'Cyclic', 'Sequential'}.",
-                Type="Integer",
-                Properties="Read, Write",
-                Unit="None",
-            ),
-            device=self,
-            mapping=MAPPINGS["averaging_mode"],
-        )
+    def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
+        super().__init__(name, DeviceTypes.UHFQA, serial, discovery, **kwargs)
+        self._awg = None
+        self._channels = []
+        self.integration_time = None
+        self.result_source = None
+        self.averaging_mode = None
+        self.ref_clock = None
+        self._qa_delay_user = 0
 
     def connect_device(self, nodetree: bool = True) -> None:
         """Connects the device to the data server and initializes the AWG.
-        
+
         Keyword Arguments:
-            nodetree (bool): A flag that specifies if all the parameters from 
-                the device's nodetree should be added to the object's attributes 
+            nodetree (bool): A flag that specifies if all the parameters from
+                the device's nodetree should be added to the object's attributes
                 as `zhinst-toolkit` Parameters. (default: True)
-        
+
         """
         super().connect_device(nodetree=nodetree)
-        self.awg._setup()
+        self._init_awg_cores()
+        self._init_readout_channels()
+
+    def factory_reset(self) -> None:
+        """Loads the factory default settings."""
+        super().factory_reset()
 
     def crosstalk_matrix(self, matrix=None):
         """Sets or gets the crosstalk matrix of the UHFQA as a 2D array.
-        
+
         Keyword Arguments:
-            matrix (2D array): The 2D matrix used in the digital signal 
-                processing path to compensate for crosstalk between the 
-                different channels. The given matrix can also be a part of the 
-                entire 10 x 10 matrix. Its maximum dimensions are 10 x 10. 
+            matrix (2D array): The 2D matrix used in the digital signal
+                processing path to compensate for crosstalk between the
+                different channels. The given matrix can also be a part of the
+                entire 10 x 10 matrix. Its maximum dimensions are 10 x 10.
                 (default: None)
 
         Returns:
-            If no argument is given the method returns the current crosstalk 
+            If no argument is given the method returns the current crosstalk
             matrix as a 2D numpy array.
-        
+
         """
         if matrix is None:
             m = np.zeros((10, 10))
@@ -193,11 +173,11 @@ class UHFQA(BaseInstrument):
 
     def enable_readout_channels(self, channels: List = range(10)) -> None:
         """Enables weighted integration on the specified readout channels.
-        
+
         Keyword Arguments:
-            channels (list): A list of indices of channels to enable. 
+            channels (list): A list of indices of channels to enable.
                 (default: range(10))
-        
+
         """
         for i in channels:
             if i not in range(10):
@@ -206,29 +186,57 @@ class UHFQA(BaseInstrument):
 
     def disable_readout_channels(self, channels: List = range(10)) -> None:
         """Disables weighted integration on the specified readout channels.
-        
+
         Keyword Arguments:
-            channels (list): A list of indices of channels to disable. 
+            channels (list): A list of indices of channels to disable.
                 (default: range(10))
-        
+
         """
         for i in channels:
             if i not in range(10):
                 raise ValueError(f"The channel index {i} is out of range!")
             self.channels[i].disable()
 
+    def enable_qccs_mode(self) -> None:
+        settings = [
+            # Use external 10 MHz clock as reference
+            ("/system/extclk", "external"),
+            # Configure DIO
+            # Clock DIO internally with a frequency of 50 MHz
+            ("/dios/0/extclk", "internal"),
+            # Set DIO output values to QA results compatible with QCCS.
+            ("/dios/0/mode", "qa_result_qccs"),
+            # Drive the two least significant bytes of the DIO port
+            ("/dios/0/drive", 0b0011),
+        ]
+        self._set(settings)
+
+    def enable_manual_mode(self) -> None:
+        settings = [
+            # Use internal clock as reference
+            ("/system/extclk", "internal"),
+            # Configure DIO settigns to factory default values
+            # Clock DIO internally with a frequency of 56.25 MHz
+            ("/dios/0/extclk", 0),
+            # Enable manual control of the DIO output bits
+            ("/dios/0/mode", "manual"),
+            # Disable drive for all DIO bits
+            ("/dios/0/drive", 0b0000),
+        ]
+        self._set(settings)
+
     def arm(self, length=None, averages=None) -> None:
         """Prepare UHFQA for result acquisition.
 
-        This method enables the QA Results Acquisition and resets the acquired 
-        points. Optionally, the *result length* and *result averages* can be set 
-        when specified as keyword arguments. If they are not specified, they are 
-        not changed.  
+        This method enables the QA Results Acquisition and resets the acquired
+        points. Optionally, the *result length* and *result averages* can be set
+        when specified as keyword arguments. If they are not specified, they are
+        not changed.
 
         Keyword Arguments:
-            length (int): If specified, the length of the result vector will be 
+            length (int): If specified, the length of the result vector will be
                 set before arming the UHFQA readout. (default: None)
-            averages (int): If specified, the result averages will be set before 
+            averages (int): If specified, the result averages will be set before
                 arming the UHFQA readout. (default: None)
 
         """
@@ -240,6 +248,95 @@ class UHFQA(BaseInstrument):
         # toggle node value from 0 to 1 for reset
         self._set("qas/0/result/reset", 0)
         self._set("qas/0/result/reset", 1)
+
+    def qa_delay(self, value=None):
+        """Set or get the adjustment in the the quantum analyzer delay.
+
+        Keyword Arguments:
+            value (int): Number of additional samples to adjust the delay
+                (default: None)
+
+        Returns:
+            The adjustment in delay in units of samples.
+
+        """
+        node = f"qas/0/delay"
+        # Return the current adjustment if not argument is passed
+        if value is None:
+            return self._qa_delay_user
+        else:
+            # Round down to greatest multiple of 4, as in LabOne
+            qa_delay_user_temp = int(value // 4) * 4
+            # Calculate final value of adjusted QA delay.
+            qa_delay_adjusted = qa_delay_user_temp + self._qa_delay_default()
+            # Check if final delay is between 0 and 1020
+            if qa_delay_adjusted not in range(0, 1021):
+                raise ValueError("The quantum analyzer delay is out of range!")
+            else:
+                # Overwrite the previous adjustment if range is correct
+                self._qa_delay_user = qa_delay_user_temp
+                # Write the adjusted delay value to the node
+                self._set(node, qa_delay_adjusted)
+                # Return the final adjustment
+                return self._qa_delay_user
+
+    def _qa_delay_default(self):
+        """Return the default value for the quantum analyzer delay.
+
+        Quantum analyzer delay adjusts the time at which the integration
+        starts in relation to the trigger signal of the weighted
+        integration units.
+
+        The default delay value is:
+        184 samples if deskew matrix is bypassed
+        200 samples if deskew matrix is active
+
+        """
+        node = f"qas/0/bypass/deskew"
+        # Check if deskew is bypassed or not
+        if self._get(node):
+            return 184
+        else:
+            return 200
+
+    def _init_awg_cores(self):
+        """Initialize the AWGs cores of the device."""
+        self._awg = AWG(self, 0)
+        self.awg._setup()
+        self.awg._init_awg_params()
+
+    def _init_readout_channels(self):
+        """Initialize the readout channels of the device."""
+        self._channels = [ReadoutChannel(self, i) for i in range(10)]
+        [channel._init_channel_params() for channel in self.channels]
+
+    def _init_params(self):
+        self.integration_time = Parameter(
+            self,
+            self._get_node_dict("qas/0/integration/length"),
+            device=self,
+            set_parser=Parse.uhfqa_time2samples,
+            get_parser=Parse.uhfqa_samples2time,
+        )
+        self.result_source = Parameter(
+            self,
+            self._get_node_dict("qas/0/result/source"),
+            device=self,
+            mapping=MAPPINGS["result_source"],
+        )
+        self.averaging_mode = Parameter(
+            self,
+            self._get_node_dict("qas/0/result/mode"),
+            device=self,
+            mapping=MAPPINGS["averaging_mode"],
+        )
+        self.ref_clock = Parameter(
+            self,
+            self._get_node_dict(f"system/extclk"),
+            device=self,
+            set_parser=Parse.set_ref_clock_wo_zsync,
+            get_parser=Parse.get_ref_clock_wo_zsync,
+        )
 
     def _init_settings(self):
         settings = [
@@ -258,77 +355,60 @@ class UHFQA(BaseInstrument):
 
 class AWG(AWGCore):
     """Device-specific AWG Core for UHFQA.
-    
-    Inherits from `AWGCore` and adds :mod:`zhinst-toolkit` :class:`Parameters` 
-    like ouput or gains. This class also specifies sequence specific settings 
+
+    Inherits from `AWGCore` and adds :mod:`zhinst-toolkit` :class:`Parameters`
+    like ouput or gains. This class also specifies sequence specific settings
     for the UHFQA.
 
     Attributes:
-        output1 (:class:`zhinst.toolkit.control.node_tree.Parameter`): The state 
+        output1 (:class:`zhinst.toolkit.control.node_tree.Parameter`): The state
             of the output of channel 1. Can be one of {'on', 'off'}.
-        output2 (:class:`zhinst.toolkit.control.node_tree.Parameter`): The state 
+        output2 (:class:`zhinst.toolkit.control.node_tree.Parameter`): The state
             of the output of channel 2. Can be one of {'on', 'off'}.
-        gain1 (:class:`zhinst.toolkit.control.node_tree.Parameter`): Gain of the 
+        gain1 (:class:`zhinst.toolkit.control.node_tree.Parameter`): Gain of the
             output channel 1. The value must be between -1 and +1 (default: +1).
-        gain2 (:class:`zhinst.toolkit.control.node_tree.Parameter`): Gain of the 
+        gain2 (:class:`zhinst.toolkit.control.node_tree.Parameter`): Gain of the
             output channel 2. The value must be between -1 and +1 (default: +1).
 
     """
 
     def __init__(self, parent: BaseInstrument, index: int) -> None:
         super().__init__(parent, index)
+        self.output1 = None
+        self.output2 = None
+        self.gain1 = None
+        self.gain2 = None
+
+    def _init_awg_params(self):
         self.output1 = Parameter(
             self,
-            dict(
-                Node="sigouts/0/on",
-                Description="Enables or disables both ouputs of the AWG. Either can be {'1', '0'} or {'on', 'off'}.",
-                Type="Integer",
-                Properties="Read, Write",
-                Unit="None",
-            ),
+            self._parent._get_node_dict("sigouts/0/on"),
             device=self._parent,
             set_parser=Parse.set_on_off,
             get_parser=Parse.get_on_off,
         )
         self.output2 = Parameter(
             self,
-            dict(
-                Node="sigouts/1/on",
-                Description="Enables or disables both ouputs of the AWG. Either can be {'1', '0'} or {'on', 'off'}.",
-                Type="Integer",
-                Properties="Read, Write",
-                Unit="None",
-            ),
+            self._parent._get_node_dict("sigouts/1/on"),
             device=self._parent,
             set_parser=Parse.set_on_off,
             get_parser=Parse.get_on_off,
         )
         self.gain1 = Parameter(
             self,
-            dict(
-                Node="awgs/0/outputs/0/amplitude",
-                Description="Sets the gain of the first output channel.",
-                Type="Double",
-                Properties="Read, Write",
-                Unit="None",
-            ),
+            self._parent._get_node_dict("awgs/0/outputs/0/amplitude"),
             device=self._parent,
             set_parser=Parse.amp1,
         )
         self.gain2 = Parameter(
             self,
-            dict(
-                Node="awgs/0/outputs/1/amplitude",
-                Description="Sets the gain of the second output channel.",
-                Type="Double",
-                Properties="Read, Write",
-                Unit="None",
-            ),
+            self._parent._get_node_dict("awgs/0/outputs/1/amplitude"),
             device=self._parent,
             set_parser=Parse.amp1,
         )
 
     def _apply_sequence_settings(self, **kwargs):
+        # apply settings depending on the sequence type
         if "sequence_type" in kwargs.keys():
             t = SequenceType(kwargs["sequence_type"])
             allowed_sequences = [
@@ -344,7 +424,6 @@ class AWG(AWGCore):
                 raise ToolkitError(
                     f"Sequence type {t} must be one of {[s.value for s in allowed_sequences]}!"
                 )
-            # apply settings depending on sequence type
             elif t == SequenceType.CW_SPEC:
                 self._apply_cw_settings()
             elif t == SequenceType.PULSED_SPEC:
@@ -353,10 +432,25 @@ class AWG(AWGCore):
                 self._apply_readout_settings()
             else:
                 self._apply_base_settings()
-        # apply settings dependent on trigger type
+        # apply settings dependent on trigger mode
         if "trigger_mode" in kwargs.keys():
-            if TriggerMode(kwargs["trigger_mode"]) == TriggerMode.EXTERNAL_TRIGGER:
-                self._apply_trigger_settings()
+            t = TriggerMode(kwargs["trigger_mode"])
+            allowed_trigger_modes = [
+                TriggerMode.NONE,
+                TriggerMode.SEND_TRIGGER,
+                TriggerMode.EXTERNAL_TRIGGER,
+                TriggerMode.RECEIVE_TRIGGER,
+                TriggerMode.SEND_AND_RECEIVE_TRIGGER,
+                TriggerMode.ZSYNC_TRIGGER,
+            ]
+            if t not in allowed_trigger_modes:
+                raise ToolkitError(
+                    f"Trigger mode {t} must be one of {[s.value for s in allowed_trigger_modes]}!"
+                )
+            elif t in [TriggerMode.EXTERNAL_TRIGGER, TriggerMode.RECEIVE_TRIGGER]:
+                self._apply_receive_trigger_settings()
+            elif t == TriggerMode.ZSYNC_TRIGGER:
+                self._apply_zsync_trigger_settings()
 
     def _apply_base_settings(self):
         settings = [
@@ -381,12 +475,38 @@ class AWG(AWGCore):
 
     def _apply_pulsed_settings(self):
         settings = [
-            ("sigouts/*/enables/*", 0),
-            ("sigouts/*/amplitudes/*", 0),
-            ("awgs/0/outputs/*/mode", 1),
-            ("qas/0/integration/mode", 1),
+            # Enable modulation mode of AWG to modulate two output
+            # channels with *sine* and *cosine* of internal oscillator.
+            ("awgs/0/outputs/0/mode", "modulation"),
+            ("awgs/0/outputs/1/mode", "modulation"),
+            # Enable sine generator 0 to Wave output 0 and
+            # sine generator 1 to Wave output 1
+            ("sigouts/0/enables/0", 1),
+            ("sigouts/1/enables/1", 1),
+            # Set amplitudes of the sine generators to zero, so they
+            # are enabled, but no continuous wave output is produced.
+            ("sigouts/0/amplitudes/0", 0),
+            ("sigouts/1/amplitudes/1", 0),
+            # Set the integration mod to the spectroscopy mode to
+            # demodulate the input signals with the *sine* and *cosine*
+            # of the same internal oscillator
+            ("qas/0/integration/mode", "spectroscopy"),
+            # Configure two readout channels such that their outputs are
+            # equal to real and imaginary part of the complex amplitude
+            ("qas/0/bypass/rotation", 0),  # Do not bypass rotation
+            ("qas/0/integration/sources/0", "sigin1_real_sigin0_imag"),
+            ("qas/0/rotations/0", 1 - 1j),
+            ("qas/0/integration/sources/1", "sigin0_real_sigin1_imag"),
+            ("qas/0/rotations/1", 1 + 1j),
+            # Result after Rotation unit
+            ("qas/0/result/source", "result_after_rotation_unit"),
         ]
+        # Apply the settings above
         self._parent._set(settings)
+        # Set the Quantum Analyzer delay. Enabling of deskew matrix
+        # and previous user adjustment are taken into account automatically.
+        self._parent.qa_delay(self._parent._qa_delay_user)
+        # Disable readout channels
         self._parent.disable_readout_channels(range(10))
 
     def _apply_readout_settings(self):
@@ -397,24 +517,36 @@ class AWG(AWGCore):
         ]
         self._parent._set(settings)
 
-    def _apply_trigger_settings(self):
+    def _apply_receive_trigger_settings(self):
         settings = [
             ("/awgs/0/auxtriggers/*/channel", 0),
             ("/awgs/0/auxtriggers/*/slope", 1),
         ]
         self._parent._set(settings)
 
+    def _apply_zsync_trigger_settings(self):
+        settings = [
+            # Configure DIO triggering based on HDAWG DIO protocol
+            # Set signal edge of the STROBE signal to off
+            ("/awgs/0/dio/strobe/slope", "off"),
+            # Set VALID bit polarity to indicate that input is valid
+            ("/awgs/0/dio/valid/polarity", "high"),
+            # Set DIO bit to use as VALID signal to indicate valid input
+            ("/awgs/0/dio/valid/index", 16),
+        ]
+        self._parent._set(settings)
+
     def outputs(self, value=None):
         """Sets both signal outputs simultaneously.
-        
+
         Keyword Arguments:
-            value (tuple): Tuple of values {'on', 'off'} for channel 1 and 2 
+            value (tuple): Tuple of values {'on', 'off'} for channel 1 and 2
                 (default: {None})
-        
+
         Returns:
-            The state {'on', 'off'} for both outputs if the keyword argument is 
+            The state {'on', 'off'} for both outputs if the keyword argument is
             not given.
-        
+
         """
         if value is None:
             return self.output1(), self.output2()
@@ -440,7 +572,9 @@ class AWG(AWGCore):
                     amps.append(ch.readout_amplitude())
                     phases.append(ch.phase_shift())
             self.set_sequence_params(
-                readout_frequencies=freqs, readout_amplitudes=amps, phase_shifts=phases,
+                readout_frequencies=freqs,
+                readout_amplitudes=amps,
+                phase_shifts=phases,
             )
         else:
             raise ToolkitError("AWG Sequence type needs to be 'Readout'")
@@ -453,10 +587,10 @@ class AWG(AWGCore):
 
 
 class ReadoutChannel:
-    """Implements a Readout Channel for UHFQA. 
+    """Implements a Readout Channel for UHFQA.
 
-    This class represents the signal processing chain for one of the ten 
-    :class:`ReadoutChannels` of a UHFQA. One channel is typically used for 
+    This class represents the signal processing chain for one of the ten
+    :class:`ReadoutChannels` of a UHFQA. One channel is typically used for
     dispersive resonator readout of superconducting qubits.
 
         >>> ch = uhfqa.channels[0]
@@ -477,23 +611,23 @@ class ReadoutChannel:
         >>> ch.result()
         array([0.0, 1.0, 1.0, 1.0, 0.0, ...])
 
-    The readout channel can be enabled with `enable()` which means that the 
-    weighted integration mode is activated and integration weights are set to 
-    demodulate the signal at the given readout frequency. If the channel is 
-    enabled, the readout parameters are also used for signal generation in the 
-    :class:`AWGCore` if the sequence type is set to *'Readout'*. 
+    The readout channel can be enabled with `enable()` which means that the
+    weighted integration mode is activated and integration weights are set to
+    demodulate the signal at the given readout frequency. If the channel is
+    enabled, the readout parameters are also used for signal generation in the
+    :class:`AWGCore` if the sequence type is set to *'Readout'*.
 
     Attributes:
         index (int): The index of the Readout Channel from 1 - 10.
-        rotation (:class:`zhinst.toolkit.control.nodetree.Parameter`): The 
-            rotation applied to the signal in IQ plane. The angle is specified 
+        rotation (:class:`zhinst.toolkit.control.nodetree.Parameter`): The
+            rotation applied to the signal in IQ plane. The angle is specified
             in degrees.
-        threshold (:class:`zhinst.toolkit.control.nodetree.Parameter`): The 
-            signal threshold used for state discrimination in the thresholding 
+        threshold (:class:`zhinst.toolkit.control.nodetree.Parameter`): The
+            signal threshold used for state discrimination in the thresholding
             unit.
-        result (:class:`zhinst.toolkit.control.nodetree.Parameter`): This 
-            read-only Parameter holds the result vector for the given readout 
-            channel as a 1D numpy array.            
+        result (:class:`zhinst.toolkit.control.nodetree.Parameter`): This
+            read-only Parameter holds the result vector for the given readout
+            channel as a 1D numpy array.
 
     """
 
@@ -506,39 +640,26 @@ class ReadoutChannel:
         self._readout_frequency = 100e6
         self._readout_amplitude = 1
         self._phase_shift = 0
+        self.rotation = None
+        self.threshold = None
+        self.result = None
+
+    def _init_channel_params(self):
         self.rotation = Parameter(
             self,
-            dict(
-                Node=f"qas/0/rotations/{self._index}",
-                Description="Sets the rotation of the readout channel in degrees.",
-                Type="Double",
-                Properties="Read, Write",
-                Unit="Degrees",
-            ),
+            self._parent._get_node_dict(f"qas/0/rotations/{self._index}"),
             device=self._parent,
             set_parser=Parse.deg2complex,
             get_parser=Parse.complex2deg,
         )
         self.threshold = Parameter(
             self,
-            dict(
-                Node=f"qas/0/thresholds/{self._index}/level",
-                Description="Sets the threshold of the readout channel.",
-                Type="Double",
-                Properties="Read, Write",
-                Unit="None",
-            ),
+            self._parent._get_node_dict(f"qas/0/thresholds/{self._index}/level"),
             device=self._parent,
         )
         self.result = Parameter(
             self,
-            dict(
-                Node=f"qas/0/result/data/{self._index}/wave",
-                Description="Returns the result vector of the readout channel.",
-                Type="Numpy array",
-                Properties="Read",
-                Unit="None",
-            ),
+            self._parent._get_node_dict(f"qas/0/result/data/{self._index}/wave"),
             device=self._parent,
             get_parser=self._average_result,
         )
@@ -555,7 +676,6 @@ class ReadoutChannel:
         """Enables weighted integration for this channel."""
         self._enabled = True
         self._parent._set("qas/0/integration/mode", 0)
-        self._parent.integration_time(2e-6)
         self._set_int_weights()
 
     def disable(self) -> None:
@@ -565,14 +685,14 @@ class ReadoutChannel:
 
     def readout_frequency(self, freq=None):
         """Sets or gets the readout frequency for this channel.
-        
-        Readout frequency in Hz of the readout channel. If the AWG 
-        :class:`SequenceProgram` is of type "Readout", this Parameter is used to 
-        generate a readout tone at the given readout frequency for all readout 
-        channels that are enabled. This frequency is also used in the signal 
-        acquisition for digital demodulation if the readout channel is 
+
+        Readout frequency in Hz of the readout channel. If the AWG
+        :class:`SequenceProgram` is of type "Readout", this Parameter is used to
+        generate a readout tone at the given readout frequency for all readout
+        channels that are enabled. This frequency is also used in the signal
+        acquisition for digital demodulation if the readout channel is
         enabled. The frequency must be positive.
-        
+
         """
         if freq is None:
             return self._readout_frequency
@@ -584,11 +704,11 @@ class ReadoutChannel:
 
     def readout_amplitude(self, amp=None):
         """Sets or gets the readout amplitude for this channel.
-        
-        The amplitude of the readout pulse is used for signal generation of the 
-        readout tone if the channel is enabled and if the AWG 
+
+        The amplitude of the readout pulse is used for signal generation of the
+        readout tone if the channel is enabled and if the AWG
         :class:`SequenceProgram` is of type *'Readout'*. (default: 1.0)
-        
+
         """
         if amp is None:
             return self._readout_amplitude
@@ -599,10 +719,10 @@ class ReadoutChannel:
 
     def phase_shift(self, ph=None):
         """Sets or gets the readout phase shift for this channel.
-        
-        Additional phase shift in the signal generation between I and Q 
+
+        Additional phase shift in the signal generation between I and Q
         quadtratures. (default: 0)
-        
+
         """
         if ph is None:
             return self._phase_shift

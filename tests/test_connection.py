@@ -28,6 +28,15 @@ class Device:
     device_type = DeviceTypes.HDAWG
 
 
+class DiscoveryMock:
+    def find(self, serial):
+        return serial.upper()
+
+    def get(self, serial):
+        assert serial == serial.upper()
+        return {"deviceid": serial}
+
+
 def test_init_zi_connection():
     c = ZIConnection(Details())
     assert not c.established
@@ -51,13 +60,13 @@ def test_check_connection():
 
 def test_init_device_connection():
     dev = Device()
-    c = DeviceConnection(dev)
+    c = DeviceConnection(dev, DiscoveryMock())
     assert c._connection == None
     assert c._device == dev
 
 
 def test_device_connection_connect():
-    c = DeviceConnection(Device())
+    c = DeviceConnection(Device(), DiscoveryMock())
     with pytest.raises(ToolkitConnectionError):
         c.setup()
     with pytest.raises(ToolkitConnectionError):
@@ -70,3 +79,8 @@ def test_device_connection_connect():
         c.set("tests/test", 1)
     with pytest.raises(ToolkitConnectionError):
         c.get_nodetree("*")
+
+
+def test_device_normalized_serial():
+    c = DeviceConnection(Device(), DiscoveryMock())
+    assert c.normalized_serial is None

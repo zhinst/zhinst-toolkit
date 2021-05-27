@@ -22,19 +22,19 @@ from .sequences import (
 
 class SequenceProgram(object):
     """SequenceProgram class that holds information about an AWG sequence.
-    
+
     The class holds a Sequence object, depending on the set type of the sequence.
-    the get() method returns the generated string for the seqC program that can 
+    the get() method returns the generated string for the seqC program that can
     be downloaded to the AWG.
 
     Keyword Arguments:
         sequence_type (str): type of the sequence program, one of {'Simple',
-        'Rabi', 'T1', 'T2', 'Readout', 'Pulsed Spectroscopy', 'CW Spectroscopy', 
+        'Rabi', 'T1', 'T2', 'Readout', 'Pulsed Spectroscopy', 'CW Spectroscopy',
         'Custom', 'Trigger'}
 
     Properties:
-        sequence_type (str): The type of the current sequence program. 
-    
+        sequence_type (str): The type of the current sequence program.
+
     """
 
     def __init__(self, sequence_type: SequenceType = SequenceType.NONE, **kwargs):
@@ -46,7 +46,7 @@ class SequenceProgram(object):
 
         Returns:
             The sequence C code for of the current program as a string.
-    
+
         """
         return self._sequence.get()
 
@@ -60,7 +60,7 @@ class SequenceProgram(object):
 
     def list_params(self):
         """List all the current sequence parameters.
-        
+
         Returns:
             A dictionary with all the seuqence parameters.
 

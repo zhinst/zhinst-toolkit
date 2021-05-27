@@ -19,12 +19,12 @@ from zhinst.toolkit.interface import DeviceTypes
 
 
 class UHFLI(BaseInstrument):
-    """High-level driver for Zurich Instruments UHFLI Lock-In Amplifier. 
-    
-    Inherits from :class:`BaseInstrument` and adds a :class:`DAQModule`, a 
-    :class:`SweeperModule` and an :class:`AWGCore` (if option installed). The 
+    """High-level driver for Zurich Instruments UHFLI Lock-In Amplifier.
+
+    Inherits from :class:`BaseInstrument` and adds a :class:`DAQModule`, a
+    :class:`SweeperModule` and an :class:`AWGCore` (if option installed). The
     modules can be accessed as properties of the UHFLI.
-    
+
         >>> import zhinst.toolkit as tk
         >>> uhfli = tk.UHFLI("uhfli", "dev1111")
         >>> uhfli.setup()
@@ -36,7 +36,7 @@ class UHFLI(BaseInstrument):
         >>> uhfli.daq.measure()
         ...
         >>> result = uhfli.daq.results[signal]
-        
+
         >>> signal = uhfli.sweeper.signals_add("demod1")
         >>> uhfli.sweeper.sweep_parameter("frequency")
         >>> uhfli.sweeper.measure()
@@ -45,30 +45,29 @@ class UHFLI(BaseInstrument):
 
     Attributes:
         name (str): Identifier for the UHFLI.
-        serial (str): Serial number of the device, e.g. *'dev1234'*. The serial 
+        serial (str): Serial number of the device, e.g. *'dev1234'*. The serial
             number can be found on the back panel of the instrument.
-        daq (:class:`zhinst.toolkit.control.drivers.base.DAQModule`): Data 
+        daq (:class:`zhinst.toolkit.control.drivers.base.DAQModule`): Data
             Acquisition Module of the instrument.
         sweeper (:class:`zhinst.toolkit.control.drivers.base.SweeperModule`):
-            Sweeper Module of the instrument. 
-        awg (:class:`zhinst.toolkit.control.drivers.uhfqa.AWG`): AWG Module 
-            of the instrument if the the option is installed. 
+            Sweeper Module of the instrument.
+        awg (:class:`zhinst.toolkit.control.drivers.uhfqa.AWG`): AWG Module
+            of the instrument if the the option is installed.
 
     """
 
-    def __init__(self, name: str, serial: str, **kwargs) -> None:
-        super().__init__(name, DeviceTypes.UHFLI, serial, **kwargs)
-        self._awg = AWG(self, 0)
+    def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
+        super().__init__(name, DeviceTypes.UHFLI, serial, discovery, **kwargs)
 
     def connect_device(self, nodetree: bool = True) -> None:
         """Establishes a device connection.
 
-        Connects the device to a data server and initializes the :class:`DAQModule`, 
+        Connects the device to a data server and initializes the :class:`DAQModule`,
         :class:`SweeperModule` and :class:`AWG` (if option installed).
-        
+
         Keyword Arguments:
-            nodetree (bool): A flag that specifies if all the parameters from 
-                the device's nodetree should be added to the object's attributes 
+            nodetree (bool): A flag that specifies if all the parameters from
+                the device's nodetree should be added to the object's attributes
                 as :mod:`zhinst-toolkit` :class:`Parameters`. (default: True)
 
         """
@@ -80,6 +79,10 @@ class UHFLI(BaseInstrument):
         self._daq._setup()
         self._sweeper = SweeperModule(self)
         self._sweeper._setup()
+
+    def factory_reset(self) -> None:
+        """Loads the factory default settings."""
+        super().factory_reset()
 
     def _init_settings(self):
         if "AWG" in self.options:
@@ -234,19 +237,19 @@ class AWG(AWGCore):
 
 class DAQModule(DAQ):
     """Device-specific Data Acquisition Module for the UHFLI.
-    
+
     Subclasses the DAQ module with parameters that are specific to the MFLI.
-    On top of the attributes of the DAQ class, this class defines the 
-    `trigger_signals` and `trigger_types` that are used in the 
-    `daq.trigger(...)` and `daq.trigger_list()` method. The user is always free 
-    to set the parameter `daq.triggernode(..)` directly, however, not all 
+    On top of the attributes of the DAQ class, this class defines the
+    `trigger_signals` and `trigger_types` that are used in the
+    `daq.trigger(...)` and `daq.trigger_list()` method. The user is always free
+    to set the parameter `daq.triggernode(..)` directly, however, not all
     signals can be used as triggers.
 
         >>> signal = uhfli.daq.signals_add("demod1", "r")
         >>> uhfli.daq.measure()
         >>> ...
         >>> result = uhfli.daq.results[signal]
-    
+
     """
 
     def __init__(self, parent: BaseInstrument) -> None:
@@ -292,19 +295,19 @@ class SweeperModule(Sweeper):
     """Device-specific Sweeper Module for the UHFLI.
 
     Subclasses the Sweeper module with parameters that are specific to the MFLI.
-    This class defines a dictionary of `sweep_params` which is used for the 
-    `sweeper.sweep_parameter(...)` and `sweeper.sweep_parameter_list()` methods. 
-    Thos methods and the identifiers (keys in the dict) are mostly guidelines to 
-    the user. The parameter to sweep can also be set directly with the 
-    `sweeper.gridnode(...)` parameter, however, not all nodes support 
-    sweeping. 
+    This class defines a dictionary of `sweep_params` which is used for the
+    `sweeper.sweep_parameter(...)` and `sweeper.sweep_parameter_list()` methods.
+    Thos methods and the identifiers (keys in the dict) are mostly guidelines to
+    the user. The parameter to sweep can also be set directly with the
+    `sweeper.gridnode(...)` parameter, however, not all nodes support
+    sweeping.
 
         >>> signal = uhfli.sweeper.signals_add("demod1")
         >>> uhfli.sweeper.sweep_parameter("frequency")
         >>> uhfli.sweeper.measure()
         >>> ...
         >>> result = uhfli.sweeper.results[signal]
-    
+
     """
 
     def __init__(self, parent: BaseInstrument) -> None:

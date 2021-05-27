@@ -8,7 +8,7 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import SequenceProgram, SequenceType, TriggerMode, Alignment
+from .context import SequenceProgram, SequenceType, TriggerMode, Alignment, DeviceTypes
 
 
 class SequenceProgramMachine(RuleBasedStateMachine):
@@ -16,7 +16,19 @@ class SequenceProgramMachine(RuleBasedStateMachine):
         super().__init__()
         self.sequenceProgram = SequenceProgram()
 
-    @rule(t=st.integers(0, 10))
+    @rule(t=st.integers(1, 3))
+    def change_device_type(self, t):
+        types = {
+            1: DeviceTypes.HDAWG,
+            2: DeviceTypes.UHFQA,
+            3: DeviceTypes.UHFLI,
+        }
+        self.sequenceProgram.set_params(target=types[t])
+        params = self.sequenceProgram.list_params()
+        target = params["sequence_parameters"]["target"]
+        assert target == types[t]
+
+    @rule(t=st.integers(0, 9))
     def change_sequence_by_enum(self, t):
         types = {
             0: SequenceType.NONE,
@@ -56,35 +68,46 @@ class SequenceProgramMachine(RuleBasedStateMachine):
         else:
             assert self.sequenceProgram.sequence_type.value == types[t]
 
-    @rule(t=st.integers(0, 2))
+    @rule(t=st.integers(0, 5))
     def change_trigger_by_enum(self, t):
         types = {
             0: TriggerMode.NONE,
             1: TriggerMode.SEND_TRIGGER,
             2: TriggerMode.EXTERNAL_TRIGGER,
+            3: TriggerMode.RECEIVE_TRIGGER,
+            4: TriggerMode.SEND_AND_RECEIVE_TRIGGER,
+            5: TriggerMode.ZSYNC_TRIGGER,
         }
         self.sequenceProgram.set_params(trigger_mode=types[t])
         params = self.sequenceProgram.list_params()
-        if params["sequence_type"] != SequenceType.TRIGGER:
-            params = params["sequence_parameters"]
-            assert params["trigger_mode"] == types[t]
+        sequence_type = params["sequence_type"]
+        trigger_mode = params["sequence_parameters"]["trigger_mode"]
+        if t not in [1, 4] and sequence_type == SequenceType.TRIGGER:
+            assert trigger_mode == types[1]
+        else:
+            assert trigger_mode == types[t]
 
-    @rule(t=st.integers(-1, 2))
+    @rule(t=st.integers(-1, 5))
     def change_trigger_by_string(self, t):
         types = {
             -1: "None",
             0: None,
             1: "Send Trigger",
             2: "External Trigger",
+            3: "Receive Trigger",
+            4: "Send and Receive Trigger",
+            5: "ZSync Trigger",
         }
         self.sequenceProgram.set_params(trigger_mode=types[t])
         params = self.sequenceProgram.list_params()
-        if params["sequence_type"] != SequenceType.TRIGGER:
-            params = params["sequence_parameters"]
-            if t == -1:
-                assert params["trigger_mode"].value is None
-            else:
-                assert params["trigger_mode"].value == types[t]
+        sequence_type = params["sequence_type"]
+        trigger_mode = params["sequence_parameters"]["trigger_mode"]
+        if t not in [1, 4] and sequence_type == SequenceType.TRIGGER:
+            assert trigger_mode.value == types[1]
+        elif t == -1:
+            assert trigger_mode.value is None
+        else:
+            assert trigger_mode.value == types[t]
 
     @rule(t=st.integers(0, 1))
     def change_alignment_by_enum(self, t):
@@ -120,6 +143,50 @@ class SequenceProgramMachine(RuleBasedStateMachine):
         else:
             assert "pulse_amplitudes" not in params["sequence_parameters"].keys()
 
+    @rule(i=st.integers(-10, 1000))
+    def change_trigger_samples(self, i):
+        granularity = 16
+        minimum_length = 32
+        if i % granularity != 0 or i < minimum_length:
+            with pytest.raises(ValueError):
+                self.sequenceProgram.set_params(trigger_samples=i)
+        else:
+            self.sequenceProgram.set_params(trigger_samples=i)
+            params = self.sequenceProgram.list_params()
+            assert params["sequence_parameters"]["trigger_samples"] == i
+
+    @rule(i=st.integers(-10, 100))
+    def change_latency_adjustment(self, i):
+        if i < 0:
+            with pytest.raises(ValueError):
+                self.sequenceProgram.set_params(latency_adjustment=i)
+        else:
+            self.sequenceProgram.set_params(latency_adjustment=i)
+            params = self.sequenceProgram.list_params()
+            target = params["sequence_parameters"]["target"]
+            trigger_mode = params["sequence_parameters"]["trigger_mode"]
+            latency_adjustment = params["sequence_parameters"]["latency_adjustment"]
+            latency_cycles = params["sequence_parameters"]["latency_cycles"]
+            assert latency_adjustment == i
+            if target in [DeviceTypes.HDAWG]:
+                if trigger_mode in [TriggerMode.ZSYNC_TRIGGER]:
+                    assert latency_cycles == 0 + latency_adjustment
+                else:
+                    assert latency_cycles == 27 + latency_adjustment
+            elif target in [DeviceTypes.UHFLI, DeviceTypes.UHFQA]:
+                assert latency_cycles == 0 + latency_adjustment
+
+    @rule(i=st.booleans())
+    def change_reset_phase(self, i):
+        self.sequenceProgram.set_params(reset_phase=i)
+        params = self.sequenceProgram.list_params()
+        sequence_type = params["sequence_type"]
+        reset_phase = params["sequence_parameters"]["reset_phase"]
+        if sequence_type == SequenceType.PULSED_SPEC:
+            assert reset_phase is True
+        else:
+            assert reset_phase is i
+
     # @rule(l=st.integers(1, 1000), t=st.floats(100e-9, 10e-6))
     # def change_delays(self, l, t):
     #     test_array = np.linspace(0, t, l)
@@ -135,11 +202,8 @@ class SequenceProgramMachine(RuleBasedStateMachine):
     @rule()
     def get_sequence(self):
         sequence = self.sequenceProgram.get_seqc()
-        t = self.sequenceProgram.sequence_type.value
-        if t is None:
-            assert sequence is None
-        else:
-            assert t in sequence
+        sequence_type = self.sequenceProgram.sequence_type
+        assert str(sequence_type.value) in sequence
 
 
 TestPrograms = SequenceProgramMachine.TestCase

@@ -7,7 +7,11 @@ from zhinst.toolkit.control.node_tree import Parameter
 
 
 MAPPINGS = {
-    "edge": {1: "rising", 2: "falling", 3: "both",},
+    "edge": {
+        1: "rising",
+        2: "falling",
+        3: "both",
+    },
     "eventcount_mode": {0: "sample", 1: "increment"},
     "fft_window": {
         0: "rectangular",
@@ -19,9 +23,23 @@ MAPPINGS = {
         17: "sine",
         18: "cosine_squared",
     },
-    "grid_direction": {0: "forward", 1: "reverse", 2: "bidirectional",},
-    "grid_mode": {1: "nearest", 2: "linear", 4: "exact",},
-    "save_fileformat": {0: "matlab", 1: "csv", 2: "zview", 3: "sxm", 4: "hdf5",},
+    "grid_direction": {
+        0: "forward",
+        1: "reverse",
+        2: "bidirectional",
+    },
+    "grid_mode": {
+        1: "nearest",
+        2: "linear",
+        4: "exact",
+    },
+    "save_fileformat": {
+        0: "matlab",
+        1: "csv",
+        2: "zview",
+        3: "sxm",
+        4: "hdf5",
+    },
     "type": {
         0: "continuous",
         1: "edge",
@@ -37,29 +55,29 @@ MAPPINGS = {
 
 
 class DAQModule:
-    """Implements a :class:`Data Acquisition Module` for Lock-In instruments. 
-    
-    The data acquisition module is a powerful tool that builds on top of LabOne. 
-    It allows for triggered acquisition of multiple data streams on an 
-    equidistant temporal grid. For more information on how to use the DAQ 
+    """Implements a :class:`Data Acquisition Module` for Lock-In instruments.
+
+    The data acquisition module is a powerful tool that builds on top of LabOne.
+    It allows for triggered acquisition of multiple data streams on an
+    equidistant temporal grid. For more information on how to use the DAQ
     Module, have a look at the LabOne Programming Manual.
-    
-    This base class is overwritten by device specific DAQ classes with 
-    additional signal sources and types. After setup, the nodetree of the module 
-    is retrieved from the API and added to the DAQModule object attributes as 
-    `zhinst-toolkit` :class:`Parameters`.  
 
-    In a typical measurement using the DAQ Module one would first configure its 
-    trigger and grid settings. 
+    This base class is overwritten by device specific DAQ classes with
+    additional signal sources and types. After setup, the nodetree of the module
+    is retrieved from the API and added to the DAQModule object attributes as
+    `zhinst-toolkit` :class:`Parameters`.
 
-        >>> # configure a measurement 
+    In a typical measurement using the DAQ Module one would first configure its
+    trigger and grid settings.
+
+        >>> # configure a measurement
         >>> mfli.daq.fft_window("rectangular")
         >>> mfli.daq.type("continuous")
         >>> mfli.daq.grid_cols(512)
         >>> mfli.daq.grid_rows(10)
 
-    The signal streams that are available for acquisition can be listed using 
-    `signals_list(...)`.  
+    The signal streams that are available for acquisition can be listed using
+    `signals_list(...)`.
 
         >>> # list available signal sources ...
         >>> mf.daq.signals_list()
@@ -68,10 +86,10 @@ class DAQModule:
         >>> mf.daq.signals_list("demod1")
         ['x', 'y', 'r', 'xiy', 'theta', 'frequency', 'auxin0', 'auxin1', 'dio']
 
-    To specify which signals should be acquired during the measurement, they 
-    need to be added to the measurement. This is done with the 
-    `signals_add(...)` method. Note that the return value is a string with the 
-    exact node path that will be subscribed to during the measurement. The 
+    To specify which signals should be acquired during the measurement, they
+    need to be added to the measurement. This is done with the
+    `signals_add(...)` method. Note that the return value is a string with the
+    exact node path that will be subscribed to during the measurement. The
     string can be used later as a key in the `results` dictionary.
 
         >>> # add signals to the measurement
@@ -91,8 +109,8 @@ class DAQModule:
         Progress: 40.0%
         ...
 
-    ... and afterwards the results can be found in the `results` attribute of 
-    the :class:`DAQModule`. The values in the dictionary are of type 
+    ... and afterwards the results can be found in the `results` attribute of
+    the :class:`DAQModule`. The values in the dictionary are of type
     :class:`DAQResults`.
 
         >>> # retrieve the measurement results
@@ -106,16 +124,16 @@ class DAQModule:
             value:       (10, 511)
             frequency:   (511,)
 
-    See below for details on 
+    See below for details on
     :class:`zhinst.toolkit.control.drivers.base.daq.DAQResult`.
 
     Attributes:
-        signals (list): A list of node strings of signals that are added to the 
+        signals (list): A list of node strings of signals that are added to the
             measurement and will be subscribed to before data acquisition.
-        results (dict): A dictionary with signal strings as keys and 
-            :class:`zhinst.toolkit.control.drivers.base.daq.DAQResult` objects 
-            as values that hold all the data of the measurement result.  
-    
+        results (dict): A dictionary with signal strings as keys and
+            :class:`zhinst.toolkit.control.drivers.base.daq.DAQResult` objects
+            as values that hold all the data of the measurement result.
+
     """
 
     def __init__(self, parent: BaseInstrument, clk_rate: float = 60e6) -> None:
@@ -127,7 +145,10 @@ class DAQModule:
         # the `streaming_nodes` are used as all available signal sources for the data acquisition
         self._signal_sources = self._parent._get_streamingnodes()
         self._signal_types = {
-            "auxin": {"auxin1": ".Auxin0", "auxin2": ".Auxin1",},
+            "auxin": {
+                "auxin1": ".Auxin0",
+                "auxin2": ".Auxin1",
+            },
             "demod": {
                 "x": ".X",
                 "y": ".Y",
@@ -186,16 +207,16 @@ class DAQModule:
 
     def trigger_list(self, source=None) -> List:
         """Returns a list of all the available signal sources for triggering.
-        
+
         Keyword Arguments:
-            source (str): specifies the signal source to return signal types 
-                (default: None) 
-            
+            source (str): specifies the signal source to return signal types
+                (default: None)
+
         Returns:
-            Returns all available trigger sources by default. If the keyword is 
-            specified with one of the trigger sources, all the available trigger 
+            Returns all available trigger sources by default. If the keyword is
+            specified with one of the trigger sources, all the available trigger
             types for the trigger source are returned.
-        
+
         """
         sources = list(self._trigger_signals.keys())
         if source is None:
@@ -206,19 +227,19 @@ class DAQModule:
                     return list(self._trigger_types[signal].keys())
 
     def trigger(self, trigger_source: str, trigger_type: str) -> None:
-        """Sets the trigger signal of the *DAQ Module*. 
-        
-        This method can be used to specify the signal used to trigger the data 
-        acquisition. Use the method `trigger_list()` to see the available 
-        trigger signal sources and types.The trigger node can also be set 
+        """Sets the trigger signal of the *DAQ Module*.
+
+        This method can be used to specify the signal used to trigger the data
+        acquisition. Use the method `trigger_list()` to see the available
+        trigger signal sources and types.The trigger node can also be set
         directly using the module Parameter `triggernode`.
 
         Arguments:
-            trigger_source (str): A string that specifies the source of the 
+            trigger_source (str): A string that specifies the source of the
                 trigger signal, e.g. "demod0".
-            trigger_trype (str): A string that specifies the type of the 
+            trigger_trype (str): A string that specifies the type of the
                 trigger signal, e.g. "trigin1".
-        
+
         """
         trigger_node = self._parse_trigger(trigger_source, trigger_type)
         self._set("/triggernode", trigger_node)
@@ -226,16 +247,16 @@ class DAQModule:
 
     def signals_list(self, source=None) -> List:
         """Returns a list of all the available signal sources for data acquisition.
-        
+
         Keyword Arguments:
-            source (str): specifies the signal source to return signal types 
-                (default: None) 
-            
+            source (str): specifies the signal source to return signal types
+                (default: None)
+
         Returns:
-            Returns all available signal sources by default. If the keyword is 
-            specified with one of the signal sources, all the available signal 
+            Returns all available signal sources by default. If the keyword is
+            specified with one of the signal sources, all the available signal
             types for the signal source are returned.
-        
+
         """
         sources = list(self._signal_sources.keys())
         if source is None:
@@ -256,33 +277,33 @@ class DAQModule:
         complex_selector: str = "abs",
     ) -> str:
         """Add a signal to the signals list to be subscribed to during measurement.
-        
-        The specified signal is added to the property *signals* list. On 
-        `measure()`, the *DAQ Module* subscribes to all the signal nodes in the 
-        list. 
+
+        The specified signal is added to the property *signals* list. On
+        `measure()`, the *DAQ Module* subscribes to all the signal nodes in the
+        list.
 
         Arguments:
-            signal_source (str): The source of the signal, e.g. 'demod0'. See 
+            signal_source (str): The source of the signal, e.g. 'demod0'. See
                 `signals_list()` for available signals.
-        
+
         Keyword Arguments:
-            signal_type (str): The type of the signal. Depends on the given 
+            signal_type (str): The type of the signal. Depends on the given
                 source, e.g. for demod signals the types'X', 'Y', 'R', 'Theta',
-                ... are available. See `signals_list({signal source})` for 
+                ... are available. See `signals_list({signal source})` for
                 available signal types. (default: "")
-            operation (str): The operation that is performed on the acquired 
-                signal, e.g. the average of data points ('avg'), the standard 
-                deviation of the signal ('std') or single points ('replace'). 
+            operation (str): The operation that is performed on the acquired
+                signal, e.g. the average of data points ('avg'), the standard
+                deviation of the signal ('std') or single points ('replace').
                 (default: "avg")
-            fft (bool): A flag to enable the fourier transform (FFT) of the 
+            fft (bool): A flag to enable the fourier transform (FFT) of the
                 acquired signal.  (default: False)
-            complex_selector (str):  If the FFT is enabled, this selects the 
-                complex value of the result, e.g. 'abs', 'phase', 'real', 
+            complex_selector (str):  If the FFT is enabled, this selects the
+                complex value of the result, e.g. 'abs', 'phase', 'real',
                 'imag'. (default: "abs")
-        
+
         Returns:
-            A string with the exact signal node that will be acquired during the 
-            measurement. It can be used as a key in the `results` dict to 
+            A string with the exact signal node that will be acquired during the
+            measurement. It can be used as a key in the `results` dict to
             retrieve the measurement result corresponding to this signal, e.g.
 
                 >>> signal = mfli.daq.signal_add("demod0", "r")
@@ -290,7 +311,7 @@ class DAQModule:
                 >>> mfli.daq.measure()
                 >>> ...
                 >>> result = mfli.daq.results[signal]
-        
+
         """
         signal_node = self._parse_signals(
             signal_source, signal_type, operation, fft, complex_selector
@@ -306,17 +327,17 @@ class DAQModule:
     def measure(self, verbose: bool = True, timeout: float = 20) -> None:
         """Performs the measurement.
 
-        Starts a measurement and stores the result in `daq.results`. This 
-        method subscribes to all the paths previously added to `daq.signals`, 
-        then starts the measurement, waits until the measurement in finished 
-        and eventually reads the result. 
-        
+        Starts a measurement and stores the result in `daq.results`. This
+        method subscribes to all the paths previously added to `daq.signals`,
+        then starts the measurement, waits until the measurement in finished
+        and eventually reads the result.
+
         Keyword Arguments:
-            verbose (bool): A flag to enable or disable console output during 
+            verbose (bool): A flag to enable or disable console output during
                 the measurement. (default: True)
-            timeout (int): The measurement will be stopped after the timeout. 
+            timeout (int): The measurement will be stopped after the timeout.
                 The valiue is given in seconds. (default: 20)
-        
+
         """
         self._set("endless", 0)
         self._set("clearhistory", 1)
@@ -447,15 +468,15 @@ class DAQModule:
 
 class DAQResult:
     """A wrapper class around the result of a DAQ Module measurement.
-    
-    The Data Acquisition Result class holds all measurement information returned 
-    from the API. The attribute `value` is a two-dimensional numpy array with 
-    the measured data along the measured grid. Depending on whether the time 
-    trace or the FFT of a signal was acquired, either the `time` of `frequency` 
-    attribute holds a 1D numpy array with the correct axis values calculated 
+
+    The Data Acquisition Result class holds all measurement information returned
+    from the API. The attribute `value` is a two-dimensional numpy array with
+    the measured data along the measured grid. Depending on whether the time
+    trace or the FFT of a signal was acquired, either the `time` of `frequency`
+    attribute holds a 1D numpy array with the correct axis values calculated
     from the measurement grid.
 
-        >>> signal = mf.daq.signals_add("demod1", "r")     
+        >>> signal = mf.daq.signals_add("demod1", "r")
         >>> mf.daq.measure()
         ...
         >>> result = mf.daq.results[signal]
@@ -474,19 +495,19 @@ class DAQResult:
 
     Attributes:
         value (array): A 2D numpy array with the measurement result.
-        shape (tuple): A tuple with the shape of the acquired data which 
-            corresponds to the according grid settings. 
-        time (array): A 1D numpy array containing the time axis of the 
-            measurement in seconds. Calculated from the returned timestamps 
-            using the DAC clock rate. If the result is a Fourier transform this 
+        shape (tuple): A tuple with the shape of the acquired data which
+            corresponds to the according grid settings.
+        time (array): A 1D numpy array containing the time axis of the
+            measurement in seconds. Calculated from the returned timestamps
+            using the DAC clock rate. If the result is a Fourier transform this
             value is `None`.
-        frequency (array): A 1D numpy array with the frequency values for FFT 
-            measurements in Hertz. If the signal is not a FFT this value is 
-            `None` The frequency grid is calculated from the grid settings. If 
-            the "xiy" complex signal of the demodulator data stream is acquired, 
-            the frequency spectrum is symmetric around 0 Hz, otherwise it is 
+        frequency (array): A 1D numpy array with the frequency values for FFT
+            measurements in Hertz. If the signal is not a FFT this value is
+            `None` The frequency grid is calculated from the grid settings. If
+            the "xiy" complex signal of the demodulator data stream is acquired,
+            the frequency spectrum is symmetric around 0 Hz, otherwise it is
             positive.
-        header (dict): A dictionary containing all information about the 
+        header (dict): A dictionary containing all information about the
             measurement settings.
 
     """

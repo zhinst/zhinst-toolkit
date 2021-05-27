@@ -8,14 +8,14 @@ from enum import Enum
 
 class SequenceType(Enum):
     """Enums for the `sequence_type` sequence parameter.
-    
-    Can be used as inputs to the `set_seuqence_params(...)` method of the AWG 
+
+    Can be used as inputs to the `set_sequence_params(...)` method of the AWG
     Cores. For example like this:
 
-        >>> from zhinst.toolkit import SequenceTypes
+        >>> from zhinst.toolkit import SequenceType
         >>> ...
         >>> uhfqa.awg.set_sequence_params(
-        >>>     sequence_type=SequenceTypes.READOUT,
+        >>>     sequence_type=SequenceType.READOUT,
         >>>     ...
         >>> )
 
@@ -36,8 +36,8 @@ class SequenceType(Enum):
 
 class TriggerMode(Enum):
     """Enums for the `trigger_mode` sequence parameter.
-    
-    Can be used as inputs to the `set_seuqence_params(...)` method of the AWG 
+
+    Can be used as inputs to the `set_seuqence_params(...)` method of the AWG
     Cores. For example like this:
 
         >>> from zhinst.toolkit import TriggerMode
@@ -51,13 +51,16 @@ class TriggerMode(Enum):
 
     NONE = None
     SEND_TRIGGER = "Send Trigger"
-    EXTERNAL_TRIGGER = "External Trigger"
+    EXTERNAL_TRIGGER = "External Trigger"  # deprecated
+    RECEIVE_TRIGGER = "Receive Trigger"
+    SEND_AND_RECEIVE_TRIGGER = "Send and Receive Trigger"
+    ZSYNC_TRIGGER = "ZSync Trigger"
 
 
 class Alignment(Enum):
     """Enums for the `alignment` sequence parameter.
-    
-    Can be used as inputs to the `set_seuqence_params(...)` method of the AWG 
+
+    Can be used as inputs to the `set_seuqence_params(...)` method of the AWG
     Cores. For example like this:
 
         >>> from zhinst.toolkit import Alignment
