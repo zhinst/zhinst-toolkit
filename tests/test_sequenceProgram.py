@@ -41,11 +41,12 @@ class SequenceProgramMachine(RuleBasedStateMachine):
             7: SequenceType.PULSED_SPEC,
             8: SequenceType.TRIGGER,
             9: SequenceType.RABI,
+            10: SequenceType.PULSETRAIN,
         }
         self.sequenceProgram.set_params(sequence_type=types[t])
         assert self.sequenceProgram.sequence_type == types[t]
 
-    @rule(t=st.integers(-1, 9))
+    @rule(t=st.integers(-1, 10))
     def change_sequence_by_string(self, t):
         types = {
             -1: "None",
@@ -59,6 +60,7 @@ class SequenceProgramMachine(RuleBasedStateMachine):
             7: "Pulsed Spectroscopy",
             8: "Trigger",
             9: "Rabi",
+            10: "Pulse Train",
         }
         self.sequenceProgram.set_params(sequence_type=types[t])
         if t == -1:

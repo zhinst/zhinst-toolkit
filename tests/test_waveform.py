@@ -20,8 +20,8 @@ class TestWaveform:
     def test_random_buffer_length(self, l1, l2):
         assume(l1 > 0 and l2 > 0)
         w = Waveform(np.ones(l1), np.ones(l2))
-        assert w.buffer_length % 16 == 0
-        assert w.buffer_length >= 32
+        assert w.buffer_length % 8 == 0
+        assert w.buffer_length >= 16
 
     @given(st.integers(0, 100000), st.integers(0, 100000))
     def test_buffer_length_matches_data(self, l1, l2):

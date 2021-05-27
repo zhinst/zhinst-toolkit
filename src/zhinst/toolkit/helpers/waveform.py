@@ -35,7 +35,7 @@ class Waveform(object):
 
     """
 
-    def __init__(self, wave1, wave2, delay=0, granularity=16, align_start=True):
+    def __init__(self, wave1, wave2, delay=0, granularity=8, align_start=True):
         self._granularity = granularity
         self._align_start = align_start
         self._waves = [wave1, wave2]
@@ -44,7 +44,7 @@ class Waveform(object):
 
     def replace_data(self, wave1, wave2, delay=0):
         """Replaces the data in the waveform."""
-        new_buffer_length = self._round_up(max(len(wave1), len(wave2), 32))
+        new_buffer_length = self._round_up(max(len(wave1), len(wave2), 16))
         self._delay = delay
         if new_buffer_length == self.buffer_length:
             self._waves = [wave1, wave2]

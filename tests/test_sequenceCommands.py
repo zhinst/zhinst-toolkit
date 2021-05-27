@@ -200,7 +200,7 @@ def test_init_buffer_indexed(l, i, target):
 
 @given(l=st.integers(0, 10000), p=st.integers(0, 10000), w=st.integers(0, 10000))
 def test_init_gauss(l, p, w):
-    if not (l > p and l > w) or l % 16 or w <= 0:
+    if not (l > p and l > w) or l % 8 or w <= 0:
         with pytest.raises(ValueError):
             SequenceCommand.init_gauss([l, p, w])
     else:
@@ -215,7 +215,7 @@ def test_init_gauss(l, p, w):
     w=st.integers(0, 10000),
 )
 def test_init_gauss_scaled(amp, l, p, w):
-    if not (l > p and l > w) or l % 16 or w <= 0 or abs(amp) > 1:
+    if not (l > p and l > w) or l % 8 or w <= 0 or abs(amp) > 1:
         with pytest.raises(ValueError):
             SequenceCommand.init_gauss_scaled(amp, [l, p, w])
     else:

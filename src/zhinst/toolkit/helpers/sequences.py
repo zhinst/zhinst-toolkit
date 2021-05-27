@@ -372,6 +372,58 @@ class Sequence(object):
 
 
 @attr.s
+class PulseTrainSequence(Sequence):
+    """Sequence for playback of *pulse trains*.
+
+    Initializes placeholders (`randomUniform(...)`) of the correct length for 
+    the waveforms in the queue of the AWG Core. The data of the waveform 
+    placeholders is then replaced in memory when uploading the waveform using 
+    `upload_waveforms()`. The waveforms are played sequentially within the main 
+    loop of the sequence program.
+
+    As opposed to the "Simple" Sequence, the "Pulse Train" pays no attention to 
+    triggering, the defined period or waveform alignment. It just plays all 
+    queued waveforms directly after one another and repeats this *repetitions*
+    times. 
+
+        >>> awg.set_sequence_params(sequence_type="Pulse Train")
+        >>> for amp in np.linspace(-1, 1, 20):
+        >>>     wave = amp * np.ones(800)
+        >>>     awg.queue_waveform(wave)
+        >>> awg.compile_and_upload_waveforms()
+        >>> ...
+    
+    Attributes:
+        buffer_lengths (list): A list of integers with the required lengths of 
+            the waveform buffers. These values will be taken from the waveforms
+            in the queue of the AWG Core.
+
+    """
+
+    buffer_lengths = attr.ib(
+        default=attr.Factory(list), validator=attr.validators.instance_of(list)
+    )
+
+    def write_sequence(self):
+        self.sequence = SequenceCommand.header_comment(sequence_type="Pulse Train")
+        for i in range(self.n_HW_loop):
+            self.sequence += SequenceCommand.init_buffer_indexed(
+                self.buffer_lengths[i], i
+            )
+        self.sequence += SequenceCommand.trigger(0)
+        self.sequence += SequenceCommand.repeat(self.repetitions)
+        for i in range(self.n_HW_loop):
+            self.sequence += SequenceCommand.count_waveform(i, self.n_HW_loop)
+            self.sequence += SequenceCommand.play_wave_indexed(i)
+        self.sequence += SequenceCommand.close_bracket()
+
+    def update_params(self):
+        super().update_params()
+        if len(self.buffer_lengths) != self.n_HW_loop:
+            self.n_HW_loop = len(self.buffer_lengths)
+
+
+@attr.s
 class SimpleSequence(Sequence):
     """Sequence for *simple* playback of waveform arrays.
 
@@ -382,7 +434,7 @@ class SimpleSequence(Sequence):
     loop of the sequence program.
 
         >>> awg.set_sequence_params(sequence_type="Simple")
-        >>> awg.queue_waveform(np.ones(800), np.oenes(800))
+        >>> awg.queue_waveform(np.ones(800), np.ones(800))
         >>> awg.compile_and_upload_waveforms()
         >>> ...
 
@@ -863,7 +915,7 @@ class ReadoutSequence(Sequence):
         self.sequence += self.trigger_cmd_1
         self.sequence += SequenceCommand.wait(self.wait_cycles)
         self.sequence += self.trigger_cmd_2
-        if self.target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
+        if self.target == DeviceTypes.UHFQA:
             self.sequence += SequenceCommand.readout_trigger()
         self.sequence += SequenceCommand.play_wave()
         self.sequence += SequenceCommand.wait_wave()
