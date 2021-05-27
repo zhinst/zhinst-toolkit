@@ -59,6 +59,7 @@ class UHFLI(BaseInstrument):
 
     def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
         super().__init__(name, DeviceTypes.UHFLI, serial, discovery, **kwargs)
+        self._awg = AWG(self, 0)
 
     def connect_device(self, nodetree: bool = True) -> None:
         """Establishes a device connection.
