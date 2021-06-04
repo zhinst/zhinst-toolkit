@@ -30,6 +30,29 @@ class PQSC(BaseInstrument):
         serial (str): Serial number of the device, e.g. 'dev1234'. The serial
             number can be found on the back panel of the instrument.
         discovery: an instance of ziDiscovery
+
+    Attributes:
+        ref_clock (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            The intended reference clock source to be used as the
+            frequency and time base reference. When the source is
+            changed, all the instruments connectedwith ZSync links will
+            be disconnected. The connection should be re-established
+            manually. Either `0: "internal"` or `1: "external"`.
+            `0: "internal`: Internal 10 MHz clock
+            `1: "external`: An external clock. Provide a clean and stable
+            10 MHz or 100 MHz reference to the appropriate back panel
+            connector.
+        ref_clock_actual (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            The actual reference clock source. Either `0: "internal"`
+            or `1: "external"`.
+            `0: "internal`: Internal 10 MHz clock
+            `1: "external`: An external clock.
+        ref_clock_status (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Status of the reference clock. Either `0: "locked"`,
+            `1: "error"` or `2: "busy"`.
+        progress (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            The fraction of the triggers generated so far.
+
     """
 
     def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
@@ -107,28 +130,12 @@ class PQSC(BaseInstrument):
         Keyword Arguments:
             blocking (bool): A flag that specifies if the program should
                 be blocked until the reference clock is 'locked'.
-                (default: False)
+                (default: True)
             timeout (int): Maximum time in seconds the program waits
-                when `blocking` is set to `True`. (default: 5)
+                when `blocking` is set to `True`. (default: 30)
 
         """
-        ref_clock_set = self._get("system/clocks/referenceclock/in/source")
-        ref_clock_status = self._get("system/clocks/referenceclock/in/status")
-        start_time = time.time()
-        while (
-            blocking and start_time + timeout >= time.time() and ref_clock_status != 0
-        ):
-            time.sleep(1)
-            # Check again if status is 'locked' and update the variable.
-            ref_clock_status = self._get("system/clocks/referenceclock/in/status")
-        # Throw an exception if the clock is still not locked after timeout
-        ref_clock_actual = self._get("system/clocks/referenceclock/in/sourceactual")
-        if ref_clock_actual != ref_clock_set:
-            raise Exception(
-                "There was an error locking PQSC onto reference clock signal. Try again."
-            )
-        else:
-            _logger.info("Reference clock has been succesfully locked on.")
+        self._check_ref_clock(blocking=blocking, timeout=timeout)
 
     def _init_settings(self):
         """Sets initial device settings on startup."""
@@ -140,14 +147,13 @@ class PQSC(BaseInstrument):
             self,
             self._get_node_dict(f"system/clocks/referenceclock/in/source"),
             device=self,
-            set_parser=Parse.set_ref_clock_wo_zsync,
-            get_parser=Parse.get_ref_clock_wo_zsync,
+            auto_mapping=True,
         )
         self.ref_clock_actual = Parameter(
             self,
             self._get_node_dict(f"system/clocks/referenceclock/in/sourceactual"),
             device=self,
-            get_parser=Parse.get_ref_clock_wo_zsync,
+            auto_mapping=True,
         )
         self.ref_clock_status = Parameter(
             self,

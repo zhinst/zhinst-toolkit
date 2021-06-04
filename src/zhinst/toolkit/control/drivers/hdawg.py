@@ -53,7 +53,17 @@ class HDAWG(BaseInstrument):
     Attributes:
         awgs (list): A list of four device-specific AWG Cores of type
             :class:`zhinst.toolkit.control.drivers.hdawg.AWG`.
-
+        ref_clock (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Clock source used as the frequency and time base reference.
+            Either `0: "internal"`, `1: "external"` or `2: "zsync"`.
+            `0: "internal`: Internal 10 MHz clock
+            `1: "external`: An external clock. Provide a clean and stable
+            10 MHz or 100 MHz reference to the appropriate back panel
+            connector.
+            `2: "zsync`: A ZSync clock is intended to be used.
+        ref_clock_status (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Status of the reference clock. Either `0: "locked"`,
+            `1: "error"` or `2: "busy"`.
     """
 
     def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
@@ -120,8 +130,7 @@ class HDAWG(BaseInstrument):
             self,
             self._get_node_dict(f"system/clocks/referenceclock/source"),
             device=self,
-            set_parser=Parse.set_ref_clock_w_zsync,
-            get_parser=Parse.get_ref_clock_w_zsync,
+            auto_mapping=True,
         )
         self.ref_clock_status = Parameter(
             self,
@@ -219,7 +228,7 @@ class AWG(AWGCore):
             self,
             self._parent._get_node_dict(f"oscs/{4 * self._index}/freq"),
             device=self._parent,
-            set_parser=Parse.greater0,
+            set_parser=lambda v: Parse.greater(v, 0),
         )
         self.modulation_phase_shift = Parameter(
             self,
@@ -231,13 +240,19 @@ class AWG(AWGCore):
             self,
             self._parent._get_node_dict(f"awgs/{self._index}/outputs/0/gains/0"),
             device=self._parent,
-            set_parser=Parse.amp1,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 1.0),
+                lambda v: Parse.greater_equal(v, -1.0),
+            ],
         )
         self.gain2 = Parameter(
             self,
             self._parent._get_node_dict(f"awgs/{self._index}/outputs/1/gains/1"),
             device=self._parent,
-            set_parser=Parse.amp1,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 1.0),
+                lambda v: Parse.greater_equal(v, -1.0),
+            ],
         )
 
     def outputs(self, value=None):

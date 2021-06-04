@@ -4,6 +4,7 @@
 # of the MIT license. See the LICENSE file for details.
 
 import numpy as np
+import re
 from typing import List, Dict, Callable
 
 
@@ -49,12 +50,17 @@ class Parameter:
         device (:class:`BaseInstruemnt`): The device driver that the
             :class:`Parameter` is associated to. The device is eventually
             used to `set(...)` and `get(...)` the node. (default: None)
-        set_parser (Callable): A parser function that is called with the set
-            value before setting the value and returns the parsed parameter
-            value. (default: 'lambda v: v')
-        set_parser (Callable): A parser function that is called with the gotten
-            value from the device before returning it by the getter. It returns
-            the parsed parameter value. (default: 'lambda v: v')
+        set_parser (Callable or list): A parser function or a list of
+            parser functions that are called with the set value before
+            setting the value and return the parsed parameter value
+            (default: 'lambda v: v').
+        get_parser (Callable): A parser function that is called with the
+            gotten value from the device before returning it by the
+            getter. It returns the parsed parameter value
+            (default: 'lambda v: v').
+        auto_mapping (bool): A flag that specifies whether a value
+            mapping should be constructed automatically from the options
+            obtained from the device node.
         mapping (dict): A value mapping for keyword to integer conversion.
             (default: None)
 
@@ -67,6 +73,7 @@ class Parameter:
         device=None,
         set_parser: Callable = lambda v: v,
         get_parser: Callable = lambda v: v,
+        auto_mapping: bool = False,
         mapping: Dict = None,
     ) -> None:
         self._parent = parent
@@ -80,7 +87,20 @@ class Parameter:
         self._cached_value = None
         self._get_parser = get_parser
         self._set_parser = set_parser
+        self._auto_mapping = auto_mapping
         self._map = mapping
+        self._inverse_map = {}
+        self._flat_mapping_values = []
+        if self._map is None and self._auto_mapping is True:
+            # Construct automatic mapping from options if no manual
+            # mapping is specified and automatic mapping is activated.
+            self._construct_auto_mapping()
+            # Do not display the automatic mapping in the docstring
+            # since it is basically the same as options.
+            self._display_mapping = False
+        else:
+            # Otherwise, display the automatic mapping in the docstring
+            self._display_mapping = True
 
     def _getter(self):
         """Implements a getter for the :class:`Parameter`.
@@ -100,11 +120,16 @@ class Parameter:
         if "Read" in self._properties:
             value = self._device._get(self._path)
             if self._map is not None:
-                if value not in self._map.keys():
+                allowed_values = list(self._map.keys())
+                if value not in allowed_values:
                     raise ToolkitNodeTreeError(
-                        f"The value '{value}' is not in {list(self._map.keys())}."
+                        f"The value '{value}' is not in {allowed_values}."
                     )
                 value = self._map[value]
+                # If the mapping has more than one value assigned to the
+                # same key, choose the first one in the list.
+                if isinstance(value, list):
+                    value = value[0]
             self._cached_value = self._get_parser(value)
             return self._cached_value
         else:
@@ -131,18 +156,96 @@ class Parameter:
         if "Write" in self._properties:
             if value != self._cached_value:
                 if self._map is not None and isinstance(value, str):
-                    if value not in self._map.values():
+                    # Construct a list from all allowed values in the mapping
+                    allowed_values = self._flatten_mapping_values()
+                    if value not in allowed_values:
                         raise ToolkitNodeTreeError(
-                            f"The value '{value}' is not in {list(self._map.values())}."
+                            f"The value '{value}' is not in {allowed_values}."
                         )
-                    inv_map = {v: k for k, v in self._map.items()}
-                    value = inv_map[value]
-                value = self._set_parser(value)
+                    inverse_map = self._invert_mapping()
+                    value = inverse_map[value]
+                elif self._map is not None and isinstance(value, int):
+                    allowed_values = list(self._map.keys())
+                    if value not in allowed_values:
+                        raise ToolkitNodeTreeError(
+                            f"The value '{value}' is not in {allowed_values}."
+                        )
+                # If the set_parser is a list of callables, call them
+                # one by one inside a loop
+                if isinstance(self._set_parser, list):
+                    for callable_element in self._set_parser:
+                        value = callable_element(value)
+                else:
+                    value = self._set_parser(value)
                 self._device._set(self._path, value)
+                # After setting the value, read it back from the device
+                value = self._device._get(self._path)
+                if self._map is not None:
+                    value = self._map[value]
+                    # If the mapping has more than one value assigned to the
+                    # same key, choose the first one in the list.
+                    if isinstance(value, list):
+                        value = value[0]
                 self._cached_value = self._get_parser(value)
             return self._cached_value
         else:
             raise ToolkitNodeTreeError("This parameter is not settable!")
+
+    def _invert_mapping(self):
+        """Invert the map dictionary to create inverse mapping."""
+        if self._inverse_map == {}:
+            for key, value in self._map.items():
+                if isinstance(value, list):
+                    self._inverse_map.update(dict.fromkeys(value, key))
+                else:
+                    self._inverse_map.update(dict({value: key}))
+        return self._inverse_map
+
+    def _flatten_mapping_values(self):
+        """Combine all dictionary values in a single list."""
+        if self._flat_mapping_values == []:
+            nested_list = self._map.values()
+            for sublist in nested_list:
+                if isinstance(sublist, list):
+                    for value in sublist:
+                        self._flat_mapping_values.append(value)
+                else:
+                    value = sublist
+                    self._flat_mapping_values.append(value)
+        return self._flat_mapping_values
+
+    def _reformat_options_dict(self, options):
+        """Insert a new line character after each option
+
+        This method allows the options to be displayed in a more human
+        readable way
+        """
+        return re.sub(r" '\d+':", "\\n\\g<0>", str(options), 0)
+
+    def _construct_auto_mapping(self):
+        """Generate a automatic mapping from the options
+
+        The options are extracted from the node of the device. If no
+        mapping is provided manually and `auto_mapping` is set to True
+        a mapping will be automatically constructed from the options.
+        The key values are converted from str to int."""
+        if self._options is None:
+            raise ToolkitNodeTreeError(
+                "Automatic mapping cannot be constructed. "
+                "This node does not contain any information "
+                "regarding the allowed options!"
+            )
+        elif self._options is not None:
+            map_from_options = {}
+            options = self._options
+            for key, value in options.items():
+                value_splitted = value.split(": ")
+                value_options = value_splitted[0].split(", ")
+                value_options = [re.sub(r'"', "", option) for option in value_options]
+                if len(value_options) < 2:
+                    value_options = value_options[0]
+                map_from_options.update(dict({int(key): value_options}))
+            self._map = dict(map_from_options)
 
     def __call__(self, value=None):
         """Make the object callable.
@@ -176,8 +279,9 @@ class Parameter:
         if self._properties is not None:
             s += f"Properties: {self._properties}\n"
         if self._options is not None:
-            s += f"Options: {self._options}\n"
-        if self._map is not None:
+            options_reformatted = self._reformat_options_dict(self._options)
+            s += f"Options: {options_reformatted}\n"
+        if self._map is not None and self._display_mapping:
             s += f"Mapping: {self._map}\n"
         if self._unit is not None:
             s += f"Unit: {self._unit}\n"
