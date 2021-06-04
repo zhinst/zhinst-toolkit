@@ -6,6 +6,7 @@
 import numpy as np
 from typing import List, Dict
 import logging
+import time
 
 import zhinst.ziPython as zi
 from zhinst.toolkit.control.connection import DeviceConnection, ZIConnection
@@ -130,6 +131,41 @@ class BaseInstrument:
         """Loads the factory default settings."""
         self._set(f"/system/preset/load", 1)
         _logger.info(f"Factory preset is loaded to device {self.serial.upper()}.")
+
+    def _check_ref_clock(self, blocking=True, timeout=30) -> None:
+        """Check if reference clock is locked succesfully.
+
+        Keyword Arguments:
+            blocking (bool): A flag that specifies if the program should
+                be blocked until the reference clock is 'locked'.
+                (default: True)
+            timeout (int): Maximum time in seconds the program waits
+                when `blocking` is set to `True`. (default: 30)
+
+        """
+        ref_clock_set = self.ref_clock()
+        ref_clock_status = self.ref_clock_status()
+        start_time = time.time()
+        while (
+            blocking
+            and start_time + timeout >= time.time()
+            and ref_clock_status != "locked"
+        ):
+            time.sleep(1)
+            # Check again if status is 'locked' and update the variable.
+            ref_clock_status = self.ref_clock_status()
+        # Throw an exception if the clock is still not locked after timeout
+        ref_clock_actual = self.ref_clock_actual()
+        if ref_clock_actual != ref_clock_set:
+            raise Exception(
+                f"There was an error locking the device {self.name} ({self.serial}) "
+                f"onto reference clock signal. Please try again."
+            )
+        else:
+            _logger.info(
+                f"Reference clock has been succesfully locked on the "
+                f"device {self.name} ({self.serial})."
+            )
 
     def _init_params(self):
         """Initialize parameters associated with device nodes.

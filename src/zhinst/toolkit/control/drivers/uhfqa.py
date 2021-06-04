@@ -90,8 +90,13 @@ class UHFQA(BaseInstrument):
             the instrument.
         integration_time (:class:`zhinst.toolkit.control.node_tree.Parameter`):
             The time in seconds used for signal integration. The value
-            must be positive. The maximum value when using weighted
-            integration is 4096 samples or ca. 2.275 us (default: 2.0 us).
+            must be greater than and multiple of 2.222 ns. The maximum
+            value when using weighted integration is ca. 2.275 us
+            (default: 2.0 us).
+        integration_length (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            The integration length in number of samples. The value
+            must be gerater than and multiple of 4. The maximum value
+            when using weighted integration is 4096 samples (default: 4096).
         result_source (:class:`zhinst.toolkit.control.node_tree.Parameter`):
             This parameter selects the stage in the signal processing
             path that is used as the source for the QA results. It can
@@ -110,7 +115,13 @@ class UHFQA(BaseInstrument):
             value of the *result length* setting. The second point is
             the average of the results number *2, M+2, 2M+2, ...*, and
             so forth.
-
+        ref_clock (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Clock source used as the frequency and time base reference.
+            Either `0: "internal"` or `1: "external"`.
+            `0: "internal`: Internal 10 MHz clock
+            `1: "external`: An external 10 MHz clock. Provide a clean
+            and stable 10 MHz reference to the appropriate back panel
+            connector.
     """
 
     def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
@@ -118,6 +129,7 @@ class UHFQA(BaseInstrument):
         self._awg = None
         self._channels = []
         self.integration_time = None
+        self.integration_length = None
         self.result_source = None
         self.averaging_mode = None
         self.ref_clock = None
@@ -313,10 +325,29 @@ class UHFQA(BaseInstrument):
     def _init_params(self):
         self.integration_time = Parameter(
             self,
-            self._get_node_dict("qas/0/integration/length"),
+            dict(
+                Node=f"{self.serial}/qas/0/integration/length".upper(),
+                Description="The integration time of all weighted integration units "
+                "specified in seconds. In Standard mode, a maximum of 4096 "
+                "samples can be integrated, which corresponds to 2.3 µs. "
+                "In Spectroscopy mode, a maximum of 16.7 MSa can be "
+                "integrated, which corresponds to ~10 ms.",
+                Type="Double",
+                Properties="Read, Write, Setting",
+                Unit="s",
+            ),
             device=self,
             set_parser=Parse.uhfqa_time2samples,
             get_parser=Parse.uhfqa_samples2time,
+        )
+        self.integration_length = Parameter(
+            self,
+            self._get_node_dict("qas/0/integration/length"),
+            device=self,
+            set_parser=[
+                lambda v: Parse.greater_equal(v, 4),
+                lambda v: Parse.multiple_of(v, 4, "down"),
+            ],
         )
         self.result_source = Parameter(
             self,
@@ -334,8 +365,7 @@ class UHFQA(BaseInstrument):
             self,
             self._get_node_dict(f"system/extclk"),
             device=self,
-            set_parser=Parse.set_ref_clock_wo_zsync,
-            get_parser=Parse.get_ref_clock_wo_zsync,
+            auto_mapping=True,
         )
 
     def _init_settings(self):
@@ -398,13 +428,19 @@ class AWG(AWGCore):
             self,
             self._parent._get_node_dict("awgs/0/outputs/0/amplitude"),
             device=self._parent,
-            set_parser=Parse.amp1,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 1.0),
+                lambda v: Parse.greater_equal(v, -1.0),
+            ],
         )
         self.gain2 = Parameter(
             self,
             self._parent._get_node_dict("awgs/0/outputs/1/amplitude"),
             device=self._parent,
-            set_parser=Parse.amp1,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 1.0),
+                lambda v: Parse.greater_equal(v, -1.0),
+            ],
         )
 
     def _apply_sequence_settings(self, **kwargs):
@@ -696,7 +732,7 @@ class ReadoutChannel:
         if freq is None:
             return self._readout_frequency
         else:
-            Parse.greater0(freq)
+            Parse.greater(freq, 0)
             self._readout_frequency = freq
             self._set_int_weights()
             return self._readout_frequency
@@ -712,7 +748,8 @@ class ReadoutChannel:
         if amp is None:
             return self._readout_amplitude
         else:
-            Parse.amp1(amp)
+            Parse.smaller_equal(amp, 1.0)
+            Parse.greater_equal(amp, -1.0)
             self._readout_amplitude = amp
             return self._readout_amplitude
 
