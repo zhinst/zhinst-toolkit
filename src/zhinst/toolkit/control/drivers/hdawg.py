@@ -6,7 +6,12 @@
 import numpy as np
 import time
 
-from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ToolkitError
+from zhinst.toolkit.control.drivers.base import (
+    BaseInstrument,
+    AWGCore,
+    CommandTable,
+    ToolkitError,
+)
 from zhinst.toolkit.control.node_tree import Parameter
 from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.interface import DeviceTypes
@@ -89,6 +94,7 @@ class HDAWG(BaseInstrument):
         super().factory_reset()
 
     def enable_qccs_mode(self) -> None:
+        """Configure the instrument to work with PQSC"""
         settings = [
             # Set ZSync clock to be used as reference
             ("/system/clocks/referenceclock/source", "zsync"),
@@ -141,10 +147,7 @@ class HDAWG(BaseInstrument):
 
     def _init_settings(self):
         """Sets initial device settings on startup."""
-        settings = [
-            ("awgs/*/single", 1),
-        ]
-        self._set(settings)
+        pass
 
     @property
     def awgs(self):
@@ -201,6 +204,7 @@ class AWG(AWGCore):
 
     def __init__(self, parent: BaseInstrument, index: int) -> None:
         super().__init__(parent, index)
+        self._ct = None
         self._iq_modulation = False
         self.output1 = None
         self.output2 = None
@@ -254,6 +258,17 @@ class AWG(AWGCore):
                 lambda v: Parse.greater_equal(v, -1.0),
             ],
         )
+        self.single = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/{self._index}/single"),
+            device=self._parent,
+            set_parser=Parse.set_true_false,
+            get_parser=Parse.get_true_false,
+        )
+
+    def _init_ct(self):
+        """Initialize the command table of the AWG."""
+        self._ct = CT(self, "https://docs.zhinst.com/hdawg/commandtable/v2/schema")
 
     def outputs(self, value=None):
         """Sets both signal outputs simultaneously.
@@ -389,3 +404,17 @@ class AWG(AWGCore):
         else:
             s += f"      IQ Modulation DISABLED\n"
         return s
+
+    @property
+    def ct(self):
+        return self._ct
+
+
+class CT(CommandTable):
+    """Device-specific CommandTable for HDAWG.
+
+    This class inherits from the base :class:`CommandTable`.
+    """
+
+    def __init__(self, parent: AWGCore, ct_schema_url: str) -> None:
+        super().__init__(parent, ct_schema_url)

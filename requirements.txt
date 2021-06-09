@@ -4,3 +4,4 @@ attrs
 pytest
 hypothesis
 deprecation
+jsonschema

@@ -19,7 +19,7 @@ def test_init_awg(i, j):
     assert awg._parent == instr
     assert awg._index == i
     assert awg.waveforms == []
-    assert awg.name == f"name-{i}"
+    assert awg.name == f"name-awg-{i}"
     assert awg._program is not None
     params = awg.sequence_params["sequence_parameters"]
     if j == 0:

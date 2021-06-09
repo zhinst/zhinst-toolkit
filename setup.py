@@ -14,6 +14,7 @@ requirements = [
     "zhinst>=20.01",
     "attrs",
     "deprecation>=2.1.0",
+    "jsonschema>=3.2.0",
 ]
 
 
