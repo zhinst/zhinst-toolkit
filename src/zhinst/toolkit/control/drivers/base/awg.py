@@ -6,9 +6,15 @@
 import numpy as np
 import time
 from typing import List, Union
+import logging
+import traceback
+import re
 
 from zhinst.toolkit.helpers import SequenceProgram, Waveform, SequenceType
 from .base import ToolkitError, BaseInstrument
+
+logging.basicConfig(format="%(levelname)s: %(message)s")
+_logger = logging.getLogger(__name__)
 
 
 class AWGCore:
@@ -116,7 +122,7 @@ class AWGCore:
 
     @property
     def name(self):
-        return self._parent.name + "-" + str(self._index)
+        return self._parent.name + "-" + "awg" + "-" + str(self._index)
 
     @property
     def waveforms(self):
@@ -181,31 +187,44 @@ class AWGCore:
             buffer_lengths = [w.buffer_length for w in self._waveforms]
             delays = [w.delay for w in self._waveforms]
             self.set_sequence_params(buffer_lengths=buffer_lengths, delay_times=delays)
-        self._module.set("compiler/sourcestring", self._program.get_seqc())
-        while self._module.get_int("compiler/status") == -1:
+        seqc_program = self._program.get_seqc()
+        self._module.set("compiler/sourcestring", seqc_program)
+        compiler_status = self._module.get_int("compiler/status")
+        while compiler_status == -1:
             time.sleep(0.1)
-        if self._module.get_int("compiler/status") == 1:
-            raise ToolkitError(
-                "Upload failed: \n" + self._module.get_string("compiler/statusstring")
+            compiler_status = self._module.get_int("compiler/status")
+        statusstring = self._module.get_string("compiler/statusstring")
+        if compiler_status == 1:
+            _logger.error(
+                f"{self._caller_name()}\n"
+                f"Please check the sequencer code for {self.name}:\n{self._seqc_error(statusstring)}"
+                f"Compiler status string:\n{statusstring}\n",
             )
-        if self._module.get_int("compiler/status") == 2:
-            raise Warning(
-                "Compiled with warning: \n"
-                + self._module.get_string("compiler/statusstring")
+            raise ToolkitError("Compilation failed")
+        elif compiler_status == 2:
+            _logger.warning(
+                f"{self._caller_name()}\n"
+                f"Please check the sequencer code for {self.name}:\n{self._seqc_error(statusstring)}"
+                f"Compiler status string:\n{statusstring}\n",
             )
-        if self._module.get_int("compiler/status") == 0:
-            print("Compilation successful")
+        elif compiler_status == 0:
+            _logger.info(f"{self.name}: Compilation successful")
         tik = time.time()
         while (self._module.get_double("progress") < 1.0) and (
             self._module.get_int("/elf/status") != 1
         ):
             time.sleep(0.1)
             if time.time() - tik >= 100:  # 100s timeout
-                raise ToolkitError("Program upload timed out!")
-        status = self._module.get_int("/elf/status")
-        print(
-            f"{self.name}: Sequencer status: {'ELF file uploaded' if status == 0 else 'FAILED!!'}"
-        )
+                raise ToolkitError(f"{self.name}: Program upload timed out!")
+        elf_status = self._module.get_int("/elf/status")
+        if elf_status == 0:
+            _logger.info(f"{self.name}: Sequencer status: ELF file uploaded!")
+        else:
+            _logger.error(
+                f"{self._caller_name()}\n"
+                f"{self.name}: Sequencer status: ELF upload failed!",
+            )
+            raise ToolkitError(f"{self.name}: ELF upload failed!")
 
     def reset_queue(self) -> None:
         """Resets the waveform queue to an empty list."""
@@ -230,12 +249,16 @@ class AWGCore:
                 the time origin of the sequence. (default: 0)
 
         Raises:
-            Exception: If the sequence is not of type *'Simple'*.
+            Exception: If the sequence is not of type *'Simple'* or
+                *'Custom'*.
 
         """
-        if self._program.sequence_type != SequenceType.SIMPLE:
+        if self._program.sequence_type not in [
+            SequenceType.SIMPLE,
+            SequenceType.CUSTOM,
+        ]:
             raise Exception(
-                "Waveform upload only possible for 'Simple' sequence program!"
+                "Waveform upload only possible for 'Simple' and 'Custom' sequence programs!"
             )
         self._waveforms.append(Waveform(wave1, wave2, delay=delay))
         print(f"Current length of queue: {len(self._waveforms)}")
@@ -330,3 +353,37 @@ class AWGCore:
 
     def _apply_sequence_settings(self, **kwargs):
         pass
+
+    def _seqc_error(self, statusstring):
+        """Extract the relevant lines from seqc program in case of error.
+
+        Ihis method extracts the line number from the compiler status
+        and then finds the relevant lines in the seqc program to guide
+        the user. It works both for errors and warnings.
+        """
+        seqc_error = "\n"
+        seqc = self._program.get_seqc().splitlines()
+        pattern = "line: (.*?)\):"
+        num_error_line = int(re.search(pattern, statusstring).group(1))
+        start_line = max(0, num_error_line - 4)
+        stop_line = min(len(seqc), num_error_line + 1)
+        number_width = len(str(stop_line + 1))
+        for i, line in enumerate(seqc[start_line:stop_line], start=start_line):
+            if i + 1 == num_error_line:
+                seqc_error += f"-> {i + 1: >{number_width}}   {line.strip()}\n"
+            else:
+                seqc_error += f"   {i + 1: >{number_width}}   {line.strip()}\n"
+        seqc_error += "\n"
+        return seqc_error
+
+    def _caller_name(self):
+        """Return the caller name.
+
+        This method returns the line that calls a function. It is used
+        to display a logging message to the user and show which line
+        caused an error or warning.
+        """
+        frame_list = traceback.StackSummary.extract(traceback.walk_stack(None))
+        for frame in frame_list:
+            if frame.name == "<module>":
+                return frame.line

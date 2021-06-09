@@ -151,6 +151,11 @@ class UHFQA(BaseInstrument):
     def factory_reset(self) -> None:
         """Loads the factory default settings."""
         super().factory_reset()
+        # Set the AWG to single shot mode manually since the firmware
+        # is not programmed to do this automatically when factory
+        # preset is loaded
+        self.awg.single(True)
+        self.qa_delay(0)
 
     def crosstalk_matrix(self, matrix=None):
         """Sets or gets the crosstalk matrix of the UHFQA as a 2D array.
@@ -210,6 +215,7 @@ class UHFQA(BaseInstrument):
             self.channels[i].disable()
 
     def enable_qccs_mode(self) -> None:
+        """Configure the instrument to work with PQSC"""
         settings = [
             # Use external 10 MHz clock as reference
             ("/system/extclk", "external"),
@@ -369,10 +375,7 @@ class UHFQA(BaseInstrument):
         )
 
     def _init_settings(self):
-        settings = [
-            ("awgs/0/single", 1),
-        ]
-        self._set(settings)
+        self.awg.single(True)
 
     @property
     def awg(self):
@@ -441,6 +444,13 @@ class AWG(AWGCore):
                 lambda v: Parse.smaller_equal(v, 1.0),
                 lambda v: Parse.greater_equal(v, -1.0),
             ],
+        )
+        self.single = Parameter(
+            self,
+            self._parent._get_node_dict("awgs/0/single"),
+            device=self._parent,
+            set_parser=Parse.set_true_false,
+            get_parser=Parse.get_true_false,
         )
 
     def _apply_sequence_settings(self, **kwargs):
@@ -674,6 +684,7 @@ class ReadoutChannel:
         self._enabled = False
         self._readout_frequency = 100e6
         self._readout_amplitude = 1
+        self._int_weights_envelope = 1.0
         self._phase_shift = 0
         self.rotation = None
         self.threshold = None
@@ -737,6 +748,29 @@ class ReadoutChannel:
             self._set_int_weights()
             return self._readout_frequency
 
+    def int_weights_envelope(self, envelope=None):
+        """Set or get the envelope multiplied with the integration weights.
+
+        Arguments:
+            envelope (list or double): Envelope value or list of values
+                to be multiplied with the integration weights. Each value
+                must be between 0.0 and 1.0 (default: 1.0).
+
+        """
+        if envelope is None:
+            return self._int_weights_envelope
+        else:
+            if isinstance(envelope, list) or isinstance(envelope, np.ndarray):
+                for i in range(len(envelope)):
+                    envelope[i] = Parse.greater_equal(envelope[i], 0)
+                    envelope[i] = Parse.smaller_equal(envelope[i], 1.0)
+            else:
+                envelope = Parse.greater_equal(envelope, 0)
+                envelope = Parse.smaller_equal(envelope, 1.0)
+            self._int_weights_envelope = envelope
+            self._set_int_weights()
+            return self._int_weights_envelope
+
     def readout_amplitude(self, amp=None):
         """Sets or gets the readout amplitude for this channel.
 
@@ -773,13 +807,16 @@ class ReadoutChannel:
 
     def _set_int_weights(self):
         self._reset_int_weights()
-        l = self._parent._get("qas/0/integration/length")
+        length = self._parent.integration_length()
         freq = self.readout_frequency()
+        envelope = self.int_weights_envelope()
         node = f"/qas/0/integration/weights/{self._index}/"
-        self._parent._set(node + "real", self._demod_weights(l, freq, 0))
-        self._parent._set(node + "imag", self._demod_weights(l, freq, 90))
+        self._parent._set(node + "real", self._demod_weights(length, envelope, freq, 0))
+        self._parent._set(
+            node + "imag", self._demod_weights(length, envelope, freq, 90)
+        )
 
-    def _demod_weights(self, length, freq, phase):
+    def _demod_weights(self, length, envelope, freq, phase):
         if length > 4096:
             raise ValueError(
                 "The maximum length of the integration weights is 4096 samples."
@@ -787,8 +824,8 @@ class ReadoutChannel:
         if freq <= 0:
             raise ValueError("This frequency must be positive.")
         clk_rate = 1.8e9
-        x = np.arange(0, length)
-        y = np.sin(2 * np.pi * freq * x / clk_rate + np.deg2rad(phase))
+        x = np.arange(0, length, 1)
+        y = envelope * np.sin(2 * np.pi * freq * x / clk_rate + np.deg2rad(phase))
         return y
 
     def _average_result(self, result):

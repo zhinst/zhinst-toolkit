@@ -17,8 +17,7 @@ def test_init_hdawg():
         hd._init_awg_cores()
     with pytest.raises(Exception):
         hd._init_params()
-    with pytest.raises(Exception):
-        hd._init_settings()
+    hd._init_settings()
 
 
 def test_methods_hdawg():

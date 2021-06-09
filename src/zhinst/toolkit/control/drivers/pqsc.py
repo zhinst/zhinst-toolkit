@@ -87,7 +87,7 @@ class PQSC(BaseInstrument):
 
         Note that the PQSC is disabled at the end of the hold-off time
         after sending out the last trigger. Therefore, the hold-off time
-        should be long enought such that the PQSC is still enabled when
+        should be long enough such that the PQSC is still enabled when
         the feedback arrives. Otherwise, the feedback cannot be processed.
 
         Keyword Arguments:
@@ -136,6 +136,47 @@ class PQSC(BaseInstrument):
 
         """
         self._check_ref_clock(blocking=blocking, timeout=timeout)
+
+    def check_zsync_connection(self, ports=0, blocking=True, timeout=30) -> None:
+        """Check if the ZSync connection on the given port is successful.
+
+        This function checks the current status of the instrument
+        connected to the given port.
+
+        Keyword Arguments:
+            ports (list) or (int): The port numbers to check the ZSync
+                connection for. It can either be a single port number given
+                as integer or a list of several port numbers. (default: 0)
+            blocking (bool): A flag that specifies if the program should
+                be blocked until the status is 'connected'.
+                (default: False)
+            timeout (int): Maximum time in seconds the program waits
+                when `blocking` is set to `True`. (default: 30)
+
+        """
+        if type(ports) is not list:
+            ports = [ports]
+        for port in ports:
+            zsync_connection_status = self._get(f"zsyncs/{port}/connection/status")
+            start_time = time.time()
+            while (
+                blocking
+                and start_time + timeout >= time.time()
+                and zsync_connection_status != 2
+            ):
+                time.sleep(1)
+                # Check again if status is 'connected' and update the variable.
+                zsync_connection_status = self._get(f"zsyncs/{port}/connection/status")
+            # Throw an exception if the instrument is still not connected after timeout
+            if zsync_connection_status != 2:
+                raise Exception(
+                    f"Check ZSync connection to the instrument on port {port+1:} of PQSC."
+                )
+            else:
+                _logger.info(
+                    f"ZSync connection to the instrument on port {port+1:} of "
+                    f"PQSC is successful"
+                )
 
     def _init_settings(self):
         """Sets initial device settings on startup."""

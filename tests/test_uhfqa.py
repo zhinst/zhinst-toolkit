@@ -167,12 +167,12 @@ def test_demod_weights(length, freq, phase):
     ch = ReadoutChannel(UHFQA("name", "dev1234"), 0)
     if length > 4096:
         with pytest.raises(ValueError):
-            ch._demod_weights(length, freq, phase)
+            ch._demod_weights(length, 1.0, freq, phase)
     elif freq <= 0:
         with pytest.raises(ValueError):
-            ch._demod_weights(length, freq, phase)
+            ch._demod_weights(length, 1.0, freq, phase)
     else:
         clk_rate = 1.8e9
         x = np.arange(0, length)
         y = np.sin(2 * np.pi * freq * x / clk_rate + np.deg2rad(phase))
-        assert max(abs(y - ch._demod_weights(length, freq, phase))) < 1e-3
+        assert max(abs(y - ch._demod_weights(length, 1.0, freq, phase))) < 1e-3
