@@ -112,6 +112,8 @@ class Parameter:
         Raises:
             ToolkitNodeTreeError: if the parameter is not gettable, i.e. if
                 'Read' not in properties
+            ValueError: if the value received from the instrument is not
+                among the allowed values
 
         Returns:
             The  :class:`Parameter` value as returned from the `get` parser.
@@ -122,9 +124,7 @@ class Parameter:
             if self._map is not None:
                 allowed_values = list(self._map.keys())
                 if value not in allowed_values:
-                    raise ToolkitNodeTreeError(
-                        f"The value '{value}' is not in {allowed_values}."
-                    )
+                    raise ValueError(f"The value '{value}' is not in {allowed_values}.")
                 value = self._map[value]
                 # If the mapping has more than one value assigned to the
                 # same key, choose the first one in the list.
@@ -148,18 +148,24 @@ class Parameter:
         Raises:
             ToolkitNodeTreeError: if the  :class:`Parameter` is not settable,
                 i.e. if 'Write' not in properties
+            ValueError: if the value entered is not among the allowed
+                values
 
         Returns:
             The  :class:`Parameter` value set on the device.
 
         """
         if "Write" in self._properties:
+            # Update the cached value by reading the current value from
+            # the device and check if the new value is different then
+            # the cached value
+            self._cached_value = self._getter()
             if value != self._cached_value:
                 if self._map is not None and isinstance(value, str):
                     # Construct a list from all allowed values in the mapping
                     allowed_values = self._flatten_mapping_values()
                     if value not in allowed_values:
-                        raise ToolkitNodeTreeError(
+                        raise ValueError(
                             f"The value '{value}' is not in {allowed_values}."
                         )
                     inverse_map = self._invert_mapping()
@@ -167,7 +173,7 @@ class Parameter:
                 elif self._map is not None and isinstance(value, int):
                     allowed_values = list(self._map.keys())
                     if value not in allowed_values:
-                        raise ToolkitNodeTreeError(
+                        raise ValueError(
                             f"The value '{value}' is not in {allowed_values}."
                         )
                 # If the set_parser is a list of callables, call them
@@ -177,16 +183,13 @@ class Parameter:
                         value = callable_element(value)
                 else:
                     value = self._set_parser(value)
-                self._device._set(self._path, value)
+                if self._type == "ZIVectorData":
+                    self._device._setVector(self._path, value)
+                else:
+                    self._device._set(self._path, value)
                 # After setting the value, read it back from the device
-                value = self._device._get(self._path)
-                if self._map is not None:
-                    value = self._map[value]
-                    # If the mapping has more than one value assigned to the
-                    # same key, choose the first one in the list.
-                    if isinstance(value, list):
-                        value = value[0]
-                self._cached_value = self._get_parser(value)
+                # and update the cached value
+                self._cached_value = self._getter()
             return self._cached_value
         else:
             raise ToolkitNodeTreeError("This parameter is not settable!")

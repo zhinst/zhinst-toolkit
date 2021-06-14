@@ -60,6 +60,9 @@ class PQSC(BaseInstrument):
         self.ref_clock = None
         self.ref_clock_actual = None
         self.ref_clock_status = None
+        self.enable = None
+        self.repetitions = None
+        self.holdoff = None
         self.progress = None
 
     def connect_device(self, nodetree: bool = True) -> None:
@@ -99,16 +102,11 @@ class PQSC(BaseInstrument):
 
         """
         # Stop the PQSC if it is already running
-        self._set("execution/enable", 0)
+        self.stop()
         if repetitions is not None:
-            self._set("execution/repetitions", int(repetitions))
+            self.repetitions(int(repetitions))
         if holdoff is not None:
-            if holdoff < 100e-9:
-                raise ValueError("Hold-off time cannot be smaller than 100 ns!")
-            elif holdoff % 100e-9 > 1e-10:
-                raise ValueError("Hold-off time must be multiples of 100 ns!")
-            else:
-                self._set("execution/holdoff", holdoff)
+            self.holdoff(holdoff)
         # Clear register bank
         self._set("feedback/registerbank/reset", 1)
 
@@ -118,11 +116,11 @@ class PQSC(BaseInstrument):
         This method activates the trigger generation to trigger all
         connected instruments over ZSync ports.
         """
-        self._set("execution/enable", 1)
+        self.enable(True)
 
     def stop(self) -> None:
         """Stops the trigger generation."""
-        self._set("execution/enable", 0)
+        self.enable(False)
 
     def check_ref_clock(self, blocking=True, timeout=30) -> None:
         """Check if reference clock is locked succesfully.
@@ -184,6 +182,7 @@ class PQSC(BaseInstrument):
 
     def _init_params(self):
         """Initialize parameters associated with device nodes."""
+        super()._init_params()
         self.ref_clock = Parameter(
             self,
             self._get_node_dict(f"system/clocks/referenceclock/in/source"),
@@ -202,8 +201,37 @@ class PQSC(BaseInstrument):
             device=self,
             get_parser=Parse.get_locked_status,
         )
+        self.enable = Parameter(
+            self,
+            self._get_node_dict(f"execution/enable"),
+            device=self,
+            set_parser=Parse.set_true_false,
+            get_parser=Parse.get_true_false,
+        )
+        self.repetitions = Parameter(
+            self,
+            self._get_node_dict(f"execution/repetitions"),
+            device=self,
+            set_parser=[
+                lambda v: Parse.greater_equal(v, 1),
+                lambda v: Parse.smaller_equal(v, 2 ** 32 - 1),
+            ],
+        )
+        self.holdoff = Parameter(
+            self,
+            self._get_node_dict(f"execution/holdoff"),
+            device=self,
+            set_parser=[
+                lambda v: Parse.greater_equal(v, 100e-9),
+                lambda v: Parse.multiple_of(v, 100e-9, "nearest"),
+            ],
+        )
         self.progress = Parameter(
             self,
             self._get_node_dict(f"execution/progress"),
             device=self,
         )
+
+    @property
+    def is_running(self):
+        return self.enable()

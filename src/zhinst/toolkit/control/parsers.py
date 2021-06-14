@@ -22,7 +22,12 @@ class Parse:
         frame_list = traceback.StackSummary.extract(traceback.walk_stack(None))
         for frame in frame_list:
             if frame.name == "<module>":
-                return frame.line
+                if frame.line:
+                    return frame.line
+                else:
+                    for frame in frame_list:
+                        print(frame.name,"= ", frame.line,"= ", frame.locals)
+
 
     # Define a function to format the value string
     @staticmethod
@@ -187,3 +192,11 @@ class Parse:
     @staticmethod
     def shfqa_samples2time(v):
         return v / SHFQA_SAMPLE_RATE
+
+    @staticmethod
+    def version_parser(v):
+        v = str(v)
+        year = v[:2]
+        month = v[2:4]
+        build = v[4:]
+        return f"{year}.{month}.{build}"

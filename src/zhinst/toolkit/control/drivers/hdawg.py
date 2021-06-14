@@ -132,6 +132,7 @@ class HDAWG(BaseInstrument):
 
     def _init_params(self):
         """Initialize parameters associated with device nodes."""
+        super()._init_params()
         self.ref_clock = Parameter(
             self,
             self._get_node_dict(f"system/clocks/referenceclock/source"),
@@ -212,6 +213,13 @@ class AWG(AWGCore):
         self.modulation_phase_shift = None
         self.gain1 = None
         self.gain2 = None
+        self.single = None
+        self.zsync_register_mask = None
+        self.zsync_register_shift = None
+        self.zsync_register_offset = None
+        self.zsync_decoder_mask = None
+        self.zsync_decoder_shift = None
+        self.zsync_decoder_offset = None
 
     def _init_awg_params(self):
         self.output1 = Parameter(
@@ -264,6 +272,60 @@ class AWG(AWGCore):
             device=self._parent,
             set_parser=Parse.set_true_false,
             get_parser=Parse.get_true_false,
+        )
+        self.zsync_register_mask = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/{self._index}/zsync/register/mask"),
+            device=self._parent,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 15),
+                lambda v: Parse.greater_equal(v, 0),
+            ],
+        )
+        self.zsync_register_shift = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/{self._index}/zsync/register/shift"),
+            device=self._parent,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 3),
+                lambda v: Parse.greater_equal(v, 0),
+            ],
+        )
+        self.zsync_register_offset = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/{self._index}/zsync/register/offset"),
+            device=self._parent,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 1023),
+                lambda v: Parse.greater_equal(v, 0),
+            ],
+        )
+        self.zsync_decoder_mask = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/{self._index}/zsync/decoder/mask"),
+            device=self._parent,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 255),
+                lambda v: Parse.greater_equal(v, 0),
+            ],
+        )
+        self.zsync_decoder_shift = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/{self._index}/zsync/decoder/shift"),
+            device=self._parent,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 7),
+                lambda v: Parse.greater_equal(v, 0),
+            ],
+        )
+        self.zsync_decoder_offset = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/{self._index}/zsync/decoder/offset"),
+            device=self._parent,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 1023),
+                lambda v: Parse.greater_equal(v, 0),
+            ],
         )
 
     def _init_ct(self):

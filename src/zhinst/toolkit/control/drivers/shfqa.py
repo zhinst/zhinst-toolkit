@@ -25,7 +25,7 @@ class SHFQA(BaseInstrument):
 
     Inherits from :class:`BaseInstrument` and defines device specific
     methods and properties. All Channels of the :class:`SHFQA` can be
-    accessed through the property `channels` that is a list of four
+    accessed through the property `qachannels` that is a list of four
     :class:`Channel` s that are specific for the device and inherit from
     the :class:`SHFChannel` class. All Generators of the :class:`SHFQA`
     can be accessed through the property `generators` that is a list of
@@ -36,7 +36,7 @@ class SHFQA(BaseInstrument):
 
     def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
         super().__init__(name, DeviceTypes.SHFQA, serial, discovery, **kwargs)
-        self._channels = []
+        self._qachannels = []
         self._scope = None
         self.ref_clock = None
         self.ref_clock_actual = None
@@ -74,10 +74,10 @@ class SHFQA(BaseInstrument):
 
     def _init_channels(self):
         """Initialize the channels of the device."""
-        self._channels = [Channel(self, i) for i in range(self._num_channels())]
-        [channel._init_channel_params() for channel in self.channels]
-        [channel._init_generator() for channel in self.channels]
-        [channel._init_sweeper() for channel in self.channels]
+        self._qachannels = [Channel(self, i) for i in range(self._num_channels())]
+        [channel._init_channel_params() for channel in self.qachannels]
+        [channel._init_generator() for channel in self.qachannels]
+        [channel._init_sweeper() for channel in self.qachannels]
 
     def _init_scope(self):
         """Initialize the scope of the device."""
@@ -86,6 +86,7 @@ class SHFQA(BaseInstrument):
 
     def _init_params(self):
         """Initialize parameters associated with device nodes."""
+        super()._init_params()
         self.ref_clock = Parameter(
             self,
             self._get_node_dict(f"system/clocks/referenceclock/in/source"),
@@ -125,8 +126,8 @@ class SHFQA(BaseInstrument):
         time.sleep(0.2)
 
     @property
-    def channels(self):
-        return self._channels
+    def qachannels(self):
+        return self._qachannels
 
     @property
     def scope(self):

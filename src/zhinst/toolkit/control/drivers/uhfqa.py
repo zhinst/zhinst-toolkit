@@ -329,6 +329,7 @@ class UHFQA(BaseInstrument):
         [channel._init_channel_params() for channel in self.channels]
 
     def _init_params(self):
+        super()._init_params()
         self.integration_time = Parameter(
             self,
             dict(
@@ -365,7 +366,10 @@ class UHFQA(BaseInstrument):
             self,
             self._get_node_dict("qas/0/result/mode"),
             device=self,
-            mapping=MAPPINGS["averaging_mode"],
+            mapping={
+                0: "Cyclic",
+                1: "Sequential",
+            },
         )
         self.ref_clock = Parameter(
             self,
@@ -375,7 +379,11 @@ class UHFQA(BaseInstrument):
         )
 
     def _init_settings(self):
-        self.awg.single(True)
+        settings = [
+            # Enable single shot mode of AWG
+            ("awgs/0/single", 1),
+        ]
+        self._set(settings)
 
     @property
     def awg(self):
