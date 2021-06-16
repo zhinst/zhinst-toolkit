@@ -2,7 +2,7 @@ stages:
   - build
   - test
   - doc
-  - trigger
+  - deploy
     
 build:linux:
   image: python:3.7-buster
@@ -39,13 +39,25 @@ build:doc:
   artifacts:
     paths:
       - docs/build/html
-      
+
+pages:
+  stage: deploy
+  image: docker-registry.zhinst.com/devops/dockerfiles/buildenv-doc:latest
+  script:
+    - mkdir -p public
+    - cp -r docs/build/html/. public
+  artifacts:
+    paths:
+    - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+
 staging:
   variables:
     DS_PROJECT_NAME: $CI_PROJECT_NAME
     DS_PROJECT_ID: $CI_PROJECT_ID
     DS_PIPELINE_ID: $CI_PIPELINE_ID
-  stage: trigger
+  stage: deploy
   trigger:
     project: docs/staging
   rules:
