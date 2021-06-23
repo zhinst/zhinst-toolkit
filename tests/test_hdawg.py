@@ -7,7 +7,7 @@ from .context import HDAWG, HDAWG_AWG, DeviceTypes, SequenceType, TriggerMode
 
 
 def test_init_hdawg():
-    hd = HDAWG("name", "dev1234")
+    hd = HDAWG("name", "dev8000")
     assert len(hd._awgs) == 0
     assert len(hd.awgs) == 0
     assert hd.device_type == DeviceTypes.HDAWG
@@ -21,7 +21,7 @@ def test_init_hdawg():
 
 
 def test_methods_hdawg():
-    hd = HDAWG("name", "dev1234")
+    hd = HDAWG("name", "dev8000")
     with pytest.raises(Exception):
         hd.connect_device()
     with pytest.raises(Exception):
@@ -33,7 +33,8 @@ def test_methods_hdawg():
 
 
 def test_init_hdawg_awg():
-    awg = HDAWG_AWG(HDAWG("name", "dev1234"), 0)
+    awg = HDAWG_AWG(HDAWG("name", "dev8000"), 0)
+    assert awg.ct is None
     assert awg._iq_modulation is False
     assert awg.output1 is None
     assert awg.output2 is None
@@ -41,13 +42,26 @@ def test_init_hdawg_awg():
     assert awg.gain2 is None
     assert awg.modulation_freq is None
     assert awg.modulation_phase_shift is None
+    assert awg.single is None
+    assert awg.zsync_register_mask is None
+    assert awg.zsync_register_shift is None
+    assert awg.zsync_register_offset is None
+    assert awg.zsync_decoder_mask is None
+    assert awg.zsync_decoder_shift is None
+    assert awg.zsync_decoder_offset is None
     with pytest.raises(Exception):
         awg._init_awg_params()
 
 
+def test_ct_hdawg_awg():
+    awg = HDAWG_AWG(HDAWG("name", "dev8000"), 0)
+    awg._init_ct()
+    assert awg.ct is not None
+
+
 @given(i=st.booleans())
 def test_repr_str_hdawg_awg(i):
-    awg = HDAWG_AWG(HDAWG("name", "dev1234"), 0)
+    awg = HDAWG_AWG(HDAWG("name", "dev8000"), 0)
     awg._iq_modulation = i
     if i:
         with pytest.raises(Exception):
@@ -65,7 +79,7 @@ def test_repr_str_hdawg_awg(i):
     ),
 )
 def test_hdawg_awg_set_get(sequence_type, trigger_mode):
-    awg = HDAWG_AWG(HDAWG("name", "dev1234"), 0)
+    awg = HDAWG_AWG(HDAWG("name", "dev8000"), 0)
     with pytest.raises(Exception):
         awg.outputs(["on", "on"])
     with pytest.raises(Exception):
