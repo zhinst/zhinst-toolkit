@@ -132,6 +132,7 @@ class HDAWG(BaseInstrument):
 
     def _init_params(self):
         """Initialize parameters associated with device nodes."""
+        super()._init_params()
         self.ref_clock = Parameter(
             self,
             self._get_node_dict(f"system/clocks/referenceclock/source"),

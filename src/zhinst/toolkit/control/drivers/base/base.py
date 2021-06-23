@@ -12,6 +12,9 @@ import zhinst.ziPython as zi
 from zhinst.toolkit.control.connection import DeviceConnection, ZIConnection
 from zhinst.toolkit.control.node_tree import NodeTree
 from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes
+from zhinst.toolkit.control.node_tree import Parameter
+from zhinst.toolkit.control.parsers import Parse
+
 
 _logger = logging.getLogger(__name__)
 
@@ -86,6 +89,7 @@ class BaseInstrument:
             self, discovery if discovery is not None else zi.ziDiscovery()
         )
         self._nodetree = None
+        self._options = None
         self._normalized_serial = None
 
     def setup(self, connection: ZIConnection = None) -> None:
@@ -174,7 +178,22 @@ class BaseInstrument:
         :class:`BaseInstrument`.
 
         """
-        pass
+        self.data_server_version = Parameter(
+            self,
+            self._get_node_dict(f"/zi/about/revision"),
+            device=self,
+            get_parser=Parse.version_parser,
+        )
+        self.firmware_version = Parameter(
+            self,
+            self._get_node_dict(f"/system/fwrevision"),
+            device=self,
+        )
+        self.fpga_version = Parameter(
+            self,
+            self._get_node_dict(f"/system/fpgarevision"),
+            device=self,
+        )
 
     def _init_settings(self):
         """Initial device settings.
@@ -352,9 +371,10 @@ class BaseInstrument:
         'Description', 'Unit', etc.
 
         """
-        # self._check_connected()
-        self._check_node_exists(node)
-        device_node = self.serial + "/" + node
+        # Add the device serial to the node string if it does not start
+        # with '/zi/'.
+        device_node = self._controller._command_to_node(node)
+        self._check_node_exists(device_node)
         nested_dict = self._get_nodetree(device_node)
         inner_dict = list(nested_dict.values())[0]
         return inner_dict
@@ -385,14 +405,13 @@ class BaseInstrument:
                 f"The device {self.name} ({self.serial}) is not connected to a Data Server! Use device.setup() to establish a data server connection."
             )
 
-    def _check_node_exists(self, node: str):
+    def _check_node_exists(self, device_node: str):
         """Checks if the the specified node of the device exists.
 
         Raises:
             ToolkitError if the node does not exist.
 
         """
-        device_node = self.serial + "/" + node
         if self._get_nodetree(device_node) == {}:
             raise ToolkitError(
                 f"The device {self.name} ({self.serial}) does not have "

@@ -29,7 +29,11 @@ class ConnectionMock:
         pass
 
     def list_nodes(self, *args, **kwargs):
-        return "{}"
+        return (
+            '{"node_address": '
+            '{"Node": "node_address", '
+            '"Description": "description" }}'
+        )
 
     def get(self, *args, **kwargs):
         return {"node": {"value": [""]}}
@@ -37,19 +41,28 @@ class ConnectionMock:
 
 def test_init_instrument():
     instr = BaseInstrument(
-        "name", DeviceTypes.PQSC, "dev1234", interface="1GbE", discovery=DiscoveryMock()
+        "name",
+        DeviceTypes.PQSC,
+        "dev10000",
+        interface="1GbE",
+        discovery=DiscoveryMock(),
     )
     assert instr.nodetree is None
     assert instr.name == "name"
     assert instr.device_type == DeviceTypes.PQSC
-    assert instr.serial == "dev1234"
+    assert instr.serial == "dev10000"
     assert instr.interface == "1GbE"
-    assert instr.is_connected == False
+    assert instr.is_connected is False
+    assert instr.options is None
 
 
 def test_check_connection():
     instr = BaseInstrument(
-        "name", DeviceTypes.PQSC, "dev1234", interface="1GbE", discovery=DiscoveryMock()
+        "name",
+        DeviceTypes.PQSC,
+        "dev10000",
+        interface="1GbE",
+        discovery=DiscoveryMock(),
     )
     with pytest.raises(ToolkitError):
         instr._check_connected()
@@ -61,8 +74,12 @@ def test_check_connection():
         instr._get("sigouts/0/on")
     with pytest.raises(ToolkitError):
         instr._set("sigouts/0/on", 1)
-    with pytest.raises(ToolkitError):
+    with pytest.raises(TypeError):
         instr._get_node_dict("sigouts/0/on")
+    with pytest.raises(ToolkitError):
+        instr._get_node_dict("zi/about/revision")
+    with pytest.raises(ToolkitError):
+        instr._get_streamingnodes()
 
 
 def test_serials():
@@ -72,26 +89,38 @@ def test_serials():
         )
     with pytest.raises(ToolkitError):
         BaseInstrument(
-            "name", DeviceTypes.PQSC, 1234, interface="1GbE", discovery=DiscoveryMock()
+            "name", DeviceTypes.PQSC, 10000, interface="1GbE", discovery=DiscoveryMock()
         )
 
     BaseInstrument(
-        "name", DeviceTypes.PQSC, "dev1234", interface="1GbE", discovery=DiscoveryMock()
+        "name",
+        DeviceTypes.PQSC,
+        "dev10000",
+        interface="1GbE",
+        discovery=DiscoveryMock(),
     )
     BaseInstrument(
-        "name", DeviceTypes.PQSC, "DEV1234", interface="1GbE", discovery=DiscoveryMock()
+        "name",
+        DeviceTypes.PQSC,
+        "DEV10000",
+        interface="1GbE",
+        discovery=DiscoveryMock(),
     )
 
 
 def test_serial_normalization():
     inst = BaseInstrument(
-        "name", DeviceTypes.PQSC, "DEV1234", interface="1GbE", discovery=DiscoveryMock()
+        "name",
+        DeviceTypes.PQSC,
+        "DEV10000",
+        interface="1GbE",
+        discovery=DiscoveryMock(),
     )
     inst.setup(ConnectionMock())
     inst.connect_device()
-    assert inst.serial == "dev1234"
+    assert inst.serial == "dev10000"
 
 
 def test_default_discovery():
-    inst = BaseInstrument("name", DeviceTypes.PQSC, "DEV1234", interface="1GbE")
+    inst = BaseInstrument("name", DeviceTypes.PQSC, "DEV10000", interface="1GbE")
     assert isinstance(inst._controller.discovery, ziDiscovery)

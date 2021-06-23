@@ -49,3 +49,13 @@ def test_complex2deg_and_back(deg):
     complex = Parse.deg2complex(deg)
     d = Parse.complex2deg(complex)
     assert abs(d - deg) < 1e-5
+
+
+@given(year=st.integers(0, 99), month=st.integers(1, 12), build=st.integers(0, 99999))
+def test_version_parser(year, month, build):
+    # Add leading zeros to year and month number and convert to string
+    year = str(year).zfill(2)
+    month = str(month).zfill(2)
+    build = str(build)
+    version = Parse.version_parser(year + month + build)
+    assert version == year + "." + month + "." + build

@@ -187,3 +187,12 @@ class Parse:
     @staticmethod
     def shfqa_samples2time(v):
         return v / SHFQA_SAMPLE_RATE
+
+    @staticmethod
+    def version_parser(v):
+        """ Convert the obtained data version string to correct format"""
+        v = str(v)
+        year = v[:2]
+        month = v[2:4]
+        build = v[4:]
+        return f"{year}.{month}.{build}"
