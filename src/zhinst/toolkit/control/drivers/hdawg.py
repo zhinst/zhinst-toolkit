@@ -51,7 +51,7 @@ class HDAWG(BaseInstrument):
 
     Arguments:
         name (str): Identifier for the HDAWG.
-        serial (str): Serial number of the device, e.g. *'dev1234'*. The serial
+        serial (str): Serial number of the device, e.g. *'dev8000'*. The serial
             number can be found on the back panel of the instrument.
         discovery: an instance of ziDiscovery
 
@@ -94,7 +94,11 @@ class HDAWG(BaseInstrument):
         super().factory_reset()
 
     def enable_qccs_mode(self) -> None:
-        """Configure the instrument to work with PQSC"""
+        """Configure the instrument to work with PQSC
+
+        This method sets the reference clock source and DIO settings
+        correctly to connect the instrument to the PQSC.
+        """
         settings = [
             # Set ZSync clock to be used as reference
             ("/system/clocks/referenceclock/source", "zsync"),
@@ -111,6 +115,12 @@ class HDAWG(BaseInstrument):
         self._set(settings)
 
     def enable_manual_mode(self) -> None:
+        """Disconnect from PQSC
+
+        This method sets the reference clock source and DIO settings to
+        factory default states and the instrument is disconnected from
+        the PQSC.
+        """
         settings = [
             # Set internal clock to be used as reference
             ("/system/clocks/referenceclock/source", "internal"),
@@ -129,6 +139,7 @@ class HDAWG(BaseInstrument):
         self._awgs = [AWG(self, i) for i in range(4)]
         [awg._setup() for awg in self.awgs]
         [awg._init_awg_params() for awg in self.awgs]
+        [awg._init_ct() for awg in self.awgs]
 
     def _init_params(self):
         """Initialize parameters associated with device nodes."""
@@ -159,9 +170,10 @@ class AWG(AWGCore):
     """Device-specific AWG Core for HDAWG.
 
     This class inherits from the base :class:`AWGCore` and adds
-    :mod:`zhinst-toolkit` :class:`Parameters` such as ouput, modulation
-    frequency or gains. It also applies sequence specific settings for the
-    HDAWG, depending on the type of :class:`SequenceProgram` on the AWG Core.
+    :mod:`zhinst-toolkit` :class:`.Parameter` s such as output,
+    modulation frequency or gains. It also applies sequence specific
+    settings for the HDAWG, depending on the type of
+    :class:`SequenceProgram` on the AWG Core.
 
         >>> hd.awgs[0]
         <zhinst.toolkit.hdawg.AWG object at 0x0000021E467D3320>
@@ -177,30 +189,82 @@ class AWG(AWGCore):
                     ('alignment', 'End with Trigger')
                     ...
 
-        >>> hd.awgs[0].outputs("on")
+        >>> hd.awgs[0].outputs(["on", "on"])
+        >>> hd.awgs[0].single(True)
         >>> hd.awgs[0].enable_iq_modulation()
         >>> hd.awgs[0].modulation_freq(123.45e6)
         >>> hd.awgs[0].gain1()
         1.0
 
+    Command table data can be specified and uploaded to the AWG core as
+    follows:
+
+        >>> command_table = []
+        >>> command_table.append(
+        >>>    {
+        >>>        "index": 0,
+        >>>        "waveform": {"index": 0},
+        >>>        "amplitude0": {"value": 1.0, "increment": False},
+        >>>    }
+        >>> )
+        >>> command_table.append(
+        >>>    {
+        >>>        "index": 1,
+        >>>        "waveform": {"index": 0},
+        >>>        "amplitude0": {"value": 0.5, "increment": False},
+        >>>    }
+        >>> )
+        >>> hd.awgs[0].ct.load(command_table)
+
+
     See more about AWG Cores at
     :class:`zhinst.toolkit.control.drivers.base.AWGCore`.
 
     Attributes:
-        output1 (:class:`Parameter`): State of the output 1, i.e. one of
-            {'on', 'off'}.
-        output2 (:class:`Parameter`): State of the output 2, i.e. one of
-            {'on', 'off'}.
-        modulation_freq (:class:`Parameter`): Frequency of the modulation in
-            Hz if IQ modulation is enabled.
-        modulation_phase_shift (:class:`Parameter`): Phase shift in degrees
-            between I and Q quadratures if IQ modulation is enabled
-            (default: 90).
-        gain1 (:class:`Parameter`): Gain of the output channel 1 if IQ
-            modulation is enabled. Must be between -1 and +1 (default: +1).
-        gain2 (:class:`Parameter`): Gain of the output channel 2 if IQ
-            modulation is enabled. Must be between -1 and +1 (default: +1).
-
+        ct (:class:`zhinst.toolkit.control.drivers.hdawg.CT`):
+            A device-specific :class:`CommandTable` for the HDAWG.
+        output1 (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            State of the output 1, i.e. one of {'on', 'off'}.
+        output2 (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            State of the output 2, i.e. one of {'on', 'off'}.
+        modulation_freq (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Frequency of the modulation in Hz if IQ modulation is enabled.
+        modulation_phase_shift (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Phase shift in degrees between I and Q quadratures if IQ
+            modulation is enabled (default: 90).
+        gain1 (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Gain of the output channel 1 if IQ modulation is enabled.
+            Must be between -1 and +1 (default: +1).
+        gain2 (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Gain of the output channel 2 if IQ modulation is enabled.
+            Must be between -1 and +1 (default: +1).
+        single (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            State of the AWG single shot mode, i.e. one of
+            {True, False} (default: True).
+        zsync_register_mask (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Register mask configuration to select only the portion of
+            interest of the register output forwarded from the PQSC to
+            the HDAWG. Can be between 0 and 15 (default: 0).
+        zsync_register_shift (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Register shift configuration to select only the portion of
+            interest of the register output forwarded from the PQSC to
+            the HDAWG. Can be between 0 and 3 (default: 0).
+        zsync_register_offset (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Register offset configuration to select the base index of
+            the command table to be addressed. Can be between 0 and 1023
+            (default: 0).
+        zsync_decoder_mask (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Decoder mask configuration to select only the portion of
+            interest of the decoder output forwarded from the PQSC to
+            the HDAWG. Can be between 0 and 255 (default: 0).
+        zsync_decoder_shift (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Decoder shift configuration to select only the portion of
+            interest of the decoder output forwarded from the PQSC to
+            HDAWG. Can be between 0 and 7 (default: 0).
+        zsync_decoder_offset (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Decoder offset configuration to select the base index of the
+            command table to be addressed. Can be between 0 and 1023
+            (default: 0).
     """
 
     def __init__(self, parent: BaseInstrument, index: int) -> None:
@@ -213,6 +277,13 @@ class AWG(AWGCore):
         self.modulation_phase_shift = None
         self.gain1 = None
         self.gain2 = None
+        self.single = None
+        self.zsync_register_mask = None
+        self.zsync_register_shift = None
+        self.zsync_register_offset = None
+        self.zsync_decoder_mask = None
+        self.zsync_decoder_shift = None
+        self.zsync_decoder_offset = None
 
     def _init_awg_params(self):
         self.output1 = Parameter(
@@ -265,6 +336,60 @@ class AWG(AWGCore):
             device=self._parent,
             set_parser=Parse.set_true_false,
             get_parser=Parse.get_true_false,
+        )
+        self.zsync_register_mask = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/{self._index}/zsync/register/mask"),
+            device=self._parent,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 15),
+                lambda v: Parse.greater_equal(v, 0),
+            ],
+        )
+        self.zsync_register_shift = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/{self._index}/zsync/register/shift"),
+            device=self._parent,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 3),
+                lambda v: Parse.greater_equal(v, 0),
+            ],
+        )
+        self.zsync_register_offset = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/{self._index}/zsync/register/offset"),
+            device=self._parent,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 1023),
+                lambda v: Parse.greater_equal(v, 0),
+            ],
+        )
+        self.zsync_decoder_mask = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/{self._index}/zsync/decoder/mask"),
+            device=self._parent,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 255),
+                lambda v: Parse.greater_equal(v, 0),
+            ],
+        )
+        self.zsync_decoder_shift = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/{self._index}/zsync/decoder/shift"),
+            device=self._parent,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 7),
+                lambda v: Parse.greater_equal(v, 0),
+            ],
+        )
+        self.zsync_decoder_offset = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/{self._index}/zsync/decoder/offset"),
+            device=self._parent,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 1023),
+                lambda v: Parse.greater_equal(v, 0),
+            ],
         )
 
     def _init_ct(self):
