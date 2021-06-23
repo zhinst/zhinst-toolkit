@@ -329,6 +329,8 @@ class UHFQA(BaseInstrument):
         [channel._init_channel_params() for channel in self.channels]
 
     def _init_params(self):
+        """Initialize parameters associated with device nodes."""
+        super()._init_params()
         self.integration_time = Parameter(
             self,
             dict(
