@@ -38,7 +38,7 @@ class UHFQA(BaseInstrument):
 
         >>> import zhinst.toolkit as tk
         >>> ...
-        >>> uhfqa = tk.UHFQA("uhfqa", "dev1111")
+        >>> uhfqa = tk.UHFQA("uhfqa", "dev2000")
         >>> uhfqa.setup()
         >>> uhfqa.connect_device()
         >>> ...
@@ -76,7 +76,7 @@ class UHFQA(BaseInstrument):
 
     Arguments:
         name (str): Identifier for the UHFQA.
-        serial (str): Serial number of the device, e.g. *'dev1234'*. The
+        serial (str): Serial number of the device, e.g. *'dev2000'*. The
             serial number can be found on the back panel of the
             instrument.
         discovery: an instance of ziDiscovery
@@ -215,7 +215,11 @@ class UHFQA(BaseInstrument):
             self.channels[i].disable()
 
     def enable_qccs_mode(self) -> None:
-        """Configure the instrument to work with PQSC"""
+        """Configure the instrument to work with PQSC
+
+        This method sets the reference clock source and DIO settings
+        correctly to connect the instrument to the PQSC.
+        """
         settings = [
             # Use external 10 MHz clock as reference
             ("/system/extclk", "external"),
@@ -230,6 +234,12 @@ class UHFQA(BaseInstrument):
         self._set(settings)
 
     def enable_manual_mode(self) -> None:
+        """Disconnect from PQSC
+
+        This method sets the reference clock source and DIO settings to
+        factory default states and the instrument is disconnected from
+        the PQSC.
+        """
         settings = [
             # Use internal clock as reference
             ("/system/extclk", "internal"),
@@ -279,7 +289,7 @@ class UHFQA(BaseInstrument):
 
         """
         node = f"qas/0/delay"
-        # Return the current adjustment if not argument is passed
+        # Return the current adjustment if no argument is passed
         if value is None:
             return self._qa_delay_user
         else:
@@ -377,7 +387,13 @@ class UHFQA(BaseInstrument):
         )
 
     def _init_settings(self):
-        self.awg.single(True)
+        settings = [
+            # Enable single shot mode of AWG
+            ("awgs/0/single", 1),
+        ]
+        self._set(settings)
+        # Set quantum analyzer delay adjustment to 0
+        self.qa_delay(0)
 
     @property
     def awg(self):
@@ -391,19 +407,46 @@ class UHFQA(BaseInstrument):
 class AWG(AWGCore):
     """Device-specific AWG Core for UHFQA.
 
-    Inherits from `AWGCore` and adds :mod:`zhinst-toolkit` :class:`Parameters`
-    like ouput or gains. This class also specifies sequence specific settings
-    for the UHFQA.
+    Inherits from `AWGCore` and adds
+    :mod:`zhinst-toolkit` :class:`Parameter` s like output or gains.
+    This class also specifies sequence specific settings for the UHFQA.
+
+        >>> uhf.awg
+        <zhinst.toolkit.control.drivers.uhfqa.AWG object at 0x000001E20BD98908>
+            parent  : <zhinst.toolkit.control.drivers.uhfqa.UHFQA object at 0x000001E20BC754C8>
+            index   : 0
+            sequence:
+                type: SequenceType.NONE
+                ('target', <DeviceTypes.UHFQA: 'uhfqa'>)
+                ('clock_rate', 1800000000.0)
+                ('period', 0.0001)
+                ('trigger_mode', <TriggerMode.NONE: 'None'>)
+                ('trigger_samples', 32)
+                ('repetitions', 1)
+                ('alignment', <Alignment.END_WITH_TRIGGER: 'End with Trigger'>)
+                ...
+
+        >>> uhf.awg.outputs(["on", "on"])
+        >>> uhf.awg.single(True)
+        >>> uhf.awg.gain1()
+        1.0
 
     Attributes:
-        output1 (:class:`zhinst.toolkit.control.node_tree.Parameter`): The state
-            of the output of channel 1. Can be one of {'on', 'off'}.
-        output2 (:class:`zhinst.toolkit.control.node_tree.Parameter`): The state
-            of the output of channel 2. Can be one of {'on', 'off'}.
-        gain1 (:class:`zhinst.toolkit.control.node_tree.Parameter`): Gain of the
-            output channel 1. The value must be between -1 and +1 (default: +1).
-        gain2 (:class:`zhinst.toolkit.control.node_tree.Parameter`): Gain of the
-            output channel 2. The value must be between -1 and +1 (default: +1).
+        output1 (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            The state of the output of channel 1. Can be one of
+            {'on', 'off'}.
+        output2 (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            The state of the output of channel 2. Can be one of
+            {'on', 'off'}.
+        gain1 (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Gain of the output channel 1. The value must be between
+            -1 and +1 (default: +1).
+        gain2 (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Gain of the output channel 2. The value must be between
+            -1 and +1 (default: +1).
+        single (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            State of the AWG single shot mode, i.e. one of
+            {True, False} (default: True).
 
     """
 
@@ -413,6 +456,7 @@ class AWG(AWGCore):
         self.output2 = None
         self.gain1 = None
         self.gain2 = None
+        self.single = None
 
     def _init_awg_params(self):
         self.output1 = Parameter(
@@ -757,15 +801,25 @@ class ReadoutChannel:
             envelope (list or double): Envelope value or list of values
                 to be multiplied with the integration weights. Each value
                 must be between 0.0 and 1.0 (default: 1.0).
+        Raises:
+            ToolkitError: If integration weight envelope is given as a
+                list or array but the length of the list does not match
+                the integration length.
 
         """
         if envelope is None:
             return self._int_weights_envelope
         else:
             if isinstance(envelope, list) or isinstance(envelope, np.ndarray):
-                for i in range(len(envelope)):
-                    envelope[i] = Parse.greater_equal(envelope[i], 0)
-                    envelope[i] = Parse.smaller_equal(envelope[i], 1.0)
+                if len(envelope) == self._parent.integration_length():
+                    for i in range(len(envelope)):
+                        envelope[i] = Parse.greater_equal(envelope[i], 0)
+                        envelope[i] = Parse.smaller_equal(envelope[i], 1.0)
+                else:
+                    raise ToolkitError(
+                        "The length of `int_weights_envelope` list must be equal to "
+                        "integration length."
+                    )
             else:
                 envelope = Parse.greater_equal(envelope, 0)
                 envelope = Parse.smaller_equal(envelope, 1.0)
