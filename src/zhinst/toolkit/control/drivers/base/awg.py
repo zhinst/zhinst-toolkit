@@ -138,11 +138,11 @@ class AWGCore:
 
     def __repr__(self):
         params = self.sequence_params["sequence_parameters"]
-        s = f"{self._parent.name}: {super().__repr__()}\n"
+        s = f"{super().__repr__()}\n"
         s += f"    parent  : {self._parent}\n"
         s += f"    index   : {self._index}\n"
         s += f"    sequence: \n"
-        s += f"           type: {self.sequence_params['sequence_type']}\n"
+        s += f"            type: {self.sequence_params['sequence_type']}\n"
         for i in params.items():
             s += f"            {i}\n"
         return s
