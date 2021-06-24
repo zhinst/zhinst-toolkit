@@ -19,7 +19,7 @@ class PQSC(BaseInstrument):
     """High-level driver for the Zurich Instruments PQSC.
 
         >>> import zhinst.toolkit as tk
-        >>> pqsc = tk.PQSC("pqsc", "dev1234")
+        >>> pqsc = tk.PQSC("pqsc", "dev10000")
         >>> pqsc.setup()
         >>> pqsc.connect_device()
         >>> pqsc.nodetree
@@ -35,23 +35,34 @@ class PQSC(BaseInstrument):
         ref_clock (:class:`zhinst.toolkit.control.node_tree.Parameter`):
             The intended reference clock source to be used as the
             frequency and time base reference. When the source is
-            changed, all the instruments connectedwith ZSync links will
+            changed, all the instruments connected with ZSync links will
             be disconnected. The connection should be re-established
-            manually. Either `0: "internal"` or `1: "external"`.
-            `0: "internal`: Internal 10 MHz clock
-            `1: "external`: An external clock. Provide a clean and stable
+            manually. Can be either `0: "internal"` or `1: "external"`.\n
+            `0: "internal"`: Internal 10 MHz clock\n
+            `1: "external"`: An external clock. Provide a clean and stable
             10 MHz or 100 MHz reference to the appropriate back panel
             connector.
         ref_clock_actual (:class:`zhinst.toolkit.control.node_tree.Parameter`):
-            The actual reference clock source. Either `0: "internal"`
-            or `1: "external"`.
-            `0: "internal`: Internal 10 MHz clock
-            `1: "external`: An external clock.
+            The actual reference clock source. Can be either `0: "internal"`
+            or `1: "external"`.\n
+            `0: "internal"`: Internal 10 MHz clock\n
+            `1: "external"`: An external clock.
         ref_clock_status (:class:`zhinst.toolkit.control.node_tree.Parameter`):
-            Status of the reference clock. Either `0: "locked"`,
+            Status of the reference clock. Can be either `0: "locked"`,
             `1: "error"` or `2: "busy"`.
         progress (:class:`zhinst.toolkit.control.node_tree.Parameter`):
             The fraction of the triggers generated so far.
+        repetitions (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            The number of triggers sent over ZSync ports. Must be
+            between 1 and 4.3M (default: 1).
+        holdoff (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            The time in seconds between repeated triggers sent over ZSync
+            ports. Hold-off time has a minimum value and a granularity
+            of 100 ns. Note that the PQSC is disabled at the end of the
+            hold-off time after sending out the last trigger. Therefore,
+            the hold-off time should be long enough such that the PQSC
+            is still enabled when the feedback arrives. Otherwise, the
+            feedback cannot be processed (default: 100e-9).
 
     """
 
@@ -61,6 +72,9 @@ class PQSC(BaseInstrument):
         self.ref_clock_actual = None
         self.ref_clock_status = None
         self.progress = None
+        self._enable = None
+        self.repetitions = None
+        self.holdoff = None
 
     def connect_device(self, nodetree: bool = True) -> None:
         """Connects the device to the data server.
@@ -99,33 +113,40 @@ class PQSC(BaseInstrument):
 
         """
         # Stop the PQSC if it is already running
-        self._set("execution/enable", 0)
+        self.stop()
         if repetitions is not None:
-            self._set("execution/repetitions", int(repetitions))
+            self.repetitions(int(repetitions))
         if holdoff is not None:
-            if holdoff < 100e-9:
-                raise ValueError("Hold-off time cannot be smaller than 100 ns!")
-            elif holdoff % 100e-9 > 1e-10:
-                raise ValueError("Hold-off time must be multiples of 100 ns!")
-            else:
-                self._set("execution/holdoff", holdoff)
+            self.holdoff(holdoff)
         # Clear register bank
         self._set("feedback/registerbank/reset", 1)
 
     def run(self) -> None:
-        """Start sending triggers.
+        """Start sending out triggers.
 
         This method activates the trigger generation to trigger all
         connected instruments over ZSync ports.
         """
-        self._set("execution/enable", 1)
+        self._enable(True)
 
     def stop(self) -> None:
         """Stops the trigger generation."""
-        self._set("execution/enable", 0)
+        self._enable(False)
+
+    def wait_done(self, timeout: float = 10) -> None:
+        """Wait until trigger generation and feedback processing is done.
+
+        Keyword Arguments:
+            timeout (int): The maximum waiting time in seconds for the
+                PQSC (default: 10).
+
+        """
+        start_time = time.time()
+        while self.is_running and start_time + timeout >= time.time():
+            time.sleep(0.1)
 
     def check_ref_clock(self, blocking=True, timeout=30) -> None:
-        """Check if reference clock is locked succesfully.
+        """Check if reference clock is locked successfully.
 
         Keyword Arguments:
             blocking (bool): A flag that specifies if the program should
@@ -170,12 +191,13 @@ class PQSC(BaseInstrument):
             # Throw an exception if the instrument is still not connected after timeout
             if zsync_connection_status != 2:
                 raise Exception(
-                    f"Check ZSync connection to the instrument on port {port+1:} of PQSC."
+                    f"Check ZSync connection to the instrument on port {port} "
+                    f"(port {port + 1} on the rear panel) of PQSC."
                 )
             else:
                 _logger.info(
-                    f"ZSync connection to the instrument on port {port+1:} of "
-                    f"PQSC is successful"
+                    f"ZSync connection to the instrument on port {port} "
+                    f"(port {port + 1} on the rear panel) of PQSC is successful"
                 )
 
     def _init_settings(self):
@@ -208,3 +230,32 @@ class PQSC(BaseInstrument):
             self._get_node_dict(f"execution/progress"),
             device=self,
         )
+        self._enable = Parameter(
+            self,
+            self._get_node_dict(f"execution/enable"),
+            device=self,
+            set_parser=Parse.set_true_false,
+            get_parser=Parse.get_true_false,
+        )
+        self.repetitions = Parameter(
+            self,
+            self._get_node_dict(f"execution/repetitions"),
+            device=self,
+            set_parser=[
+                lambda v: Parse.greater_equal(v, 1),
+                lambda v: Parse.smaller_equal(v, 2 ** 32 - 1),
+            ],
+        )
+        self.holdoff = Parameter(
+            self,
+            self._get_node_dict(f"execution/holdoff"),
+            device=self,
+            set_parser=[
+                lambda v: Parse.greater_equal(v, 100e-9),
+                lambda v: Parse.multiple_of(v, 100e-9, "nearest"),
+            ],
+        )
+
+    @property
+    def is_running(self):
+        return self._enable()
