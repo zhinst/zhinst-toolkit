@@ -49,6 +49,42 @@ Readout Channel
     :members:
 
 
+SHFQA
+-----
+
+.. autoclass:: zhinst.toolkit.SHFQA
+    :show-inheritance:
+    :members:
+
+QAChannel for the SHFQA
++++++++++++++++++++++++
+
+.. autoclass:: zhinst.toolkit.control.drivers.shfqa.QAChannel
+    :show-inheritance:
+    :members:
+
+Generator for the SHFQA
++++++++++++++++++++++++
+
+.. autoclass:: zhinst.toolkit.control.drivers.shfqa.Generator
+    :show-inheritance:
+    :members:
+
+Sweeper for the SHFQA
++++++++++++++++++++++
+
+.. autoclass:: zhinst.toolkit.control.drivers.shfqa.Sweeper
+    :show-inheritance:
+    :members:
+
+Scope for the SHFQA
++++++++++++++++++++
+
+.. autoclass:: zhinst.toolkit.control.drivers.shfqa.Scope
+    :show-inheritance:
+    :members:
+
+
 PQSC
 ----
 

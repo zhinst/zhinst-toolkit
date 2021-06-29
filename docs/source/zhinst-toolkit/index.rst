@@ -10,5 +10,10 @@ Package Documentation
    awg
    daq
    sweeper
+   shf_qachannel
+   shf_generator
+   shf_sweeper
+   shf_scope
+   sequence_programs
    multidevcon
    enums
