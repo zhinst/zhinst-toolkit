@@ -6,7 +6,11 @@
 import numpy as np
 from typing import List
 
-from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore
+from zhinst.toolkit.control.drivers.base import (
+    BaseInstrument,
+    AWGCore,
+    Scope,
+)
 from zhinst.toolkit.control.node_tree import Parameter
 from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.interface import DeviceTypes, LoggerModule
@@ -162,6 +166,7 @@ class UHFQA(BaseInstrument):
         """
         super().connect_device(nodetree=nodetree)
         self._init_awg_cores()
+        self._init_scope()
         self._init_readout_channels()
 
     def factory_reset(self) -> None:
@@ -380,6 +385,13 @@ class UHFQA(BaseInstrument):
         self._channels = [ReadoutChannel(self, i) for i in range(10)]
         [channel._init_channel_params() for channel in self.channels]
 
+    def _init_scope(self):
+        """Initialize the Scope of the device."""
+        self._scope = UHFScope(self)
+        self.scope._setup()
+        self.scope._init_scope_params()
+        self.scope._init_scope_settings()
+
     def _init_params(self):
         """Initialize parameters associated with device nodes."""
         super()._init_params()
@@ -437,6 +449,10 @@ class UHFQA(BaseInstrument):
     @property
     def awg(self):
         return self._awg
+
+    @property
+    def scope(self):
+        return self._scope
 
     @property
     def channels(self):
@@ -929,3 +945,81 @@ class ReadoutChannel:
         else:
             s += "      Weighted Integration Disabled\n"
         return s
+
+
+class UHFScope(Scope):
+    """Device-specific Scope for UHFQA.
+
+    This class inherits from the base :class:`Scope`  and adds
+    :mod:`zhinst-toolkit` :class:`.Parameter` s.
+
+    """
+
+    def __init__(self, parent: BaseInstrument) -> None:
+        super().__init__(parent)
+        self._enable = None
+        self.single = None
+        self.length = None
+        self._channel = None
+        self.trigger_source = None
+        self.trigger_level = None
+        self.trigger_enable = None
+        self.trigger_reference = None
+        self.trigger_holdoff = None
+
+    def _init_scope_params(self):
+        self._enable = Parameter(
+            self,
+            self._parent._get_node_dict(f"scopes/0/enable"),
+            device=self._parent,
+            set_parser=Parse.set_true_false,
+            get_parser=Parse.get_true_false,
+        )
+        self.single = Parameter(
+            self,
+            self._parent._get_node_dict(f"scopes/0/single"),
+            device=self._parent,
+            set_parser=Parse.set_true_false,
+            get_parser=Parse.get_true_false,
+        )
+        self.length = Parameter(
+            self,
+            self._parent._get_node_dict(f"scopes/0/length"),
+            device=self._parent,
+            set_parser=[
+                lambda v: Parse.greater_equal(v, 4096),
+                lambda v: Parse.smaller_equal(v, 128000000),
+                lambda v: Parse.multiple_of(v, 16, "down"),
+            ],
+        )
+        self._channel = Parameter(
+            self, self._parent._get_node_dict(f"scopes/0/channel"), device=self._parent,
+        )
+        self.trigger_source = Parameter(
+            self,
+            self._parent._get_node_dict(f"scopes/0/trigchannel"),
+            device=self._parent,
+            auto_mapping=True,
+        )
+        self.trigger_level = Parameter(
+            self,
+            self._parent._get_node_dict(f"scopes/0/triglevel"),
+            device=self._parent,
+        )
+        self.trigger_enable = Parameter(
+            self,
+            self._parent._get_node_dict(f"scopes/0/trigenable"),
+            device=self._parent,
+            set_parser=Parse.set_true_false,
+            get_parser=Parse.get_true_false,
+        )
+        self.trigger_reference = Parameter(
+            self,
+            self._parent._get_node_dict(f"scopes/0/trigreference"),
+            device=self._parent,
+        )
+        self.trigger_holdoff = Parameter(
+            self,
+            self._parent._get_node_dict(f"scopes/0/trigholdoff"),
+            device=self._parent,
+        )

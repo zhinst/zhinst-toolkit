@@ -1,4 +1,5 @@
 from .awg import AWGCore
+from .scope import Scope
 from .shf_qachannel import SHFQAChannel
 from .shf_generator import SHFGenerator
 from .shf_scope import SHFScope
