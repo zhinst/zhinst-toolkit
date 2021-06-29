@@ -5,6 +5,7 @@
 
 import json
 
+from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.interface import DeviceTypes, LoggerModule
 import zhinst.ziPython as zi
 
@@ -40,8 +41,10 @@ class ZIConnection:
         self._connection_details = connection_details
         self._daq = None
         self._awg_module = None
+        self._scope_module = None
         self._daq_module = None
         self._sweeper_module = None
+        self._device_type = None
 
     def connect(self):
         """Established a connection to the data server.
@@ -75,6 +78,7 @@ class ZIConnection:
                 f"api version: {self._connection_details.api}"
             )
             self._awg_module = AWGModuleConnection(self._daq)
+            self._scope_module = ScopeModuleConnection(self._daq)
             self._daq_module = DAQModuleConnection(self._daq)
             self._sweeper_module = SweeperModuleConnection(self._daq)
         else:
@@ -116,10 +120,18 @@ class ZIConnection:
         print(
             f"Successfully connected to device {serial.upper()} on interface {interface.upper()}"
         )
-        # Check if device has AWG functionality and update the module
-        device_awg_nodes = self._daq.listNodes(f"{serial}/AWG*")
-        if device_awg_nodes != []:
+        # Update device type
+        self._device_type = self._daq.getString(f"/{serial}/features/devtype")
+        # Check if device has AWG functionality and update the AWG module
+        device_awg_nodes = self._daq.listNodes(f"{serial}/awgs")
+        if device_awg_nodes:
             self._awg_module.update(device=serial, index=0)
+        # Check if the device has Scope functionality
+        device_scope_nodes = self._daq.listNodes(f"{serial}/scope")
+        if device_scope_nodes:
+            # Check if device is UHF or MF and update the scope module
+            if self._device_type.startswith(("UHF", "MF")):
+                self._scope_module.update(device=serial)
 
     def set(self, *args):
         """Wrapper around the `zi.ziDAQServer.set()` method of the API.
@@ -274,6 +286,10 @@ class ZIConnection:
         return self._awg_module
 
     @property
+    def scope_module(self):
+        return self._scope_module
+
+    @property
     def daq_module(self):
         return self._daq_module
 
@@ -349,6 +365,71 @@ class AWGModuleConnection:
     @property
     def device(self):
         return self._device
+
+
+class ScopeModuleConnection:
+    """Connection to a Scope Module.
+
+    Implements a Scope module as `daq.scopeModule(...)` of the API with
+    get and set methods of the module. Also wraps around all other
+    methods from the API.
+
+    Arguments:
+        daq (zi.ziDAQServer)
+
+    """
+
+    def __init__(self, daq):
+        self._scopeModule = daq.scopeModule()
+        self._device = None
+
+    def execute(self):
+        # Tell the module to be ready to acquire data;
+        # reset the module's progress to 0.0.
+        self._scopeModule.execute()
+
+    def set(self, *args):
+        self._scopeModule.set(*args)
+
+    def subscribe(self, device):
+        # Subscribe to the scope's data in the module.
+        wave_nodepath = f"/{device}/scopes/0/wave"
+        self._scopeModule.subscribe(wave_nodepath)
+
+    def progress(self):
+        return self._scopeModule.progress()[0]
+
+    def records(self):
+        return self._scopeModule.getInt("records")
+
+    def historylength(self, length=None):
+        if length is None:
+            return self._scopeModule.getInt("historylength")
+        else:
+            self._scopeModule.set("historylength", length)
+
+    def averager_weight(self, weight=None):
+        if weight is None:
+            return self._scopeModule.getInt("averager/weight")
+        else:
+            self._scopeModule.set("averager/weight", weight)
+
+    def mode(self, mode=None):
+        if mode is None:
+            v = self._scopeModule.getInt("mode")
+            return Parse.get_scope_mode(v)
+        else:
+            v = Parse.set_scope_mode(mode)
+            self._scopeModule.set("mode", v)
+
+    def finish(self):
+        self._scopeModule.finish()
+
+    def read(self):
+        return self._scopeModule.read(True)
+
+    def update(self, device):
+        self.subscribe(device)
 
 
 class DAQModuleConnection:
