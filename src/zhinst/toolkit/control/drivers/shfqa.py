@@ -16,6 +16,7 @@ from zhinst.toolkit.control.drivers.base import (
 from zhinst.toolkit.interface import DeviceTypes
 from zhinst.toolkit.control.node_tree import Parameter
 from zhinst.toolkit.control.parsers import Parse
+from zhinst.toolkit.helpers import SequenceType, TriggerMode
 
 _logger = logging.getLogger(__name__)
 
@@ -32,6 +33,12 @@ class SHFQA(BaseInstrument):
     four :class:`Generator` s that are specific for the device and
     inherit from the :class:`SHFGenerator` class.
 
+    Attributes:
+        allowed_sequences (list): A list of :class:`SequenceType` s
+            that the instrument supports.
+        allowed_trigger_modes (list): A list of :class:`TriggerMode` s
+            that the instrument supports.
+
     """
 
     def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
@@ -42,6 +49,13 @@ class SHFQA(BaseInstrument):
         self.ref_clock_actual = None
         self.ref_clock_status = None
         self.timebase = None
+        self._allowed_sequences = [
+            SequenceType.NONE,
+            SequenceType.CUSTOM,
+        ]
+        self._allowed_trigger_modes = [
+            TriggerMode.NONE,
+        ]
 
     def connect_device(self, nodetree: bool = True) -> None:
         """Connects the device to the data server.
@@ -132,6 +146,14 @@ class SHFQA(BaseInstrument):
     @property
     def scope(self):
         return self._scope
+
+    @property
+    def allowed_sequences(self):
+        return self._allowed_sequences
+
+    @property
+    def allowed_trigger_modes(self):
+        return self._allowed_trigger_modes
 
 
 class Channel(SHFChannel):
@@ -297,6 +319,22 @@ class Generator(SHFGenerator):
             ),
             device=self._device,
         )
+
+    def _apply_sequence_settings(self, **kwargs):
+        # check sequence type
+        if "sequence_type" in kwargs.keys():
+            t = SequenceType(kwargs["sequence_type"])
+            if t not in self._device.allowed_sequences:
+                raise ToolkitError(
+                    f"Sequence type {t} must be one of {[s.value for s in self._device.allowed_sequences]}!"
+                )
+        # check trigger mode
+        if "trigger_mode" in kwargs.keys():
+            t = TriggerMode(kwargs["trigger_mode"])
+            if t not in self._device.allowed_trigger_modes:
+                raise ToolkitError(
+                    f"Trigger mode {t} must be one of {[s.value for s in self._device.allowed_trigger_modes]}!"
+                )
 
 
 class Sweeper(SHFSweeper):

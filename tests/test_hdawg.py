@@ -13,6 +13,23 @@ def test_init_hdawg():
     assert hd.device_type == DeviceTypes.HDAWG
     assert hd.ref_clock is None
     assert hd.ref_clock_status is None
+    assert hd.allowed_sequences == [
+        SequenceType.NONE,
+        SequenceType.SIMPLE,
+        SequenceType.TRIGGER,
+        SequenceType.RABI,
+        SequenceType.T1,
+        SequenceType.T2,
+        SequenceType.CUSTOM,
+    ]
+    assert hd.allowed_trigger_modes == [
+        TriggerMode.NONE,
+        TriggerMode.SEND_TRIGGER,
+        TriggerMode.EXTERNAL_TRIGGER,
+        TriggerMode.RECEIVE_TRIGGER,
+        TriggerMode.SEND_AND_RECEIVE_TRIGGER,
+        TriggerMode.ZSYNC_TRIGGER,
+    ]
     with pytest.raises(Exception):
         hd._init_awg_cores()
     with pytest.raises(Exception):

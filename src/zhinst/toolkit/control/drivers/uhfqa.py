@@ -88,6 +88,10 @@ class UHFQA(BaseInstrument):
             :class:`zhinst.toolkit.control.drivers.uhfqa.ReadoutChannel` s
             that each represent the digital signal processing path on
             the instrument.
+        allowed_sequences (list): A list of :class:`SequenceType` s
+            that the instrument supports.
+        allowed_trigger_modes (list): A list of :class:`TriggerMode` s
+            that the instrument supports.
         integration_time (:class:`zhinst.toolkit.control.node_tree.Parameter`):
             The time in seconds used for signal integration. The value
             must be greater than and multiple of 2.222 ns. The maximum
@@ -134,6 +138,20 @@ class UHFQA(BaseInstrument):
         self.averaging_mode = None
         self.ref_clock = None
         self._qa_delay_user = 0
+        self._allowed_sequences = [
+            SequenceType.NONE,
+            SequenceType.SIMPLE,
+            SequenceType.READOUT,
+            SequenceType.CW_SPEC,
+            SequenceType.PULSED_SPEC,
+            SequenceType.CUSTOM,
+        ]
+        self._allowed_trigger_modes = [
+            TriggerMode.NONE,
+            TriggerMode.EXTERNAL_TRIGGER,
+            TriggerMode.RECEIVE_TRIGGER,
+            TriggerMode.ZSYNC_TRIGGER,
+        ]
 
     def connect_device(self, nodetree: bool = True) -> None:
         """Connects the device to the data server and initializes the AWG.
@@ -403,6 +421,14 @@ class UHFQA(BaseInstrument):
     def channels(self):
         return self._channels
 
+    @property
+    def allowed_sequences(self):
+        return self._allowed_sequences
+
+    @property
+    def allowed_trigger_modes(self):
+        return self._allowed_trigger_modes
+
 
 class AWG(AWGCore):
     """Device-specific AWG Core for UHFQA.
@@ -503,17 +529,9 @@ class AWG(AWGCore):
         # apply settings depending on the sequence type
         if "sequence_type" in kwargs.keys():
             t = SequenceType(kwargs["sequence_type"])
-            allowed_sequences = [
-                SequenceType.NONE,
-                SequenceType.SIMPLE,
-                SequenceType.READOUT,
-                SequenceType.CW_SPEC,
-                SequenceType.PULSED_SPEC,
-                SequenceType.CUSTOM,
-            ]
-            if t not in allowed_sequences:
+            if t not in self._parent.allowed_sequences:
                 raise ToolkitError(
-                    f"Sequence type {t} must be one of {[s.value for s in allowed_sequences]}!"
+                    f"Sequence type {t} must be one of {[s.value for s in self._parent.allowed_sequences]}!"
                 )
             elif t == SequenceType.CW_SPEC:
                 self._apply_cw_settings()
@@ -526,17 +544,9 @@ class AWG(AWGCore):
         # apply settings dependent on trigger mode
         if "trigger_mode" in kwargs.keys():
             t = TriggerMode(kwargs["trigger_mode"])
-            allowed_trigger_modes = [
-                TriggerMode.NONE,
-                TriggerMode.SEND_TRIGGER,
-                TriggerMode.EXTERNAL_TRIGGER,
-                TriggerMode.RECEIVE_TRIGGER,
-                TriggerMode.SEND_AND_RECEIVE_TRIGGER,
-                TriggerMode.ZSYNC_TRIGGER,
-            ]
-            if t not in allowed_trigger_modes:
+            if t not in self._parent.allowed_trigger_modes:
                 raise ToolkitError(
-                    f"Trigger mode {t} must be one of {[s.value for s in allowed_trigger_modes]}!"
+                    f"Trigger mode {t} must be one of {[s.value for s in self._parent.allowed_trigger_modes]}!"
                 )
             elif t in [TriggerMode.EXTERNAL_TRIGGER, TriggerMode.RECEIVE_TRIGGER]:
                 self._apply_receive_trigger_settings()
