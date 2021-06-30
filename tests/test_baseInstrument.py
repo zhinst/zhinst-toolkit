@@ -5,7 +5,7 @@ import numpy as np
 
 from .context import (
     BaseInstrument,
-    ToolkitError,
+    LoggerModule,
     DeviceTypes,
     ZIConnection,
     ziDiscovery,
@@ -64,30 +64,30 @@ def test_check_connection():
         interface="1GbE",
         discovery=DiscoveryMock(),
     )
-    with pytest.raises(ToolkitError):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         instr._check_connected()
-    with pytest.raises(ToolkitError):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         instr._check_node_exists("sigouts/0/on")
-    with pytest.raises(ToolkitError):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         instr.connect_device()
-    with pytest.raises(ToolkitError):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         instr._get("sigouts/0/on")
-    with pytest.raises(ToolkitError):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         instr._set("sigouts/0/on", 1)
     with pytest.raises(TypeError):
         instr._get_node_dict("sigouts/0/on")
-    with pytest.raises(ToolkitError):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         instr._get_node_dict("zi/about/revision")
-    with pytest.raises(ToolkitError):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         instr._get_streamingnodes()
 
 
 def test_serials():
-    with pytest.raises(ToolkitError):
+    with pytest.raises(LoggerModule.ToolkitError):
         BaseInstrument(
             "name", DeviceTypes.PQSC, None, interface="1GbE", discovery=DiscoveryMock()
         )
-    with pytest.raises(ToolkitError):
+    with pytest.raises(LoggerModule.ToolkitError):
         BaseInstrument(
             "name", DeviceTypes.PQSC, 10000, interface="1GbE", discovery=DiscoveryMock()
         )

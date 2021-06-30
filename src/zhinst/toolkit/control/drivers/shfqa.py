@@ -3,7 +3,6 @@
 # This software may be modified and distributed under the terms
 # of the MIT license. See the LICENSE file for details.
 
-import logging
 import time
 
 from zhinst.toolkit.control.drivers.base import (
@@ -13,11 +12,11 @@ from zhinst.toolkit.control.drivers.base import (
     SHFScope,
     SHFSweeper,
 )
-from zhinst.toolkit.interface import DeviceTypes
+from zhinst.toolkit.interface import DeviceTypes, LoggerModule
 from zhinst.toolkit.control.node_tree import Parameter
 from zhinst.toolkit.control.parsers import Parse
 
-_logger = logging.getLogger(__name__)
+_logger = LoggerModule(__name__)
 
 
 class SHFQA(BaseInstrument):
@@ -71,7 +70,9 @@ class SHFQA(BaseInstrument):
 
     def factory_reset(self) -> None:
         """Loads the factory default settings."""
-        _logger.info(f"Factory preset is not supported in {self.serial.upper()}.")
+        _logger.warning(
+            f"Factory preset is not yet supported in SHFQA " f"{self.serial.upper()}."
+        )
 
     def _init_settings(self):
         """Sets initial device settings on startup."""
@@ -318,7 +319,7 @@ class Generator(SHFGenerator):
             ),
             device=self._device,
         )
-    
+
     def _apply_sequence_settings(self, **kwargs):
         # check sequence type
         if "sequence_type" in kwargs.keys():

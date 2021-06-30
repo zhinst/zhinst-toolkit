@@ -10,6 +10,7 @@ from .context import (
     DeviceTypes,
     SequenceType,
     TriggerMode,
+    LoggerModule,
 )
 
 
@@ -40,31 +41,31 @@ def test_init_uhfqa():
         TriggerMode.RECEIVE_TRIGGER,
         TriggerMode.ZSYNC_TRIGGER,
     ]
-    with pytest.raises(Exception):
+    with pytest.raises(AttributeError):
         qa._init_awg_cores()
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         qa._init_readout_channels()
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         qa._init_params()
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         qa._init_settings()
 
 
 def test_methods_uhfqa():
     qa = UHFQA("name", "dev2000")
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         qa.connect_device()
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         qa.factory_reset()
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         qa.arm()
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         qa.arm(length=1024)
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         qa.arm(averages=10)
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         qa.enable_qccs_mode()
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         qa.enable_manual_mode()
 
 
@@ -72,9 +73,9 @@ def test_methods_uhfqa():
 def test_qa_delay(delay_adj):
     qa = UHFQA("name", "dev2000")
     assert qa.qa_delay() == 0
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         qa.qa_delay(delay_adj)
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         qa._qa_delay_default()
 
 
@@ -82,23 +83,61 @@ def test_qa_delay(delay_adj):
 def test_crosstalk_matrix(rows, cols):
     qa = UHFQA("name", "dev2000")
     matrix = np.random.rand(rows, cols)
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         qa.crosstalk_matrix()
-    with pytest.raises(Exception):
-        qa.crosstalk_matrix(matrix)
+    if rows > 10 or cols > 10:
+        with pytest.raises(ValueError):
+            qa.crosstalk_matrix(matrix)
+    else:
+        with pytest.raises(LoggerModule.ToolkitConnectionError):
+            qa.crosstalk_matrix(matrix)
 
 
-@given(channels=st.lists(elements=st.integers(1, 20), min_size=1, max_size=10))
-def test_enable_readout_channels(channels):
+@given(
+    channels=st.lists(elements=st.integers(1, 9), min_size=1, max_size=10, unique=True)
+)
+def test_enable_readout_channels_correct_range(channels):
     qa = UHFQA("name", "dev2000")
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
+        qa._init_readout_channels()
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         qa.enable_readout_channels(channels)
 
 
-@given(channels=st.lists(elements=st.integers(1, 20), min_size=1, max_size=10))
-def test_disable_readout_channels(channels):
+@given(
+    channels=st.lists(
+        elements=st.integers(10, 20), min_size=1, max_size=10, unique=True
+    )
+)
+def test_enable_readout_channels_wrong_range(channels):
     qa = UHFQA("name", "dev2000")
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
+        qa._init_readout_channels()
+    with pytest.raises(ValueError):
+        qa.enable_readout_channels(channels)
+
+
+@given(
+    channels=st.lists(elements=st.integers(1, 9), min_size=1, max_size=10, unique=True)
+)
+def test_disable_readout_channels_correct_range(channels):
+    qa = UHFQA("name", "dev2000")
+    with pytest.raises(TypeError):
+        qa._init_readout_channels()
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
+        qa.disable_readout_channels(channels)
+
+
+@given(
+    channels=st.lists(
+        elements=st.integers(10, 20), min_size=1, max_size=10, unique=True
+    )
+)
+def test_disable_readout_channels_wrong_range(channels):
+    qa = UHFQA("name", "dev2000")
+    with pytest.raises(TypeError):
+        qa._init_readout_channels()
+    with pytest.raises(ValueError):
         qa.disable_readout_channels(channels)
 
 
@@ -116,57 +155,62 @@ def test_init_uhfqa_awg(sequence_type, trigger_mode):
     assert awg.gain2 is None
     assert awg.single is None
     assert awg.__repr__() != ""
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         awg.outputs(["on", "on"])
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitError):
         awg.outputs(["on"])
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitError):
         awg.outputs("on")
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         awg.outputs()
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         awg.set_sequence_params(sequence_type="text")
-    with pytest.raises(Exception):
-        awg.set_sequence_params(sequence_type=sequence_type)
-    with pytest.raises(Exception):
+    if sequence_type in awg._parent.allowed_sequences:
+        with pytest.raises(LoggerModule.ToolkitConnectionError):
+            awg.set_sequence_params(sequence_type=sequence_type)
+    else:
+        with pytest.raises(LoggerModule.ToolkitError):
+            awg.set_sequence_params(sequence_type=sequence_type)
+    with pytest.raises(ValueError):
         awg.set_sequence_params(trigger_mode="text")
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         awg.set_sequence_params(trigger_mode=trigger_mode)
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         awg.compile()
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         awg._apply_receive_trigger_settings()
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         awg._apply_zsync_trigger_settings()
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         awg._init_awg_params()
 
 
 @given(sequence_type=st.sampled_from(SequenceType))
 def test_update_readout_params(sequence_type):
     uhf = UHFQA("name", "dev2000")
-    with pytest.raises(Exception):
+    with pytest.raises(AttributeError):
         uhf._init_awg_cores()
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         uhf._init_readout_channels()
-    with pytest.raises(Exception):
-        uhf.awg.set_sequence_params(sequence_type=sequence_type)
-    if sequence_type == SequenceType.READOUT:
-        with pytest.raises(Exception):
-            uhf.channels[0].enable()
-        uhf.awg.update_readout_params()
-    else:
-        with pytest.raises(Exception):
+    if sequence_type in uhf.allowed_sequences:
+        with pytest.raises(LoggerModule.ToolkitConnectionError):
+            uhf.awg.set_sequence_params(sequence_type=sequence_type)
+        if sequence_type == SequenceType.READOUT:
+            with pytest.raises(LoggerModule.ToolkitConnectionError):
+                uhf.channels[0].enable()
             uhf.awg.update_readout_params()
+        else:
+            with pytest.raises(LoggerModule.ToolkitError):
+                uhf.awg.update_readout_params()
 
 
 @given(i=st.integers(1, 20))
 def test_init_readout_channel(i):
     if i not in range(10):
         with pytest.raises(ValueError):
-            ch = ReadoutChannel(UHFQA("name", "dev2000"), i)
+            ReadoutChannel(UHFQA("name", "dev2000"), i)
     else:
-        with pytest.raises(Exception):
+        with pytest.raises(TypeError):
             uhf = UHFQA("name", "dev2000")
             uhf._init_readout_channels()
         ch = uhf.channels[i]
@@ -181,10 +225,10 @@ def test_init_readout_channel(i):
         assert ch.rotation is None
         assert ch.threshold is None
         assert ch.result is None
-        with pytest.raises(Exception):
+        with pytest.raises(TypeError):
             ch.__repr__()
-    with pytest.raises(Exception):
-        ch._init_channel_params()
+        with pytest.raises(TypeError):
+            ch._init_channel_params()
 
 
 def test_set_get_params_channel():
@@ -194,27 +238,26 @@ def test_set_get_params_channel():
     assert ch.readout_amplitude() == 0.5
     ch.phase_shift(10)
     assert ch.phase_shift() == 10
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         ch.enable()
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         ch.disable()
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         ch.readout_frequency(1)
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         ch._set_int_weights()
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         ch._reset_int_weights()
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         ch._average_result(1000)
 
 
 @given(
     single_value=st.floats(-2, 2),
-    value_list=st.lists(st.floats(0, 1), min_size=1, max_size=4096),
 )
-def test_int_weights_envelope(single_value, value_list):
+def test_int_weights_envelope_single_value(single_value):
     ch = ReadoutChannel(UHFQA("name", "dev2000"), 0)
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         ch.int_weights_envelope(single_value)
     if single_value < 0:
         assert ch.int_weights_envelope() == 0
@@ -222,7 +265,14 @@ def test_int_weights_envelope(single_value, value_list):
         assert ch.int_weights_envelope() == 1
     else:
         assert ch.int_weights_envelope() == single_value
-    with pytest.raises(Exception):
+
+
+@given(
+    value_list=st.lists(st.floats(0, 1), min_size=1, max_size=4096),
+)
+def test_int_weights_envelope_value_list(value_list):
+    ch = ReadoutChannel(UHFQA("name", "dev2000"), 0)
+    with pytest.raises(TypeError):
         ch.int_weights_envelope(value_list)
 
 

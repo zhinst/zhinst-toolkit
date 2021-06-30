@@ -1,1 +1,1 @@
-from .interface import InstrumentConfiguration, DeviceTypes
+from .interface import InstrumentConfiguration, DeviceTypes, LoggerModule

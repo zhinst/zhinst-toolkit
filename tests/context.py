@@ -38,4 +38,8 @@ from zhinst.toolkit.control.node_tree import (
 from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.helpers import Waveform, SequenceCommand, SequenceProgram
 from zhinst.toolkit import SequenceType, TriggerMode, Alignment
-from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes
+from zhinst.toolkit.interface import (
+    InstrumentConfiguration,
+    DeviceTypes,
+    LoggerModule,
+)

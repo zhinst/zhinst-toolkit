@@ -7,15 +7,12 @@ import numpy as np
 import time
 from typing import List, Union
 import re
-import logging
-import traceback
 
 from zhinst.toolkit.helpers import SequenceProgram, SHFWaveform, SequenceType
-from .base import ToolkitError
+from zhinst.toolkit.interface import DeviceTypes, LoggerModule
 from .shf_channel import SHFChannel
 
-logging.basicConfig(format="%(levelname)s: %(message)s")
-_logger = logging.getLogger(__name__)
+_logger = LoggerModule(__name__)
 
 
 class SHFGenerator:
@@ -107,12 +104,15 @@ class SHFGenerator:
         """Compile the current SequenceProgram and load it to sequencer.
 
         Raises:
-            ToolkitError: If the AWG Core has not been set up yet.
-            ToolkitError: If the compilation has failed.
-            Warning: If the compilation has finished with a warning.
+            ToolkitError: If the AWG Core has not been set up yet, if
+                the compilation has failed or if the program upload
+                has failed.
         """
         if self._module is None:
-            raise ToolkitError("This Generator is not connected to an awgModule!")
+            _logger.error(
+                "This Generator is not connected to an awgModule!",
+                _logger.ExceptionTypes.ToolkitError,
+            )
         self._module.update(device=self._device.serial)
         self._module.update(index=self._index)
         seqc_program = self._program.get_seqc()
@@ -124,15 +124,15 @@ class SHFGenerator:
         statusstring = self._module.get_string("compiler/statusstring")
         if compiler_status == 1:
             _logger.error(
-                f"{self._caller_name()}\n"
-                f"Please check the sequencer code for {self.name}:\n{self._seqc_error(statusstring)}"
+                f"Please check the sequencer code for {self.name}:\n"
+                f"{self._seqc_error(statusstring)}"
                 f"Compiler status string:\n{statusstring}\n",
+                _logger.ExceptionTypes.ToolkitError,
             )
-            raise ToolkitError("Compilation failed")
         elif compiler_status == 2:
             _logger.warning(
-                f"{self._caller_name()}\n"
-                f"Please check the sequencer code for {self.name}:\n{self._seqc_error(statusstring)}"
+                f"Please check the sequencer code for {self.name}:\n"
+                f"{self._seqc_error(statusstring)}"
                 f"Compiler status string:\n{statusstring}\n",
             )
         elif compiler_status == 0:
@@ -143,16 +143,18 @@ class SHFGenerator:
         ):
             time.sleep(0.1)
             if time.time() - tik >= 100:  # 100s timeout
-                raise ToolkitError(f"{self.name}: Program upload timed out!")
+                _logger.error(
+                    f"{self.name}: Program upload timed out!",
+                    _logger.ExceptionTypes.ToolkitError,
+                )
         elf_status = self._module.get_int("/elf/status")
         if elf_status == 0:
             _logger.info(f"{self.name}: Sequencer status: ELF file uploaded!")
         else:
             _logger.error(
-                f"{self._caller_name()}\n"
                 f"{self.name}: Sequencer status: ELF upload failed!",
+                _logger.ExceptionTypes.ToolkitError,
             )
-            raise ToolkitError(f"{self.name}: ELF upload failed!")
 
     def reset_queue(self) -> None:
         """Resets the waveform queue to an empty list."""
@@ -169,11 +171,12 @@ class SHFGenerator:
                 w.r.t. the time origin of the sequence. (default: 0)
 
         Raises:
-            Exception: If the sequence is not of type *'Custom'*.
+            ToolkitError: If the sequence is not of type *'Custom'*.
         """
         if self._program.sequence_type != SequenceType.CUSTOM:
-            raise Exception(
-                "Waveform upload only possible for 'Custom' sequence program!"
+            _logger.error(
+                "Waveform upload only possible for 'Custom' sequence program!",
+                _logger.ExceptionTypes.ToolkitError,
             )
         self._waveforms.append(SHFWaveform(wave, delay=delay))
         print(f"Current length of queue: {len(self._waveforms)}")
@@ -267,15 +270,3 @@ class SHFGenerator:
                 seqc_error += f"   {i + 1: >{number_width}}   {line.strip()}\n"
         seqc_error += "\n"
         return seqc_error
-
-    def _caller_name(self):
-        """Return the caller name.
-
-        This method returns the line that calls a function. It is used
-        to display a logging message to the user and show which line
-        caused an error or warning.
-        """
-        frame_list = traceback.StackSummary.extract(traceback.walk_stack(None))
-        for frame in frame_list:
-            if frame.name == "<module>":
-                return frame.line

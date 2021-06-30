@@ -6,12 +6,13 @@
 import numpy as np
 from typing import List
 
-from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore, ToolkitError
+from zhinst.toolkit.control.drivers.base import BaseInstrument, AWGCore
 from zhinst.toolkit.control.node_tree import Parameter
 from zhinst.toolkit.control.parsers import Parse
-from zhinst.toolkit.interface import DeviceTypes
+from zhinst.toolkit.interface import DeviceTypes, LoggerModule
 from zhinst.toolkit.helpers import SequenceType, TriggerMode
 
+_logger = LoggerModule(__name__)
 
 MAPPINGS = {
     "result_source": {
@@ -189,6 +190,10 @@ class UHFQA(BaseInstrument):
             If no argument is given the method returns the current crosstalk
             matrix as a 2D numpy array.
 
+        Raises:
+            ValueError: If the matrix size exceeds the maximum size of
+                10 x 10
+
         """
         if matrix is None:
             m = np.zeros((10, 10))
@@ -199,8 +204,10 @@ class UHFQA(BaseInstrument):
         else:
             rows, cols = matrix.shape
             if rows > 10 or cols > 10:
-                raise ValueError(
-                    f"The shape of the given matrix is {rows} x {cols}. The maximum size is 10 x 10."
+                _logger.error(
+                    f"The shape of the given matrix is {rows} x {cols}. "
+                    f"The maximum size is 10 x 10.",
+                    _logger.ExceptionTypes.ValueError,
                 )
             for r in range(rows):
                 for c in range(cols):
@@ -213,10 +220,16 @@ class UHFQA(BaseInstrument):
             channels (list): A list of indices of channels to enable.
                 (default: range(10))
 
+        Raises:
+            ValueError: If the channel list contains an element outside
+                the allowed range.
         """
         for i in channels:
             if i not in range(10):
-                raise ValueError(f"The channel index {i} is out of range!")
+                _logger.error(
+                    f"The channel index {i} is out of range!",
+                    _logger.ExceptionTypes.ValueError,
+                )
             self.channels[i].enable()
 
     def disable_readout_channels(self, channels: List = range(10)) -> None:
@@ -226,10 +239,17 @@ class UHFQA(BaseInstrument):
             channels (list): A list of indices of channels to disable.
                 (default: range(10))
 
+        Raises:
+            ValueError: If the channel list contains an element outside
+                the allowed range.
+
         """
         for i in channels:
             if i not in range(10):
-                raise ValueError(f"The channel index {i} is out of range!")
+                _logger.error(
+                    f"The channel index {i} is out of range!",
+                    _logger.ExceptionTypes.ValueError,
+                )
             self.channels[i].disable()
 
     def enable_qccs_mode(self) -> None:
@@ -305,6 +325,10 @@ class UHFQA(BaseInstrument):
         Returns:
             The adjustment in delay in units of samples.
 
+        Raises:
+            ValueError: If the adjusted quantum analyzer delay is
+                outside the allowed range.
+
         """
         node = f"qas/0/delay"
         # Return the current adjustment if no argument is passed
@@ -317,7 +341,10 @@ class UHFQA(BaseInstrument):
             qa_delay_adjusted = qa_delay_user_temp + self._qa_delay_default()
             # Check if final delay is between 0 and 1020
             if qa_delay_adjusted not in range(0, 1021):
-                raise ValueError("The quantum analyzer delay is out of range!")
+                _logger.error(
+                    "The quantum analyzer delay is out of range!",
+                    _logger.ExceptionTypes.ValueError,
+                )
             else:
                 # Overwrite the previous adjustment if range is correct
                 self._qa_delay_user = qa_delay_user_temp
@@ -530,8 +557,10 @@ class AWG(AWGCore):
         if "sequence_type" in kwargs.keys():
             t = SequenceType(kwargs["sequence_type"])
             if t not in self._parent.allowed_sequences:
-                raise ToolkitError(
-                    f"Sequence type {t} must be one of {[s.value for s in self._parent.allowed_sequences]}!"
+                _logger.error(
+                    f"Sequence type {t} must be one of "
+                    f"{[s.value for s in self._parent.allowed_sequences]}!",
+                    _logger.ExceptionTypes.ToolkitError,
                 )
             elif t == SequenceType.CW_SPEC:
                 self._apply_cw_settings()
@@ -545,8 +574,10 @@ class AWG(AWGCore):
         if "trigger_mode" in kwargs.keys():
             t = TriggerMode(kwargs["trigger_mode"])
             if t not in self._parent.allowed_trigger_modes:
-                raise ToolkitError(
-                    f"Trigger mode {t} must be one of {[s.value for s in self._parent.allowed_trigger_modes]}!"
+                _logger.error(
+                    f"Trigger mode {t} must be one of "
+                    f"{[s.value for s in self._parent.allowed_trigger_modes]}!",
+                    _logger.ExceptionTypes.ToolkitError,
                 )
             elif t in [TriggerMode.EXTERNAL_TRIGGER, TriggerMode.RECEIVE_TRIGGER]:
                 self._apply_receive_trigger_settings()
@@ -648,21 +679,38 @@ class AWG(AWGCore):
             The state {'on', 'off'} for both outputs if the keyword argument is
             not given.
 
+        Raises:
+            ToolkitError: If the `value` argument is not a list or tuple
+                of length 2.
+
         """
         if value is None:
             return self.output1(), self.output2()
         else:
             if isinstance(value, tuple) or isinstance(value, list):
                 if len(value) != 2:
-                    raise ToolkitError(
-                        "The values should be specified as a tuple, e.g. ('on', 'off')."
+                    _logger.error(
+                        "The values should be specified as a tuple, e.g. "
+                        "('on', 'off').",
+                        _logger.ExceptionTypes.ToolkitError,
                     )
                 return self.output1(value[0]), self.output2(value[1])
             else:
-                raise ToolkitError("The value must be a tuple or list of length 2!")
+                _logger.error(
+                    "The value must be a tuple or list of length 2!",
+                    _logger.ExceptionTypes.ToolkitError,
+                )
 
     def update_readout_params(self) -> None:
-        """Updates the sequence parameters for 'Simple' sequence with values from the readout channels."""
+        """Update the readout parameters for 'Readout' sequence
+
+        This method gets the frequency, amplitude and phase shift
+        values from the readout channels and uses them to update the
+        sequence parameters.
+
+        Raises:
+            ToolkitError: If the selected sequence type is not 'Readout'
+        """
         if self.sequence_params["sequence_type"] == SequenceType.READOUT:
             freqs = []
             amps = []
@@ -678,7 +726,10 @@ class AWG(AWGCore):
                 phase_shifts=phases,
             )
         else:
-            raise ToolkitError("AWG Sequence type needs to be 'Readout'")
+            _logger.error(
+                "AWG Sequence type needs to be 'Readout'",
+                _logger.ExceptionTypes.ToolkitError,
+            )
 
     def compile(self) -> None:
         """Wraps the 'compile(...)' method of the parent class `AWGCore`."""
@@ -730,11 +781,17 @@ class ReadoutChannel:
             read-only Parameter holds the result vector for the given readout
             channel as a 1D numpy array.
 
+    Raises:
+        ValueError: If the channel index is not in the allowed range.
+
     """
 
     def __init__(self, parent: BaseInstrument, index: int) -> None:
         if index not in range(10):
-            raise ValueError(f"The channel index {index} is out of range!")
+            _logger.error(
+                f"The channel index {index} is out of range!",
+                _logger.ExceptionTypes.ValueError,
+            )
         self._index = index
         self._parent = parent
         self._enabled = False
@@ -826,9 +883,10 @@ class ReadoutChannel:
                         envelope[i] = Parse.greater_equal(envelope[i], 0)
                         envelope[i] = Parse.smaller_equal(envelope[i], 1.0)
                 else:
-                    raise ToolkitError(
+                    _logger.error(
                         "The length of `int_weights_envelope` list must be equal to "
-                        "integration length."
+                        "integration length.",
+                        _logger.ExceptionTypes.ToolkitError,
                     )
             else:
                 envelope = Parse.greater_equal(envelope, 0)
@@ -884,11 +942,15 @@ class ReadoutChannel:
 
     def _demod_weights(self, length, envelope, freq, phase):
         if length > 4096:
-            raise ValueError(
-                "The maximum length of the integration weights is 4096 samples."
+            _logger.error(
+                "The maximum length of the integration weights is 4096 samples.",
+                _logger.ExceptionTypes.ValueError,
             )
         if freq <= 0:
-            raise ValueError("This frequency must be positive.")
+            _logger.error(
+                "This frequency must be positive.",
+                _logger.ExceptionTypes.ValueError,
+            )
         clk_rate = 1.8e9
         x = np.arange(0, length, 1)
         y = envelope * np.sin(2 * np.pi * freq * x / clk_rate + np.deg2rad(phase))

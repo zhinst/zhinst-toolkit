@@ -3,7 +3,7 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import PQSC, DeviceTypes
+from .context import PQSC, DeviceTypes, LoggerModule
 
 
 def test_init_pqsc():
@@ -16,42 +16,48 @@ def test_init_pqsc():
     assert pqsc._enable is None
     assert pqsc.repetitions is None
     assert pqsc.holdoff is None
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         pqsc._init_params()
     pqsc._init_settings()
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         pqsc.is_running
 
 
 def test_methods_pqsc():
     pqsc = PQSC("name", "dev10000")
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         pqsc.connect_device()
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         pqsc.factory_reset()
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         pqsc.arm()
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         pqsc.arm(repetitions=100)
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         pqsc.arm(holdoff=2e-6)
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         pqsc.run()
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         pqsc.stop()
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         pqsc.wait_done()
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         pqsc.check_ref_clock()
 
 
 @given(
     single_port=st.integers(0, 17),
+)
+def test_check_zsync_connection_single_port(single_port):
+    pqsc = PQSC("name", "dev10000")
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
+        pqsc.check_zsync_connection(ports=single_port)
+
+
+@given(
     port_list=st.lists(st.integers(0, 17), min_size=1, max_size=18, unique=True),
 )
-def test_check_zsync_connection(single_port, port_list):
+def test_check_zsync_connection_port_list(port_list):
     pqsc = PQSC("name", "dev10000")
-    with pytest.raises(Exception):
-        pqsc.check_zsync_connection(ports=single_port)
-    with pytest.raises(Exception):
+    with pytest.raises(LoggerModule.ToolkitConnectionError):
         pqsc.check_zsync_connection(ports=port_list)

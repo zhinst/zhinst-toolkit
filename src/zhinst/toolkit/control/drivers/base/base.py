@@ -5,18 +5,16 @@
 
 import numpy as np
 from typing import List, Dict
-import logging
 import time
 
 import zhinst.ziPython as zi
 from zhinst.toolkit.control.connection import DeviceConnection, ZIConnection
 from zhinst.toolkit.control.node_tree import NodeTree
-from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes
+from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes, LoggerModule
 from zhinst.toolkit.control.node_tree import Parameter
 from zhinst.toolkit.control.parsers import Parse
 
-
-_logger = logging.getLogger(__name__)
+_logger = LoggerModule(__name__)
 
 
 class ToolkitError(Exception):
@@ -68,14 +66,18 @@ class BaseInstrument:
         is_connected (bool): A flag that shows if the device has established a
             connection to the data server.
     Raises:
-        ToolkitError: If no serial serial is given
+        ToolkitError: If no serial serial is given or it is not of
+            string type
     """
 
     def __init__(
         self, name: str, device_type: DeviceTypes, serial: str, discovery=None, **kwargs
     ) -> None:
         if not isinstance(serial, str):
-            raise ToolkitError(f"Serial must be a string")
+            _logger.error(
+                f"Serial must be a string",
+                _logger.ExceptionTypes.ToolkitError,
+            )
 
         self._config = InstrumentConfiguration()
         self._config._instrument._name = name
@@ -146,6 +148,10 @@ class BaseInstrument:
             timeout (int): Maximum time in seconds the program waits
                 when `blocking` is set to `True`. (default: 30)
 
+        Raises:
+            ToolkitError: If the device fails to lock on the reference
+                clock.
+
         """
         ref_clock_set = self.ref_clock()
         ref_clock_status = self.ref_clock_status()
@@ -161,13 +167,14 @@ class BaseInstrument:
         # Throw an exception if the clock is still not locked after timeout
         ref_clock_actual = self.ref_clock_actual()
         if ref_clock_actual != ref_clock_set:
-            raise Exception(
+            _logger.error(
                 f"There was an error locking the device {self.name} ({self.serial}) "
-                f"onto reference clock signal. Please try again."
+                f"onto reference clock signal. Please try again.",
+                _logger.ExceptionTypes.ToolkitError,
             )
         else:
             _logger.info(
-                f"Reference clock has been succesfully locked on the "
+                f"Reference clock has been successfully locked on the "
                 f"device {self.name} ({self.serial})."
             )
 
@@ -233,8 +240,8 @@ class BaseInstrument:
             >>> hdawg._set(settings)
 
         Raises:
-            ToolkitError: If called and the device in not yet connected to the
-                data server.
+            ToolkitError: If called and the device in not yet connected
+                to the data server.
 
         Returns:
             The value set on the device as returned from the API's `set(...)`
@@ -315,8 +322,8 @@ class BaseInstrument:
                 returned or a dict with node/value pairs (default: True)
 
         Raises:
-            ToolkitError: if called and the device is not yet connected to
-                the data server.
+            ToolkitError: if called and the device is not yet connected
+                to the data server.
 
         Returns:
             The value of the parameter corresponding to the specified node.
@@ -339,8 +346,8 @@ class BaseInstrument:
                 specify the subtree for which the nodes should be returned.
 
         Raises:
-            ToolkitError: if called and the device is not yet connected to
-                the data server.
+            ToolkitError: if called and the device is not yet connected
+                to the data server.
 
         Returns:
             The dictionary that is returned from the API's `listNodesJSON(...)`
@@ -363,8 +370,8 @@ class BaseInstrument:
             node (str): A string that specifies the node address.
 
         Raises:
-            ToolkitError: if called and the device is not yet connected to
-                the data server or the node does not exist.
+            ToolkitError: if called and the device is not yet connected
+                to the data server or the node does not exist.
 
         Returns:
             The dictionary that containing the keys: 'Node',
@@ -401,8 +408,10 @@ class BaseInstrument:
 
         """
         if not self.is_connected:
-            raise ToolkitError(
-                f"The device {self.name} ({self.serial}) is not connected to a Data Server! Use device.setup() to establish a data server connection."
+            _logger.error(
+                f"The device {self.name} ({self.serial}) is not connected to a Data "
+                f"Server! Use device.setup() to establish a data server connection.",
+                _logger.ExceptionTypes.ToolkitConnectionError,
             )
 
     def _check_node_exists(self, device_node: str):
@@ -413,9 +422,10 @@ class BaseInstrument:
 
         """
         if self._get_nodetree(device_node) == {}:
-            raise ToolkitError(
+            _logger.error(
                 f"The device {self.name} ({self.serial}) does not have "
-                f"the node {device_node}. Please check the node address."
+                f"the node {device_node}. Please check the node address.",
+                _logger.ExceptionTypes.ToolkitError,
             )
 
     @property
