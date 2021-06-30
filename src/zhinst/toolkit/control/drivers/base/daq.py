@@ -2,8 +2,11 @@ import time
 import numpy as np
 from typing import List, Dict
 
-from .base import ToolkitError, BaseInstrument
+from .base import BaseInstrument
 from zhinst.toolkit.control.node_tree import Parameter
+from zhinst.toolkit.interface import LoggerModule
+
+_logger = LoggerModule(__name__)
 
 
 MAPPINGS = {
@@ -166,12 +169,18 @@ class DAQModule:
 
     def _set(self, *args):
         if self._module is None:
-            raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
+            _logger.error(
+                "This DAQ is not connected to a dataAcquisitionModule!",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         return self._module.set(*args, device=self._parent.serial)
 
     def _get(self, *args, valueonly: bool = True):
         if self._module is None:
-            raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
+            _logger.error(
+                "This DAQ is not connected to a dataAcquisitionModule!",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         data = self._module.get(*args, device=self._parent.serial)
         return list(data.values())[0][0] if valueonly else data
 
@@ -315,7 +324,11 @@ class DAQModule:
             verbose (bool): A flag to enable or disable console output during
                 the measurement. (default: True)
             timeout (int): The measurement will be stopped after the timeout.
-                The valiue is given in seconds. (default: 20)
+                The value is given in seconds. (default: 20)
+
+        Raises:
+            TimeoutError: if the measurement is not completed before
+                timeout.
 
         """
         self._set("endless", 0)
@@ -332,7 +345,10 @@ class DAQModule:
             time.sleep(0.5)
             tok = time.time()
             if tok - tik > timeout:
-                raise TimeoutError()
+                _logger.error(
+                    f"{self.name}: Measurement timed out!",
+                    _logger.ExceptionTypes.TimeoutError,
+                )
         if verbose:
             print("Finished")
         result = self._module.read(flat=True)
@@ -358,8 +374,9 @@ class DAQModule:
     def _parse_signal_source(self, source: str) -> str:
         source = source.lower()
         if source not in self._signal_sources:
-            raise ToolkitError(
-                f"Signal source must be in {self._signal_sources.keys()}"
+            _logger.error(
+                f"Signal source must be in {self._signal_sources.keys()}",
+                _logger.ExceptionTypes.ToolkitError,
             )
         return self._signal_sources[source]
 
@@ -371,13 +388,19 @@ class DAQModule:
             if signal in signal_source:
                 types = self._signal_types[signal]
         if signal_type not in types.keys():
-            raise ToolkitError(f"Signal type must be in {types.keys()}")
+            _logger.error(
+                f"Signal type must be in {types.keys()}",
+                _logger.ExceptionTypes.ToolkitError,
+            )
         return types[signal_type]
 
     def _parse_operation(self, operation: str) -> str:
         operations = ["replace", "avg", "std"]
         if operation not in operations:
-            raise ToolkitError(f"Operation must be in {operations}")
+            _logger.error(
+                f"Operation must be in {operations}",
+                _logger.ExceptionTypes.ToolkitError,
+            )
         if operation == "replace":
             operation = ""
         return f".{operation}"
@@ -386,7 +409,10 @@ class DAQModule:
         if fft:
             selectors = ["real", "imag", "abs", "phase"]
             if selector not in selectors:
-                raise ToolkitError(f"Operation must be in {selectors}")
+                _logger.error(
+                    f"Operation must be in {selectors}",
+                    _logger.ExceptionTypes.ToolkitError,
+                )
             return f".fft.{selector}"
         else:
             return ""
@@ -401,7 +427,10 @@ class DAQModule:
         source = source.lower()
         sources = self._trigger_signals
         if source not in sources:
-            raise ToolkitError(f"Signal source must be in {sources.keys()}")
+            _logger.error(
+                f"Signal source must be in {sources.keys()}",
+                _logger.ExceptionTypes.ToolkitError,
+            )
         return sources[source]
 
     def _parse_trigger_type(self, trigger_source: str, trigger_type: str) -> str:
@@ -412,7 +441,10 @@ class DAQModule:
             if signal in trigger_source:
                 types = self._trigger_types[signal]
         if trigger_type.lower() not in types.keys():
-            raise ToolkitError(f"Signal type must be in {types.keys()}")
+            _logger.error(
+                f"Signal type must be in {types.keys()}",
+                _logger.ExceptionTypes.ToolkitError,
+            )
         return types[trigger_type]
 
     def _get_result_from_dict(self, result: Dict):
@@ -420,7 +452,10 @@ class DAQModule:
         for node in self.signals:
             node = node.lower()
             if node not in result.keys():
-                raise ToolkitError(f"The signal {node} is not in {list(result.keys())}")
+                _logger.error(
+                    f"The signal {node} is not in {list(result.keys())}",
+                    _logger.ExceptionTypes.ToolkitError,
+                )
             self._results[node] = DAQResult(
                 node, result[node][0], clk_rate=self._clk_rate
             )

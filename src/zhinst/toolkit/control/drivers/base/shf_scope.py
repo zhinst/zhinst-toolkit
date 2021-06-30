@@ -6,7 +6,10 @@
 import numpy as np
 import time
 
-from .base import BaseInstrument, ToolkitError
+from .base import BaseInstrument
+from zhinst.toolkit.interface import LoggerModule
+
+_logger = LoggerModule(__name__)
 
 
 class SHFScope:
@@ -46,6 +49,10 @@ class SHFScope:
 
         Returns:
             A dictionary showing the recorded data and scope time.
+
+        Raises:
+            TimeoutError: if the scope recording is not completed before
+                timeout.
         """
 
         # wait until scope has been triggered, 30s timeout
@@ -53,7 +60,9 @@ class SHFScope:
         while self.enable() != 0:
             time.sleep(0.1)
             if time.time() - tik >= 30:
-                raise ToolkitError("Scope recording timed out!")
+                _logger.error(
+                    "Scope recording timed out!", _logger.ExceptionTypes.TimeoutError,
+                )
         # read and post-process the recorded data
         recorded_data = [[], [], [], []]
         num_channels = self._parent._num_channels()
@@ -101,15 +110,20 @@ class SHFScope:
         else:
             if isinstance(value, tuple) or isinstance(value, list):
                 if len(value) != 4:
-                    raise ToolkitError(
-                        "The values should be specified as a tuple or list, e.g. ('on', 'off', 'off', 'off')."
+                    _logger.error(
+                        "The values should be specified as a tuple or list, "
+                        "e.g. ('on', 'off', 'off', 'off').",
+                        _logger.ExceptionTypes.ToolkitError,
                     )
                 self.channel1(value[0])
                 self.channel2(value[1])
                 self.channel3(value[2])
                 self.channel4(value[3])
             else:
-                raise ToolkitError("The value must be a tuple or list of length 4!")
+                _logger.error(
+                    "The value must be a tuple or list of length 4!",
+                    _logger.ExceptionTypes.ToolkitError,
+                )
 
     def input_select(self, value=None):
         """Set all Scope input signals simultaneously.
@@ -134,16 +148,20 @@ class SHFScope:
         else:
             if isinstance(value, tuple) or isinstance(value, list):
                 if len(value) != 4:
-                    raise ToolkitError(
+                    _logger.error(
                         "The values should be specified as a tuple or list, e.g. "
-                        "('chan0sigin', 'chan1sigin', 'chan2sigin', 'chan3sigin')."
+                        "('chan0sigin', 'chan1sigin', 'chan2sigin', 'chan3sigin').",
+                        _logger.ExceptionTypes.ToolkitError,
                     )
                 self.input_select1(value[0])
                 self.input_select2(value[1])
                 self.input_select3(value[2])
                 self.input_select4(value[3])
             else:
-                raise ToolkitError("The value must be a tuple or list of length 4!")
+                _logger.error(
+                    "The value must be a tuple or list of length 4!",
+                    _logger.ExceptionTypes.ToolkitError,
+                )
 
     def segments(self, enable=None, count=None):
         """Configure segmented Scope recording options.

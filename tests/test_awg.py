@@ -1,9 +1,22 @@
-import pytest
-from hypothesis import given, assume, strategies as st
-from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
-import numpy as np
+# Copyright (C) 2020 Zurich Instruments
+#
+# This software may be modified and distributed under the terms
+# of the MIT license. See the LICENSE file for details.
 
-from .context import AWGCore, HDAWG, UHFQA, UHFLI, SequenceProgram, DeviceTypes
+import pytest
+from hypothesis import given, strategies as st
+
+from .context import (
+    AWGCore,
+    HDAWG,
+    UHFQA,
+    UHFLI,
+    DeviceTypes,
+    SequenceType,
+    awg_logger,
+)
+
+awg_logger.disable_logging()
 
 
 @given(st.integers(0, 3), st.integers(0, 2))
@@ -36,37 +49,41 @@ def test_init_awg(i, j):
 def test_awg_connection(i):
     instr = HDAWG("name", "dev1234")
     awg = AWGCore(instr, i)
-    with pytest.raises(Exception):
+    with pytest.raises(awg_logger.ToolkitConnectionError):
         awg.is_running
-    with pytest.raises(Exception):
+    with pytest.raises(awg_logger.ToolkitConnectionError):
         awg.run()
-    with pytest.raises(Exception):
+    with pytest.raises(awg_logger.ToolkitConnectionError):
         awg.stop()
-    with pytest.raises(Exception):
+    with pytest.raises(awg_logger.ToolkitConnectionError):
         awg.wait_done()
-    with pytest.raises(Exception):
+    with pytest.raises(awg_logger.ToolkitConnectionError):
         awg.compile()
-    with pytest.raises(Exception):
+    with pytest.raises(awg_logger.ToolkitConnectionError):
         awg.upload_waveforms()
-    with pytest.raises(Exception):
+    with pytest.raises(awg_logger.ToolkitConnectionError):
         awg.compile_and_upload_waveforms()
 
 
-def test_awg_waveform():
+@given(sequence_type=st.sampled_from(SequenceType),)
+def test_awg_waveform(sequence_type):
     instr = HDAWG("name", "dev1234")
     awg = AWGCore(instr, 0)
-    with pytest.raises(Exception):
-        awg.queue_waveform([], [])
-    assert awg.waveforms == []
-    awg.set_sequence_params(sequence_type="Simple")
-    awg.queue_waveform([], [])
-    assert len(awg.waveforms) == 1
-    awg.reset_queue()
-    assert awg.waveforms == []
-    for i in range(10):
-        awg.queue_waveform([], [])
-    assert len(awg.waveforms) == 10
-    awg.queue_waveform([-1] * 80, [-1] * 80)
-    awg.replace_waveform([1] * 80, [1] * 80, i=10)
-    wave = awg.waveforms[10].data
-    assert any(w == (2 ** (15) - 1) for w in wave)
+    if sequence_type in instr.allowed_sequences:
+        awg.set_sequence_params(sequence_type=sequence_type)
+        if sequence_type in [SequenceType.SIMPLE, SequenceType.CUSTOM]:
+            awg.queue_waveform([], [])
+            assert len(awg.waveforms) == 1
+            awg.reset_queue()
+            assert awg.waveforms == []
+            for i in range(10):
+                awg.queue_waveform([], [])
+            assert len(awg.waveforms) == 10
+            awg.queue_waveform([-1] * 80, [-1] * 80)
+            awg.replace_waveform([1] * 80, [1] * 80, i=10)
+            wave = awg.waveforms[10].data
+            assert any(w == (2 ** (15) - 1) for w in wave)
+        else:
+            with pytest.raises(awg_logger.ToolkitError):
+                awg.queue_waveform([], [])
+            assert awg.waveforms == []

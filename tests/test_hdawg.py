@@ -1,9 +1,16 @@
 import pytest
-from hypothesis import given, assume, strategies as st
-from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
-import numpy as np
+from hypothesis import given, strategies as st
 
-from .context import HDAWG, HDAWG_AWG, DeviceTypes, SequenceType, TriggerMode
+from .context import (
+    HDAWG,
+    HDAWG_AWG,
+    DeviceTypes,
+    SequenceType,
+    TriggerMode,
+    hdawg_logger,
+)
+
+hdawg_logger.disable_logging()
 
 
 def test_init_hdawg():
@@ -30,22 +37,22 @@ def test_init_hdawg():
         TriggerMode.SEND_AND_RECEIVE_TRIGGER,
         TriggerMode.ZSYNC_TRIGGER,
     ]
-    with pytest.raises(Exception):
+    with pytest.raises(hdawg_logger.ToolkitConnectionError):
         hd._init_awg_cores()
-    with pytest.raises(Exception):
+    with pytest.raises(hdawg_logger.ToolkitConnectionError):
         hd._init_params()
     hd._init_settings()
 
 
 def test_methods_hdawg():
     hd = HDAWG("name", "dev8000")
-    with pytest.raises(Exception):
+    with pytest.raises(hdawg_logger.ToolkitConnectionError):
         hd.connect_device()
-    with pytest.raises(Exception):
+    with pytest.raises(hdawg_logger.ToolkitConnectionError):
         hd.factory_reset()
-    with pytest.raises(Exception):
+    with pytest.raises(hdawg_logger.ToolkitConnectionError):
         hd.enable_qccs_mode()
-    with pytest.raises(Exception):
+    with pytest.raises(hdawg_logger.ToolkitConnectionError):
         hd.enable_manual_mode()
 
 
@@ -66,7 +73,7 @@ def test_init_hdawg_awg():
     assert awg.zsync_decoder_mask is None
     assert awg.zsync_decoder_shift is None
     assert awg.zsync_decoder_offset is None
-    with pytest.raises(Exception):
+    with pytest.raises(hdawg_logger.ToolkitConnectionError):
         awg._init_awg_params()
 
 
@@ -81,47 +88,57 @@ def test_repr_str_hdawg_awg(i):
     awg = HDAWG_AWG(HDAWG("name", "dev8000"), 0)
     awg._iq_modulation = i
     if i:
-        with pytest.raises(Exception):
+        with pytest.raises(TypeError):
             awg.__repr__()
     else:
         assert "IQ Modulation DISABLED" in awg.__repr__()
 
 
 @given(
-    sequence_type=st.sampled_from(
-        [SequenceType.READOUT, SequenceType.PULSED_SPEC, SequenceType.CW_SPEC]
-    ),
-    trigger_mode=st.sampled_from(
-        [TriggerMode.ZSYNC_TRIGGER, TriggerMode.RECEIVE_TRIGGER]
-    ),
+    sequence_type=st.sampled_from(SequenceType),
+    trigger_mode=st.sampled_from(TriggerMode),
 )
 def test_hdawg_awg_set_get(sequence_type, trigger_mode):
     awg = HDAWG_AWG(HDAWG("name", "dev8000"), 0)
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         awg.outputs(["on", "on"])
-    with pytest.raises(Exception):
+    with pytest.raises(hdawg_logger.ToolkitError):
         awg.outputs(["on"])
-    with pytest.raises(Exception):
+    with pytest.raises(hdawg_logger.ToolkitError):
         awg.outputs("on")
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         awg.outputs()
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         awg.output1("on")
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         awg.output1()
-    with pytest.raises(Exception):
+    with pytest.raises(hdawg_logger.ToolkitConnectionError):
         awg.enable_iq_modulation()
-    with pytest.raises(Exception):
+    with pytest.raises(hdawg_logger.ToolkitConnectionError):
         awg.disable_iq_modulation()
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         awg.set_sequence_params(sequence_type="text")
-    with pytest.raises(Exception):
+    if sequence_type in awg._parent.allowed_sequences:
         awg.set_sequence_params(sequence_type=sequence_type)
-    with pytest.raises(Exception):
+    else:
+        with pytest.raises(hdawg_logger.ToolkitError):
+            awg.set_sequence_params(sequence_type=sequence_type)
+    with pytest.raises(ValueError):
         awg.set_sequence_params(trigger_mode="text")
-    with pytest.raises(Exception):
-        awg.set_sequence_params(trigger_mode=trigger_mode)
-    with pytest.raises(Exception):
+    if trigger_mode in awg._parent.allowed_trigger_modes:
+        if trigger_mode in [
+            TriggerMode.EXTERNAL_TRIGGER,
+            TriggerMode.RECEIVE_TRIGGER,
+            TriggerMode.ZSYNC_TRIGGER,
+        ]:
+            with pytest.raises(hdawg_logger.ToolkitConnectionError):
+                awg.set_sequence_params(trigger_mode=trigger_mode)
+        else:
+            awg.set_sequence_params(trigger_mode=trigger_mode)
+    else:
+        with pytest.raises(hdawg_logger.ToolkitError):
+            awg.set_sequence_params(trigger_mode=trigger_mode)
+    with pytest.raises(hdawg_logger.ToolkitConnectionError):
         awg._apply_receive_trigger_settings()
-    with pytest.raises(Exception):
+    with pytest.raises(hdawg_logger.ToolkitConnectionError):
         awg._apply_zsync_trigger_settings()

@@ -1,8 +1,12 @@
+# Copyright (C) 2020 Zurich Instruments
+#
+# This software may be modified and distributed under the terms
+# of the MIT license. See the LICENSE file for details.
+
 import pytest
 
 from .context import (
     BaseInstrument,
-    ToolkitError,
     DeviceTypes,
     ziDiscovery,
     baseinstrument_logger,
@@ -84,11 +88,11 @@ def test_check_connection():
 
 
 def test_serials():
-    with pytest.raises(ToolkitError):
+    with pytest.raises(baseinstrument_logger.ToolkitError):
         BaseInstrument(
             "name", DeviceTypes.PQSC, None, interface="1GbE", discovery=DiscoveryMock()
         )
-    with pytest.raises(ToolkitError):
+    with pytest.raises(baseinstrument_logger.ToolkitError):
         BaseInstrument(
             "name", DeviceTypes.PQSC, 10000, interface="1GbE", discovery=DiscoveryMock()
         )

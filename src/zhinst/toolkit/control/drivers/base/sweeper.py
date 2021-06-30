@@ -2,8 +2,11 @@ import time
 import numpy as np
 from typing import List, Dict
 
-from .base import ToolkitError, BaseInstrument
+from .base import BaseInstrument
 from zhinst.toolkit.control.node_tree import Parameter
+from zhinst.toolkit.interface import LoggerModule
+
+_logger = LoggerModule(__name__)
 
 
 MAPPINGS = {
@@ -172,12 +175,18 @@ class SweeperModule:
 
     def _set(self, *args):
         if self._module is None:
-            raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
+            _logger.error(
+                "This DAQ is not connected to a dataAcquisitionModule!",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         return self._module.set(*args, device=self._parent.serial)
 
     def _get(self, *args, valueonly: bool = True):
         if self._module is None:
-            raise ToolkitError("This DAQ is not connected to a dataAcquisitionModule!")
+            _logger.error(
+                "This DAQ is not connected to a dataAcquisitionModule!",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         data = self._module.get(*args, device=self._parent.serial)
         return list(data.values())[0][0] if valueonly else data
 
@@ -258,6 +267,10 @@ class SweeperModule:
             timeout (int): The measurement will be stopped after timeout. The
                 value is given in seconds. (default: 20)
 
+        Raises:
+            TimeoutError: if the measurement is not completed before
+                timeout.
+
         """
         self._set("endless", 0)
         self._set("clearhistory", 1)
@@ -277,7 +290,10 @@ class SweeperModule:
             time.sleep(0.5)
             tok = time.time()
             if tok - tik > timeout:
-                raise TimeoutError()
+                _logger.error(
+                    f"{self.name}: Measurement timed out!",
+                    _logger.ExceptionTypes.TimeoutError,
+                )
         print("Finished")
         result = self._module.read(flat=True)
         self._module.finish()
@@ -306,8 +322,9 @@ class SweeperModule:
 
         """
         if application not in APPLICATIONS.keys():
-            raise ToolkitError(
-                f"Application must be one of {list(APPLICATIONS.keys())}."
+            _logger.error(
+                f"Application must be one of {list(APPLICATIONS.keys())}.",
+                _logger.ExceptionTypes.ToolkitError,
             )
         settings = APPLICATIONS[application]
         self._set(settings)
@@ -325,15 +342,18 @@ class SweeperModule:
     def _parse_signals(self, source: str) -> str:
         source = source.lower()
         if source not in self._signal_sources:
-            raise ToolkitError(
-                f"Signal source must be in {self._signal_sources.keys()}"
+            _logger.error(
+                f"Signal source must be in {self._signal_sources.keys()}",
+                _logger.ExceptionTypes.ToolkitError,
             )
         return self._signal_sources[source]
 
     def _parse_sweep_param(self, param: str) -> str:
         if param not in self._sweep_params.keys():
-            raise ToolkitError(
-                f"The parameter {param} must be one of {list(self._sweep_params.keys())}"
+            _logger.error(
+                f"The parameter {param} must be one of "
+                f"{list(self._sweep_params.keys())}",
+                _logger.ExceptionTypes.ToolkitError,
             )
         return self._sweep_params[param]
 
@@ -342,7 +362,10 @@ class SweeperModule:
         for node in self.signals:
             node = node.lower()
             if node not in result.keys():
-                raise ToolkitError()
+                _logger.error(
+                    f"No data acquired for signal {node}",
+                    _logger.ExceptionTypes.ToolkitError,
+                )
             self._results[node] = SweeperResult(node, result[node][0][0])
 
     def _init_settings(self):
