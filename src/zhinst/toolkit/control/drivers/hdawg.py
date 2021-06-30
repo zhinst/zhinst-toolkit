@@ -58,6 +58,10 @@ class HDAWG(BaseInstrument):
     Attributes:
         awgs (list): A list of four device-specific AWG Cores of type
             :class:`zhinst.toolkit.control.drivers.hdawg.AWG`.
+        allowed_sequences (list): A list of :class:`SequenceType` s
+            that the instrument supports.
+        allowed_trigger_modes (list): A list of :class:`TriggerMode` s
+            that the instrument supports.
         ref_clock (:class:`zhinst.toolkit.control.node_tree.Parameter`):
             Clock source used as the frequency and time base reference.
             Either `0: "internal"`, `1: "external"` or `2: "zsync"`.
@@ -76,6 +80,23 @@ class HDAWG(BaseInstrument):
         self._awgs = []
         self.ref_clock = None
         self.ref_clock_status = None
+        self._allowed_sequences = [
+            SequenceType.NONE,
+            SequenceType.SIMPLE,
+            SequenceType.TRIGGER,
+            SequenceType.RABI,
+            SequenceType.T1,
+            SequenceType.T2,
+            SequenceType.CUSTOM,
+        ]
+        self._allowed_trigger_modes = [
+            TriggerMode.NONE,
+            TriggerMode.SEND_TRIGGER,
+            TriggerMode.EXTERNAL_TRIGGER,
+            TriggerMode.RECEIVE_TRIGGER,
+            TriggerMode.SEND_AND_RECEIVE_TRIGGER,
+            TriggerMode.ZSYNC_TRIGGER,
+        ]
 
     def connect_device(self, nodetree: bool = True) -> None:
         """Connects the device to the data server and initializes the AWGs.
@@ -164,6 +185,14 @@ class HDAWG(BaseInstrument):
     @property
     def awgs(self):
         return self._awgs
+
+    @property
+    def allowed_sequences(self):
+        return self._allowed_sequences
+
+    @property
+    def allowed_trigger_modes(self):
+        return self._allowed_trigger_modes
 
 
 class AWG(AWGCore):
@@ -471,33 +500,16 @@ class AWG(AWGCore):
         # check sequence type
         if "sequence_type" in kwargs.keys():
             t = SequenceType(kwargs["sequence_type"])
-            allowed_sequences = [
-                SequenceType.NONE,
-                SequenceType.SIMPLE,
-                SequenceType.RABI,
-                SequenceType.T1,
-                SequenceType.T2,
-                SequenceType.CUSTOM,
-                SequenceType.TRIGGER,
-            ]
-            if t not in allowed_sequences:
+            if t not in self._parent.allowed_sequences:
                 raise ToolkitError(
-                    f"Sequence type {t} must be one of {[s.value for s in allowed_sequences]}!"
+                    f"Sequence type {t} must be one of {[s.value for s in self._parent.allowed_sequences]}!"
                 )
         # apply settings dependent on trigger mode
         if "trigger_mode" in kwargs.keys():
             t = TriggerMode(kwargs["trigger_mode"])
-            allowed_trigger_modes = [
-                TriggerMode.NONE,
-                TriggerMode.SEND_TRIGGER,
-                TriggerMode.EXTERNAL_TRIGGER,
-                TriggerMode.RECEIVE_TRIGGER,
-                TriggerMode.SEND_AND_RECEIVE_TRIGGER,
-                TriggerMode.ZSYNC_TRIGGER,
-            ]
-            if t not in allowed_trigger_modes:
+            if t not in self._parent.allowed_trigger_modes:
                 raise ToolkitError(
-                    f"Trigger mode {t} must be one of {[s.value for s in allowed_trigger_modes]}!"
+                    f"Trigger mode {t} must be one of {[s.value for s in self._parent.allowed_trigger_modes]}!"
                 )
             elif t in [TriggerMode.EXTERNAL_TRIGGER, TriggerMode.RECEIVE_TRIGGER]:
                 self._apply_receive_trigger_settings()

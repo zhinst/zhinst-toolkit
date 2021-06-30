@@ -26,6 +26,20 @@ def test_init_uhfqa():
     assert qa.averaging_mode is None
     assert qa.ref_clock is None
     assert qa._qa_delay_user == 0
+    assert qa.allowed_sequences == [
+        SequenceType.NONE,
+        SequenceType.SIMPLE,
+        SequenceType.READOUT,
+        SequenceType.CW_SPEC,
+        SequenceType.PULSED_SPEC,
+        SequenceType.CUSTOM,
+    ]
+    assert qa.allowed_trigger_modes == [
+        TriggerMode.NONE,
+        TriggerMode.EXTERNAL_TRIGGER,
+        TriggerMode.RECEIVE_TRIGGER,
+        TriggerMode.ZSYNC_TRIGGER,
+    ]
     with pytest.raises(Exception):
         qa._init_awg_cores()
     with pytest.raises(Exception):

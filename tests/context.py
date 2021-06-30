@@ -5,9 +5,15 @@
 
 
 from zhinst.ziPython import ziDiscovery
-from zhinst.toolkit import HDAWG, UHFQA, UHFLI, MFLI, PQSC, MultiDeviceConnection
+from zhinst.toolkit import HDAWG, UHFQA, UHFLI, MFLI, PQSC, SHFQA, MultiDeviceConnection
 from zhinst.toolkit.control.drivers.uhfqa import AWG as UHFQA_AWG, ReadoutChannel
 from zhinst.toolkit.control.drivers.hdawg import AWG as HDAWG_AWG
+from zhinst.toolkit.control.drivers.shfqa import (
+    Channel as SHFQA_Channel,
+    Generator as SHFQA_Generator,
+    Sweeper as SHFQA_Sweeper,
+    Scope as SHFQA_Scope,
+)
 from zhinst.toolkit.control.drivers.mfli import (
     DAQModule as DAQModule_MFLI,
     SweeperModule as Sweeper_MFLI,
