@@ -10,12 +10,13 @@ from zhinst.toolkit.control.drivers.base import (
     BaseInstrument,
     AWGCore,
     CommandTable,
-    ToolkitError,
 )
 from zhinst.toolkit.control.node_tree import Parameter
 from zhinst.toolkit.control.parsers import Parse
-from zhinst.toolkit.interface import DeviceTypes
+from zhinst.toolkit.interface import DeviceTypes, LoggerModule
 from zhinst.toolkit.helpers import SequenceType, TriggerMode
+
+_logger = LoggerModule(__name__)
 
 
 class HDAWG(BaseInstrument):
@@ -436,19 +437,28 @@ class AWG(AWGCore):
             A tuple with the states {'on', 'off'} for the two output channels if
             the keyword argument is not given.
 
+        Raises:
+            ToolkitError: If the `value` argument is not a list or tuple
+                of length 2.
+
         """
         if value is None:
             return self.output1(), self.output2()
         else:
             if isinstance(value, tuple) or isinstance(value, list):
                 if len(value) != 2:
-                    raise ToolkitError(
-                        "The values should be specified as a tuple, e.g. ('on', 'off')."
+                    _logger.error(
+                        "The values should be specified as a tuple, e.g. "
+                        "('on', 'off').",
+                        _logger.ExceptionTypes.ToolkitError,
                     )
                 self.output1(value[0])
                 self.output2(value[1])
             else:
-                raise ToolkitError("The value must be a tuple or list of length 2!")
+                _logger.error(
+                    "The value must be a tuple or list of length 2!",
+                    _logger.ExceptionTypes.ToolkitError,
+                )
 
     def enable_iq_modulation(self) -> None:
         """Enables IQ Modulation on the AWG Core.
@@ -495,15 +505,19 @@ class AWG(AWGCore):
         if "sequence_type" in kwargs.keys():
             t = SequenceType(kwargs["sequence_type"])
             if t not in self._parent.allowed_sequences:
-                raise ToolkitError(
-                    f"Sequence type {t} must be one of {[s.value for s in self._parent.allowed_sequences]}!"
+                _logger.error(
+                    f"Sequence type {t} must be one of "
+                    f"{[s.value for s in self._parent.allowed_sequences]}!",
+                    _logger.ExceptionTypes.ToolkitError,
                 )
         # apply settings dependent on trigger mode
         if "trigger_mode" in kwargs.keys():
             t = TriggerMode(kwargs["trigger_mode"])
             if t not in self._parent.allowed_trigger_modes:
-                raise ToolkitError(
-                    f"Trigger mode {t} must be one of {[s.value for s in self._parent.allowed_trigger_modes]}!"
+                _logger.error(
+                    f"Trigger mode {t} must be one of "
+                    f"{[s.value for s in self._parent.allowed_trigger_modes]}!",
+                    _logger.ExceptionTypes.ToolkitError,
                 )
             elif t in [TriggerMode.EXTERNAL_TRIGGER, TriggerMode.RECEIVE_TRIGGER]:
                 self._apply_receive_trigger_settings()

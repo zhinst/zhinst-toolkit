@@ -5,14 +5,13 @@
 
 import numpy as np
 import time
-import logging
 
 from zhinst.toolkit.control.drivers.base import BaseInstrument
-from zhinst.toolkit.interface import DeviceTypes
+from zhinst.toolkit.interface import DeviceTypes, LoggerModule
 from zhinst.toolkit.control.node_tree import Parameter
 from zhinst.toolkit.control.parsers import Parse
 
-_logger = logging.getLogger(__name__)
+_logger = LoggerModule(__name__)
 
 
 class PQSC(BaseInstrument):
@@ -174,6 +173,10 @@ class PQSC(BaseInstrument):
             timeout (int): Maximum time in seconds the program waits
                 when `blocking` is set to `True`. (default: 30)
 
+        Raises:
+            ToolkitError: If ZSync connection to the instruments on the
+                specified ports is not established.
+
         """
         if type(ports) is not list:
             ports = [ports]
@@ -190,9 +193,10 @@ class PQSC(BaseInstrument):
                 zsync_connection_status = self._get(f"zsyncs/{port}/connection/status")
             # Throw an exception if the instrument is still not connected after timeout
             if zsync_connection_status != 2:
-                raise Exception(
+                _logger.error(
                     f"Check ZSync connection to the instrument on port {port} "
-                    f"(port {port + 1} on the rear panel) of PQSC."
+                    f"(port {port + 1} on the rear panel) of PQSC.",
+                    _logger.ExceptionTypes.ToolkitError,
                 )
             else:
                 _logger.info(

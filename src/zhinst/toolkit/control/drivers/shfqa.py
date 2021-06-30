@@ -3,7 +3,6 @@
 # This software may be modified and distributed under the terms
 # of the MIT license. See the LICENSE file for details.
 
-import logging
 import time
 
 from zhinst.toolkit.control.drivers.base import (
@@ -72,7 +71,9 @@ class SHFQA(BaseInstrument):
 
     def factory_reset(self) -> None:
         """Loads the factory default settings."""
-        _logger.info(f"Factory preset is not supported in {self.serial.upper()}.")
+        _logger.warning(
+            f"Factory preset is not yet supported in SHFQA " f"{self.serial.upper()}."
+        )
 
     def _init_settings(self):
         """Sets initial device settings on startup."""
@@ -323,15 +324,19 @@ class Generator(SHFGenerator):
         if "sequence_type" in kwargs.keys():
             t = SequenceType(kwargs["sequence_type"])
             if t not in self._device.allowed_sequences:
-                raise ToolkitError(
-                    f"Sequence type {t} must be one of {[s.value for s in self._device.allowed_sequences]}!"
+                _logger.error(
+                    f"Sequence type {t} must be one of "
+                    f"{[s.value for s in self._device.allowed_sequences]}!",
+                    _logger.ExceptionTypes.ToolkitError,
                 )
         # check trigger mode
         if "trigger_mode" in kwargs.keys():
             t = TriggerMode(kwargs["trigger_mode"])
             if t not in self._device.allowed_trigger_modes:
-                raise ToolkitError(
-                    f"Trigger mode {t} must be one of {[s.value for s in self._device.allowed_trigger_modes]}!"
+                _logger.error(
+                    f"Trigger mode {t} must be one of "
+                    f"{[s.value for s in self._device.allowed_trigger_modes]}!",
+                    _logger.ExceptionTypes.ToolkitError,
                 )
 
 

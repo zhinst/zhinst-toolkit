@@ -1,9 +1,8 @@
 import pytest
-from hypothesis import given, assume, strategies as st
-from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
-import numpy as np
 
-from .context import DAQModule, ToolkitError
+from .context import DAQModule, daq_logger
+
+daq_logger.disable_logging()
 
 
 class Parent:
@@ -25,9 +24,9 @@ def test_daq_init():
 def test_no_connection():
     p = Parent()
     daq = DAQModule(p)
-    with pytest.raises(ToolkitError):
+    with pytest.raises(daq_logger.ToolkitConnectionError):
         daq._init_settings()
-    with pytest.raises(ToolkitError):
+    with pytest.raises(daq_logger.ToolkitConnectionError):
         daq._set("endless", 0)
-    with pytest.raises(ToolkitError):
+    with pytest.raises(daq_logger.ToolkitConnectionError):
         daq._get("endless")

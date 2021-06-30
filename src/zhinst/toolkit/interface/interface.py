@@ -97,9 +97,10 @@ class LoggerModule:
 
         ToolkitConnectionError = auto()
         ToolkitNodeTreeError = auto()
+        ToolkitError = auto()
         ValueError = auto()
         TypeError = auto()
-        ToolkitError = auto()
+        TimeoutError = auto()
 
     class ToolkitConnectionError(Exception):
         """Custom Exception class for ToolkitConnectionError"""
@@ -187,11 +188,13 @@ class LoggerModule:
             raise LoggerModule.ToolkitConnectionError(msg)
         elif exception_type == LoggerModule.ExceptionTypes.ToolkitNodeTreeError:
             raise LoggerModule.ToolkitNodeTreeError(msg)
+        elif exception_type == LoggerModule.ExceptionTypes.ToolkitError:
+            raise LoggerModule.ToolkitError(msg)
         elif exception_type == LoggerModule.ExceptionTypes.ValueError:
             raise ValueError(msg)
         elif exception_type == LoggerModule.ExceptionTypes.TypeError:
             raise TypeError(msg)
-        elif exception_type == LoggerModule.ExceptionTypes.ToolkitError:
-            raise LoggerModule.ToolkitError(msg)
+        elif exception_type == LoggerModule.ExceptionTypes.TimeoutError:
+            raise TimeoutError(msg)
         else:
             raise Exception(msg)

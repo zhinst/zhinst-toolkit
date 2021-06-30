@@ -6,8 +6,10 @@ import json
 import urllib
 import jsonschema
 
-from .base import ToolkitError
 from .awg import AWGCore
+from zhinst.toolkit.interface import LoggerModule
+
+_logger = LoggerModule(__name__)
 
 
 class CommandTable:
@@ -53,15 +55,16 @@ class CommandTable:
             table_updated = json.loads(table)
         elif isinstance(table, list):
             table_updated = {
-                "$schema": "http://docs.zhinst.com/hdawg/commandtable/v2/schema",
+                "$schema": self._ct_schema_url,
                 "header": {"version": "0.2", "partial": False},
                 "table": table,
             }
         elif isinstance(table, dict):
             table_updated = table
         else:
-            raise ToolkitError(
+            _logger.error(
                 "The command table should be specified as either a string, or a list "
-                "of entries without a header, or a valid json as a dictionary."
+                "of entries without a header, or a valid json as a dictionary.",
+                _logger.ExceptionTypes.ToolkitError,
             )
         return table_updated

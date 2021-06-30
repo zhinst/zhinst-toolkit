@@ -1,9 +1,13 @@
-import pytest
-from hypothesis import given, assume, strategies as st
-from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
-import numpy as np
+# Copyright (C) 2020 Zurich Instruments
+#
+# This software may be modified and distributed under the terms
+# of the MIT license. See the LICENSE file for details.
 
-from .context import SweeperModule, ToolkitError
+import pytest
+
+from .context import SweeperModule, sweeper_logger
+
+sweeper_logger.disable_logging()
 
 
 class Parent:
@@ -25,9 +29,9 @@ def test_sweeper_init():
 def test_no_connection():
     p = Parent()
     s = SweeperModule(p)
-    with pytest.raises(ToolkitError):
+    with pytest.raises(sweeper_logger.ToolkitConnectionError):
         s._init_settings()
-    with pytest.raises(ToolkitError):
+    with pytest.raises(sweeper_logger.ToolkitConnectionError):
         s._set("endless", 0)
-    with pytest.raises(ToolkitError):
+    with pytest.raises(sweeper_logger.ToolkitConnectionError):
         s._get("endless")

@@ -10,8 +10,24 @@ from zhinst.toolkit.control.drivers.base.base import (
     BaseInstrument,
     _logger as baseinstrument_logger,
 )
-from zhinst.toolkit.control.drivers.uhfqa import AWG as UHFQA_AWG, ReadoutChannel
-from zhinst.toolkit.control.drivers.hdawg import AWG as HDAWG_AWG
+from zhinst.toolkit.control.drivers.base.awg import AWGCore, _logger as awg_logger
+from zhinst.toolkit.control.drivers.base.daq import (
+    DAQModule,
+    _logger as daq_logger,
+)
+from zhinst.toolkit.control.drivers.base.sweeper import (
+    SweeperModule,
+    _logger as sweeper_logger,
+)
+from zhinst.toolkit.control.drivers.uhfqa import (
+    AWG as UHFQA_AWG,
+    ReadoutChannel,
+    _logger as uhfqa_logger,
+)
+from zhinst.toolkit.control.drivers.hdawg import (
+    AWG as HDAWG_AWG,
+    _logger as hdawg_logger,
+)
 from zhinst.toolkit.control.drivers.shfqa import (
     Channel as SHFQA_Channel,
     Generator as SHFQA_Generator,
@@ -19,6 +35,7 @@ from zhinst.toolkit.control.drivers.shfqa import (
     Scope as SHFQA_Scope,
     _logger as shfqa_logger,
 )
+from zhinst.toolkit.control.drivers.pqsc import _logger as pqsc_logger
 from zhinst.toolkit.control.drivers.mfli import (
     DAQModule as DAQModule_MFLI,
     SweeperModule as Sweeper_MFLI,
@@ -31,12 +48,6 @@ from zhinst.toolkit.control.connection import (
     ZIConnection,
     DeviceConnection,
     _logger as connection_logger,
-)
-from zhinst.toolkit.control.drivers.base import (
-    ToolkitError,
-    AWGCore,
-    DAQModule,
-    SweeperModule,
 )
 from zhinst.toolkit.control.node_tree import (
     NodeTree,
