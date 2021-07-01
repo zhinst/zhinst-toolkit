@@ -7,7 +7,9 @@ import pytest
 from hypothesis import given, assume, strategies as st
 import numpy as np
 
-from .context import Waveform
+from .context import Waveform, waveform_logger
+
+waveform_logger.disable_logging()
 
 
 class TestWaveform:

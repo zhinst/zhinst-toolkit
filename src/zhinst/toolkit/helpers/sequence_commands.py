@@ -8,8 +8,10 @@ import re
 import numpy as np
 import deprecation
 
-from zhinst.toolkit.interface import DeviceTypes
+from zhinst.toolkit.interface import DeviceTypes, LoggerModule
 from zhinst.toolkit._version import version as __version__
+
+_logger = LoggerModule(__name__)
 
 
 class SequenceCommand(object):
@@ -79,7 +81,10 @@ class SequenceCommand(object):
         if i == "inf":
             return f"while(true){{\n"
         if i < 0:
-            raise ValueError("Invalid number of repetitions!")
+            _logger.error(
+                "Invalid number of repetitions!",
+                _logger.ExceptionTypes.ValueError,
+            )
         return f"repeat({int(i)}){{\n"
 
     @staticmethod
@@ -116,7 +121,10 @@ class SequenceCommand(object):
 
         """
         if i < 0:
-            raise ValueError("Wait time cannot be negative!")
+            _logger.error(
+                "Wait time cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
+            )
         if i == 0:
             return "//\n"
         else:
@@ -136,14 +144,23 @@ class SequenceCommand(object):
 
         """
         if i < 0:
-            raise ValueError("Number of samples cannot be negative!")
+            _logger.error(
+                "Number of samples cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
+            )
         elif target in [DeviceTypes.HDAWG]:
             if i < 32:
-                raise ValueError("Number of samples cannot be lower than 32 samples!")
+                _logger.error(
+                    "Number of samples cannot be lower than 32 samples!",
+                    _logger.ExceptionTypes.ValueError,
+                )
             return f"playZero({int(round(i / 16) * 16)});\n"
         elif target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
             if i < 16:
-                raise ValueError("Number of samples cannot be lower than 16 samples!")
+                _logger.error(
+                    "Number of samples cannot be lower than 16 samples!",
+                    _logger.ExceptionTypes.ValueError,
+                )
             return f"playZero({int(round(i / 8) * 8)});\n"
 
     @staticmethod
@@ -158,9 +175,15 @@ class SequenceCommand(object):
     )
     def trigger(value, index=1):
         if value not in [0, 1]:
-            raise ValueError("Invalid Trigger Value!")
+            _logger.error(
+                "Invalid Trigger Value!",
+                _logger.ExceptionTypes.ValueError,
+            )
         if index not in [1, 2]:
-            raise ValueError("Invalid Trigger Index!")
+            _logger.error(
+                "Invalid Trigger Index!",
+                _logger.ExceptionTypes.ValueError,
+            )
         return f"setTrigger({value << (index - 1)});\n"
 
     @staticmethod
@@ -173,9 +196,15 @@ class SequenceCommand(object):
             length (int): length of marker waveform in number of samples. (default: 32)
         """
         if length < 32:
-            raise ValueError("Trigger cannot be shorter than 32 samples!")
+            _logger.error(
+                "Trigger cannot be shorter than 32 samples!",
+                _logger.ExceptionTypes.ValueError,
+            )
         if length % 16:
-            raise ValueError("Trigger Length has to be multiple of 16!")
+            _logger.error(
+                "Trigger Length has to be multiple of 16!",
+                _logger.ExceptionTypes.ValueError,
+            )
         return f"wave start_trigger = marker({length},1);\n"
 
     @staticmethod
@@ -196,7 +225,10 @@ class SequenceCommand(object):
 
         """
         if i < 0:
-            raise ValueError("Waveform Index cannot be negative!")
+            _logger.error(
+                "Waveform Index cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
+            )
         return f"assignWaveIndex(w{i + 1}_1, w{i + 1}_2, {i});\n"
 
     @staticmethod
@@ -206,21 +238,33 @@ class SequenceCommand(object):
     @staticmethod
     def play_wave_scaled(amp1, amp2):
         if abs(amp1) > 1 or abs(amp2) > 1:
-            raise ValueError("Amplitude cannot be larger than 1.0!")
+            _logger.error(
+                "Amplitude cannot be larger than 1.0!",
+                _logger.ExceptionTypes.ValueError,
+            )
         return f"playWave({amp1}*w_1, {amp2}*w_2);\n"
 
     @staticmethod
     def play_wave_indexed(i):
         if i < 0:
-            raise ValueError("Invalid Waveform Index!")
+            _logger.error(
+                "Invalid Waveform Index!",
+                _logger.ExceptionTypes.ValueError,
+            )
         return f"playWave(w{i + 1}_1, w{i + 1}_2);\n"
 
     @staticmethod
     def play_wave_indexed_scaled(amp1, amp2, i):
         if i < 0:
-            raise ValueError("Invalid Waveform Index!")
+            _logger.error(
+                "Invalid Waveform Index!",
+                _logger.ExceptionTypes.ValueError,
+            )
         if abs(amp1) > 1 or abs(amp2) > 1:
-            raise ValueError("Amplitude cannot be larger than 1.0!")
+            _logger.error(
+                "Amplitude cannot be larger than 1.0!",
+                _logger.ExceptionTypes.ValueError,
+            )
         return f"playWave({amp1}*w{i+1}_1, {amp2}*w{i+2}_2);\n"
 
     @staticmethod
@@ -238,17 +282,32 @@ class SequenceCommand(object):
 
         """
         if i < 0:
-            raise ValueError("Invalid Values for waveform buffer!")
+            _logger.error(
+                "Invalid Values for waveform buffer!",
+                _logger.ExceptionTypes.ValueError,
+            )
         elif target in [DeviceTypes.HDAWG]:
             if length < 32:
-                raise ValueError("Buffer Length cannot be lower than 32 samples!")
+                _logger.error(
+                    "Buffer Length cannot be lower than 32 samples!",
+                    _logger.ExceptionTypes.ValueError,
+                )
             elif length % 16:
-                raise ValueError("Buffer Length has to be multiple of 16!")
+                _logger.error(
+                    "Buffer Length has to be multiple of 16!",
+                    _logger.ExceptionTypes.ValueError,
+                )
         elif target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
             if length < 16:
-                raise ValueError("Buffer Length cannot be lower than 16 samples!")
+                _logger.error(
+                    "Buffer Length cannot be lower than 16 samples!",
+                    _logger.ExceptionTypes.ValueError,
+                )
             elif length % 8:
-                raise ValueError("Buffer Length has to be multiple of 8!")
+                _logger.error(
+                    "Buffer Length has to be multiple of 8!",
+                    _logger.ExceptionTypes.ValueError,
+                )
         return (
             f"wave w{i + 1}_1 = placeholder({length});\n"
             f"wave w{i + 1}_2 = placeholder({length});\n"
@@ -258,13 +317,25 @@ class SequenceCommand(object):
     def init_gauss(gauss_params):
         length, pos, width = gauss_params
         if length < 16:
-            raise ValueError("Invalid Value for length!")
+            _logger.error(
+                "Invalid Value for length!",
+                _logger.ExceptionTypes.ValueError,
+            )
         if length % 16:
-            raise ValueError("Length has to be multiple of 16!")
+            _logger.error(
+                "Length has to be multiple of 16!",
+                _logger.ExceptionTypes.ValueError,
+            )
         if not (length > pos and length > width):
-            raise ValueError("Length has to be larger than position and width!")
+            _logger.error(
+                "Length has to be larger than position and width!",
+                _logger.ExceptionTypes.ValueError,
+            )
         if not (width > 0):
-            raise ValueError("Values cannot be negative!")
+            _logger.error(
+                "Values cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
+            )
         return (
             f"wave w_1 = gauss({length}, {pos}, {width});\n"
             f"wave w_2 = gauss({length}, {pos}, {width});\n"
@@ -274,15 +345,30 @@ class SequenceCommand(object):
     def init_gauss_scaled(amp, gauss_params):
         length, pos, width = gauss_params
         if abs(amp) > 1:
-            raise ValueError("Amplitude cannot be larger than 1.0!")
+            _logger.error(
+                "Amplitude cannot be larger than 1.0!",
+                _logger.ExceptionTypes.ValueError,
+            )
         if length < 16:
-            raise ValueError("Invalid Value for length!")
+            _logger.error(
+                "Invalid Value for length!",
+                _logger.ExceptionTypes.ValueError,
+            )
         if length % 16:
-            raise ValueError("Length has to be multiple of 16!")
+            _logger.error(
+                "Length has to be multiple of 16!",
+                _logger.ExceptionTypes.ValueError,
+            )
         if not (length > pos and length > width):
-            raise ValueError("Length has to be larger than position and width!")
+            _logger.error(
+                "Length has to be larger than position and width!",
+                _logger.ExceptionTypes.ValueError,
+            )
         if not (width > 0):
-            raise ValueError("Values cannot be negative!")
+            _logger.error(
+                "Values cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
+            )
         return (
             f"wave w_1 = {amp} * gauss({length}, {pos}, {width});\n"
             f"wave w_2 = {amp} * drag({length}, {pos}, {width});\n"
@@ -339,7 +425,10 @@ class SequenceCommand(object):
         """
 
         if index not in [1, 2]:
-            raise ValueError("Invalid Trigger Index!")
+            _logger.error(
+                "Invalid Trigger Index!",
+                _logger.ExceptionTypes.ValueError,
+            )
         if target in [DeviceTypes.HDAWG, DeviceTypes.SHFQA]:
             return f"waitDigTrigger({index});\n"
         elif target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:

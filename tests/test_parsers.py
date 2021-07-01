@@ -3,7 +3,9 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import Parse
+from .context import Parse, parser_logger
+
+parser_logger.disable_logging()
 
 
 @given(st.integers(0, 5))
@@ -27,6 +29,27 @@ def test_get_on_off(n):
             Parse.get_on_off(n)
 
 
+@given(st.integers(0, 3))
+def test_set_true_false(n):
+    map = {0: False, 1: True, 2: 0, 3: 1}
+    val = Parse.set_true_false(map[n])
+    assert val in [0, 1]
+    with pytest.raises(ValueError):
+        Parse.set_true_false([])
+    with pytest.raises(ValueError):
+        Parse.set_true_false("a;kdhf")
+
+
+@given(st.integers(0, 3))
+def test_get_true_false(n):
+    if n < 2:
+        v = Parse.get_true_false(n)
+        assert v in [True, False]
+    else:
+        with pytest.raises(ValueError):
+            Parse.get_true_false(n)
+
+
 @given(st.integers(0, 4))
 def test_get_locked_status(n):
     if n < 3:
@@ -35,6 +58,24 @@ def test_get_locked_status(n):
     else:
         with pytest.raises(ValueError):
             Parse.get_locked_status(n)
+
+
+@given(v=st.floats(-2.0, 2.0), limit=st.floats(-2.0, 2.0))
+def test_greater(v, limit):
+    if v > limit:
+        assert v == Parse.greater(v, limit)
+    else:
+        with pytest.raises(ValueError):
+            Parse.greater(v, limit)
+
+
+@given(v=st.floats(-2.0, 2.0), limit=st.floats(-2.0, 2.0))
+def test_smaller(v, limit):
+    if v < limit:
+        assert v == Parse.smaller(v, limit)
+    else:
+        with pytest.raises(ValueError):
+            Parse.smaller(v, limit)
 
 
 @given(st.floats(0.0001, 1.0))

@@ -7,10 +7,12 @@ import numpy as np
 import json
 import pathlib
 
-from zhinst.toolkit.interface import InstrumentConfiguration
+from zhinst.toolkit.interface import InstrumentConfiguration, LoggerModule
 from zhinst.toolkit.control.connection import ZIConnection
 from zhinst.toolkit.control.drivers import *
-from zhinst.toolkit.control.drivers.base import ToolkitError, BaseInstrument
+from zhinst.toolkit.control.drivers.base import BaseInstrument
+
+_logger = LoggerModule(__name__)
 
 
 class MultiDeviceConnection:
@@ -113,9 +115,12 @@ class MultiDeviceConnection:
         elif isinstance(device, MFLI):
             self._mflis = device
         elif isinstance(device, SHFQA):
-            self.shfqas[device.name] = device
+            self._shfqas[device.name] = device
         else:
-            raise ToolkitError("This device is not recognized!")
+            _logger.error(
+                "This device is not recognized!",
+                _logger.ExceptionTypes.ToolkitError,
+            )
         device.setup(connection=self._shared_connection)
         device.connect_device()
 

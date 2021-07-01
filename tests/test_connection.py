@@ -3,12 +3,9 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import (
-    ZIConnection,
-    DeviceConnection,
-    ToolkitConnectionError,
-    DeviceTypes,
-)
+from .context import ZIConnection, DeviceConnection, DeviceTypes, connection_logger
+
+connection_logger.disable_logging()
 
 
 class Details:
@@ -46,15 +43,15 @@ def test_init_zi_connection():
 
 def test_check_connection():
     c = ZIConnection(Details())
-    with pytest.raises(ToolkitConnectionError):
+    with pytest.raises(connection_logger.ToolkitConnectionError):
         c.connect_device()
-    with pytest.raises(ToolkitConnectionError):
+    with pytest.raises(connection_logger.ToolkitConnectionError):
         c.get("tests/test")
-    with pytest.raises(ToolkitConnectionError):
+    with pytest.raises(connection_logger.ToolkitConnectionError):
         c.get_sample("tests/test")
-    with pytest.raises(ToolkitConnectionError):
+    with pytest.raises(connection_logger.ToolkitConnectionError):
         c.set("tests/test", 1)
-    with pytest.raises(ToolkitConnectionError):
+    with pytest.raises(connection_logger.ToolkitConnectionError):
         c.connect()
 
 
@@ -67,17 +64,17 @@ def test_init_device_connection():
 
 def test_device_connection_connect():
     c = DeviceConnection(Device(), DiscoveryMock())
-    with pytest.raises(ToolkitConnectionError):
+    with pytest.raises(connection_logger.ToolkitConnectionError):
         c.setup()
-    with pytest.raises(ToolkitConnectionError):
+    with pytest.raises(connection_logger.ToolkitConnectionError):
         c.setup(connection=ZIConnection(Details()))
-    with pytest.raises(ToolkitConnectionError):
+    with pytest.raises(connection_logger.ToolkitConnectionError):
         c.connect_device()
-    with pytest.raises(ToolkitConnectionError):
+    with pytest.raises(connection_logger.ToolkitConnectionError):
         c.get("tests/test")
-    with pytest.raises(ToolkitConnectionError):
+    with pytest.raises(connection_logger.ToolkitConnectionError):
         c.set("tests/test", 1)
-    with pytest.raises(ToolkitConnectionError):
+    with pytest.raises(connection_logger.ToolkitConnectionError):
         c.get_nodetree("*")
 
 

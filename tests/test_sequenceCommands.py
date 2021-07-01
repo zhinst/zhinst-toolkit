@@ -7,7 +7,16 @@ import pytest
 from hypothesis import given, assume, strategies as st
 import numpy as np
 
-from .context import SequenceCommand, DeviceTypes, SequenceType, TriggerMode, Alignment
+from .context import (
+    SequenceCommand,
+    DeviceTypes,
+    SequenceType,
+    TriggerMode,
+    Alignment,
+    sequence_command_logger,
+)
+
+sequence_command_logger.disable_logging()
 
 
 @given(t=st.integers(0, 3))

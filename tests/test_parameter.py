@@ -3,8 +3,9 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import Parameter, ToolkitNodeTreeError
+from .context import Parameter, nodetree_logger
 
+nodetree_logger.disable_logging()
 
 DUMMY_PARAMETER = {
     "Node": "test/bla/blub",
@@ -68,7 +69,7 @@ def test_set_get_readonly():
     params["Properties"] = "Read"
     p = Parameter(parent, DUMMY_PARAMETER)
     p()
-    with pytest.raises(ToolkitNodeTreeError):
+    with pytest.raises(nodetree_logger.ToolkitNodeTreeError):
         p(0)
 
 
@@ -80,5 +81,5 @@ def test_set_get_writeonly(v):
     params["Properties"] = "Write"
     p = Parameter(parent, DUMMY_PARAMETER)
     p(v)
-    with pytest.raises(ToolkitNodeTreeError):
+    with pytest.raises(nodetree_logger.ToolkitNodeTreeError):
         p()

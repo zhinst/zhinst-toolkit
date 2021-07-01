@@ -8,14 +8,13 @@ import attr
 import numpy as np
 from pathlib import Path
 import deprecation
-import logging
 
 from .sequence_commands import SequenceCommand
 from .utils import SequenceType, TriggerMode, Alignment
-from zhinst.toolkit.interface import DeviceTypes
+from zhinst.toolkit.interface import DeviceTypes, LoggerModule
 from zhinst.toolkit._version import version as __version__
 
-_logger = logging.getLogger(__name__)
+_logger = LoggerModule(__name__)
 
 
 def is_greater_equal(min_value):
@@ -30,7 +29,10 @@ def is_greater_equal(min_value):
         if type(value) is not list:
             value = [value]
         if np.min(value) < min_value:
-            raise ValueError(f"{attribute.name} cannot be smaller than {min_value}!")
+            _logger.error(
+                f"{attribute.name} cannot be smaller than {min_value}!",
+                _logger.ExceptionTypes.ValueError,
+            )
 
     return compare
 
@@ -47,7 +49,10 @@ def is_smaller_equal(max_value):
         if type(value) is not list:
             value = [value]
         if np.max(value) > max_value:
-            raise ValueError(f"{attribute.name} cannot be greater than {max_value}!")
+            _logger.error(
+                f"{attribute.name} cannot be greater than {max_value}!",
+                _logger.ExceptionTypes.ValueError,
+            )
 
     return compare
 
@@ -68,7 +73,10 @@ def is_multiple(factor):
             value = [value]
         for i in value:
             if i % factor != 0:
-                raise ValueError(f"{attribute.name} must be multiple of {factor}!")
+                _logger.error(
+                    f"{attribute.name} must be multiple of {factor}!",
+                    _logger.ExceptionTypes.ValueError,
+                )
 
     return compare
 
@@ -352,7 +360,10 @@ class Sequence(object):
     def check_attributes(self):
         """Performs sanity checks on the sequence parameters."""
         if (self.period - self.dead_time - self.latency + self.trigger_delay) < 0:
-            raise ValueError("Wait time cannot be negative!")
+            _logger.error(
+                "Wait time cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
+            )
 
     def __setattr__(self, name, value) -> None:
         """Call the validator when we set the field (by default it only runs on __init__)"""
@@ -361,8 +372,10 @@ class Sequence(object):
         ]:
             if attribute.type is not None:
                 if isinstance(value, attribute.type) is False:
-                    raise TypeError(
-                        f"{self.__class__.__name__}.{attribute.name} cannot set {value} because it is not a {attribute.type.__name__}"
+                    _logger.error(
+                        f"{self.__class__.__name__}.{attribute.name} cannot set "
+                        f"{value} because it is not a {attribute.type.__name__}",
+                        _logger.ExceptionTypes.TypeError,
                     )
             if attribute.converter is not None:
                 value = attribute.converter(value)
@@ -486,8 +499,9 @@ class SimpleSequence(Sequence):
     def check_attributes(self):
         super().check_attributes()
         if len(self.buffer_lengths) > self.n_HW_loop:
-            raise ValueError(
-                "Length of list buffer_lengths has to be equal to length of HW loop!"
+            _logger.error(
+                "Length of list buffer_lengths has to be equal to length of HW loop!",
+                _logger.ExceptionTypes.ValueError,
             )
 
 
@@ -535,9 +549,9 @@ class TriggerSequence(Sequence):
             TriggerMode.SEND_AND_RECEIVE_TRIGGER,
         ]:
             _logger.warning(
-                f"The selected trigger mode {self.trigger_mode.value} does not work \n"
-                f"with Master Trigger sequence. The trigger mode is set \n"
-                f"to {TriggerMode.SEND_TRIGGER.value}."
+                f"The selected trigger mode {self.trigger_mode.value} does not work "
+                f"with Master Trigger sequence. The trigger mode is set to "
+                f"{TriggerMode.SEND_TRIGGER.value}."
             )
             self.trigger_mode = TriggerMode.SEND_TRIGGER
         # Call the parent function to update all parameters that depend
@@ -632,10 +646,14 @@ class RabiSequence(Sequence):
         if (
             self.period - self.dead_time - 2 * self.pulse_width * self.pulse_truncation
         ) < 0:
-            raise ValueError("Wait time cannot be negative!")
+            _logger.error(
+                "Wait time cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
+            )
         if self.n_HW_loop < len(self.pulse_amplitudes):
-            raise ValueError(
-                "Length of hardware loop too long for number of specified amplitudes!"
+            _logger.error(
+                "Length of hardware loop too long for number of specified amplitudes!",
+                _logger.ExceptionTypes.ValueError,
             )
 
 
@@ -712,10 +730,14 @@ class T1Sequence(Sequence):
     def check_attributes(self):
         super().check_attributes()
         if (self.period - self.dead_time - self.gauss_params[0] / self.clock_rate) < 0:
-            raise ValueError("Wait time cannot be negative!")
+            _logger.error(
+                "Wait time cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
+            )
         if self.n_HW_loop > len(self.delay_times):
-            raise ValueError(
-                "Length of hardware loop too long for number of specified delay times!"
+            _logger.error(
+                "Length of hardware loop too long for number of specified delay times!",
+                _logger.ExceptionTypes.ValueError,
             )
 
 
@@ -1012,10 +1034,16 @@ class PulsedSpectroscopySequence(Sequence):
             if (
                 self.period - self.dead_time + self.trigger_delay - self.pulse_length
             ) < 0:
-                raise ValueError("Wait time cannot be shorter than pulse length!")
+                _logger.error(
+                    "Wait time cannot be shorter than pulse length!",
+                    _logger.ExceptionTypes.ValueError,
+                )
         elif self.alignment == Alignment.START_WITH_TRIGGER:
             if (self.dead_time - self.trigger_delay - self.pulse_length) < 0:
-                raise ValueError("Dead time cannot be shorter than pulse length!")
+                _logger.error(
+                    "Dead time cannot be shorter than pulse length!",
+                    _logger.ExceptionTypes.ValueError,
+                )
 
 
 @attr.s
@@ -1104,4 +1132,7 @@ class CustomSequence(Sequence):
         if self.path:
             p = Path(self.path)
             if p.suffix != ".seqc":
-                raise ValueError("Specified file is not a .seqc file!")
+                _logger.error(
+                    "Specified file is not a .seqc file!",
+                    _logger.ExceptionTypes.ValueError,
+                )
