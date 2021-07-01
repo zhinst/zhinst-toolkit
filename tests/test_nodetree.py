@@ -3,8 +3,9 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import NodeTree, Node, NodeList
+from .context import NodeTree, Node, NodeList, nodetree_logger
 
+nodetree_logger.disable_logging()
 
 DUMMY_PARAMETER = {
     "Node": "test/bla/blub",

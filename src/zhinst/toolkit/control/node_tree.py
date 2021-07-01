@@ -7,9 +7,9 @@ import numpy as np
 import re
 from typing import List, Dict, Callable
 
+from zhinst.toolkit.interface import LoggerModule
 
-class ToolkitNodeTreeError(Exception):
-    pass
+_logger = LoggerModule(__name__)
 
 
 class Parameter:
@@ -122,8 +122,9 @@ class Parameter:
             if self._map is not None:
                 allowed_values = list(self._map.keys())
                 if value not in allowed_values:
-                    raise ToolkitNodeTreeError(
-                        f"The value '{value}' is not in {allowed_values}."
+                    _logger.error(
+                        f"The value '{value}' is not in {allowed_values}.",
+                        _logger.ExceptionTypes.ValueError,
                     )
                 value = self._map[value]
                 # If the mapping has more than one value assigned to the
@@ -133,7 +134,10 @@ class Parameter:
             self._cached_value = self._get_parser(value)
             return self._cached_value
         else:
-            raise ToolkitNodeTreeError("This parameter is not gettable!")
+            _logger.error(
+                "This parameter is not gettable!",
+                _logger.ExceptionTypes.ToolkitNodeTreeError,
+            )
 
     def _setter(self, value):
         """Implements a setter for the :class:`Parameter`.
@@ -159,16 +163,18 @@ class Parameter:
                     # Construct a list from all allowed values in the mapping
                     allowed_values = self._flatten_mapping_values()
                     if value not in allowed_values:
-                        raise ToolkitNodeTreeError(
-                            f"The value '{value}' is not in {allowed_values}."
+                        _logger.error(
+                            f"The value '{value}' is not in {allowed_values}.",
+                            _logger.ExceptionTypes.ValueError,
                         )
                     inverse_map = self._invert_mapping()
                     value = inverse_map[value]
                 elif self._map is not None and isinstance(value, int):
                     allowed_values = list(self._map.keys())
                     if value not in allowed_values:
-                        raise ToolkitNodeTreeError(
-                            f"The value '{value}' is not in {allowed_values}."
+                        _logger.error(
+                            f"The value '{value}' is not in {allowed_values}.",
+                            _logger.ExceptionTypes.ValueError,
                         )
                 # If the set_parser is a list of callables, call them
                 # one by one inside a loop
@@ -189,7 +195,10 @@ class Parameter:
                 self._cached_value = self._get_parser(value)
             return self._cached_value
         else:
-            raise ToolkitNodeTreeError("This parameter is not settable!")
+            _logger.error(
+                "This parameter is not settable!",
+                _logger.ExceptionTypes.ToolkitNodeTreeError,
+            )
 
     def _invert_mapping(self):
         """Invert the map dictionary to create inverse mapping."""
@@ -230,10 +239,10 @@ class Parameter:
         a mapping will be automatically constructed from the options.
         The key values are converted from str to int."""
         if self._options is None:
-            raise ToolkitNodeTreeError(
-                "Automatic mapping cannot be constructed. "
-                "This node does not contain any information "
-                "regarding the allowed options!"
+            _logger.error(
+                "Automatic mapping cannot be constructed. This node does not "
+                "contain any information regarding the allowed options!",
+                _logger.ExceptionTypes.ToolkitNodeTreeError,
             )
         elif self._options is not None:
             map_from_options = {}

@@ -5,7 +5,7 @@
 
 
 from zhinst.ziPython import ziDiscovery
-from zhinst.toolkit import HDAWG, UHFQA, UHFLI, MFLI, PQSC, SHFQA, MultiDeviceConnection
+from zhinst.toolkit import HDAWG, UHFQA, UHFLI, MFLI, PQSC, SHFQA
 from zhinst.toolkit.control.drivers.uhfqa import AWG as UHFQA_AWG, ReadoutChannel
 from zhinst.toolkit.control.drivers.hdawg import AWG as HDAWG_AWG
 from zhinst.toolkit.control.drivers.shfqa import (
@@ -25,7 +25,7 @@ from zhinst.toolkit.control.drivers.uhfli import (
 from zhinst.toolkit.control.connection import (
     ZIConnection,
     DeviceConnection,
-    ToolkitConnectionError,
+    _logger as connection_logger,
 )
 from zhinst.toolkit.control.drivers.base import (
     BaseInstrument,
@@ -39,9 +39,18 @@ from zhinst.toolkit.control.node_tree import (
     Parameter,
     NodeList,
     Node,
-    ToolkitNodeTreeError,
+    _logger as nodetree_logger,
 )
-from zhinst.toolkit.control.parsers import Parse
-from zhinst.toolkit.helpers import Waveform, SequenceCommand, SequenceProgram
+from zhinst.toolkit.control.parsers import Parse, _logger as parser_logger
+from zhinst.toolkit.helpers.sequence_commands import (
+    SequenceCommand,
+    _logger as sequence_command_logger,
+)
+from zhinst.toolkit.helpers.sequences import _logger as sequences_logger
+from zhinst.toolkit.helpers.waveform import Waveform, _logger as waveform_logger
+from zhinst.toolkit.helpers import SequenceProgram
 from zhinst.toolkit import SequenceType, TriggerMode, Alignment
-from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes
+from zhinst.toolkit.interface import (
+    InstrumentConfiguration,
+    DeviceTypes,
+)

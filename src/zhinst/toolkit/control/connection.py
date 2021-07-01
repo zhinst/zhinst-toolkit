@@ -5,14 +5,10 @@
 
 import json
 
-from zhinst.toolkit.interface import DeviceTypes
+from zhinst.toolkit.interface import DeviceTypes, LoggerModule
 import zhinst.ziPython as zi
 
-
-class ToolkitConnectionError(Exception):
-    """Exception specific to the zhinst.toolkit ZIConnection class."""
-
-    pass
+_logger = LoggerModule(__name__)
 
 
 class ZIConnection:
@@ -51,8 +47,8 @@ class ZIConnection:
         is used for all communication to the data server.
 
         Raises:
-            ToolkitConnectionError: if connection to the Data Server could not
-                be established
+            ToolkitConnectionError: If connection to the Data Server
+                could not be established
 
         """
         try:
@@ -62,9 +58,10 @@ class ZIConnection:
                 self._connection_details.api,
             )
         except RuntimeError:
-            raise ToolkitConnectionError(
-                f"No connection could be established with the connection details:"
-                f"{self._connection_details}"
+            _logger.error(
+                f"No connection could be established with the connection details: "
+                f"{self._connection_details}",
+                _logger.ExceptionTypes.ToolkitConnectionError,
             )
         if self._daq is not None:
             print(
@@ -77,9 +74,10 @@ class ZIConnection:
             self._daq_module = DAQModuleConnection(self._daq)
             self._sweeper_module = SweeperModuleConnection(self._daq)
         else:
-            raise ToolkitConnectionError(
-                f"No connection could be established with the connection details:"
-                f"{self._connection_details}"
+            _logger.error(
+                f"No connection could be established with the connection details: "
+                f"{self._connection_details}",
+                _logger.ExceptionTypes.ToolkitConnectionError,
             )
 
     @property
@@ -95,14 +93,20 @@ class ZIConnection:
                 'usb'
 
         Raises:
-            ToolkitConnectionError if the could not be established.
+            ToolkitConnectionError: If the connection could not be
+                established.
 
         """
         if self._daq is None:
-            raise ToolkitConnectionError("No existing connection to data server")
+            _logger.error(
+                "No existing connection to data server",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         if any(k is None for k in [serial, interface]):
-            raise ToolkitConnectionError(
-                "To connect a Zurich Instruments' device, youd need a serial and an interface [1gbe or usb]"
+            _logger.error(
+                "To connect a Zurich Instruments' device, youd need a serial and an "
+                "interface [1gbe or usb]",
+                _logger.ExceptionTypes.ToolkitConnectionError,
             )
         self._daq.connectDevice(serial, interface)
         print(
@@ -119,14 +123,18 @@ class ZIConnection:
         Passes all arguments to the undelying method.
 
         Raises:
-            ToolkitConnectionError: is the connection is not yet established
+            ToolkitConnectionError: If the connection is not yet
+                established
 
         Returns:
             the value returned from `daq.set(...)`
 
         """
         if not self.established:
-            raise ToolkitConnectionError("The connection is not yet established.")
+            _logger.error(
+                "The connection is not yet established.",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         return self._daq.set(*args)
 
     def setVector(self, *args):
@@ -135,11 +143,15 @@ class ZIConnection:
         Passes all arguments to the underlying method.
 
         Raises:
-            ToolkitConnectionError: is the connection is not yet established
+            ToolkitConnectionError: If the connection is not yet
+                established
 
         """
         if not self.established:
-            raise ToolkitConnectionError("The connection is not yet established.")
+            _logger.error(
+                "The connection is not yet established.",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         for setting in args[0]:
             self._daq.setVector(setting[0], setting[1])
 
@@ -149,14 +161,18 @@ class ZIConnection:
         Passes all arguments and keyword arguments to the underlying method.
 
         Raises:
-            ToolkitConnectionError: is the connection is not yet established
+            ToolkitConnectionError: If the connection is not yet
+                established
 
         Returns:
             the value returned from `daq.get(...)`
 
         """
         if not self.established:
-            raise ToolkitConnectionError("The connection is not yet established.")
+            _logger.error(
+                "The connection is not yet established.",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         return self._daq.get(*args, **kwargs)
 
     def get_sample(self, *args, **kwargs):
@@ -166,14 +182,18 @@ class ZIConnection:
         Used only for certain streaming nodes on the UHFLI or MFLI devices.
 
         Raises:
-            ToolkitConnectionError: is the connection is not yet established
+            ToolkitConnectionError: Is the connection is not yet
+                established
 
         Returns:
             the value returned from `daq.getSample(...)`
 
         """
         if not self.established:
-            raise ToolkitConnectionError("The connection is not yet established.")
+            _logger.error(
+                "The connection is not yet established.",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         return self._daq.getSample(*args, **kwargs)
 
     def list_nodes(self, *args, **kwargs):
@@ -182,14 +202,18 @@ class ZIConnection:
         Passes all arguments and keyword arguemnts to the undelying method.
 
         Raises:
-            ToolkitConnectionError: is the connection is not yet established
+            ToolkitConnectionError: If the connection is not yet
+                established
 
         Returns:
             the value returned from `daq.listNodesJSON(...)`
 
         """
         if not self.established:
-            raise ToolkitConnectionError("The connection is not yet established.")
+            _logger.error(
+                "The connection is not yet established.",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         return self._daq.listNodesJSON(*args, **kwargs)
 
     @property
@@ -445,8 +469,9 @@ class DeviceConnection(object):
             discovered_serial = device_props["deviceid"]
             return discovered_serial.lower()
         except RuntimeError:
-            raise ToolkitConnectionError(
-                f"Failed to discover a device with serial {serial}"
+            _logger.error(
+                f"Failed to discover a device with serial {serial}",
+                _logger.ExceptionTypes.ToolkitConnectionError,
             )
 
     def connect_device(self):
@@ -470,7 +495,7 @@ class DeviceConnection(object):
         the API.
 
         Raises:
-            ToolkitConnectionError if is the input arguemnts are invalid.
+            ToolkitConnectionError: If the input arguments are invalid.
 
         Returns:
             The set value as returned from the API.
@@ -481,7 +506,10 @@ class DeviceConnection(object):
         elif len(args) == 1:
             settings = args[0]
         else:
-            raise ToolkitConnectionError("Invalid number of arguments!")
+            _logger.error(
+                "Invalid number of arguments!",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         settings = self._commands_to_node(settings)
         return self._connection.set(settings)
 
@@ -493,7 +521,8 @@ class DeviceConnection(object):
         the daq.setVector(...) of the API.
 
         Raises:
-            ToolkitConnectionError if is the input arguments are invalid.
+            ToolkitConnectionError: If is the input arguments are
+                invalid.
 
         """
         if len(args) == 2:
@@ -501,7 +530,10 @@ class DeviceConnection(object):
         elif len(args) == 1:
             settings = args[0]
         else:
-            raise ToolkitConnectionError("Invalid number of arguments!")
+            _logger.error(
+                "Invalid number of arguments!",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         settings = self._commands_to_node(settings)
         self._connection.setVector(settings)
 
@@ -535,7 +567,10 @@ class DeviceConnection(object):
             elif isinstance(command, str):
                 node_string = self._command_to_node(command)
             else:
-                raise ToolkitConnectionError("Invalid argument!")
+                _logger.error(
+                    "Invalid argument!",
+                    _logger.ExceptionTypes.ToolkitConnectionError,
+                )
             if (
                 self._device.device_type in [DeviceTypes.UHFLI, DeviceTypes.MFLI]
                 and "sample" in command.lower()
@@ -553,7 +588,10 @@ class DeviceConnection(object):
             else:
                 return data
         else:
-            raise ToolkitConnectionError("No device connected!")
+            _logger.error(
+                "No device connected!",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
 
     def get_nodetree(self, prefix: str, **kwargs):
         """Gets the entire nodetree of the connected device.
@@ -590,9 +628,15 @@ class DeviceConnection(object):
 
         """
         if not isinstance(data, dict):
-            raise ToolkitConnectionError("Something went wrong...")
+            _logger.error(
+                "Something went wrong...",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         if not len(data):
-            raise ToolkitConnectionError("No data returned... does the node exist?")
+            _logger.error(
+                "No data returned... does the node exist?",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         new_data = dict()
         for key, data_dict in data.items():
             key = key.replace(f"/{self.normalized_serial}/", "")
@@ -618,11 +662,20 @@ class DeviceConnection(object):
 
         """
         if not isinstance(data, dict):
-            raise ToolkitConnectionError("Something went wrong...")
+            _logger.error(
+                "Something went wrong...",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         if not len(data):
-            raise ToolkitConnectionError("No data returned... does the node exist?")
+            _logger.error(
+                "No data returned... does the node exist?",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         if "x" not in data.keys() or "y" not in data.keys():
-            raise ToolkitConnectionError("No 'x' or 'y' in streaming node data!")
+            _logger.error(
+                "No 'x' or 'y' in streaming node data!",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
         return data["x"][0] + 1j * data["y"][0]
 
     def _commands_to_node(self, settings):
@@ -647,11 +700,15 @@ class DeviceConnection(object):
         for args in settings:
             try:
                 if len(args) != 2:
-                    raise ToolkitConnectionError(
-                        "node/value must be specified as pairs!"
+                    _logger.error(
+                        "node/value must be specified as pairs!",
+                        _logger.ExceptionTypes.ToolkitConnectionError,
                     )
             except TypeError:
-                raise ToolkitConnectionError("node/value must be specified as pairs!")
+                _logger.error(
+                    "node/value must be specified as pairs!",
+                    _logger.ExceptionTypes.ToolkitConnectionError,
+                )
             new_settings.append((self._command_to_node(args[0]), args[1]))
         return new_settings
 

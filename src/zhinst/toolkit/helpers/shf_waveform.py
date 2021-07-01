@@ -5,6 +5,10 @@
 
 import numpy as np
 
+from zhinst.toolkit.interface import LoggerModule
+
+_logger = LoggerModule(__name__)
+
 
 class SHFWaveform(object):
     """Implements a waveform for single channel.
@@ -53,7 +57,10 @@ class SHFWaveform(object):
             self._wave = wave
             self._update()
         else:
-            raise Exception("Waveform lengths don't match!")
+            _logger.error(
+                "Waveform lengths don't match!",
+                _logger.ExceptionTypes.ToolkitError,
+            )
 
     @property
     def data(self):

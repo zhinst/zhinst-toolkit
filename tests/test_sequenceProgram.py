@@ -8,7 +8,18 @@ from hypothesis import given, assume, strategies as st
 from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
 import numpy as np
 
-from .context import SequenceProgram, SequenceType, TriggerMode, Alignment, DeviceTypes
+from .context import (
+    SequenceProgram,
+    SequenceType,
+    TriggerMode,
+    Alignment,
+    DeviceTypes,
+    sequence_command_logger,
+    sequences_logger,
+)
+
+sequence_command_logger.disable_logging()
+sequences_logger.disable_logging()
 
 
 class SequenceProgramMachine(RuleBasedStateMachine):
