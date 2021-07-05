@@ -120,9 +120,7 @@ class SHFQA(BaseInstrument):
             get_parser=Parse.get_locked_status,
         )
         self.timebase = Parameter(
-            self,
-            self._get_node_dict(f"system/properties/timebase"),
-            device=self,
+            self, self._get_node_dict(f"system/properties/timebase"), device=self,
         )
 
     def set_trigger_loopback(self):
@@ -576,9 +574,7 @@ class Scope(SHFScope):
 
     def _init_scope_params(self):
         self.enable = Parameter(
-            self,
-            self._parent._get_node_dict(f"scopes/0/enable"),
-            device=self._parent,
+            self, self._parent._get_node_dict(f"scopes/0/enable"), device=self._parent,
         )
         self.channel1 = Parameter(
             self,

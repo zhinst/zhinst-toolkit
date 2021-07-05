@@ -7,23 +7,10 @@ from zhinst.toolkit.control.node_tree import Parameter
 
 
 MAPPINGS = {
-    "bandwidthcontrol": {
-        0: "manual",
-        1: "fixed",
-        2: "automatic",
-    },
-    "save_fileformat": {
-        0: "matlab",
-        1: "csv",
-        2: "zview",
-        3: "sxm",
-        4: "hdf5",
-    },
+    "bandwidthcontrol": {0: "manual", 1: "fixed", 2: "automatic",},
+    "save_fileformat": {0: "matlab", 1: "csv", 2: "zview", 3: "sxm", 4: "hdf5",},
     "scan": {0: "sequential", 1: "binary", 2: "bidirectional", 3: "reverse"},
-    "xmapping": {
-        0: "linear",
-        1: "logarithmic",
-    },
+    "xmapping": {0: "linear", 1: "logarithmic",},
     "signal_sources": {
         "demod0": "/demods/0/sample",
         "demod1": "/demods/1/sample",
