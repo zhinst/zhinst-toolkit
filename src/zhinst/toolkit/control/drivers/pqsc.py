@@ -226,9 +226,7 @@ class PQSC(BaseInstrument):
             get_parser=Parse.get_locked_status,
         )
         self.progress = Parameter(
-            self,
-            self._get_node_dict(f"execution/progress"),
-            device=self,
+            self, self._get_node_dict(f"execution/progress"), device=self,
         )
         self._enable = Parameter(
             self,

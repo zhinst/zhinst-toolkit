@@ -7,11 +7,7 @@ from zhinst.toolkit.control.node_tree import Parameter
 
 
 MAPPINGS = {
-    "edge": {
-        1: "rising",
-        2: "falling",
-        3: "both",
-    },
+    "edge": {1: "rising", 2: "falling", 3: "both",},
     "eventcount_mode": {0: "sample", 1: "increment"},
     "fft_window": {
         0: "rectangular",
@@ -23,23 +19,9 @@ MAPPINGS = {
         17: "sine",
         18: "cosine_squared",
     },
-    "grid_direction": {
-        0: "forward",
-        1: "reverse",
-        2: "bidirectional",
-    },
-    "grid_mode": {
-        1: "nearest",
-        2: "linear",
-        4: "exact",
-    },
-    "save_fileformat": {
-        0: "matlab",
-        1: "csv",
-        2: "zview",
-        3: "sxm",
-        4: "hdf5",
-    },
+    "grid_direction": {0: "forward", 1: "reverse", 2: "bidirectional",},
+    "grid_mode": {1: "nearest", 2: "linear", 4: "exact",},
+    "save_fileformat": {0: "matlab", 1: "csv", 2: "zview", 3: "sxm", 4: "hdf5",},
     "type": {
         0: "continuous",
         1: "edge",
@@ -145,10 +127,7 @@ class DAQModule:
         # the `streaming_nodes` are used as all available signal sources for the data acquisition
         self._signal_sources = self._parent._get_streamingnodes()
         self._signal_types = {
-            "auxin": {
-                "auxin1": ".Auxin0",
-                "auxin2": ".Auxin1",
-            },
+            "auxin": {"auxin1": ".Auxin0", "auxin2": ".Auxin1",},
             "demod": {
                 "x": ".X",
                 "y": ".Y",

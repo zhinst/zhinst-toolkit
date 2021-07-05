@@ -22,10 +22,7 @@ MAPPINGS = {
         5: "Threshold Correlation",
         7: "Integration",
     },
-    "averaging_mode": {
-        0: "Cyclic",
-        1: "Sequential",
-    },
+    "averaging_mode": {0: "Cyclic", 1: "Sequential",},
 }
 
 
@@ -398,10 +395,7 @@ class UHFQA(BaseInstrument):
             mapping=MAPPINGS["averaging_mode"],
         )
         self.ref_clock = Parameter(
-            self,
-            self._get_node_dict(f"system/extclk"),
-            device=self,
-            auto_mapping=True,
+            self, self._get_node_dict(f"system/extclk"), device=self, auto_mapping=True,
         )
 
     def _init_settings(self):
@@ -673,9 +667,7 @@ class AWG(AWGCore):
                     amps.append(ch.readout_amplitude())
                     phases.append(ch.phase_shift())
             self.set_sequence_params(
-                readout_frequencies=freqs,
-                readout_amplitudes=amps,
-                phase_shifts=phases,
+                readout_frequencies=freqs, readout_amplitudes=amps, phase_shifts=phases,
             )
         else:
             raise ToolkitError("AWG Sequence type needs to be 'Readout'")

@@ -483,8 +483,7 @@ class DeviceConnection(object):
             self.normalized_serial = self._device.serial
 
         self._connection.connect_device(
-            serial=self.normalized_serial,
-            interface=self._device.interface,
+            serial=self.normalized_serial, interface=self._device.interface,
         )
 
     def set(self, *args):
@@ -568,8 +567,7 @@ class DeviceConnection(object):
                 node_string = self._command_to_node(command)
             else:
                 _logger.error(
-                    "Invalid argument!",
-                    _logger.ExceptionTypes.ToolkitConnectionError,
+                    "Invalid argument!", _logger.ExceptionTypes.ToolkitConnectionError,
                 )
             if (
                 self._device.device_type in [DeviceTypes.UHFLI, DeviceTypes.MFLI]
@@ -589,8 +587,7 @@ class DeviceConnection(object):
                 return data
         else:
             _logger.error(
-                "No device connected!",
-                _logger.ExceptionTypes.ToolkitConnectionError,
+                "No device connected!", _logger.ExceptionTypes.ToolkitConnectionError,
             )
 
     def get_nodetree(self, prefix: str, **kwargs):

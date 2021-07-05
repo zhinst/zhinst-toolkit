@@ -118,8 +118,7 @@ class MultiDeviceConnection:
             self._shfqas[device.name] = device
         else:
             _logger.error(
-                "This device is not recognized!",
-                _logger.ExceptionTypes.ToolkitError,
+                "This device is not recognized!", _logger.ExceptionTypes.ToolkitError,
             )
         device.setup(connection=self._shared_connection)
         device.connect_device()
