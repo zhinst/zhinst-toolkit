@@ -4,8 +4,7 @@
 # of the MIT license. See the LICENSE file for details.
 
 import pytest
-from hypothesis import given, assume, strategies as st
-import numpy as np
+from hypothesis import given, strategies as st
 
 from .context import (
     SequenceCommand,
