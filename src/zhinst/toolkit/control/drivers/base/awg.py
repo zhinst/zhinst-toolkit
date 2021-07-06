@@ -105,7 +105,7 @@ class AWGCore:
         self.set_sequence_params(target=self._parent.device_type)
 
     def _setup(self):
-        self._module = self._parent._controller._connection.awg_module
+        self._module = self._parent._controller.connection.awg_module
 
     def _init_awg_params(self):
         """Initialize parameters associated with device AWG nodes.

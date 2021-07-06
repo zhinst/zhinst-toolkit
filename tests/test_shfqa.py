@@ -10,7 +10,10 @@ from .context import (
     SequenceType,
     TriggerMode,
     ToolkitError,
+    shfqa_logger,
 )
+
+shfqa_logger.disable_logging()
 
 
 def test_init_shfqa():
@@ -31,10 +34,10 @@ def test_init_shfqa():
     assert qa.allowed_trigger_modes == [
         TriggerMode.NONE,
     ]
-    with pytest.raises(AttributeError):
+    with pytest.raises(shfqa_logger.ToolkitConnectionError):
         qa._init_channels()
-    with pytest.raises(TypeError):
+    with pytest.raises(shfqa_logger.ToolkitConnectionError):
         qa._init_scope()
-    with pytest.raises(ToolkitError):
+    with pytest.raises(shfqa_logger.ToolkitConnectionError):
         qa._init_params()
     qa._init_settings()

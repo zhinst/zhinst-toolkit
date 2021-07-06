@@ -14,10 +14,11 @@ _logger = LoggerModule(__name__)
 class ZIConnection:
     """Connection to a Zurich Instruments data server object.
 
-    Wraps around the basic functionality of connecting to the dataserver,
-    connecting a device to the server, and setting and getting node values. It
-    also holds an awg module object that implements the `daq.awgModule` module
-    as well as DAQ module and Sweeper Module connections.
+    Wraps around the basic functionality of connecting to the
+    data server, connecting a device to the server, and setting and
+    getting node values. It also holds an awg module object that
+    implements the `daq.awgModule` module as well as DAQ module and
+    Sweeper Module connections.
 
     Arguments:
         connection_details: Part of the instrument config.
@@ -27,7 +28,8 @@ class ZIConnection:
         daq (zi.ziDAQServer): data server object from zhinst.ziPython
 
     Properties:
-        established (bool): A flag showing if a connection has been established.
+        established (bool): A flag showing if a connection has been
+            established.
         awg_module (AWGModuleConnection)
         daq_module (DAQModuleConnection)
         sweeper_module (SweeperModuleConnection)
@@ -37,7 +39,9 @@ class ZIConnection:
     def __init__(self, connection_details):
         self._connection_details = connection_details
         self._daq = None
-        self._awg = None
+        self._awg_module = None
+        self._daq_module = None
+        self._sweeper_module = None
 
     def connect(self):
         """Established a connection to the data server.
@@ -104,7 +108,7 @@ class ZIConnection:
             )
         if any(k is None for k in [serial, interface]):
             _logger.error(
-                "To connect a Zurich Instruments' device, youd need a serial and an "
+                "To connect a Zurich Instruments' device, you need a serial and an "
                 "interface [1gbe or usb]",
                 _logger.ExceptionTypes.ToolkitConnectionError,
             )
@@ -137,7 +141,7 @@ class ZIConnection:
             )
         return self._daq.set(*args)
 
-    def setVector(self, *args):
+    def set_vector(self, *args):
         """Wrapper around the `zi.ziDAQServer.setVector()` method of the API.
 
         Passes all arguments to the underlying method.
@@ -215,6 +219,16 @@ class ZIConnection:
                 _logger.ExceptionTypes.ToolkitConnectionError,
             )
         return self._daq.listNodesJSON(*args, **kwargs)
+
+    @property
+    def daq(self):
+        if self._daq is None:
+            _logger.error(
+                "No existing connection to data server",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
+        else:
+            return self._daq
 
     @property
     def awg_module(self):
@@ -438,14 +452,24 @@ class DeviceConnection(object):
         connection (ZIConnection): Data server connection (common for more
             than one instrument).
         device (BaseInstrument): Associated instrument that is addressed.
+        normalized_serial (str): Serial number of the device written in
+            lowercase.
+        discovery (ziDiscovery): The ziDiscovery instant passed as
+            argument
+        is_established (bool): A flag that shows if a connection to the
+            data server is established.
+        is_connected (bool): A flag that shows if the instrument is
+            connected to the data server.
 
     """
 
     def __init__(self, device, discovery):
         self._connection = None
         self._device = device
-        self.normalized_serial = None
-        self.discovery = discovery
+        self._normalized_serial = None
+        self._discovery = discovery
+        self._is_established = False
+        self._is_connected = False
 
     def setup(self, connection: ZIConnection = None):
         """Establishes the connection to the data server.
@@ -462,10 +486,11 @@ class DeviceConnection(object):
             self._connection = connection
         if not self._connection.established:
             self._connection.connect()
+        self._is_established = True
 
     def _normalize_serial(self, serial):
         try:
-            device_props = self.discovery.get(self.discovery.find(serial))
+            device_props = self._discovery.get(self._discovery.find(serial))
             discovered_serial = device_props["deviceid"]
             return discovered_serial.lower()
         except RuntimeError:
@@ -476,15 +501,20 @@ class DeviceConnection(object):
 
     def connect_device(self):
         """Connects the device to the data server."""
-
-        if self.discovery is not None:
-            self.normalized_serial = self._normalize_serial(self._device.serial)
+        # First, check if a connection to the data server is established
+        if not self._is_established:
+            _logger.error(
+                "Connection to the data server is not established.",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
+        if self._discovery is not None:
+            self._normalized_serial = self._normalize_serial(self._device.serial)
         else:
-            self.normalized_serial = self._device.serial
-
+            self._normalized_serial = self._device.serial
         self._connection.connect_device(
-            serial=self.normalized_serial, interface=self._device.interface,
+            serial=self._normalized_serial, interface=self._device.interface,
         )
+        self._is_connected = True
 
     def set(self, *args):
         """Sets the value of the node for the connected device.
@@ -512,7 +542,7 @@ class DeviceConnection(object):
         settings = self._commands_to_node(settings)
         return self._connection.set(settings)
 
-    def setVector(self, *args):
+    def set_vector(self, *args):
         """Sets the vector value of the node for the connected device.
 
         Parses the input arguments to either set a single node/vector
@@ -534,7 +564,7 @@ class DeviceConnection(object):
                 _logger.ExceptionTypes.ToolkitConnectionError,
             )
         settings = self._commands_to_node(settings)
-        self._connection.setVector(settings)
+        self._connection.set_vector(settings)
 
     def get(self, command, valueonly=True):
         """Gets the value of the node for the connected device.
@@ -636,7 +666,7 @@ class DeviceConnection(object):
             )
         new_data = dict()
         for key, data_dict in data.items():
-            key = key.replace(f"/{self.normalized_serial}/", "")
+            key = key.replace(f"/{self._normalized_serial}/", "")
             if isinstance(data_dict, list):
                 data_dict = data_dict[0]
             if "value" in data_dict.keys():
@@ -731,3 +761,37 @@ class DeviceConnection(object):
             if self.normalized_serial not in command:
                 command = f"/{self.normalized_serial}" + command
         return command
+
+    @property
+    def connection(self):
+        if not self._is_established:
+            _logger.error(
+                "Connection to the data server is not established.",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
+        return self._connection
+
+    @property
+    def device(self):
+        return self._device
+
+    @property
+    def normalized_serial(self):
+        if not self._is_connected:
+            _logger.error(
+                "The device is not connected to the data server.",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
+        return self._normalized_serial
+
+    @property
+    def discovery(self):
+        return self._discovery
+
+    @property
+    def is_established(self):
+        return self._is_established
+
+    @property
+    def is_connected(self):
+        return self._is_connected

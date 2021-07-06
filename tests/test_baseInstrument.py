@@ -1,15 +1,14 @@
 import pytest
-from hypothesis import given, assume, strategies as st
-from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
-import numpy as np
 
 from .context import (
     BaseInstrument,
     ToolkitError,
     DeviceTypes,
-    ZIConnection,
     ziDiscovery,
+    baseinstrument_logger,
 )
+
+baseinstrument_logger.disable_logging()
 
 
 class DiscoveryMock:
@@ -47,6 +46,8 @@ def test_init_instrument():
         interface="1GbE",
         discovery=DiscoveryMock(),
     )
+    assert instr._nodetree is None
+    assert instr._options is None
     assert instr.nodetree is None
     assert instr.name == "name"
     assert instr.device_type == DeviceTypes.PQSC
@@ -64,21 +65,21 @@ def test_check_connection():
         interface="1GbE",
         discovery=DiscoveryMock(),
     )
-    with pytest.raises(ToolkitError):
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
         instr._check_connected()
-    with pytest.raises(ToolkitError):
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
         instr._check_node_exists("sigouts/0/on")
-    with pytest.raises(ToolkitError):
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
         instr.connect_device()
-    with pytest.raises(ToolkitError):
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
         instr._get("sigouts/0/on")
-    with pytest.raises(ToolkitError):
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
         instr._set("sigouts/0/on", 1)
-    with pytest.raises(TypeError):
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
         instr._get_node_dict("sigouts/0/on")
-    with pytest.raises(ToolkitError):
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
         instr._get_node_dict("zi/about/revision")
-    with pytest.raises(ToolkitError):
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
         instr._get_streamingnodes()
 
 
@@ -91,7 +92,6 @@ def test_serials():
         BaseInstrument(
             "name", DeviceTypes.PQSC, 10000, interface="1GbE", discovery=DiscoveryMock()
         )
-
     BaseInstrument(
         "name",
         DeviceTypes.PQSC,

@@ -5,18 +5,16 @@
 
 import numpy as np
 from typing import List, Dict
-import logging
 import time
 
 import zhinst.ziPython as zi
 from zhinst.toolkit.control.connection import DeviceConnection, ZIConnection
 from zhinst.toolkit.control.node_tree import NodeTree
-from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes
+from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes, LoggerModule
 from zhinst.toolkit.control.node_tree import Parameter
 from zhinst.toolkit.control.parsers import Parse
 
-
-_logger = logging.getLogger(__name__)
+_logger = LoggerModule(__name__)
 
 
 class ToolkitError(Exception):
@@ -65,6 +63,7 @@ class BaseInstrument:
         serial (str): Serial number of the device.
         interface (str): Type of the device interface used, can be specified as
             a keyword argument to `__init__()`.
+        options (list): Options installed on the instrument.
         is_connected (bool): A flag that shows if the device has established a
             connection to the data server.
     Raises:
@@ -90,7 +89,6 @@ class BaseInstrument:
         )
         self._nodetree = None
         self._options = None
-        self._normalized_serial = None
 
     def setup(self, connection: ZIConnection = None) -> None:
         """Sets up the data server connection.
@@ -122,9 +120,7 @@ class BaseInstrument:
                 (Default: `True`)
 
         """
-        self._check_connected()
         self._controller.connect_device()
-
         if nodetree:
             self._nodetree = NodeTree(self)
         self._options = self._get("/features/options").split("\n")
@@ -240,21 +236,21 @@ class BaseInstrument:
         self._check_connected()
         return self._controller.set(*args)
 
-    def _setVector(self, *args):
+    def _set_vector(self, *args):
         """Vector setter for the instrument.
 
         This method loads a vector to the device node, specified by a
-        node string. Passes the arguments to the setVector method of the
+        node string. Passes the arguments to the set_vector method of the
         :class:`DeviceConnection` and the :class:`ZIConnection`.
         Eventually this method wraps around `daq.setVector(...)` in
         :mod:`zhinst.ziPython`.
 
-            >>> hdawg._setVector("awgs/0/commandtable/data", command_table)
+            >>> hdawg._set_vector("awgs/0/commandtable/data", command_table)
 
         The method also supports wildcards in the node path that can be
         specified with ' * ' as a placeholder.
 
-            >>> hdawg._setVector("awgs/*/commandtable/data", command_table)
+            >>> hdawg._set_vector("awgs/*/commandtable/data", command_table)
 
         Instead of specifying a single node path and a vector, the user
         is free to pass a list of node / vector pairs to the method to
@@ -266,7 +262,7 @@ class BaseInstrument:
             >>>     ("awgs/2/commandtable/data", command_table_2),
             >>>     ("awgs/3/commandtable/data", command_table_3),
             >>> ]
-            >>> hdawg._setVector(settings)
+            >>> hdawg._set_vector(settings)
 
         Raises:
             ToolkitError: If called and the device in not yet connected
@@ -274,7 +270,7 @@ class BaseInstrument:
 
         """
         self._check_connected()
-        self._controller.setVector(*args)
+        self._controller.set_vector(*args)
 
     def _get(self, command: str, valueonly: bool = True):
         """Getter for the instrument.
@@ -393,12 +389,15 @@ class BaseInstrument:
         """Checks if the device is connected to the data server.
 
         Raises:
-            ToolkitError if the device is not connected to a data server.
+            ToolkitConnectionError: if the device is not connected to a data server.
 
         """
         if not self.is_connected:
-            raise ToolkitError(
-                f"The device {self.name} ({self.serial}) is not connected to a Data Server! Use device.setup() to establish a data server connection."
+            _logger.error(
+                f"The device {self.name} ({self.serial}) is not connected to the data "
+                f"server! Use device.connect_device() to connect the device to the "
+                f"data server.",
+                _logger.ExceptionTypes.ToolkitConnectionError,
             )
 
     def _check_node_exists(self, device_node: str):
@@ -428,9 +427,10 @@ class BaseInstrument:
 
     @property
     def serial(self):
-        if self._controller.normalized_serial is not None:
+        if self.is_connected:
             return self._controller.normalized_serial
-        return self._config._instrument._config._serial
+        else:
+            return self._config._instrument._config._serial
 
     @property
     def interface(self):
@@ -442,4 +442,4 @@ class BaseInstrument:
 
     @property
     def is_connected(self):
-        return not self._controller._connection is None
+        return self._controller.is_connected

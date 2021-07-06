@@ -32,7 +32,7 @@ class CommandTable:
         # Convert the json object
         # Load the command table to the device
         node = f"awgs/{self._index}/commandtable/data"
-        self._device._setVector(node, json.dumps(table_updated))
+        self._device._set_vector(node, json.dumps(table_updated))
 
     def _validate(self, table):
         """ Ensure command table is valid JSON and compliant with schema"""

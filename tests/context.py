@@ -6,6 +6,10 @@
 
 from zhinst.ziPython import ziDiscovery
 from zhinst.toolkit import HDAWG, UHFQA, UHFLI, MFLI, PQSC, SHFQA
+from zhinst.toolkit.control.drivers.base.base import (
+    BaseInstrument,
+    _logger as baseinstrument_logger,
+)
 from zhinst.toolkit.control.drivers.uhfqa import AWG as UHFQA_AWG, ReadoutChannel
 from zhinst.toolkit.control.drivers.hdawg import AWG as HDAWG_AWG
 from zhinst.toolkit.control.drivers.shfqa import (
@@ -13,6 +17,7 @@ from zhinst.toolkit.control.drivers.shfqa import (
     Generator as SHFQA_Generator,
     Sweeper as SHFQA_Sweeper,
     Scope as SHFQA_Scope,
+    _logger as shfqa_logger,
 )
 from zhinst.toolkit.control.drivers.mfli import (
     DAQModule as DAQModule_MFLI,
@@ -28,7 +33,6 @@ from zhinst.toolkit.control.connection import (
     _logger as connection_logger,
 )
 from zhinst.toolkit.control.drivers.base import (
-    BaseInstrument,
     ToolkitError,
     AWGCore,
     DAQModule,
