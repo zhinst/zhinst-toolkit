@@ -25,7 +25,7 @@ class SHFSweeper:
         self._index = self._parent._index
         self._device = self._parent._parent
         self._module = ShfSweeper(
-            daq=self._device._controller._connection._daq, dev=self._device.serial
+            daq=self._device._controller.connection.daq, dev=self._device.serial
         )
         self._channel_params = RfConfig
         self._trig_config = TriggerConfig

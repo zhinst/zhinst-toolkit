@@ -42,7 +42,7 @@ class SHFGenerator:
         self.set_sequence_params(target=self._device.device_type)
 
     def _setup(self):
-        self._module = self._device._controller._connection.awg_module
+        self._module = self._device._controller.connection.awg_module
 
     def _init_generator_params(self):
         """Initialize parameters associated with device generators.
@@ -192,7 +192,7 @@ class SHFGenerator:
             for i in range(len(waveform_data))
         ]
         tok = time.time()
-        self._device._setVector(zip(nodes, waveform_data))
+        self._device._set_vector(zip(nodes, waveform_data))
         tik = time.time()
         print(f"Upload of {len(waveform_data)} waveforms took {tik - tok:.5} s")
 

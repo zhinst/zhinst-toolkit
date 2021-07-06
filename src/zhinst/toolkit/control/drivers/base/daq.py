@@ -155,7 +155,7 @@ class DAQModule:
         self._trigger_types = {}
 
     def _setup(self) -> None:
-        self._module = self._parent._controller._connection.daq_module
+        self._module = self._parent._controller.connection.daq_module
         # add all parameters from nodetree
         nodetree = self._module.get_nodetree("*")
         for k, v in nodetree.items():

@@ -13,12 +13,12 @@ from zhinst.toolkit.control.drivers.base import (
     SHFScope,
     SHFSweeper,
 )
-from zhinst.toolkit.interface import DeviceTypes
+from zhinst.toolkit.interface import DeviceTypes, LoggerModule
 from zhinst.toolkit.control.node_tree import Parameter
 from zhinst.toolkit.control.parsers import Parse
 from zhinst.toolkit.helpers import SequenceType, TriggerMode
 
-_logger = logging.getLogger(__name__)
+_logger = LoggerModule(__name__)
 
 
 class SHFQA(BaseInstrument):
@@ -81,7 +81,7 @@ class SHFQA(BaseInstrument):
     def _num_channels(self):
         """Find the number of channels available in the instrument."""
         serial = self.serial
-        daq = self._controller._connection._daq
+        daq = self._controller.connection.daq
         channels = daq.listNodes(f"{serial}/qachannels/")
         num_channels = len(channels)
         return num_channels

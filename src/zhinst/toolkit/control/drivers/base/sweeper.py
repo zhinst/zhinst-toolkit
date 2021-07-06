@@ -161,7 +161,7 @@ class SweeperModule:
         self._sweep_params = {}
 
     def _setup(self) -> None:
-        self._module = self._parent._controller._connection.sweeper_module
+        self._module = self._parent._controller.connection.sweeper_module
         # add all parameters from nodetree
         nodetree = self._module.get_nodetree("*")
         for k, v in nodetree.items():
