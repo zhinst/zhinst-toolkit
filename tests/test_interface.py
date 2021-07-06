@@ -3,10 +3,6 @@
 # This software may be modified and distributed under the terms
 # of the MIT license. See the LICENSE file for details.
 
-import pytest
-from hypothesis import given, assume, strategies as st
-import json
-
 from .context import InstrumentConfiguration, DeviceTypes
 
 

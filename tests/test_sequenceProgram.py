@@ -4,8 +4,8 @@
 # of the MIT license. See the LICENSE file for details.
 
 import pytest
-from hypothesis import given, assume, strategies as st
-from hypothesis.stateful import rule, precondition, RuleBasedStateMachine
+from hypothesis import strategies as st
+from hypothesis.stateful import rule, RuleBasedStateMachine
 import numpy as np
 
 from .context import (

@@ -1,3 +1,8 @@
+# Copyright (C) 2021 Zurich Instruments
+#
+# This software may be modified and distributed under the terms
+# of the MIT license. See the LICENSE file for details.
+
 import pytest
 
 from .context import (
@@ -9,7 +14,6 @@ from .context import (
     DeviceTypes,
     SequenceType,
     TriggerMode,
-    ToolkitError,
     shfqa_logger,
 )
 

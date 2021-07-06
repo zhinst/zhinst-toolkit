@@ -86,10 +86,6 @@ def test_init_device_connection():
     assert c.discovery == discovery
     assert c.is_established is False
     assert c.is_connected is False
-    with pytest.raises(connection_logger.ToolkitConnectionError):
-        c._check_data_server_established()
-    with pytest.raises(connection_logger.ToolkitConnectionError):
-        c._check_device_connected()
 
 
 def test_device_connection_connect():
