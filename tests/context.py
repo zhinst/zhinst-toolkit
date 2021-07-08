@@ -29,7 +29,7 @@ from zhinst.toolkit.control.drivers.hdawg import (
     _logger as hdawg_logger,
 )
 from zhinst.toolkit.control.drivers.shfqa import (
-    Channel as SHFQA_Channel,
+    QAChannel as SHFQA_Channel,
     Generator as SHFQA_Generator,
     Sweeper as SHFQA_Sweeper,
     Scope as SHFQA_Scope,

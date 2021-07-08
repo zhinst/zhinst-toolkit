@@ -10,7 +10,7 @@ import re
 
 from zhinst.toolkit.helpers import SequenceProgram, SHFWaveform, SequenceType
 from zhinst.toolkit.interface import DeviceTypes, LoggerModule
-from .shf_channel import SHFChannel
+from .shf_qachannel import SHFQAChannel
 
 _logger = LoggerModule(__name__)
 
@@ -27,9 +27,67 @@ class SHFGenerator:
     and hence does not come with predefined waveforms such as `gauss`
     or `ones`. Therefore, all waveforms need to be defined in Python
     and uploaded to the device using `upload_waveforms` method.
+
+    For example, the generator can be programmed with a custom .seqc
+    code like this:
+
+        >>> generator = shf.qachannels[0].generator
+        >>> ...
+        >>> wait_time = 512
+        >>> custom_program='''
+        >>> waitDigTrigger(1);
+        >>> wait($param1$);
+        >>> startQA(QA_GEN_0, QA_INT_0, true,  0, 0x1 );
+        >>> wait($param1$);
+        >>> startQA(QA_GEN_1, QA_INT_1, true,  0, 0x0 );
+        >>> wait($param1$);
+        >>> startQA(QA_GEN_2, QA_INT_2, true,  0, 0x0 );
+        >>> '''
+        >>> generator.set_sequence_params(
+        >>>     sequence_type="Custom",
+        >>>     program = custom_program,
+        >>>     custom_params = [wait_time],
+        >>> )
+
+    The user can also upload waveforms defined as numpy arrays:
+
+        >>> wave = np.linspace(1, 0, wave_length)
+        >>> amps = np.linspace(0.5, 1, 3)
+        >>> data = [amp * wave for amp in amps]
+        >>> generator.reset_queue()
+        >>> for wave in data:
+        >>>     generator.queue_waveform(wave)
+        Current length of queue: 1
+        Current length of queue: 2
+        Current length of queue: 3
+        ...
+        >>> generator.compile()
+        >>> generator.upload_waveforms()
+        Upload of 3 waveforms took 0.20744 s
+
+    To run the sequencer and play the uploaded waveforms:
+
+        >>> generator.run()
+        >>> generator.wait_done()
+
+    Attributes:
+        parent (:class:`SHFQAChannel`): The parent qachannel that this
+            :class:`SHFGenerator` is associated to.
+        device (:class:`BaseInstrument`): The instrument that this
+            :class:`SHFGenerator` is associated to.
+        index (int): An integer specifying the index in the instrument.
+        waveforms (list): A list of :class:`SHFWaveform` s that
+            represent the queued up waveforms in for a *'Custom'*
+            sequence.
+        name (str): The name of the `SHFGenerator`.
+        is_running (bool): A flag that shows if the `SHFGenerator` is
+            currently running or not.
+        sequence_params (dict): A dictionary of all the sequence
+            parameters currently set on the `SequenceProgram`.
+
     """
 
-    def __init__(self, parent: SHFChannel) -> None:
+    def __init__(self, parent: SHFQAChannel) -> None:
         self._parent = parent
         self._index = self._parent._index
         self._device = self._parent._parent
@@ -51,6 +109,18 @@ class SHFGenerator:
         pass
 
     @property
+    def parent(self):
+        return self._parent
+
+    @property
+    def device(self):
+        return self._device
+
+    @property
+    def index(self):
+        return self._index
+
+    @property
     def name(self):
         return self._device.name + "-" + "generator" + "-" + str(self._index)
 
@@ -60,7 +130,7 @@ class SHFGenerator:
 
     @property
     def is_running(self):
-        return self.enable
+        return self._enable()
 
     @property
     def sequence_params(self):
@@ -79,26 +149,27 @@ class SHFGenerator:
 
     def run(self) -> None:
         """Run the generator."""
-        self.enable(1)
+        self._enable(True)
 
     def stop(self) -> None:
         """Stops the generator."""
-        self.enable(0)
+        self._enable(False)
 
     def wait_done(self, timeout: float = 10) -> None:
-        """Waits until the Generator is finished.
+        """Wait until the Generator is finished.
 
         Keyword Arguments:
             timeout (int): The maximum waiting time in seconds for the
                 Generator (default: 10).
 
         """
-        tok = time.time()
-        while self.is_running:
-            tik = time.time()
+        start_time = time.time()
+        while self.is_running and start_time + timeout >= time.time():
             time.sleep(0.1)
-            if tik - tok > timeout:
-                break
+        if self.is_running and start_time + timeout < time.time():
+            _logger.error(
+                "The generator timed out!", _logger.ExceptionTypes.TimeoutError,
+            )
 
     def compile(self) -> None:
         """Compile the current SequenceProgram and load it to sequencer.
@@ -142,7 +213,7 @@ class SHFGenerator:
             _logger.info(f"{self.name}: Compilation successful")
         tik = time.time()
         while (self._module.get_double("progress") < 1.0) and (
-            self._module.get_int("/elf/status") != 1 and self.ready != 1
+            self._module.get_int("/elf/status") != 1 and self._ready != 1
         ):
             time.sleep(0.1)
             if time.time() - tik >= 100:  # 100s timeout
@@ -223,10 +294,9 @@ class SHFGenerator:
         They include *'sequence_type'*, *'period'*, *'repetitions'*,
         *'trigger_mode'*, *'trigger_delay'*, ...
 
-            >>> shfqa.channels[0].generator
-
+            >>> shfqa.qachannels[0].generator
             <zhinst.toolkit.control.drivers.shfqa.Generator object at 0x0000016B7B71DDC8>
-                parent  : <zhinst.toolkit.control.drivers.shfqa.Channel object at 0x0000016B7B71D508>
+                parent  : <zhinst.toolkit.control.drivers.shfqa.QAChannel object at 0x0000016B7B71D508>
                 index   : 0
                 sequence:
                     type: SequenceType.CUSTOM
@@ -239,7 +309,7 @@ class SHFGenerator:
                     ('alignment', <Alignment.END_WITH_TRIGGER: 'End with Trigger'>)
                     ...
 
-            >>> shfqa.channels[0].generator.set_sequence_params(
+            >>> shfqa.qachannels[0].generator.set_sequence_params(
             >>>     sequence_type="Custom",
             >>>     program = seqc_program_string,
             >>>     custom_params = [param1, param2],
