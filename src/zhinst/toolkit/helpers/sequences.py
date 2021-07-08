@@ -234,6 +234,8 @@ class Sequence(object):
                 self.readout_cmd_trigger = SequenceCommand.readout_trigger()
             else:
                 self.readout_cmd_trigger = SequenceCommand.comment_line()
+        elif self.target in [DeviceTypes.SHFQA]:
+            self.clock_rate = 2e9
         # Set the oscillator phase to 0 if the reset_phase option is on
         if self.reset_phase:
             self.osc_cmd_reset = SequenceCommand.reset_osc_phase()

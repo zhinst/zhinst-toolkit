@@ -17,6 +17,22 @@ class SHFScope:
 
     The :class:`SHFScope` class implements basic functionality of
     the SHF Scope.
+
+    For example, the scope can be configured like this to record the
+    signal at channel 1:
+
+        >>> scope = shf.scope
+        >>> scope.channels(["on", "off", "off", "off"])
+        >>> scope.input_select(["chan0sigin", "chan1sigin", "chan2sigin", "chan3sigin"])
+        >>> scope.segments(enable = False, count=1)
+        >>> scope.averaging(enable = False, count=1)
+        >>> scope.length(12512)
+        >>> scope.time(0)
+
+    To start recording and obtain the result:
+
+        >>> scope.run()
+        >>> result = scope.read(0)
     """
 
     def __init__(self, parent: BaseInstrument) -> None:
@@ -33,11 +49,31 @@ class SHFScope:
 
     def run(self) -> None:
         """Runs the scope recording."""
-        self.enable(1)
+        self._enable(True)
 
     def stop(self) -> None:
         """Stops the scope recording."""
-        self.enable(0)
+        self._enable(False)
+
+    def wait_done(self, timeout: float = 10) -> None:
+        """Wait until the Scope recording is finished.
+
+        Keyword Arguments:
+            timeout (int): The maximum waiting time in seconds for the
+                Scope (default: 10).
+
+        Raises:
+            ToolkitError: If the Scope recording is not done before the
+                timeout.
+
+        """
+        start_time = time.time()
+        while self.is_running and start_time + timeout >= time.time():
+            time.sleep(0.1)
+        if self.is_running and start_time + timeout < time.time():
+            _logger.error(
+                "Scope recording timed out!", _logger.ExceptionTypes.TimeoutError,
+            )
 
     def read(self, channel=None):
         """Read out the recorded data from the specified channel of the scope.
@@ -55,21 +91,15 @@ class SHFScope:
                 timeout.
         """
 
-        # wait until scope has been triggered, 30s timeout
-        tik = time.time()
-        while self.enable() != 0:
-            time.sleep(0.1)
-            if time.time() - tik >= 30:
-                _logger.error(
-                    "Scope recording timed out!", _logger.ExceptionTypes.TimeoutError,
-                )
+        # wait until scope has finished recording, 30s timeout
+        self.wait_done(timeout=30)
         # read and post-process the recorded data
         recorded_data = [[], [], [], []]
-        num_channels = self._parent._num_channels()
+        num_channels = self._parent._num_qachannels()
         # generate the wave data
         for i in range(num_channels):
             channel_state = getattr(self, f"channel{i+1}")
-            wave_data = getattr(self, f"wave{i+1}")
+            wave_data = getattr(self, f"_wave{i+1}")
             if channel_state() == "on":
                 recorded_data[i] = wave_data()
         # generate the time base
@@ -99,7 +129,7 @@ class SHFScope:
 
         Keyword Arguments:
             value (tuple): Tuple of values {'on', 'off'} for channel 1,
-            2, 3 and 4 (default: None).
+                2, 3 and 4 (default: None).
 
         Returns:
             A tuple with the states {'on', 'off'} for all input channels.
@@ -130,8 +160,8 @@ class SHFScope:
 
         Keyword Arguments:
             value (tuple): Tuple of values for input signal 1,
-            2, 3 and 4. The accepted values can be found in SHFQA
-            user manual (default: None).
+                2, 3 and 4. The accepted values can be found in SHFQA
+                user manual (default: None).
 
         Returns:
             A tuple with the selected input signal sources for all
@@ -175,10 +205,10 @@ class SHFScope:
             A dictionary showing the enable state and segment count
         """
         if count is not None:
-            self.segments_count(count)
+            self._segments_count(count)
         if enable is not None:
-            self.segments_enable(enable)
-        return {"Enable": self.segments_enable(), "Segments": self.segments_count()}
+            self._segments_enable(enable)
+        return {"Enable": self._segments_enable(), "Segments": self._segments_count()}
 
     def averaging(self, enable=None, count=None):
         """Configure averaging options of Scope measurements.
@@ -193,10 +223,14 @@ class SHFScope:
             A dictionary showing the enable state and averaging count
         """
         if count is not None:
-            self.averaging_count(count)
+            self._averaging_count(count)
         if enable is not None:
-            self.averaging_enable(enable)
+            self._averaging_enable(enable)
         return {
-            "Enable": self.averaging_enable(),
-            "Averages": self.averaging_count(),
+            "Enable": self._averaging_enable(),
+            "Averages": self._averaging_count(),
         }
+
+    @property
+    def is_running(self):
+        return self._enable()
