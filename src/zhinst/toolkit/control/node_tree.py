@@ -533,8 +533,7 @@ def dictify(data, keys: List, val: Dict) -> Dict:
         key = int(key)
     else:
         key = key.lower()
-        if keyword.iskeyword(key):
-            key = key + "_"
+        key += "_" if keyword.iskeyword(key) else ""
     if len(keys) == 1:
         data[key] = val
     else:
