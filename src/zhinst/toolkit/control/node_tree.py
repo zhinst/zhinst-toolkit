@@ -6,6 +6,7 @@
 import numpy as np
 import re
 from typing import List, Dict, Callable
+import keyword
 
 from zhinst.toolkit.interface import LoggerModule
 
@@ -453,6 +454,9 @@ class NodeTree(Node):
     its nodetree heirarchy and then recursively adds :class:`Nodes` and
     :class:`Parameters` as attributes to the :class:`Node`.
 
+    An underscore will be appended to nodes that are identical to reserved keywords
+    in python. (e.g. in -> in_)
+
         >>> hdawg.nodetree
         <zhinst.toolkit.tools.nodetree.NodeTree object at 0x0000021E467D3BA8>
         nodes:
@@ -515,6 +519,9 @@ def dictify(data, keys: List, val: Dict) -> Dict:
     Helper function to generate nested dictionary from list of keys and value.
     Calls itself recursively.
 
+    An underscore will be appended to keys that are identical to reserved keywords
+    in python. (e.g. in -> in_)
+
     Arguments:
         data (dict): A dictionary to add value to with keys.
         keys (list): A list of keys to traverse along tree and place value.
@@ -522,7 +529,12 @@ def dictify(data, keys: List, val: Dict) -> Dict:
 
     """
     key = keys[0]
-    key = int(key) if key.isdecimal() else key.lower()
+    if key.isdecimal():
+        key = int(key)
+    else:
+        key = key.lower()
+        if keyword.iskeyword(key):
+            key = key + "_"
     if len(keys) == 1:
         data[key] = val
     else:
