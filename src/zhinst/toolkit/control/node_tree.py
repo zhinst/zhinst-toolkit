@@ -455,7 +455,7 @@ class NodeTree(Node):
     :class:`Parameters` as attributes to the :class:`Node`.
 
     An underscore will be appended to nodes that are identical to reserved keywords
-    in python. (e.g. in -> in_)
+    in Python (e.g., `in` -> `in_`).
 
         >>> hdawg.nodetree
         <zhinst.toolkit.tools.nodetree.NodeTree object at 0x0000021E467D3BA8>
