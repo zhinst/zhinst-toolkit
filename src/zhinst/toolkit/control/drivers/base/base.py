@@ -72,9 +72,8 @@ class BaseInstrument:
     ) -> None:
         if not isinstance(serial, str):
             _logger.error(
-                f"Serial must be a string", _logger.ExceptionTypes.ToolkitError,
+                f"Serial must be a string", _logger.ExceptionTypes.ToolkitError
             )
-
         self._config = InstrumentConfiguration()
         self._config._instrument._name = name
         self._config._instrument._config._device_type = device_type
@@ -200,24 +199,33 @@ class BaseInstrument:
         """
         pass
 
-    def _set(self, *args):
+    def _set(self, *args, sync=False):
         """Setter for the instrument.
 
-        This method sets a node value from the device, specified by a node
-        string. Passes the arguments to the setter of the
-        :class:`DeviceConnection` and the :class:`ZIConnection`. Eventually
-        this method wraps around `daq.set(...)` in :mod:`zhinst.ziPython`.
+        This method sets a node value to the device, specified by a
+        node string. Passes the arguments to the setter of the
+        :class:`DeviceConnection` and the :class:`ZIConnection`.
+
+        The keyword argument *sync* is set to `False` by default and
+        this method eventually wraps around `daq.set(...)` in
+        :mod:`zhinst.ziPython`.
 
             >>> hdawg._set("sigouts/0/on", 1)
+
+        If the keyword argument *sync* is set to `True`, this method
+        eventually wraps around one of the three `daq.syncSet...(...)`
+        methods in :mod:`zhinst.ziPython`.
+
+            >>> hdawg._set("sigouts/0/on", 1, sync=True)
 
         The method also supports wildcards in the node path that can be
         specified with ' * ' as a placeholder.
 
             >>> hdawg._set("sigouts/*/on", 1)
 
-        Instead of specifying a single node path and a value, the user is free
-        to pass a list of node / value pairs to the method to apply several
-        settings at once with one call of the method.
+        Instead of specifying a single node path and a value, the user
+        is free to pass a list of node / value pairs to the method to
+        apply several settings at once with one call of the method.
 
             >>> settings = [
             >>>     ("sigouts/0/on", 1),
@@ -228,17 +236,30 @@ class BaseInstrument:
             >>> ]
             >>> hdawg._set(settings)
 
+        If the keyword argument *sync* is set to `True` in this case, a
+        global synchronisation between the device and the data server
+        will be performed automatically using `daq.sync()` in
+        :mod:`zhinst.ziPython`.
+
+            >>> hdawg._set(settings, sync=True)
+
+        Keyword Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after setting the node (default: False).
+
         Raises:
             ToolkitError: If called and the device in not yet connected
                 to the data server.
 
         Returns:
-            The value set on the device as returned from the API's `set(...)`
-            method.
+            The value set on the device as returned from one of the
+            API's `syncSet...(...)` methods, if a single node path and
+            a value is passed and *sync* is set to `True`.
 
         """
         self._check_connected()
-        return self._controller.set(*args)
+        return self._controller.set(*args, sync=sync)
 
     def _set_vector(self, *args):
         """Vector setter for the instrument.
@@ -275,6 +296,20 @@ class BaseInstrument:
         """
         self._check_connected()
         self._controller.set_vector(*args)
+
+    def sync(self):
+        """Perform a global synchronisation between the device and the
+        data server.
+
+        Eventually wraps around the daq.sync() of the API.
+
+        Raises:
+            ToolkitError: If called and the device in not yet connected
+                to the data server.
+
+        """
+        self._check_connected()
+        self._controller.sync()
 
     def _get(self, command: str, valueonly: bool = True):
         """Getter for the instrument.

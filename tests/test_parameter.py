@@ -23,7 +23,7 @@ class Device:
     def _get(self, path):
         return self._value
 
-    def _set(self, path, v):
+    def _set(self, path, v, sync):
         self._value = v
         return self._value
 
