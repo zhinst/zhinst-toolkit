@@ -520,7 +520,7 @@ def dictify(data, keys: List, val: Dict) -> Dict:
     Calls itself recursively.
 
     An underscore will be appended to keys that are identical to reserved keywords
-    in python. (e.g. in -> in_)
+    in Python (e.g., `in` -> `in_`).
 
     Arguments:
         data (dict): A dictionary to add value to with keys.
