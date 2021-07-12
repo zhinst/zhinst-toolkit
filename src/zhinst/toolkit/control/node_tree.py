@@ -85,7 +85,6 @@ class Parameter:
         self._properties = params.get("Properties", None)
         self._options = params.get("Options", None)
         self._unit = params.get("Unit", None)
-        self._cached_value = None
         self._get_parser = get_parser
         self._set_parser = set_parser
         self._auto_mapping = auto_mapping
@@ -106,16 +105,19 @@ class Parameter:
     def _getter(self):
         """Implements a getter for the :class:`Parameter`.
 
-        If 'Read' is in the parameter properties (from `listNodesJSON`), this
-        will call the '_get' method of the associated device with 'path' as
-        attribute.
+        If 'Read' is in the parameter properties (from `listNodesJSON`),
+        this will call the '_get' method of the associated device with
+        'path' as attribute.
 
         Raises:
-            ToolkitNodeTreeError: if the parameter is not gettable, i.e. if
-                'Read' not in properties
+            ToolkitNodeTreeError: if the parameter is not gettable,
+                i.e. if 'Read' not in properties
+            ValueError: if the  :class:`Parameter` has a value mapping
+                and the gotten value is not among the allowed values
 
         Returns:
-            The  :class:`Parameter` value as returned from the `get` parser.
+            The  :class:`Parameter` value as returned from the `get`
+            parser.
 
         """
         if "Read" in self._properties:
@@ -132,15 +134,14 @@ class Parameter:
                 # same key, choose the first one in the list.
                 if isinstance(value, list):
                     value = value[0]
-            self._cached_value = self._get_parser(value)
-            return self._cached_value
+            return self._get_parser(value)
         else:
             _logger.error(
                 "This parameter is not gettable!",
                 _logger.ExceptionTypes.ToolkitNodeTreeError,
             )
 
-    def _setter(self, value):
+    def _setter(self, value, sync=False):
         """Implements a setter for the :class:`Parameter`.
 
         If 'Write' is in the  :class:`Parameter` properties (from
@@ -150,51 +151,48 @@ class Parameter:
         Arguments:
             value: value to be set
 
+        Keyword Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after setting the :class:`Parameter` value
+                (default: False).
+
         Raises:
-            ToolkitNodeTreeError: if the  :class:`Parameter` is not settable,
-                i.e. if 'Write' not in properties
+            ToolkitNodeTreeError: if the  :class:`Parameter` is not
+                settable, i.e. if 'Write' not in properties
+            ValueError: if the  :class:`Parameter` has a value mapping
+                and the input value is not among the allowed values
 
         Returns:
             The  :class:`Parameter` value set on the device.
 
         """
         if "Write" in self._properties:
-            if value != self._cached_value:
-                if self._map is not None and isinstance(value, str):
-                    # Construct a list from all allowed values in the mapping
-                    allowed_values = self._flatten_mapping_values()
-                    if value not in allowed_values:
-                        _logger.error(
-                            f"The value '{value}' is not in {allowed_values}.",
-                            _logger.ExceptionTypes.ValueError,
-                        )
-                    inverse_map = self._invert_mapping()
-                    value = inverse_map[value]
-                elif self._map is not None and isinstance(value, int):
-                    allowed_values = list(self._map.keys())
-                    if value not in allowed_values:
-                        _logger.error(
-                            f"The value '{value}' is not in {allowed_values}.",
-                            _logger.ExceptionTypes.ValueError,
-                        )
-                # If the set_parser is a list of callables, call them
-                # one by one inside a loop
-                if isinstance(self._set_parser, list):
-                    for callable_element in self._set_parser:
-                        value = callable_element(value)
-                else:
-                    value = self._set_parser(value)
-                self._device._set(self._path, value)
-                # After setting the value, read it back from the device
-                value = self._device._get(self._path)
-                if self._map is not None:
-                    value = self._map[value]
-                    # If the mapping has more than one value assigned to the
-                    # same key, choose the first one in the list.
-                    if isinstance(value, list):
-                        value = value[0]
-                self._cached_value = self._get_parser(value)
-            return self._cached_value
+            if self._map is not None and isinstance(value, str):
+                # Construct a list from all allowed values in the mapping
+                allowed_values = self._flatten_mapping_values()
+                if value not in allowed_values:
+                    _logger.error(
+                        f"The value '{value}' is not in {allowed_values}.",
+                        _logger.ExceptionTypes.ValueError,
+                    )
+                inverse_map = self._invert_mapping()
+                value = inverse_map[value]
+            elif self._map is not None and isinstance(value, int):
+                allowed_values = list(self._map.keys())
+                if value not in allowed_values:
+                    _logger.error(
+                        f"The value '{value}' is not in {allowed_values}.",
+                        _logger.ExceptionTypes.ValueError,
+                    )
+            # If the set_parser is a list of callables, call them
+            # one by one inside a loop
+            if isinstance(self._set_parser, list):
+                for callable_element in self._set_parser:
+                    value = callable_element(value)
+            else:
+                value = self._set_parser(value)
+            self._device._set(self._path, value, sync=sync)
         else:
             _logger.error(
                 "This parameter is not settable!",
@@ -257,28 +255,33 @@ class Parameter:
                 map_from_options.update(dict({int(key): value_options}))
             self._map = dict(map_from_options)
 
-    def __call__(self, value=None):
+    def __call__(self, value=None, sync=False):
         """Make the object callable.
 
         Override the `__call__(...)` method for setting and getting the
-        :class:`Parameter` value. The  :class:`Parameter` can then be gotten by
-        calling it with no arguments. It is set by calling it with the value as
-        an argument. This works similarly to parameters in :mod:`qcodes`.
+        :class:`Parameter` value. The  :class:`Parameter` can then be
+        gotten by calling it with no arguments. It is set by calling it
+        with the value as an argument. This works similarly to
+        parameters in :mod:`qcodes`.
 
-        Arguments:
-            value:  An optional value to call the  :class:`Parameter` with if it
-                is `set`, leaving the argument out `gets` the  :class:`Parameter`
-                from the device. (default: None)
+        Keyword Arguments:
+            value:  An optional value to call the  :class:`Parameter`
+                with if it is `set`, leaving the argument out `gets` the
+                :class:`Parameter` from the device. (default: None)
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after setting the :class:`Parameter` value
+                (default: False).
 
         Returns:
-            The value that has been set if a value is specified, otherwise the
-            returned value from the `getter`.
+            The value that the setter returns if a value is specified,
+            otherwise the returned value from the `getter`.
 
         """
         if value is None:
             return self._getter()
         else:
-            return self._setter(value)
+            return self._setter(value, sync)
 
     def __repr__(self):
         s = f"Node: {self._path}\n"
@@ -295,8 +298,6 @@ class Parameter:
             s += f"Mapping: {self._map}\n"
         if self._unit is not None:
             s += f"Unit: {self._unit}\n"
-        if self._cached_value is not None:
-            s += f"Value: {self._cached_value}\n"
         return s
 
 

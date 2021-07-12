@@ -124,14 +124,11 @@ class ZIConnection:
     def set(self, *args):
         """Wrapper around the `zi.ziDAQServer.set()` method of the API.
 
-        Passes all arguments to the undelying method.
+        Passes all arguments to the underlying method.
 
         Raises:
             ToolkitConnectionError: If the connection is not yet
                 established
-
-        Returns:
-            the value returned from `daq.set(...)`
 
         """
         if not self.established:
@@ -139,7 +136,34 @@ class ZIConnection:
                 "The connection is not yet established.",
                 _logger.ExceptionTypes.ToolkitConnectionError,
             )
-        return self._daq.set(*args)
+        self._daq.set(*args)
+
+    def sync_set(self, *args):
+        """Call one of the three `zi.ziDAQServer.syncSet...(...)` commands
+
+        Depending on the passed argument, this method should call one
+        of `zi.ziDAQServer.syncSetInt()`, `zi.ziDAQServer.syncSetDouble()`
+        or `zi.ziDAQServer.syncSetString()`
+
+        Raises:
+            ToolkitConnectionError: If the connection is not yet
+                established
+
+        Returns:
+            The value returned from `daq.syncSet...()`
+
+        """
+        if not self.established:
+            _logger.error(
+                "The connection is not yet established.",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
+        if isinstance(args[1], int):
+            return self._daq.syncSetInt(*args)
+        elif isinstance(args[1], float):
+            return self._daq.syncSetDouble(*args)
+        elif isinstance(args[1], str):
+            return self._daq.syncSetString(*args)
 
     def set_vector(self, *args):
         """Wrapper around the `zi.ziDAQServer.setVector()` method of the API.
@@ -158,6 +182,21 @@ class ZIConnection:
             )
         for setting in args[0]:
             self._daq.setVector(setting[0], setting[1])
+
+    def sync(self):
+        """Wrapper around the `zi.ziDAQServer.sync()` method of the API.
+
+        Raises:
+            ToolkitConnectionError: If the connection is not yet
+                established
+
+        """
+        if not self.established:
+            _logger.error(
+                "The connection is not yet established.",
+                _logger.ExceptionTypes.ToolkitConnectionError,
+            )
+        self._daq.sync()
 
     def get(self, *args, **kwargs):
         """Wrapper around the `zi.ziDAQServer.get(...)` method of the API.
@@ -516,31 +555,60 @@ class DeviceConnection(object):
         )
         self._is_connected = True
 
-    def set(self, *args):
+    def set(self, *args, sync=False):
         """Sets the value of the node for the connected device.
 
-        Parses the input arguments to either set a single node/value pair or a
-        list of node/value tuples. Eventually wraps around the daq.set(...) of
-        the API.
+        Parses the input arguments to either set a single node/value
+        pair or a list of node/value tuples.
+
+        If a single node path and a value is specified and the keyword
+        argument *sync* is set to `False`, this method eventually wraps
+        around `daq.set(...)` in :mod:`zhinst.ziPython`. If the keyword
+        argument *sync* is set to `True`, this method wraps around one
+        of the three `daq.syncSet...(...)` methods in
+        :mod:`zhinst.ziPython`.
+
+        If a list of node / value pairs is passed to the method to
+        apply several settings at once and the keyword argument *sync*
+        is set to `True`, a global synchronisation between the device
+        and the data server will be performed automatically using
+        `daq.sync()` in :mod:`zhinst.ziPython`.
+
+        Keyword Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after setting the node (default: False).
 
         Raises:
             ToolkitConnectionError: If the input arguments are invalid.
 
         Returns:
-            The set value as returned from the API.
+            The value set on the device as returned from one of the
+            API's `syncSet...(...)` methods, if a single node path and
+            a value is passed and *sync* is set to `True`.
 
         """
+        # If just a single node/value pair is provided
         if len(args) == 2:
-            settings = [(args[0], args[1])]
+            # Check if synchronisation is enabled
+            if sync:
+                # Return the value returned by API
+                return self._connection.sync_set(*args)
+            else:
+                settings = [(args[0], args[1])]
+                settings = self._commands_to_node(settings)
+                self._connection.set(settings)
+        # If a list of node/value tuples is provided
         elif len(args) == 1:
-            settings = args[0]
+            settings = self._commands_to_node(args[0])
+            self._connection.set(settings)
+            if sync:
+                self.sync()
         else:
             _logger.error(
                 "Invalid number of arguments!",
                 _logger.ExceptionTypes.ToolkitConnectionError,
             )
-        settings = self._commands_to_node(settings)
-        return self._connection.set(settings)
 
     def set_vector(self, *args):
         """Sets the vector value of the node for the connected device.
@@ -565,6 +633,15 @@ class DeviceConnection(object):
             )
         settings = self._commands_to_node(settings)
         self._connection.set_vector(settings)
+
+    def sync(self):
+        """Perform a global synchronisation between the device and the
+        data server.
+
+        Eventually wraps around the daq.sync() of the API.
+
+        """
+        self._connection.sync()
 
     def get(self, command, valueonly=True):
         """Gets the value of the node for the connected device.
