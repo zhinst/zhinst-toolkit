@@ -102,9 +102,9 @@ def test_hdawg_awg_set_get(sequence_type, trigger_mode):
     awg = HDAWG_AWG(HDAWG("name", "dev8000"), 0)
     with pytest.raises(TypeError):
         awg.outputs(["on", "on"])
-    with pytest.raises(hdawg_logger.ToolkitError):
+    with pytest.raises(ValueError):
         awg.outputs(["on"])
-    with pytest.raises(hdawg_logger.ToolkitError):
+    with pytest.raises(ValueError):
         awg.outputs("on")
     with pytest.raises(TypeError):
         awg.outputs()

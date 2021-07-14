@@ -147,23 +147,33 @@ def test_disable_readout_channels_wrong_range(channels):
         qa.disable_readout_channels(channels)
 
 
-@given(
-    sequence_type=st.sampled_from(SequenceType),
-    trigger_mode=st.sampled_from(TriggerMode),
-)
-def test_init_uhfqa_awg(sequence_type, trigger_mode):
+def test_init_uhfqa_awg():
     awg = UHFQA_AWG(UHFQA("name", "dev2000"), 0)
     assert awg.output1 is None
     assert awg.output2 is None
     assert awg.gain1 is None
     assert awg.gain2 is None
     assert awg.single is None
+    with pytest.raises(uhfqa_logger.ToolkitConnectionError):
+        awg._init_awg_params()
+
+
+def test_repr_str_uhfqa_awg():
+    awg = UHFQA_AWG(UHFQA("name", "dev2000"), 0)
     assert awg.__repr__() != ""
+
+
+@given(
+    sequence_type=st.sampled_from(SequenceType),
+    trigger_mode=st.sampled_from(TriggerMode),
+)
+def test_uhfqa_awg_set_get(sequence_type, trigger_mode):
+    awg = UHFQA_AWG(UHFQA("name", "dev2000"), 0)
     with pytest.raises(TypeError):
         awg.outputs(["on", "on"])
-    with pytest.raises(uhfqa_logger.ToolkitError):
+    with pytest.raises(ValueError):
         awg.outputs(["on"])
-    with pytest.raises(uhfqa_logger.ToolkitError):
+    with pytest.raises(ValueError):
         awg.outputs("on")
     with pytest.raises(TypeError):
         awg.outputs()
@@ -196,8 +206,6 @@ def test_init_uhfqa_awg(sequence_type, trigger_mode):
         awg._apply_receive_trigger_settings()
     with pytest.raises(uhfqa_logger.ToolkitConnectionError):
         awg._apply_zsync_trigger_settings()
-    with pytest.raises(uhfqa_logger.ToolkitConnectionError):
-        awg._init_awg_params()
 
 
 @given(sequence_type=st.sampled_from(SequenceType))

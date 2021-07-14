@@ -426,40 +426,6 @@ class AWG(AWGCore):
         """Initialize the command table of the AWG."""
         self._ct = CT(self, "https://docs.zhinst.com/hdawg/commandtable/v2/schema")
 
-    def outputs(self, value=None):
-        """Sets both signal outputs simultaneously.
-
-        Keyword Arguments:
-            value (tuple): Tuple of values {'on', 'off'} for channel 1 and 2
-                (default: None).
-
-        Returns:
-            A tuple with the states {'on', 'off'} for the two output channels if
-            the keyword argument is not given.
-
-        Raises:
-            ToolkitError: If the `value` argument is not a list or tuple
-                of length 2.
-
-        """
-        if value is None:
-            return self.output1(), self.output2()
-        else:
-            if isinstance(value, tuple) or isinstance(value, list):
-                if len(value) != 2:
-                    _logger.error(
-                        "The values should be specified as a tuple, e.g. "
-                        "('on', 'off').",
-                        _logger.ExceptionTypes.ToolkitError,
-                    )
-                self.output1(value[0])
-                self.output2(value[1])
-            else:
-                _logger.error(
-                    "The value must be a tuple or list of length 2!",
-                    _logger.ExceptionTypes.ToolkitError,
-                )
-
     def enable_iq_modulation(self) -> None:
         """Enables IQ Modulation on the AWG Core.
 

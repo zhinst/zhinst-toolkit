@@ -11,6 +11,7 @@ import re
 from zhinst.toolkit.helpers import SequenceProgram, Waveform, SequenceType
 from .base import BaseInstrument
 from zhinst.toolkit.interface import LoggerModule
+from ...parsers import Parse
 
 _logger = LoggerModule(__name__)
 
@@ -144,6 +145,30 @@ class AWGCore:
         for i in params.items():
             s += f"            {i}\n"
         return s
+
+    def outputs(self, value=None):
+        """Sets both signal outputs simultaneously.
+
+        Arguments:
+            value (tuple): Tuple of values {'on', 'off'} for channel 1
+                and 2 (default: None).
+
+        Returns:
+            A tuple with the states {'on', 'off'} for the two output
+            channels if the keyword argument is not given.
+
+        Raises:
+            ValueError: If the `value` argument is not a list or tuple
+                of length 2.
+
+        """
+        if value is None:
+            output_states = (self.output1(), self.output2())
+            return Parse.get_on_off_tuple_list(output_states, 2)
+        else:
+            output_states = Parse.set_on_off_tuple_list(value, 2)
+            self.output1(output_states[0])
+            self.output2(output_states[1])
 
     def run(self) -> None:
         """Runs the AWG Core."""

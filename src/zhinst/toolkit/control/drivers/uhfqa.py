@@ -662,39 +662,6 @@ class AWG(AWGCore):
         ]
         self._parent._set(settings)
 
-    def outputs(self, value=None):
-        """Sets both signal outputs simultaneously.
-
-        Keyword Arguments:
-            value (tuple): Tuple of values {'on', 'off'} for channel 1 and 2
-                (default: {None})
-
-        Returns:
-            The state {'on', 'off'} for both outputs if the keyword argument is
-            not given.
-
-        Raises:
-            ToolkitError: If the `value` argument is not a list or tuple
-                of length 2.
-
-        """
-        if value is None:
-            return self.output1(), self.output2()
-        else:
-            if isinstance(value, tuple) or isinstance(value, list):
-                if len(value) != 2:
-                    _logger.error(
-                        "The values should be specified as a tuple, e.g. "
-                        "('on', 'off').",
-                        _logger.ExceptionTypes.ToolkitError,
-                    )
-                return self.output1(value[0]), self.output2(value[1])
-            else:
-                _logger.error(
-                    "The value must be a tuple or list of length 2!",
-                    _logger.ExceptionTypes.ToolkitError,
-                )
-
     def update_readout_params(self) -> None:
         """Update the readout parameters for 'Readout' sequence
 
