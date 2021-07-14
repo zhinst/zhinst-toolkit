@@ -4,6 +4,7 @@
 # of the MIT license. See the LICENSE file for details.
 
 import numpy as np
+import random
 
 from zhinst.toolkit.interface import LoggerModule
 
@@ -25,76 +26,145 @@ class Parse:
         else:
             return n
 
+    # Make the mapping and the value case-insensitive if the they are strings
+    @staticmethod
+    def _make_mapping_case_insensitive(value, mapping):
+        key_type = type(list(mapping.keys())[0])
+        if isinstance(value, str) and key_type == str:
+            mapping = {k.lower(): v for k, v in mapping.items()}
+            value = value.lower()
+        return value, mapping
+
+    # Define a function to check if input is in allowed values
+    # defined by mapping
+    @staticmethod
+    def _setter_validate_and_parse(value, mapping):
+        allowed_keys = list(mapping.keys())
+        allowed_values = list(mapping.values())
+        key_type = type(allowed_keys[0])
+        value_type = type(allowed_values[0])
+        # Make the mapping and the value case-insensitive if the they are strings
+        value, mapping = Parse._make_mapping_case_insensitive(value, mapping)
+        if not isinstance(value, (key_type, value_type)):
+            _logger.error(
+                f"This value must be of type {key_type} or {value_type}",
+                _logger.ExceptionTypes.TypeError,
+            )
+        if value not in (list(mapping.keys()) + allowed_values):
+            _logger.error(
+                f"This value must be either one of {allowed_keys} or {allowed_values}",
+                _logger.ExceptionTypes.ValueError,
+            )
+        if isinstance(value, key_type):
+            value = mapping[value]
+        return value
+
+    # Define a function to check if output is in allowed values
+    # defined by mapping
+    @staticmethod
+    def _getter_validate_and_parse(value, mapping):
+        allowed_keys = list(mapping.keys())
+        allowed_values = list(mapping.values())
+        value_type = type(allowed_values[0])
+        if not isinstance(value, value_type):
+            _logger.error(
+                f"The value {value} returned from the instrument is invalid "
+                f"since it is not of type {value_type}",
+                _logger.ExceptionTypes.TypeError,
+            )
+        if value not in allowed_values:
+            _logger.error(
+                f"The value {value} returned from the instrument is invalid "
+                f"since it is not one of {allowed_values}",
+                _logger.ExceptionTypes.ValueError,
+            )
+        # Extract the key corresponding to the returned value
+        key = allowed_keys[allowed_values.index(value)]
+        return key
+
     @staticmethod
     def none(v):
         pass
 
     @staticmethod
-    def set_on_off(v):
-        if isinstance(v, str):
-            map = {"on": 1, "off": 0}
-            if v.lower() not in map.keys():
-                _logger.error(
-                    f"The input value must be in {map.keys()}.",
-                    _logger.ExceptionTypes.ValueError,
-                )
-            v = map[v.lower()]
-        elif not isinstance(v, int):
-            _logger.error(
-                "This value must be either 'on' or 'off' or an integer.",
-                _logger.ExceptionTypes.ValueError,
-            )
-        return v
+    def set_on_off(value):
+        mapping = {"on": 1, "off": 0}
+        value = Parse._setter_validate_and_parse(value, mapping)
+        return value
 
     @staticmethod
-    def get_on_off(v):
-        v = int(v)
-        map = {1: "on", 0: "off"}
-        if v not in map.keys():
-            _logger.error(
-                "Invalid value returned from the instrument!",
-                _logger.ExceptionTypes.ValueError,
-            )
-        return map[v]
+    def get_on_off(value):
+        value = int(value)
+        mapping = {"on": 1, "off": 0}
+        value = Parse._getter_validate_and_parse(value, mapping)
+        return value
 
     @staticmethod
-    def set_true_false(v):
-        if isinstance(v, bool):
-            map = {True: 1, False: 0}
-            if v not in map.keys():
-                _logger.error(
-                    f"The input value must be in {map.keys()}.",
-                    _logger.ExceptionTypes.ValueError,
-                )
-            v = map[v]
-        elif not isinstance(v, int):
+    def set_on_off_tuple_list(values, length):
+        mapping = {"on": 1, "off": 0}
+        random_example = tuple(random.choices(list(mapping.keys()), k=length))
+        if isinstance(values, (tuple, list)) and len(values) == length:
+            values = list(values)
+            for i, v in enumerate(values):
+                values[i] = Parse.set_on_off(v)
+            values = tuple(values)
+        else:
             _logger.error(
-                "This value must be either True or False or an integer.",
+                f"The values should be specified as a tuple or list of length "
+                f"{length}, e.g. {random_example}.",
                 _logger.ExceptionTypes.ValueError,
             )
-        return v
+        return values
 
     @staticmethod
-    def get_true_false(v):
-        v = int(v)
-        map = {1: True, 0: False}
-        if v not in map.keys():
+    def get_on_off_tuple_list(values, length):
+        mapping = {"on": 1, "off": 0}
+        random_example = tuple(random.choices(list(mapping.keys()), k=length))
+        if isinstance(values, (tuple, list)) and len(values) == length:
+            values = list(values)
+            for i, v in enumerate(values):
+                values[i] = Parse.get_on_off(v)
+            values = tuple(values)
+        else:
             _logger.error(
-                "Invalid value returned from the instrument!",
+                f"Invalid value is returned from the instrument as it is not specified "
+                f"as a tuple or list of length {length}, e.g. {random_example}.",
                 _logger.ExceptionTypes.ValueError,
             )
-        return map[v]
+        return values
 
     @staticmethod
-    def get_locked_status(v):
-        v = int(v)
-        map = {0: "locked", 1: "error", 2: "busy"}
-        if v not in map.keys():
-            _logger.error(
-                "Invalid value returned from the instrument!",
-                _logger.ExceptionTypes.ValueError,
-            )
-        return map[v]
+    def set_true_false(value):
+        mapping = {True: 1, False: 0}
+        value = Parse._setter_validate_and_parse(value, mapping)
+        return value
+
+    @staticmethod
+    def get_true_false(value):
+        value = int(value)
+        mapping = {True: 1, False: 0}
+        value = Parse._getter_validate_and_parse(value, mapping)
+        return value
+
+    @staticmethod
+    def set_scope_mode(value):
+        mapping = {"time": 1, "FFT": 3}
+        value = Parse._setter_validate_and_parse(value, mapping)
+        return value
+
+    @staticmethod
+    def get_scope_mode(value):
+        value = int(value)
+        mapping = {"time": 1, "FFT": 3}
+        value = Parse._getter_validate_and_parse(value, mapping)
+        return value
+
+    @staticmethod
+    def get_locked_status(value):
+        value = int(value)
+        mapping = {"locked": 0, "error": 1, "busy": 2}
+        value = Parse._getter_validate_and_parse(value, mapping)
+        return value
 
     @staticmethod
     def phase(v):
