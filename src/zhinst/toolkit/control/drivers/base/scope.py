@@ -26,7 +26,7 @@ class Scope:
         self._module = None
 
     def _setup(self):
-        self._module = self._parent._controller._connection.scope_module
+        self._module = self._parent._controller.connection.scope_module
 
     def _init_scope_settings(self):
         if self._module is None:
@@ -80,10 +80,6 @@ class Scope:
             )
         # Stop the Scope if it is already running
         self.stop(sync=sync)
-        self._module.update_device(self._parent.serial)
-        # Tell the module to be ready to acquire data;
-        # reset the module's progress to 0.0.
-        self._module.execute()
         # Set history length to number of records
         if num_records is not None:
             self.num_records(num_records)
@@ -99,6 +95,11 @@ class Scope:
                 f"Number of recordings is set to {self.num_records()}. The scope must "
                 f"run in continuous mode. Disabling single mode automatically. ",
             )
+        # Subscribe to the scope's data in the module
+        self._module.update_device(self._parent.serial)
+        # Tell the module to be ready to acquire data;
+        # reset the module's progress to 0.0.
+        self._module.execute()
 
     def run(self, sync=True) -> None:
         """Run the scope recording.
@@ -157,7 +158,7 @@ class Scope:
                 requesting the progress and records values
 
         Raises:
-            ToolkitError: If the Scope recording is not done before the
+            TimeoutError: If the Scope recording is not done before the
                 timeout.
 
         """
@@ -193,7 +194,7 @@ class Scope:
                 requesting the progress and records values
 
         Raises:
-            ToolkitError: If the Scope recording is not done before the
+            TimeoutError: If the Scope recording is not done before the
                 timeout.
 
         Returns:
