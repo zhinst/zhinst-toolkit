@@ -11,6 +11,7 @@ from zhinst.toolkit.control.drivers.base.base import (
     _logger as baseinstrument_logger,
 )
 from zhinst.toolkit.control.drivers.base.awg import AWGCore, _logger as awg_logger
+from zhinst.toolkit.control.drivers.base.scope import Scope, _logger as scope_logger
 from zhinst.toolkit.control.drivers.base.daq import (
     DAQModule,
     _logger as daq_logger,
