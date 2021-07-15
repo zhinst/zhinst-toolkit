@@ -129,7 +129,7 @@ class AWGCore:
 
     @property
     def is_running(self):
-        return self._parent._get(f"/awgs/{self._index}/enable")
+        return self._enable()
 
     @property
     def sequence_params(self):
@@ -170,28 +170,52 @@ class AWGCore:
             self.output1(output_states[0])
             self.output2(output_states[1])
 
-    def run(self) -> None:
-        """Runs the AWG Core."""
-        self._parent._set(f"/awgs/{self._index}/enable", 1)
+    def run(self, sync=True) -> None:
+        """Run the AWG Core.
 
-    def stop(self) -> None:
-        """Stops the AWG Core."""
-        self._parent._set(f"/awgs/{self._index}/enable", 0)
+        Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after enabling the AWG Core (default: True).
+        """
+        self._enable(True, sync=sync)
 
-    def wait_done(self, timeout: float = 10) -> None:
-        """Waits until the AWG Core is finished.
+    def stop(self, sync=True) -> None:
+        """Stop the AWG Core.
 
-        Keyword Arguments:
-            timeout (int): The maximum waiting time in seconds for the AWG Core.
-                (default: 10)
+        Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after disabling the AWG Core (default: True).
+        """
+        self._enable(False, sync=sync)
+
+    def wait_done(self, timeout: float = 10, sleep_time: float = 0.005) -> None:
+        """Wait until the AWG Core is finished.
+
+        Arguments:
+            timeout (float): The maximum waiting time in seconds for the
+                AWG Core (default: 10).
+            sleep_time (float): Time in seconds to wait between
+                requesting AWG state
+
+        Raises:
+            ToolkitError: If the AWG is running in continuous mode.
+            TimeoutError: If the AWG is not finished before the timeout.
 
         """
-        tok = time.time()
-        while self.is_running:
-            tik = time.time()
-            time.sleep(0.1)
-            if tik - tok > timeout:
-                break
+        if not self.single():
+            _logger.error(
+                "The AWG is running in continuous mode, it will never be finished.",
+                _logger.ExceptionTypes.ToolkitError,
+            )
+        start_time = time.time()
+        while self.is_running and start_time + timeout >= time.time():
+            time.sleep(sleep_time)
+        if self.is_running and start_time + timeout < time.time():
+            _logger.error(
+                "AWG Core timed out!", _logger.ExceptionTypes.TimeoutError,
+            )
 
     def compile(self) -> None:
         """Compiles the current SequenceProgram on the AWG Core.
@@ -274,8 +298,6 @@ class AWGCore:
                 array.
             wave2 (array): The waveform to be queued for Channel 2 as a 1D numpy
                 array.
-
-        Keyword Arguments:
             delay (int): An individual delay in seconds for this waveform w.r.t.
                 the time origin of the sequence. (default: 0)
 
@@ -308,8 +330,6 @@ class AWGCore:
         Arguments:
             wave1 (array): Waveform to replace current wave for Channel 1.
             wave2 (array): Waveform to replace current wave for Channel 2.
-
-        Keyword Arguments:
             i (int): The index of the waveform in the queue to be replaced.
             delay (int): An individual delay in seconds for this waveform w.r.t.
                 the time origin of the sequence. (default: 0)
