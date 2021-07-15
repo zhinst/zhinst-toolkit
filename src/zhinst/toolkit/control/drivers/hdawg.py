@@ -299,6 +299,7 @@ class AWG(AWGCore):
 
     def __init__(self, parent: BaseInstrument, index: int) -> None:
         super().__init__(parent, index)
+        self._enable = None
         self._ct = None
         self._iq_modulation = False
         self.output1 = None
@@ -316,6 +317,13 @@ class AWG(AWGCore):
         self.zsync_decoder_offset = None
 
     def _init_awg_params(self):
+        self._enable = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/{self._index}/enable"),
+            device=self._parent,
+            set_parser=Parse.set_true_false,
+            get_parser=Parse.get_true_false,
+        )
         self.output1 = Parameter(
             self,
             self._parent._get_node_dict(f"sigouts/{2*self._index}/on"),

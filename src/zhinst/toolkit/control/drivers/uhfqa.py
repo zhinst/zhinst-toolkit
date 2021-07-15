@@ -515,6 +515,7 @@ class AWG(AWGCore):
 
     def __init__(self, parent: BaseInstrument, index: int) -> None:
         super().__init__(parent, index)
+        self._enable = None
         self.output1 = None
         self.output2 = None
         self.gain1 = None
@@ -522,6 +523,13 @@ class AWG(AWGCore):
         self.single = None
 
     def _init_awg_params(self):
+        self._enable = Parameter(
+            self,
+            self._parent._get_node_dict(f"awgs/0/enable"),
+            device=self._parent,
+            set_parser=Parse.set_true_false,
+            get_parser=Parse.get_true_false,
+        )
         self.output1 = Parameter(
             self,
             self._parent._get_node_dict("sigouts/0/on"),
