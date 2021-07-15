@@ -118,7 +118,8 @@ class ZIConnection:
             )
         self._daq.connectDevice(serial, interface)
         print(
-            f"Successfully connected to device {serial.upper()} on interface {interface.upper()}"
+            f"Successfully connected to device {serial.upper()} "
+            f"on interface {interface.upper()}"
         )
         # Update device type
         self._device_type = self._daq.getString(f"/{serial}/features/devtype")
@@ -131,7 +132,7 @@ class ZIConnection:
         if device_scope_nodes:
             # Check if device is UHF or MF and update the scope module
             if self._device_type.startswith(("UHF", "MF")):
-                self._scope_module.update(device=serial)
+                self._scope_module.update_device(device=serial)
 
     def set(self, *args):
         """Wrapper around the `zi.ziDAQServer.set()` method of the API.
@@ -254,7 +255,8 @@ class ZIConnection:
     def list_nodes(self, *args, **kwargs):
         """Wrapper around the `daq.listNodesJSON(...)` method of the API.
 
-        Passes all arguments and keyword arguemnts to the undelying method.
+        Passes all arguments and keyword arguments to the underlying
+        method.
 
         Raises:
             ToolkitConnectionError: If the connection is not yet
@@ -428,8 +430,14 @@ class ScopeModuleConnection:
     def read(self):
         return self._scopeModule.read(True)
 
-    def update(self, device):
-        self.subscribe(device)
+    def update_device(self, device):
+        if device != self.device:
+            self.subscribe(device)
+            self._device = device
+
+    @property
+    def device(self):
+        return self._device
 
 
 class DAQModuleConnection:
@@ -545,7 +553,8 @@ class DAQModuleConnection:
 class SweeperModuleConnection(DAQModuleConnection):
     """Connection to a Sweeper Module.
 
-    Inherits from `DAQModuleConnection` but uses the `daq.seep()` module instead.
+    Inherits from `DAQModuleConnection` but uses the `daq.sweep()`
+    module instead.
 
     """
 
@@ -594,9 +603,13 @@ class DeviceConnection(object):
     def setup(self, connection: ZIConnection = None):
         """Establishes the connection to the data server.
 
-        Keyword Arguments:
+        Arguments:
             connection (ZIConnection): An existing connection can be passed as
                 an argument. (default: None)
+
+        Raises:
+            ToolkitConnectionError: If connection to the Data Server
+                could not be established
 
         """
         if connection is None:
@@ -620,7 +633,13 @@ class DeviceConnection(object):
             )
 
     def connect_device(self):
-        """Connects the device to the data server."""
+        """Connects the device to the data server.
+
+        Raises:
+            ToolkitConnectionError: If connection to the Data Server
+                could not be established
+
+        """
         # First, check if a connection to the data server is established
         if not self._is_established:
             _logger.error(
@@ -655,13 +674,15 @@ class DeviceConnection(object):
         and the data server will be performed automatically using
         `daq.sync()` in :mod:`zhinst.ziPython`.
 
-        Keyword Arguments:
+        Arguments:
             sync (bool): A flag that specifies if a synchronisation
                 should be performed between the device and the data
                 server after setting the node (default: False).
 
         Raises:
-            ToolkitConnectionError: If the input arguments are invalid.
+            TypeError: If the input arguments are invalid.
+            ToolkitConnectionError: If the device is not connected to
+                the Data Server
 
         Returns:
             The value set on the device as returned from one of the
@@ -671,13 +692,12 @@ class DeviceConnection(object):
         """
         # If just a single node/value pair is provided
         if len(args) == 2:
+            settings = self._commands_to_node([(args[0], args[1])])
             # Check if synchronisation is enabled
             if sync:
                 # Return the value returned by API
-                return self._connection.sync_set(*args)
+                return self._connection.sync_set(*settings[0])
             else:
-                settings = [(args[0], args[1])]
-                settings = self._commands_to_node(settings)
                 self._connection.set(settings)
         # If a list of node/value tuples is provided
         elif len(args) == 1:
@@ -687,8 +707,7 @@ class DeviceConnection(object):
                 self.sync()
         else:
             _logger.error(
-                "Invalid number of arguments!",
-                _logger.ExceptionTypes.ToolkitConnectionError,
+                "Invalid number of arguments!", _logger.ExceptionTypes.TypeError,
             )
 
     def set_vector(self, *args):
@@ -699,18 +718,19 @@ class DeviceConnection(object):
         the daq.setVector(...) of the API.
 
         Raises:
-            ToolkitConnectionError: If is the input arguments are
-                invalid.
+            TypeError: If is the input arguments are invalid.
+            ToolkitConnectionError: If the device is not connected to
+                the Data Server
 
         """
+        settings = []
         if len(args) == 2:
             settings = [(args[0], args[1])]
         elif len(args) == 1:
             settings = args[0]
         else:
             _logger.error(
-                "Invalid number of arguments!",
-                _logger.ExceptionTypes.ToolkitConnectionError,
+                "Invalid number of arguments!", _logger.ExceptionTypes.TypeError,
             )
         settings = self._commands_to_node(settings)
         self._connection.set_vector(settings)
@@ -721,30 +741,37 @@ class DeviceConnection(object):
 
         Eventually wraps around the daq.sync() of the API.
 
+        Raises:
+            ToolkitConnectionError: If the connection to the data
+                server is not established
+
         """
         self._connection.sync()
 
     def get(self, command, valueonly=True):
         """Gets the value of the node for the connected device.
 
-        Parses the returned dictionary from the data server to output only the
-        actual value in a nice format. Wraps around the daq.get(...) of the API.
+        Parses the returned dictionary from the data server to output
+        only the actual value in a nice format. Wraps around the
+        daq.get(...) of the API.
+
+        Multiple nodes can be specified as a list
 
         Arguments:
             command (str): node string of the value to get
-
-        Keyword Arguments:
-            valueonly (bool): a flag specifying if the entire dict should be
-                returned as from the API or only the actual value
-                (default: True)
+            valueonly (bool): a flag specifying if the entire dict
+                should be returned as from the API or only the actual
+                value (default: True)
 
         Raises:
-            ToolkitConnectionError: if no device is connected
+            ToolkitConnectionError: If no device is connected
+            TypeError: If the passed argument is not a string or list
 
         Returns:
             The value of the node.
 
         """
+        node_string = ""
         if self._device is not None:
             if isinstance(command, list):
                 paths = []
@@ -755,14 +782,16 @@ class DeviceConnection(object):
                 node_string = self._command_to_node(command)
             else:
                 _logger.error(
-                    "Invalid argument!", _logger.ExceptionTypes.ToolkitConnectionError,
+                    "Invalid argument! It must be either a node path string or "
+                    "list of node path strings",
+                    _logger.ExceptionTypes.TypeError,
                 )
             if (
                 self._device.device_type in [DeviceTypes.UHFLI, DeviceTypes.MFLI]
                 and "sample" in command.lower()
             ):
                 data = self._connection.get_sample(node_string)
-                return self._get_value_from_streamingnode(data)
+                return DeviceConnection._get_value_from_streamingnode(data)
             else:
                 data = self._connection.get(node_string, settingsonly=False, flat=True)
             data = self._get_value_from_dict(data)
@@ -787,6 +816,10 @@ class DeviceConnection(object):
             prefix (str): a partial node string that is passed to
                 'listNodesJSON(...)' to specify which part of the nodetree
                 to return
+
+        Raises:
+            ToolkitConnectionError: If the connection to the data
+                server is not established
 
         Returns:
             The nodetree of the device as a dictionary returned from the API.
@@ -833,7 +866,8 @@ class DeviceConnection(object):
                 new_data[key] = data_dict["vector"]
         return new_data
 
-    def _get_value_from_streamingnode(self, data):
+    @staticmethod
+    def _get_value_from_streamingnode(data):
         """Gets the (complex) data only for specific demod sample nodes.
 
         Arguments:
@@ -874,8 +908,10 @@ class DeviceConnection(object):
             settings (list): list of command/value pairs
 
         Raises:
-            ToolkitConnectionError: if the command/value pairs are not
-                specified as pairs/tuples
+            TypeError: if the command/value pairs are not specified as
+                pairs/tuples
+            ToolkitConnectionError: If the device is not connected to
+                the Data Server
 
         Returns:
             The parsed list.
@@ -887,12 +923,12 @@ class DeviceConnection(object):
                 if len(args) != 2:
                     _logger.error(
                         "node/value must be specified as pairs!",
-                        _logger.ExceptionTypes.ToolkitConnectionError,
+                        _logger.ExceptionTypes.TypeError,
                     )
             except TypeError:
                 _logger.error(
                     "node/value must be specified as pairs!",
-                    _logger.ExceptionTypes.ToolkitConnectionError,
+                    _logger.ExceptionTypes.TypeError,
                 )
             new_settings.append((self._command_to_node(args[0]), args[1]))
         return new_settings
@@ -910,6 +946,10 @@ class DeviceConnection(object):
 
         Returns:
             The parsed command.
+
+        Raises:
+            ToolkitConnectionError: If the device is not connected to
+                the Data Server
 
         """
         command = command.lower()
