@@ -80,7 +80,7 @@ class Scope:
             )
         # Stop the Scope if it is already running
         self.stop(sync=sync)
-        self._module.update(self._parent.serial)
+        self._module.update_device(self._parent.serial)
         # Tell the module to be ready to acquire data;
         # reset the module's progress to 0.0.
         self._module.execute()
