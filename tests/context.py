@@ -44,6 +44,7 @@ from zhinst.toolkit.control.drivers.mfli import (
 from zhinst.toolkit.control.drivers.uhfli import (
     DAQModule as DAQModule_UHFLI,
     SweeperModule as Sweeper_UHFLI,
+    _logger as uhfli_logger,
 )
 from zhinst.toolkit.control.connection import (
     ZIConnection,

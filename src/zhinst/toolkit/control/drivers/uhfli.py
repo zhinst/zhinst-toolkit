@@ -2,9 +2,6 @@
 #
 # This software may be modified and distributed under the terms
 # of the MIT license. See the LICENSE file for details.
-
-import numpy as np
-
 from zhinst.toolkit.control.drivers.base import (
     BaseInstrument,
     DAQModule as DAQ,
@@ -12,6 +9,7 @@ from zhinst.toolkit.control.drivers.base import (
 )
 from zhinst.toolkit.control.drivers.uhfqa import AWG
 from zhinst.toolkit.interface import DeviceTypes, LoggerModule
+from zhinst.toolkit.helpers import SequenceType, TriggerMode
 
 _logger = LoggerModule(__name__)
 
@@ -56,6 +54,22 @@ class UHFLI(BaseInstrument):
 
     def __init__(self, name: str, serial: str, discovery=None, **kwargs) -> None:
         super().__init__(name, DeviceTypes.UHFLI, serial, discovery, **kwargs)
+        self._awg = None
+        self._daq = None
+        self._sweeper = None
+        self._allowed_sequences = [
+            SequenceType.NONE,
+            SequenceType.SIMPLE,
+            SequenceType.CW_SPEC,
+            SequenceType.PULSED_SPEC,
+            SequenceType.CUSTOM,
+        ]
+        self._allowed_trigger_modes = [
+            TriggerMode.NONE,
+            TriggerMode.EXTERNAL_TRIGGER,
+            TriggerMode.RECEIVE_TRIGGER,
+            TriggerMode.ZSYNC_TRIGGER,
+        ]
 
     def connect_device(self, nodetree: bool = True) -> None:
         """Establishes a device connection.
@@ -72,16 +86,29 @@ class UHFLI(BaseInstrument):
         super().connect_device(nodetree=nodetree)
         self._get_streamingnodes()
         if "AWG" in self._options:
-            self._awg = AWG(self, 0)
-            self._awg._setup()
-        self._daq = DAQModule(self)
-        self._daq._setup()
-        self._sweeper = SweeperModule(self)
-        self._sweeper._setup()
+            self._init_awg_cores()
+        self._init_daq()
+        self._init_sweeper()
 
     def factory_reset(self) -> None:
         """Loads the factory default settings."""
         super().factory_reset()
+
+    def _init_awg_cores(self):
+        """Initialize the AWGs cores of the device."""
+        self._awg = AWG(self, 0)
+        self.awg._setup()
+        self.awg._init_awg_params()
+
+    def _init_daq(self):
+        """Initialize the DAQ module of the device."""
+        self._daq = DAQModule(self)
+        self._daq._setup()
+
+    def _init_sweeper(self):
+        """Initialize the Sweeper module of the device."""
+        self._sweeper = SweeperModule(self)
+        self._sweeper._setup()
 
     def _init_settings(self):
         if "AWG" in self.options:
@@ -105,6 +132,22 @@ class UHFLI(BaseInstrument):
     @property
     def sweeper(self):
         return self._sweeper
+
+    @property
+    def allowed_sequences(self):
+        if "AWG" not in self._options:
+            _logger.error(
+                "The AWG option is not installed.", _logger.ExceptionTypes.ToolkitError,
+            )
+        return self._allowed_sequences
+
+    @property
+    def allowed_trigger_modes(self):
+        if "AWG" not in self._options:
+            _logger.error(
+                "The AWG option is not installed.", _logger.ExceptionTypes.ToolkitError,
+            )
+        return self._allowed_trigger_modes
 
 
 class DAQModule(DAQ):
