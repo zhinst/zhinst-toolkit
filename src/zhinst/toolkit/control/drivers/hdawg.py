@@ -111,9 +111,15 @@ class HDAWG(BaseInstrument):
         super().connect_device(nodetree=nodetree)
         self._init_awg_cores()
 
-    def factory_reset(self) -> None:
-        """Loads the factory default settings."""
-        super().factory_reset()
+    def factory_reset(self, sync=True) -> None:
+        """Load the factory default settings.
+
+        Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after loading the factory preset (default: True).
+        """
+        super().factory_reset(sync=sync)
 
     def enable_qccs_mode(self) -> None:
         """Configure the instrument to work with PQSC

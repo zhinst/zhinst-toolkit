@@ -90,9 +90,15 @@ class UHFLI(BaseInstrument):
         self._init_daq()
         self._init_sweeper()
 
-    def factory_reset(self) -> None:
-        """Loads the factory default settings."""
-        super().factory_reset()
+    def factory_reset(self, sync=True) -> None:
+        """Load the factory default settings.
+
+        Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after loading the factory preset (default: True).
+        """
+        super().factory_reset(sync=sync)
 
     def _init_awg_cores(self):
         """Initialize the AWGs cores of the device."""

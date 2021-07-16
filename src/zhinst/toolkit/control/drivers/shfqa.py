@@ -113,8 +113,14 @@ class SHFQA(BaseInstrument):
         self._init_qachannels()
         self._init_scope()
 
-    def factory_reset(self) -> None:
-        """Loads the factory default settings."""
+    def factory_reset(self, sync=True) -> None:
+        """Load the factory default settings.
+
+        Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after loading the factory preset (default: True).
+        """
         _logger.warning(
             f"Factory preset is not yet supported in SHFQA " f"{self.serial.upper()}."
         )
