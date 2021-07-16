@@ -125,9 +125,15 @@ class BaseInstrument:
         self._init_params()
         self._init_settings()
 
-    def factory_reset(self) -> None:
-        """Loads the factory default settings."""
-        self._set(f"/system/preset/load", 1)
+    def factory_reset(self, sync=True) -> None:
+        """Load the factory default settings.
+
+        Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after loading the factory preset (default: True).
+        """
+        self._set(f"/system/preset/load", 1, sync=sync)
         _logger.info(f"Factory preset is loaded to device {self.serial.upper()}.")
 
     def _check_ref_clock(self, blocking=True, timeout=30) -> None:

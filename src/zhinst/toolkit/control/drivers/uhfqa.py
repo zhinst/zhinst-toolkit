@@ -169,9 +169,15 @@ class UHFQA(BaseInstrument):
         self._init_scope()
         self._init_readout_channels()
 
-    def factory_reset(self) -> None:
-        """Loads the factory default settings."""
-        super().factory_reset()
+    def factory_reset(self, sync=True) -> None:
+        """Load the factory default settings.
+
+        Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after loading the factory preset (default: True).
+        """
+        super().factory_reset(sync=sync)
         # Set the AWG to single shot mode manually since the firmware
         # is not programmed to do this automatically when factory
         # preset is loaded
