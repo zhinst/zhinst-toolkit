@@ -78,7 +78,7 @@ class PQSC(BaseInstrument):
     def connect_device(self, nodetree: bool = True) -> None:
         """Connects the device to the data server.
 
-        Keyword Arguments:
+        Arguments:
             nodetree (bool): A flag that specifies if all the parameters from
                 the device's nodetree should be added to the object's attributes
                 as `zhinst-toolkit` Parameters. (default: True)
@@ -96,7 +96,7 @@ class PQSC(BaseInstrument):
         """
         super().factory_reset(sync=sync)
 
-    def arm(self, repetitions=None, holdoff=None) -> None:
+    def arm(self, sync=True, repetitions: int = None, holdoff: float = None) -> None:
         """Prepare PQSC for triggering the instruments.
 
         This method configures the execution engine of the PQSC and
@@ -109,46 +109,93 @@ class PQSC(BaseInstrument):
         should be long enough such that the PQSC is still enabled when
         the feedback arrives. Otherwise, the feedback cannot be processed.
 
-        Keyword Arguments:
+        Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after stopping the PQSC and clearing the
+                register bank (default: True).
             repetitions (int): If specified, the number of triggers sent
-                over ZSync ports will be set. (default: None)
+                over ZSync ports will be set (default: None).
             holdoff (double): If specified, the time between repeated
                 triggers sent over ZSync ports will be set. It has a
-                minimum value and a granularity of 100 ns. (default: None)
+                minimum value and a granularity of 100 ns
+                (default: None).
 
         """
         # Stop the PQSC if it is already running
-        self.stop()
+        self.stop(sync=sync)
         if repetitions is not None:
-            self.repetitions(int(repetitions))
+            self.repetitions(repetitions)
         if holdoff is not None:
             self.holdoff(holdoff)
         # Clear register bank
-        self._set("feedback/registerbank/reset", 1)
+        self._set("feedback/registerbank/reset", 1, sync=sync)
 
-    def run(self) -> None:
+    def run(self, sync=True) -> None:
         """Start sending out triggers.
 
         This method activates the trigger generation to trigger all
         connected instruments over ZSync ports.
+
+        Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after enabling the PQSC (default: True).
         """
-        self._enable(True)
+        self._enable(True, sync=sync)
 
-    def stop(self) -> None:
-        """Stops the trigger generation."""
-        self._enable(False)
+    def arm_and_run(
+        self, repetitions: int = None, holdoff: float = None
+    ) -> None:
+        """Arm the PQSC and start sending out triggers.
 
-    def wait_done(self, timeout: float = 10) -> None:
+        Simply combines the methods arm and run. A synchronisation
+        is performed between the device and the data server after 
+        arming and running the PQSC.
+
+        Arguments:
+            repetitions (int): If specified, the number of triggers sent
+                over ZSync ports will be set (default: None).
+            holdoff (double): If specified, the time between repeated
+                triggers sent over ZSync ports will be set. It has a
+                minimum value and a granularity of 100 ns
+                (default: None).
+
+        """
+        self.arm(sync=True, repetitions=repetitions, holdoff=holdoff)
+        self.run(sync=True)
+
+    def stop(self, sync=True) -> None:
+        """Stop the trigger generation.
+
+        Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after disabling the PQSC (default: True).
+        """
+        self._enable(False, sync=sync)
+
+    def wait_done(self, timeout: float = 10, sleep_time: float = 0.005) -> None:
         """Wait until trigger generation and feedback processing is done.
 
-        Keyword Arguments:
-            timeout (int): The maximum waiting time in seconds for the
+        Arguments:
+            timeout (float): The maximum waiting time in seconds for the
                 PQSC (default: 10).
+            sleep_time (float): Time in seconds to wait between
+                requesting PQSC state
+
+        Raises:
+            TimeoutError: If the PQSC is not done sending out all
+                triggers and processing feedback before the timeout.
 
         """
         start_time = time.time()
         while self.is_running and start_time + timeout >= time.time():
-            time.sleep(0.1)
+            time.sleep(sleep_time)
+        if self.is_running and start_time + timeout < time.time():
+            _logger.error(
+                "PQSC timed out!", _logger.ExceptionTypes.TimeoutError,
+            )
 
     def check_ref_clock(
         self, blocking: bool = True, timeout: int = 30, sleep_time: int = 1
@@ -177,7 +224,7 @@ class PQSC(BaseInstrument):
         This function checks the current status of the instrument
         connected to the given port.
 
-        Keyword Arguments:
+        Arguments:
             ports (list) or (int): The port numbers to check the ZSync
                 connection for. It can either be a single port number given
                 as integer or a list of several port numbers. (default: 0)
