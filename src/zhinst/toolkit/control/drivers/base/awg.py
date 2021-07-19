@@ -214,7 +214,8 @@ class AWGCore:
             time.sleep(sleep_time)
         if self.is_running and start_time + timeout < time.time():
             _logger.error(
-                "AWG Core timed out!", _logger.ExceptionTypes.TimeoutError,
+                "AWG Core timed out!",
+                _logger.ExceptionTypes.TimeoutError,
             )
 
     def compile(self) -> None:
@@ -340,7 +341,8 @@ class AWGCore:
         """
         if i not in range(len(self._waveforms)):
             _logger.error(
-                "Index out of range!", _logger.ExceptionTypes.ValueError,
+                "Index out of range!",
+                _logger.ExceptionTypes.ValueError,
             )
         self._waveforms[i].replace_data(wave1, wave2, delay=delay)
 

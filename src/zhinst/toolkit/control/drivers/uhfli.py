@@ -127,7 +127,8 @@ class UHFLI(BaseInstrument):
     def awg(self):
         if "AWG" not in self._options:
             _logger.error(
-                "The AWG option is not installed.", _logger.ExceptionTypes.ToolkitError,
+                "The AWG option is not installed.",
+                _logger.ExceptionTypes.ToolkitError,
             )
         return self._awg
 
@@ -143,7 +144,8 @@ class UHFLI(BaseInstrument):
     def allowed_sequences(self):
         if "AWG" not in self._options:
             _logger.error(
-                "The AWG option is not installed.", _logger.ExceptionTypes.ToolkitError,
+                "The AWG option is not installed.",
+                _logger.ExceptionTypes.ToolkitError,
             )
         return self._allowed_sequences
 
@@ -151,7 +153,8 @@ class UHFLI(BaseInstrument):
     def allowed_trigger_modes(self):
         if "AWG" not in self._options:
             _logger.error(
-                "The AWG option is not installed.", _logger.ExceptionTypes.ToolkitError,
+                "The AWG option is not installed.",
+                _logger.ExceptionTypes.ToolkitError,
             )
         return self._allowed_trigger_modes
 

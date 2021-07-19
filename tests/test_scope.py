@@ -22,7 +22,7 @@ parser_logger.disable_logging()
 connection_logger.disable_logging()
 
 
-@given(device_type=st.sampled_from(DeviceTypes),)
+@given(device_type=st.sampled_from(DeviceTypes))
 def test_init_scope(device_type):
     allowed_device_types = {
         DeviceTypes.UHFQA: UHFQA,

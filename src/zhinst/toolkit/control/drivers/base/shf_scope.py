@@ -72,7 +72,8 @@ class SHFScope:
             time.sleep(0.1)
         if self.is_running and start_time + timeout < time.time():
             _logger.error(
-                "Scope recording timed out!", _logger.ExceptionTypes.TimeoutError,
+                "Scope recording timed out!",
+                _logger.ExceptionTypes.TimeoutError,
             )
 
     def read(self, channel=None):

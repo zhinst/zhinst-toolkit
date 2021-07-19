@@ -457,7 +457,7 @@ class AWG(AWGCore):
             (f"awgs/{i}/outputs/1/modulation/mode", 2),  # modulation: sine 22
             (f"sines/{2 * i}/oscselect", 4 * i),  # select osc N for awg N
             (f"sines/{2 * i + 1}/oscselect", 4 * i),  # select osc N for awg N
-            (f"sines/{2 * i + 1}/phaseshift", 90,),  # 90 deg phase shift
+            (f"sines/{2 * i + 1}/phaseshift", 90),  # 90 deg phase shift
         ]
         self._parent._set(settings)
         self.set_sequence_params(reset_phase=True)
@@ -474,7 +474,7 @@ class AWG(AWGCore):
         settings = [
             (f"awgs/{i}/outputs/0/modulation/mode", 0),  # modulation: sine 11
             (f"awgs/{i}/outputs/1/modulation/mode", 0),  # modulation: sine 22
-            (f"sines/{2 * i + 1}/phaseshift", 0,),  # 90 deg phase shift
+            (f"sines/{2 * i + 1}/phaseshift", 0),  # 0 deg phase shift
         ]
         self._parent._set(settings)
         self.set_sequence_params(reset_phase=False)

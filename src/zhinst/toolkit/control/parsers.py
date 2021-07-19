@@ -274,7 +274,7 @@ class Parse:
 
     @staticmethod
     def version_parser(v):
-        """ Convert the obtained data version string to correct format"""
+        """Convert the obtained data version string to correct format"""
         v = str(v)
         year = v[:2]
         month = v[2:4]

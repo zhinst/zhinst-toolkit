@@ -168,7 +168,8 @@ class SHFGenerator:
             time.sleep(0.1)
         if self.is_running and start_time + timeout < time.time():
             _logger.error(
-                "The generator timed out!", _logger.ExceptionTypes.TimeoutError,
+                "The generator timed out!",
+                _logger.ExceptionTypes.TimeoutError,
             )
 
     def compile(self) -> None:

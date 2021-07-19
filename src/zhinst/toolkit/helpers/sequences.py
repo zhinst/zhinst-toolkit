@@ -141,7 +141,8 @@ class Sequence(object):
         converter=lambda m: TriggerMode.NONE if m == "None" else TriggerMode(m),
     )
     trigger_samples = attr.ib(
-        default=32, validator=[is_greater_equal(32), is_multiple(16)],
+        default=32,
+        validator=[is_greater_equal(32), is_multiple(16)],
     )
     repetitions = attr.ib(default=1)
     alignment = attr.ib(
@@ -362,7 +363,8 @@ class Sequence(object):
         """Performs sanity checks on the sequence parameters."""
         if (self.period - self.dead_time - self.latency + self.trigger_delay) < 0:
             _logger.error(
-                "Wait time cannot be negative!", _logger.ExceptionTypes.ValueError,
+                "Wait time cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
             )
 
     def __setattr__(self, name, value) -> None:
@@ -591,7 +593,8 @@ class RabiSequence(Sequence):
     """
 
     pulse_amplitudes = attr.ib(
-        default=[1.0], validator=[is_greater_equal(-1.0), is_smaller_equal(1.0)],
+        default=[1.0],
+        validator=[is_greater_equal(-1.0), is_smaller_equal(1.0)],
     )
     pulse_width = attr.ib(default=50e-9, validator=is_greater_equal(0))
     pulse_truncation = attr.ib(default=3, validator=is_greater_equal(0))
@@ -646,7 +649,8 @@ class RabiSequence(Sequence):
             self.period - self.dead_time - 2 * self.pulse_width * self.pulse_truncation
         ) < 0:
             _logger.error(
-                "Wait time cannot be negative!", _logger.ExceptionTypes.ValueError,
+                "Wait time cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
             )
         if self.n_HW_loop < len(self.pulse_amplitudes):
             _logger.error(
@@ -685,7 +689,8 @@ class T1Sequence(Sequence):
     """
 
     pulse_amplitude = attr.ib(
-        default=1, validator=[is_greater_equal(-1.0), is_smaller_equal(1.0)],
+        default=1,
+        validator=[is_greater_equal(-1.0), is_smaller_equal(1.0)],
     )
     pulse_width = attr.ib(default=50e-9, validator=is_greater_equal(0))
     pulse_truncation = attr.ib(default=3, validator=is_greater_equal(0))
@@ -728,7 +733,8 @@ class T1Sequence(Sequence):
         super().check_attributes()
         if (self.period - self.dead_time - self.gauss_params[0] / self.clock_rate) < 0:
             _logger.error(
-                "Wait time cannot be negative!", _logger.ExceptionTypes.ValueError,
+                "Wait time cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
             )
         if self.n_HW_loop > len(self.delay_times):
             _logger.error(

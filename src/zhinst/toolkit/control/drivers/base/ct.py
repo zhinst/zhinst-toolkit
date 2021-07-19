@@ -37,7 +37,7 @@ class CommandTable:
         self._device._set_vector(node, json.dumps(table_updated))
 
     def _validate(self, table):
-        """ Ensure command table is valid JSON and compliant with schema"""
+        """Ensure command table is valid JSON and compliant with schema"""
         # Validation only works if the command table is in dictionary
         # format (json object). Make the encessary conversion
         table_updated = self._to_dict(table)

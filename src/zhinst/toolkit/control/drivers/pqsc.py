@@ -144,13 +144,11 @@ class PQSC(BaseInstrument):
         """
         self._enable(True, sync=sync)
 
-    def arm_and_run(
-        self, repetitions: int = None, holdoff: float = None
-    ) -> None:
+    def arm_and_run(self, repetitions: int = None, holdoff: float = None) -> None:
         """Arm the PQSC and start sending out triggers.
 
         Simply combines the methods arm and run. A synchronisation
-        is performed between the device and the data server after 
+        is performed between the device and the data server after
         arming and running the PQSC.
 
         Arguments:
@@ -194,7 +192,8 @@ class PQSC(BaseInstrument):
             time.sleep(sleep_time)
         if self.is_running and start_time + timeout < time.time():
             _logger.error(
-                "PQSC timed out!", _logger.ExceptionTypes.TimeoutError,
+                "PQSC timed out!",
+                _logger.ExceptionTypes.TimeoutError,
             )
 
     def check_ref_clock(
@@ -291,7 +290,9 @@ class PQSC(BaseInstrument):
             get_parser=Parse.get_locked_status,
         )
         self.progress = Parameter(
-            self, self._get_node_dict(f"execution/progress"), device=self,
+            self,
+            self._get_node_dict(f"execution/progress"),
+            device=self,
         )
         self._enable = Parameter(
             self,

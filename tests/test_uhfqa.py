@@ -275,7 +275,7 @@ def test_set_get_params_channel():
         ch._average_result(1000)
 
 
-@given(single_value=st.floats(-2, 2),)
+@given(single_value=st.floats(-2, 2))
 def test_int_weights_envelope_single_value(single_value):
     ch = ReadoutChannel(UHFQA("name", "dev2000"), 0)
     with pytest.raises(uhfqa_logger.ToolkitConnectionError):
@@ -288,7 +288,7 @@ def test_int_weights_envelope_single_value(single_value):
         assert ch.int_weights_envelope() == single_value
 
 
-@given(value_list=st.lists(st.floats(0, 1), min_size=1, max_size=4096),)
+@given(value_list=st.lists(st.floats(0, 1), min_size=1, max_size=4096))
 def test_int_weights_envelope_value_list(value_list):
     ch = ReadoutChannel(UHFQA("name", "dev2000"), 0)
     with pytest.raises(TypeError):
