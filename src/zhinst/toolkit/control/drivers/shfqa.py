@@ -9,6 +9,8 @@ from zhinst.toolkit.control.drivers.base import (
     BaseInstrument,
     SHFQAChannel,
     SHFGenerator,
+    SHFReadout,
+    SHFIntegration,
     SHFScope,
     SHFSweeper,
 )
@@ -167,6 +169,7 @@ class SHFQA(BaseInstrument):
         self._qachannels = [QAChannel(self, i) for i in range(self.num_qachannels())]
         [qachannel._init_qachannel_params() for qachannel in self.qachannels]
         [qachannel._init_generator() for qachannel in self.qachannels]
+        [qachannel._init_readout() for qachannel in self.qachannels]
         [qachannel._init_sweeper() for qachannel in self.qachannels]
 
     def _init_scope(self):
@@ -259,6 +262,8 @@ class QAChannel(SHFQAChannel):
     Attributes:
         generator (:class:`zhinst.toolkit.control.drivers.shfqa.Generator`):
             A device-specific :class:`SHFGenerator` for the SHFQA.
+        readout (:class:`zhinst.toolkit.control.drivers.shfqa.Readout`):
+            A device-specific :class:`SHFReadout` for the SHFQA.
         sweeper (:class:`zhinst.toolkit.control.drivers.shfqa.Sweeper`):
             A device-specific :class:`SHFSweeper` for the SHFQA.
         input (:class:`zhinst.toolkit.control.node_tree.Parameter`):
@@ -357,6 +362,12 @@ class QAChannel(SHFQAChannel):
         self._generator._setup()
         self._generator._init_generator_params()
 
+    def _init_readout(self):
+        """Initialize the readout module of the qachannel."""
+        self._readout = Readout(self)
+        self._readout._init_readout_params()
+        self._readout._init_integrations()
+
     def _init_sweeper(self):
         """Initialize the sweeper of the qachannel."""
         self._sweeper = Sweeper(self)
@@ -365,6 +376,10 @@ class QAChannel(SHFQAChannel):
     @property
     def generator(self):
         return self._generator
+
+    @property
+    def readout(self):
+        return self._readout
 
     @property
     def sweeper(self):
@@ -477,6 +492,168 @@ class Generator(SHFGenerator):
 
     def _apply_sequence_settings(self, **kwargs) -> None:
         super()._apply_sequence_settings(**kwargs)
+
+
+class Readout(SHFReadout):
+    """Device-specific Readout module for SHFQA.
+
+    This class inherits from the base :class:`SHFReadout` and adds
+    :mod:`zhinst-toolkit` :class:`.Parameter` s such as integration
+    length or result source.
+
+    See more about SHFReadout modules at
+    :class:`zhinst.toolkit.control.drivers.base.SHFReadout`.
+
+    Attributes:
+        integration_length (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            The integration length in number of samples. The value
+            must be greater than and multiple of 4. A maximum of 4096
+            samples can be integrated, which corresponds to 2.05 us.
+            (default: 128).
+        integration_delay (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            The integration length in number of samples. The value
+            must be greater than and multiple of 4. A maximum of 4096
+            samples can be integrated, which corresponds to 2.05 us.
+            (default: 128).
+        result_source (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            This parameter selects the stage in the signal processing
+            path that is used as the source for the QA results. It can
+            be one of {`"Crosstalk"`, `"Threshold"`, `"Rotation"`,
+            `"Crosstalk Correlation"`, `"Threshold Correlation"`,
+            `"Integration"`}.
+        result_length (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Number of data points to record. One data point corresponds
+            to a single averaged result value of the selected source
+            (default: 1).
+        num_averages (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Number of measurements that are averaged. Only powers of 2
+            are valid, other values are rounded down to the next power
+            of 2. 1 means no averaging. The maximum setting is 32768.
+            (default: 1).
+
+    """
+
+    def __init__(self, parent: SHFQAChannel) -> None:
+        super().__init__(parent)
+        self._integrations = []
+        self._enable = None
+        self.integration_length = None
+        self.integration_delay = None
+        self.result_source = None
+        self.result_length = None
+        self.num_averages = None
+
+    def _init_readout_params(self):
+        self._enable = Parameter(
+            self,
+            self._device._get_node_dict(
+                f"qachannels/{self._index}/readout/result/enable"
+            ),
+            device=self._device,
+            set_parser=Parse.set_true_false,
+            get_parser=Parse.get_true_false,
+        )
+        self.integration_length = Parameter(
+            self,
+            self._device._get_node_dict(
+                f"qachannels/{self._index}/readout/integration/length"
+            ),
+            device=self._device,
+        )
+        self.integration_delay = Parameter(
+            self,
+            self._device._get_node_dict(
+                f"qachannels/{self._index}/readout/integration/delay"
+            ),
+            device=self._device,
+        )
+        self.result_source = Parameter(
+            self,
+            self._device._get_node_dict(
+                f"qachannels/{self._index}/readout/result/source"
+            ),
+            device=self._device,
+            auto_mapping=True,
+        )
+        self.result_length = Parameter(
+            self,
+            self._device._get_node_dict(
+                f"qachannels/{self._index}/readout/result/length"
+            ),
+            device=self._device,
+        )
+        self.num_averages = Parameter(
+            self,
+            self._device._get_node_dict(
+                f"qachannels/{self._index}/readout/result/averages"
+            ),
+            device=self._device,
+        )
+
+    def _init_integrations(self):
+        """Initialize the integration units of the readout module."""
+        self._integrations = [Integration(self, i) for i in range(16)]
+        [integration._init_integration_params() for integration in self._integrations]
+
+    @property
+    def integrations(self):
+        return self._integrations
+
+
+class Integration(SHFIntegration):
+    """Implements an integration for the SHFQA.
+
+    This class represents the signal processing chain for one of the 16
+    :class:`Integration`s of the SHFQA. Integration is typically used
+    for dispersive resonator readout of superconducting qubits.
+
+    Attributes:
+        index (int): The index of the Integration from 0 to 15.
+        threshold (:class:`zhinst.toolkit.control.nodetree.Parameter`):
+            The signal threshold used for state discrimination in the
+            thresholding unit.
+        result (:class:`zhinst.toolkit.control.nodetree.Parameter`):
+            This read-only Parameter holds the result vector data for
+            the given integration. Depending on the source of the data,
+            the data can be complex- or integer-valued.
+        weights (:class:`zhinst.toolkit.control.nodetree.Parameter`):
+            Contains the complex-valued waveform of the Integration
+            Weight. The valid range is between -1.0 and +1.0 for both
+            the real and imaginary part.
+
+    """
+
+    def __init__(self, parent: SHFReadout, index: int) -> None:
+        super().__init__(parent, index)
+        self.threshold = None
+        self.result = None
+        self.weights = None
+
+    def _init_integration_params(self):
+        self.threshold = Parameter(
+            self,
+            self._device._get_node_dict(
+                f"qachannels/{self._parent_index}"
+                f"/readout/discriminators/{self._index}/threshold"
+            ),
+            device=self._device,
+        )
+        self.result = Parameter(
+            self,
+            self._device._get_node_dict(
+                f"/qachannels/{self._parent_index}"
+                f"/readout/result/data/{self._index}/wave"
+            ),
+            device=self._device,
+        )
+        self.weights = Parameter(
+            self,
+            self._device._get_node_dict(
+                f"/qachannels/{self._parent_index}"
+                f"/readout/integration/weights/{self._index}/wave"
+            ),
+            device=self._device,
+        )
 
 
 class Sweeper(SHFSweeper):

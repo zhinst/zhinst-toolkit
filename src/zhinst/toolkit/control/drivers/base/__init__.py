@@ -2,6 +2,8 @@ from .awg import AWGCore
 from .scope import Scope
 from .shf_qachannel import SHFQAChannel
 from .shf_generator import SHFGenerator
+from .shf_readout import SHFReadout
+from .shf_integration import SHFIntegration
 from .shf_scope import SHFScope
 from .shf_sweeper import SHFSweeper
 from .daq import DAQModule

@@ -47,13 +47,29 @@ class SHFScope:
         """
         pass
 
-    def run(self) -> None:
-        """Runs the scope recording."""
-        self._enable(True)
+    def run(self, sync=True) -> None:
+        """Run the scope recording.
 
-    def stop(self) -> None:
-        """Stops the scope recording."""
-        self._enable(False)
+        Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after starting the scope recording
+                (default: True).
+
+        """
+        self._enable(True, sync=sync)
+
+    def stop(self, sync=True) -> None:
+        """Stop the scope recording.
+
+        Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after stopping scope recording
+                (default: True).
+
+        """
+        self._enable(False, sync=sync)
 
     def wait_done(self, timeout: float = 10, sleep_time: float = 0.005) -> None:
         """Wait until the Scope recording is finished.
