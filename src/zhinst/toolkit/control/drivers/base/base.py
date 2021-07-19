@@ -136,7 +136,9 @@ class BaseInstrument:
         self._set(f"/system/preset/load", 1, sync=sync)
         _logger.info(f"Factory preset is loaded to device {self.serial.upper()}.")
 
-    def _check_ref_clock(self, blocking=True, timeout=30) -> None:
+    def _check_ref_clock(
+        self, blocking: bool = True, timeout: int = 30, sleep_time: int = 1
+    ) -> None:
         """Check if reference clock is locked successfully.
 
         Keyword Arguments:
@@ -144,36 +146,38 @@ class BaseInstrument:
                 be blocked until the reference clock is 'locked'.
                 (default: True)
             timeout (int): Maximum time in seconds the program waits
-                when `blocking` is set to `True`. (default: 30)
+                when `blocking` is set to `True` (default: 30).
+            sleep_time (int): Time in seconds to wait between
+                requesting the reference clock status (default: 1)
 
         Raises:
             ToolkitError: If the device fails to lock on the reference
                 clock.
 
         """
-        ref_clock_set = self.ref_clock()
-        ref_clock_status = self.ref_clock_status()
         start_time = time.time()
         while (
             blocking
             and start_time + timeout >= time.time()
-            and ref_clock_status != "locked"
+            and self.ref_clock_status() != "locked"
         ):
-            time.sleep(1)
-            # Check again if status is 'locked' and update the variable.
-            ref_clock_status = self.ref_clock_status()
+            time.sleep(sleep_time)
         # Throw an exception if the clock is still not locked after timeout
-        ref_clock_actual = self.ref_clock_actual()
-        if ref_clock_actual != ref_clock_set:
+        if (
+            self.ref_clock_actual() != self.ref_clock()
+            or self.ref_clock_status() != "locked"
+        ):
+            self.ref_clock("internal", sync=True)
             _logger.error(
                 f"There was an error locking the device {self.name} ({self.serial}) "
-                f"onto reference clock signal. Please try again.",
+                f"onto reference clock signal. Automatically switching to internal "
+                f"reference clock. Please try again.",
                 _logger.ExceptionTypes.ToolkitError,
             )
         else:
             _logger.info(
-                f"Reference clock has been successfully locked on the "
-                f"device {self.name} ({self.serial})."
+                f"Reference clock has been successfully locked to {self.ref_clock()} "
+                f"on device {self.name} ({self.serial})."
             )
 
     def _init_params(self):

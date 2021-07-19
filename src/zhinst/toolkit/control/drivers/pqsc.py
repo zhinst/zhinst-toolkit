@@ -150,7 +150,9 @@ class PQSC(BaseInstrument):
         while self.is_running and start_time + timeout >= time.time():
             time.sleep(0.1)
 
-    def check_ref_clock(self, blocking=True, timeout=30) -> None:
+    def check_ref_clock(
+        self, blocking: bool = True, timeout: int = 30, sleep_time: int = 1
+    ) -> None:
         """Check if reference clock is locked successfully.
 
         Keyword Arguments:
@@ -158,10 +160,16 @@ class PQSC(BaseInstrument):
                 be blocked until the reference clock is 'locked'.
                 (default: True)
             timeout (int): Maximum time in seconds the program waits
-                when `blocking` is set to `True`. (default: 30)
+                when `blocking` is set to `True` (default: 30).
+            sleep_time (int): Time in seconds to wait between
+                requesting the reference clock status (default: 1)
+
+        Raises:
+            ToolkitError: If the device fails to lock on the reference
+                clock.
 
         """
-        self._check_ref_clock(blocking=blocking, timeout=timeout)
+        self._check_ref_clock(blocking=blocking, timeout=timeout, sleep_time=sleep_time)
 
     def check_zsync_connection(self, ports=0, blocking=True, timeout=30) -> None:
         """Check if the ZSync connection on the given port is successful.
