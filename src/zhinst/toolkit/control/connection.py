@@ -651,7 +651,8 @@ class DeviceConnection(object):
         else:
             self._normalized_serial = self._device.serial
         self._connection.connect_device(
-            serial=self._normalized_serial, interface=self._device.interface,
+            serial=self._normalized_serial,
+            interface=self._device.interface,
         )
         self._is_connected = True
 
@@ -707,7 +708,8 @@ class DeviceConnection(object):
                 self.sync()
         else:
             _logger.error(
-                "Invalid number of arguments!", _logger.ExceptionTypes.TypeError,
+                "Invalid number of arguments!",
+                _logger.ExceptionTypes.TypeError,
             )
 
     def set_vector(self, *args):
@@ -730,7 +732,8 @@ class DeviceConnection(object):
             settings = args[0]
         else:
             _logger.error(
-                "Invalid number of arguments!", _logger.ExceptionTypes.TypeError,
+                "Invalid number of arguments!",
+                _logger.ExceptionTypes.TypeError,
             )
         settings = self._commands_to_node(settings)
         self._connection.set_vector(settings)
@@ -804,7 +807,8 @@ class DeviceConnection(object):
                 return data
         else:
             _logger.error(
-                "No device connected!", _logger.ExceptionTypes.ToolkitConnectionError,
+                "No device connected!",
+                _logger.ExceptionTypes.ToolkitConnectionError,
             )
 
     def get_nodetree(self, prefix: str, **kwargs):

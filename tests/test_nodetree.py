@@ -19,7 +19,7 @@ DUMMY_DICT = {
         "second": DUMMY_PARAMETER,
         "third": DUMMY_PARAMETER,
     },
-    "second": {1: DUMMY_PARAMETER, 2: DUMMY_PARAMETER, 3: DUMMY_PARAMETER,},
+    "second": {1: DUMMY_PARAMETER, 2: DUMMY_PARAMETER, 3: DUMMY_PARAMETER},
     "third": DUMMY_PARAMETER,
     "fourths": {1: DUMMY_PARAMETER},
 }

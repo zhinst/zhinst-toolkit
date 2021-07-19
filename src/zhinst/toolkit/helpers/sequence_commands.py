@@ -82,7 +82,8 @@ class SequenceCommand(object):
             return f"while(true){{\n"
         if i < 0:
             _logger.error(
-                "Invalid number of repetitions!", _logger.ExceptionTypes.ValueError,
+                "Invalid number of repetitions!",
+                _logger.ExceptionTypes.ValueError,
             )
         return f"repeat({int(i)}){{\n"
 
@@ -121,7 +122,8 @@ class SequenceCommand(object):
         """
         if i < 0:
             _logger.error(
-                "Wait time cannot be negative!", _logger.ExceptionTypes.ValueError,
+                "Wait time cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
             )
         if i == 0:
             return "//\n"
@@ -174,11 +176,13 @@ class SequenceCommand(object):
     def trigger(value, index=1):
         if value not in [0, 1]:
             _logger.error(
-                "Invalid Trigger Value!", _logger.ExceptionTypes.ValueError,
+                "Invalid Trigger Value!",
+                _logger.ExceptionTypes.ValueError,
             )
         if index not in [1, 2]:
             _logger.error(
-                "Invalid Trigger Index!", _logger.ExceptionTypes.ValueError,
+                "Invalid Trigger Index!",
+                _logger.ExceptionTypes.ValueError,
             )
         return f"setTrigger({value << (index - 1)});\n"
 
@@ -222,7 +226,8 @@ class SequenceCommand(object):
         """
         if i < 0:
             _logger.error(
-                "Waveform Index cannot be negative!", _logger.ExceptionTypes.ValueError,
+                "Waveform Index cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
             )
         return f"assignWaveIndex(w{i + 1}_1, w{i + 1}_2, {i});\n"
 
@@ -243,7 +248,8 @@ class SequenceCommand(object):
     def play_wave_indexed(i):
         if i < 0:
             _logger.error(
-                "Invalid Waveform Index!", _logger.ExceptionTypes.ValueError,
+                "Invalid Waveform Index!",
+                _logger.ExceptionTypes.ValueError,
             )
         return f"playWave(w{i + 1}_1, w{i + 1}_2);\n"
 
@@ -251,7 +257,8 @@ class SequenceCommand(object):
     def play_wave_indexed_scaled(amp1, amp2, i):
         if i < 0:
             _logger.error(
-                "Invalid Waveform Index!", _logger.ExceptionTypes.ValueError,
+                "Invalid Waveform Index!",
+                _logger.ExceptionTypes.ValueError,
             )
         if abs(amp1) > 1 or abs(amp2) > 1:
             _logger.error(
@@ -311,11 +318,13 @@ class SequenceCommand(object):
         length, pos, width = gauss_params
         if length < 16:
             _logger.error(
-                "Invalid Value for length!", _logger.ExceptionTypes.ValueError,
+                "Invalid Value for length!",
+                _logger.ExceptionTypes.ValueError,
             )
         if length % 16:
             _logger.error(
-                "Length has to be multiple of 16!", _logger.ExceptionTypes.ValueError,
+                "Length has to be multiple of 16!",
+                _logger.ExceptionTypes.ValueError,
             )
         if not (length > pos and length > width):
             _logger.error(
@@ -324,7 +333,8 @@ class SequenceCommand(object):
             )
         if not (width > 0):
             _logger.error(
-                "Values cannot be negative!", _logger.ExceptionTypes.ValueError,
+                "Values cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
             )
         return (
             f"wave w_1 = gauss({length}, {pos}, {width});\n"
@@ -341,11 +351,13 @@ class SequenceCommand(object):
             )
         if length < 16:
             _logger.error(
-                "Invalid Value for length!", _logger.ExceptionTypes.ValueError,
+                "Invalid Value for length!",
+                _logger.ExceptionTypes.ValueError,
             )
         if length % 16:
             _logger.error(
-                "Length has to be multiple of 16!", _logger.ExceptionTypes.ValueError,
+                "Length has to be multiple of 16!",
+                _logger.ExceptionTypes.ValueError,
             )
         if not (length > pos and length > width):
             _logger.error(
@@ -354,7 +366,8 @@ class SequenceCommand(object):
             )
         if not (width > 0):
             _logger.error(
-                "Values cannot be negative!", _logger.ExceptionTypes.ValueError,
+                "Values cannot be negative!",
+                _logger.ExceptionTypes.ValueError,
             )
         return (
             f"wave w_1 = {amp} * gauss({length}, {pos}, {width});\n"
@@ -413,7 +426,8 @@ class SequenceCommand(object):
 
         if index not in [1, 2]:
             _logger.error(
-                "Invalid Trigger Index!", _logger.ExceptionTypes.ValueError,
+                "Invalid Trigger Index!",
+                _logger.ExceptionTypes.ValueError,
             )
         if target in [DeviceTypes.HDAWG, DeviceTypes.SHFQA]:
             return f"waitDigTrigger({index});\n"

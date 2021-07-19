@@ -55,7 +55,8 @@ class Waveform(object):
             self._update()
         else:
             _logger.error(
-                "Waveform lengths don't match!", _logger.ExceptionTypes.ToolkitError,
+                "Waveform lengths don't match!",
+                _logger.ExceptionTypes.ToolkitError,
             )
 
     @property

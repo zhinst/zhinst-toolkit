@@ -194,10 +194,14 @@ class BaseInstrument:
             get_parser=Parse.version_parser,
         )
         self.firmware_version = Parameter(
-            self, self._get_node_dict(f"/system/fwrevision"), device=self,
+            self,
+            self._get_node_dict(f"/system/fwrevision"),
+            device=self,
         )
         self.fpga_version = Parameter(
-            self, self._get_node_dict(f"/system/fpgarevision"), device=self,
+            self,
+            self._get_node_dict(f"/system/fpgarevision"),
+            device=self,
         )
 
     def _init_settings(self):

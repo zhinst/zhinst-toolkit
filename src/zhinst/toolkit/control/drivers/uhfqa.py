@@ -27,7 +27,7 @@ MAPPINGS = {
         5: "Threshold Correlation",
         7: "Integration",
     },
-    "averaging_mode": {0: "Cyclic", 1: "Sequential",},
+    "averaging_mode": {0: "Cyclic", 1: "Sequential"},
 }
 
 
@@ -440,7 +440,10 @@ class UHFQA(BaseInstrument):
             mapping=MAPPINGS["averaging_mode"],
         )
         self.ref_clock = Parameter(
-            self, self._get_node_dict(f"system/extclk"), device=self, auto_mapping=True,
+            self,
+            self._get_node_dict(f"system/extclk"),
+            device=self,
+            auto_mapping=True,
         )
 
     def _init_settings(self):
@@ -712,7 +715,9 @@ class AWG(AWGCore):
                     amps.append(ch.readout_amplitude())
                     phases.append(ch.phase_shift())
             self.set_sequence_params(
-                readout_frequencies=freqs, readout_amplitudes=amps, phase_shifts=phases,
+                readout_frequencies=freqs,
+                readout_amplitudes=amps,
+                phase_shifts=phases,
             )
         else:
             _logger.error(
@@ -937,7 +942,8 @@ class ReadoutChannel:
             )
         if freq <= 0:
             _logger.error(
-                "This frequency must be positive.", _logger.ExceptionTypes.ValueError,
+                "This frequency must be positive.",
+                _logger.ExceptionTypes.ValueError,
             )
         clk_rate = 1.8e9
         x = np.arange(0, length, 1)
@@ -1007,7 +1013,9 @@ class UHFScope(Scope):
             ],
         )
         self._channel = Parameter(
-            self, self._parent._get_node_dict(f"scopes/0/channel"), device=self._parent,
+            self,
+            self._parent._get_node_dict(f"scopes/0/channel"),
+            device=self._parent,
         )
         self.trigger_source = Parameter(
             self,

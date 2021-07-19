@@ -50,14 +50,14 @@ def test_methods_pqsc():
         pqsc.check_ref_clock()
 
 
-@given(single_port=st.integers(0, 17),)
+@given(single_port=st.integers(0, 17))
 def test_check_zsync_connection_single_port(single_port):
     pqsc = PQSC("name", "dev10000")
     with pytest.raises(pqsc_logger.ToolkitConnectionError):
         pqsc.check_zsync_connection(ports=single_port)
 
 
-@given(port_list=st.lists(st.integers(0, 17), min_size=1, max_size=18, unique=True),)
+@given(port_list=st.lists(st.integers(0, 17), min_size=1, max_size=18, unique=True))
 def test_check_zsync_connection_port_list(port_list):
     pqsc = PQSC("name", "dev10000")
     with pytest.raises(pqsc_logger.ToolkitConnectionError):

@@ -26,7 +26,8 @@ def test_header_comment(t):
 
 
 @given(
-    trigger_mode=st.sampled_from(TriggerMode), alignment=st.sampled_from(Alignment),
+    trigger_mode=st.sampled_from(TriggerMode),
+    alignment=st.sampled_from(Alignment),
 )
 def test_header_info(trigger_mode, alignment):
     line = SequenceCommand.header_info(SequenceType.NONE, trigger_mode, alignment)

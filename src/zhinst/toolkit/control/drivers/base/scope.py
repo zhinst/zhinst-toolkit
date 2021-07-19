@@ -178,7 +178,8 @@ class Scope:
             records < num_records or progress < 1.0
         ) and start_time + timeout < time.time():
             _logger.error(
-                "Scope recording timed out!", _logger.ExceptionTypes.TimeoutError,
+                "Scope recording timed out!",
+                _logger.ExceptionTypes.TimeoutError,
             )
 
     def read(self, channel=None, timeout: float = 10, sleep_time: float = 0.005):
