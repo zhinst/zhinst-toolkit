@@ -113,17 +113,14 @@ class Scope:
         # Now the scope is ready to record data upon receiving triggers.
         self._enable(True, sync=sync)
 
-    def arm_and_run(
-        self, sync=True, num_records: int = None, averager_weight: int = None
-    ) -> None:
+    def arm_and_run(self, num_records: int = None, averager_weight: int = None) -> None:
         """Arm the scope and start recording
 
-        Simply combines the methods arm and run.
+        Simply combines the methods arm and run. A synchronisation
+        is performed between the device and the data server after
+        preparing scope.
 
         Arguments:
-            sync (bool): A flag that specifies if a synchronisation
-                should be performed between the device and the data
-                server after preparing scope (default: True).
             num_records (int): The number of scope records to acquire
                 (default: None).
             averager_weight (int): Averager weight parameter.
@@ -133,8 +130,8 @@ class Scope:
                 (default: None).
 
         """
-        self.arm(sync=sync, num_records=num_records, averager_weight=averager_weight)
-        self.run(sync=sync)
+        self.arm(sync=True, num_records=num_records, averager_weight=averager_weight)
+        self.run(sync=True)
 
     def stop(self, sync=True) -> None:
         """Stops the scope recording.
