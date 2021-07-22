@@ -51,14 +51,14 @@ def test_init_instrument():
         discovery=DiscoveryMock(),
     )
     assert instr._nodetree is None
-    assert instr._options is None
     assert instr.nodetree is None
+    assert instr._options is None
+    assert instr.options is None
     assert instr.name == "name"
     assert instr.device_type == DeviceTypes.PQSC
     assert instr.serial == "dev10000"
     assert instr.interface == "1GbE"
     assert instr.is_connected is False
-    assert instr.options is None
 
 
 def test_check_connection():
@@ -76,15 +76,8 @@ def test_check_connection():
     with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
         instr.connect_device()
     with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
-        instr._get("sigouts/0/on")
-    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
-        instr._set("sigouts/0/on", 1)
-    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
-        instr._get_node_dict("sigouts/0/on")
-    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
-        instr._get_node_dict("zi/about/revision")
-    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
-        instr._get_streamingnodes()
+        instr._init_params()
+    instr._init_settings()
 
 
 def test_serials():
@@ -100,13 +93,6 @@ def test_serials():
         "name",
         DeviceTypes.PQSC,
         "dev10000",
-        interface="1GbE",
-        discovery=DiscoveryMock(),
-    )
-    BaseInstrument(
-        "name",
-        DeviceTypes.PQSC,
-        "DEV10000",
         interface="1GbE",
         discovery=DiscoveryMock(),
     )
@@ -128,3 +114,33 @@ def test_serial_normalization():
 def test_default_discovery():
     inst = BaseInstrument("name", DeviceTypes.PQSC, "DEV10000", interface="1GbE")
     assert isinstance(inst._controller.discovery, ziDiscovery)
+
+
+def test_set_get():
+    instr = BaseInstrument(
+        "name",
+        DeviceTypes.PQSC,
+        "dev10000",
+        interface="1GbE",
+        discovery=DiscoveryMock(),
+    )
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
+        instr._set("execution/enable", 1)
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
+        instr._set_vector("/zsyncs/0/connection/alias", "hd1")
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
+        instr.sync()
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
+        instr._assert_node_value("execution/enable", 1, blocking=True)
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
+        instr._assert_node_value("execution/enable", 1, blocking=False)
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
+        instr._assert_node_value([("execution/enable", 1)], blocking=True)
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
+        instr._get("execution/enable")
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
+        instr._get_node_dict("execution/enable")
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
+        instr._get_node_dict("zi/about/revision")
+    with pytest.raises(baseinstrument_logger.ToolkitConnectionError):
+        instr._get_streamingnodes()

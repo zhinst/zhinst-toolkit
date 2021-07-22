@@ -325,6 +325,69 @@ class BaseInstrument:
         self._check_connected()
         self._controller.sync()
 
+    def _assert_node_value(
+        self,
+        *args,
+        blocking: bool = True,
+        timeout: float = 2,
+        sleep_time: float = 0.005,
+    ) -> bool:
+        """Check if a node has the expected value.
+
+        This method gets a node value of the device specified by a node
+        string and check if it matches the expected value. Passes the
+        arguments to the `_assert_node_value` of the
+        :class:`DeviceConnection` and the :class:`ZIConnection`.
+
+        Instead of specifying a single node path and a value, the user
+        is free to pass a list of node / value pairs to the method to
+        check several nodes at once with one call of the method.
+
+        Arguments:
+            blocking (bool): A flag that specifies if the program should
+                be blocked until the node has the expected value
+                (default: True).
+            timeout (float): Maximum time in seconds the program waits
+                when `blocking` is set to `True` (default: 2).
+            sleep_time (float): Time in seconds to wait between
+                requesting the node value (default: 0.005)
+
+        Raises:
+            ToolkitConnectionError: If called and the device in not yet
+                connected to the data server.
+            TypeError: If the number of arguments is invalid
+
+        Returns:
+            Either `True` or `False` to indicate whether the node does
+                or does not have the expected value
+
+        """
+        # Check how the node/value pairs are provided
+        if len(args) == 2:
+            # If just a single node/value pair is provided
+            pairs = [(args[0], args[1])]
+        elif len(args) == 1:
+            # If a list of node/value tuples is provided
+            pairs = args[0]
+        else:
+            _logger.error(
+                "Invalid number of arguments!",
+                _logger.ExceptionTypes.TypeError,
+            )
+        for i, pair in enumerate(pairs):
+            start_time = time.time()
+            while (
+                blocking
+                and start_time + timeout >= time.time()
+                and self._get(pair[0]) != pair[1]
+            ):
+                time.sleep(sleep_time)
+            # Check if the node still does not have the
+            # expected value after timeout
+            if self._get(pair[0]) != pair[1]:
+                return False
+        return True
+
     def _get(self, command: str, valueonly: bool = True):
         """Getter for the instrument.
 

@@ -255,6 +255,52 @@ class Parameter:
                 map_from_options.update(dict({int(key): value_options}))
             self._map = dict(map_from_options)
 
+    def assert_value(
+        self,
+        value,
+        blocking: bool = True,
+        timeout: float = 2,
+        sleep_time: float = 0.005,
+    ) -> None:
+        """Check if the parameter has the expected value.
+
+        Passes the keyword arguments to the `_assert_node_value` of the
+        :class:`BaseInstrument`.
+
+        Arguments:
+            blocking (bool): A flag that specifies if the program should
+                be blocked until the node has the expected value
+                (default: True).
+            timeout (float): Maximum time in seconds the program waits
+                when `blocking` is set to `True` (default: 2).
+            sleep_time (float): Time in seconds to wait between
+                requesting the node value (default: 0.005)
+
+        Raises:
+            ToolkitConnectionError: If called and the device in not yet
+                connected to the data server.
+
+        Returns:
+            Either `True` or `False` to indicate whether the node does
+                or does not have the expected value
+
+        """
+        # Process the value if it is a string
+        # and extract the integer from the mapping
+        if self._map is not None and isinstance(value, str):
+            inverse_map = self._invert_mapping()
+            value = inverse_map[value]
+        # If the set_parser is a list of callables, call them
+        # one by one inside a loop
+        if isinstance(self._set_parser, list):
+            for callable_element in self._set_parser:
+                value = callable_element(value)
+        else:
+            value = self._set_parser(value)
+        return self._device._assert_node_value(
+            self._path, value, blocking=blocking, timeout=timeout, sleep_time=sleep_time
+        )
+
     def __call__(self, value=None, sync=False):
         """Make the object callable.
 
