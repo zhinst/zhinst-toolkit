@@ -2,12 +2,18 @@
 #
 # This software may be modified and distributed under the terms
 # of the MIT license. See the LICENSE file for details.
+"""Zurich Instruments Toolkit (zhinst-toolkit) Base Instrument Driver.
 
-import numpy as np
-from typing import List, Dict
+This driver provides a high-level controller for all Zurich Instrument
+devices for Zurich Instruments Toolkit (zhinst-toolkit). It is based on
+our Python API ziPython and forms the basis for instrument drivers used
+in QCoDeS and Labber.
+"""
+
+from typing import Dict
 import time
-
 import zhinst.ziPython as zi
+
 from zhinst.toolkit.control.connection import DeviceConnection, ZIConnection
 from zhinst.toolkit.control.node_tree import NodeTree
 from zhinst.toolkit.interface import InstrumentConfiguration, DeviceTypes, LoggerModule
@@ -20,48 +26,52 @@ _logger = LoggerModule(__name__)
 class BaseInstrument:
     """High-level controller for all Zurich Instrument devices.
 
-    It can be used by itself or inherited for device specific controllers. It
-    provides information and functionality common to all devices, such as a
-    name, serial number, device type, interface, etc.
+    It can be used by itself or inherited for device specific
+    controllers. It provides information and functionality common to
+    all devices, such as a name, serial number, device type, interface,
+    options, etc.
 
-    The instrument holds a :class:`DeviceConnection` which handles all the
-    communication with the data server. It also initializes a :class:`NodeTree`
-    that is used to access all the settings in the device's nodetree.
+    The instrument holds a :class:`DeviceConnection` which handles all
+    the communication with the data server. It also initializes a
+    :class:`NodeTree` that is used to access all the settings in the
+    device's nodetree.
 
         >>> import zhinst.toolkit as tk
         >>> ...
-        >>> inst = tk.BaseInstrument("myDevice", tk.DeviceTypes.HDAWG, "dev9999", interface="USB")
+        >>> inst = tk.BaseInstrument("myDevice", tk.DeviceTypes.HDAWG, "dev8000", interface="USB")
         >>> inst.setup()
         Successfully connected to data server at localhost 8004 api version: 6
         >>> inst.connect_device()
-        Successfully connected to device DEV9999 on interface USB
+        Successfully connected to device DEV8000 on interface USB
         >>> inst.nodetree
-        >>> ...
+        <zhinst.toolkit.control.node_tree.NodeTree object at 0x000001640D222CC8>
 
     Arguments:
         name (str): Identifier for the instrument.
         device_type (:class:`DeviceType`): Type enum of the device type.
-        serial (str): Serial number of the device, e.g. *'dev2281'*. The serial
-            number can be found on instrument back panel.
+        serial (str): Serial number of the device, e.g. *'dev2281'*.
+            The serial number can be found on instrument back panel.
         discovery: An instance of ziDiscovery to lookup the device
 
     Attributes:
-        nodetree (:class:`zhinst.toolkit.control.node_tree.NodeTree`): A
-            :class:`Nodetree` object contains a data structure that recreates
-            the nodetree hierarchy of the instrument settings. The leaves of the
-            tree are :class:`Parameters` that can be called to get and set the
-            according value from the device. The :class:`Nodetree` can be used
-            to navigate all available device settings without having to know the
-            exact node path of the setting. Alternatively, the node can always
-            be accessed using the `_set(...)` and `_get(...)` methods.
+        nodetree (:class:`zhinst.toolkit.control.node_tree.NodeTree`):
+            A :class:`Nodetree` object contains a data structure that
+            recreates the nodetree hierarchy of the instrument
+            settings. The leaves of the tree are :class:`Parameters`
+            that can be called to get and set the according value from
+            the device. The :class:`Nodetree` can be used to navigate
+            all available device settings without having to know the
+            exact node path of the setting. Alternatively, the node can
+            always be accessed using the `_set(...)` and `_get(...)`
+            methods.
         name (str): Identifier for the instrument.
         device_type (:class:`DeviceType`): Type enum of the device type.
         serial (str): Serial number of the device.
-        interface (str): Type of the device interface used, can be specified as
-            a keyword argument to `__init__()`.
+        interface (str): Type of the device interface used, can be
+            specified as a keyword argument to `__init__()`.
         options (list): Options installed on the instrument.
-        is_connected (bool): A flag that shows if the device has established a
-            connection to the data server.
+        is_connected (bool): A flag that shows if the device has
+            established a connection to the data server.
     Raises:
         ToolkitError: If no serial serial is given or it is not of
             string type
@@ -91,15 +101,17 @@ class BaseInstrument:
     def setup(self, connection: ZIConnection = None) -> None:
         """Sets up the data server connection.
 
-        The details of the connection (`host`, `port`, `api_level`) can be
-        specified as keyword arguments in the `__init__()` method. Alternatively
-        the user can pass an existing :class:`ZIConnection` to the data server
-        to be used for the instrument.
+        The details of the connection (`host`, `port`, `api_level`) can
+        be specified as keyword arguments in the `__init__()` method.
+        Alternatively, the user can pass an existing
+        :class:`ZIConnection` to the data server to be used for the
+        instrument.
 
         Arguments:
             connection (:class:`ZIConnection`): An existing data server
-                connection. If specified, this data server will be used to
-                establish a :class:`DeviceConnection`. (default: None)
+                connection. If specified, this data server will be used
+                to establish a :class:`DeviceConnection`
+                (default: None).
 
         """
         self._controller.setup(connection=connection)
@@ -107,15 +119,15 @@ class BaseInstrument:
     def connect_device(self, nodetree: bool = True) -> None:
         """Connects the device to the data server.
 
-        This method connects the device to the data server of its connection,
-        initializes the :class:`NodeTree` and applies initial device settings.
-        A data server connection needs to be set up beforehand by calling
-        `setup()`.
+        This method connects the device to the data server of its
+        connection, initializes the :class:`NodeTree` and applies
+        initial device settings. A data server connection needs to be
+        set up beforehand by calling `setup()`.
 
         Arguments:
-            nodetree (bool): If `True`,  the :class:`NodeTree` object will be
-                initialized after connecting the device, otherwise not.
-                (Default: `True`)
+            nodetree (bool): If `True`,  the :class:`NodeTree` object
+                will be initialized after connecting the device,
+                otherwise not (Default: `True`).
 
         """
         self._controller.connect_device()
@@ -141,7 +153,7 @@ class BaseInstrument:
     ) -> None:
         """Check if reference clock is locked successfully.
 
-        Keyword Arguments:
+        Arguments:
             blocking (bool): A flag that specifies if the program should
                 be blocked until the reference clock is 'locked'.
                 (default: True)
@@ -162,11 +174,12 @@ class BaseInstrument:
             and self.ref_clock_status() != "locked"
         ):
             time.sleep(sleep_time)
-        # Throw an exception if the clock is still not locked after timeout
         if (
             self.ref_clock_actual() != self.ref_clock()
             or self.ref_clock_status() != "locked"
         ):
+            # Set the source to internal and throw an exception
+            # if the clock is still not locked after timeout
             self.ref_clock("internal", sync=True)
             _logger.error(
                 f"There was an error locking the device {self.name} ({self.serial}) "
@@ -231,6 +244,7 @@ class BaseInstrument:
         methods in :mod:`zhinst.ziPython`.
 
             >>> hdawg._set("sigouts/0/on", 1, sync=True)
+            1
 
         The method also supports wildcards in the node path that can be
         specified with ' * ' as a placeholder.
@@ -257,7 +271,7 @@ class BaseInstrument:
 
             >>> hdawg._set(settings, sync=True)
 
-        Keyword Arguments:
+        Arguments:
             sync (bool): A flag that specifies if a synchronisation
                 should be performed between the device and the data
                 server after setting the node (default: False).
@@ -279,8 +293,8 @@ class BaseInstrument:
         """Vector setter for the instrument.
 
         This method loads a vector to the device node, specified by a
-        node string. Passes the arguments to the set_vector method of the
-        :class:`DeviceConnection` and the :class:`ZIConnection`.
+        node string. Passes the arguments to the set_vector method of
+        the :class:`DeviceConnection` and the :class:`ZIConnection`.
         Eventually this method wraps around `daq.setVector(...)` in
         :mod:`zhinst.ziPython`.
 
@@ -359,9 +373,10 @@ class BaseInstrument:
 
         Returns:
             Either `True` or `False` to indicate whether the node does
-                or does not have the expected value
+            or does not have the expected value
 
         """
+        pairs = []
         # Check how the node/value pairs are provided
         if len(args) == 2:
             # If just a single node/value pair is provided
@@ -391,17 +406,18 @@ class BaseInstrument:
     def _get(self, command: str, valueonly: bool = True):
         """Getter for the instrument.
 
-        This method gets a node value from the device, specified by a node
-        string. Passes the arguments to the getter of the
-        :class:`DeviceConnection` and the :class:`ZIConnection`. Eventually this
-        method wraps around `daq.get(...)` in :mod:`zhinst.ziPython`.
+        This method gets a node value from the device, specified by a
+        node string. Passes the arguments to the getter of the
+        :class:`DeviceConnection` and the :class:`ZIConnection`.
+        Eventually this method wraps around `daq.get(...)` in
+        :mod:`zhinst.ziPython`.
 
             >>> hdawg._get("sigouts/0/on")
             1
 
         The method also supports wildcards in the node path that can be
-        specified with ' * ' as a placeholder. The flag `valueonly` can be used to
-        get the exact node of the values.
+        specified with ' * ' as a placeholder. The flag `valueonly` can
+        be used to get the exact node of the values.
 
             >>> hdawg._get("sigouts/*/on")
             [1, 0, 0, 0, 0, 0, 0]
@@ -418,7 +434,7 @@ class BaseInstrument:
         Arguments:
             command (str): A node string to the parameter.
 
-        Keyword Arguments:
+        Arguments:
             valueonly (bool): A flag to select if only the value should be
                 returned or a dict with node/value pairs (default: True)
 
@@ -476,7 +492,7 @@ class BaseInstrument:
 
         Returns:
             The dictionary that containing the keys: 'Node',
-        'Description', 'Unit', etc.
+            'Description', 'Unit', etc.
 
         """
         # Add the device serial to the node string if it does not start
@@ -487,7 +503,7 @@ class BaseInstrument:
         inner_dict = list(nested_dict.values())[0]
         return inner_dict
 
-    def _get_streamingnodes(self) -> List:
+    def _get_streamingnodes(self) -> Dict:
         self._check_connected()
         nodes = self._controller.get_nodetree(f"/{self.serial}/*", streamingonly=True)
         nodes = list(nodes.keys())
