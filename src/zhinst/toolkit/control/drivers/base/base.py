@@ -75,13 +75,13 @@ class BaseInstrument:
                 f"Serial must be a string", _logger.ExceptionTypes.ToolkitError
             )
         self._config = InstrumentConfiguration()
-        self._config._instrument._name = name
-        self._config._instrument._config._device_type = device_type
-        self._config._instrument._config._serial = serial
-        self._config._instrument._config._interface = kwargs.get("interface", "1GbE")
-        self._config._api_config.host = kwargs.get("host", "localhost")
-        self._config._api_config.port = kwargs.get("port", 8004)
-        self._config._api_config.api = kwargs.get("api", 6)
+        self._config.instrument.name = name
+        self._config.instrument.config.device_type = device_type
+        self._config.instrument.config.serial = serial
+        self._config.instrument.config.interface = kwargs.get("interface", "1GbE")
+        self._config.api_config.host = kwargs.get("host", "localhost")
+        self._config.api_config.port = kwargs.get("port", 8004)
+        self._config.api_config.api = kwargs.get("api", 6)
         self._controller = DeviceConnection(
             self, discovery if discovery is not None else zi.ziDiscovery()
         )
@@ -536,22 +536,22 @@ class BaseInstrument:
 
     @property
     def name(self):
-        return self._config._instrument._name
+        return self._config.instrument.name
 
     @property
     def device_type(self):
-        return self._config._instrument._config._device_type
+        return self._config.instrument.config.device_type
 
     @property
     def serial(self):
         if self.is_connected:
             return self._controller.normalized_serial
         else:
-            return self._config._instrument._config._serial
+            return self._config.instrument.config.serial
 
     @property
     def interface(self):
-        return self._config._instrument._config._interface
+        return self._config.instrument.config.interface
 
     @property
     def options(self):
