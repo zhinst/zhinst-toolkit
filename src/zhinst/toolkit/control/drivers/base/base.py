@@ -481,7 +481,7 @@ class BaseInstrument:
         """
         # Add the device serial to the node string if it does not start
         # with '/zi/'.
-        device_node = self._controller._command_to_node(node)
+        device_node = self._controller.command_to_node(node)
         self._check_node_exists(device_node)
         nested_dict = self._get_nodetree(device_node)
         inner_dict = list(nested_dict.values())[0]

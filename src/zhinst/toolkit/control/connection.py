@@ -779,10 +779,10 @@ class DeviceConnection(object):
             if isinstance(command, list):
                 paths = []
                 for c in command:
-                    paths.append(self._command_to_node(c))
+                    paths.append(self.command_to_node(c))
                 node_string = ", ".join([p for p in paths])
             elif isinstance(command, str):
-                node_string = self._command_to_node(command)
+                node_string = self.command_to_node(command)
             else:
                 _logger.error(
                     "Invalid argument! It must be either a node path string or "
@@ -934,10 +934,10 @@ class DeviceConnection(object):
                     "node/value must be specified as pairs!",
                     _logger.ExceptionTypes.TypeError,
                 )
-            new_settings.append((self._command_to_node(args[0]), args[1]))
+            new_settings.append((self.command_to_node(args[0]), args[1]))
         return new_settings
 
-    def _command_to_node(self, command):
+    def command_to_node(self, command):
         """Converts a command string to a node path.
 
         Parses a single command into a node string that can be passed
