@@ -65,6 +65,8 @@ class SHFQA(BaseInstrument):
             that the instrument supports.
         allowed_trigger_modes (list): A list of :class:`TriggerMode` s
             that the instrument supports.
+        sw_trigger (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Issues a single software trigger event
         ref_clock (:class:`zhinst.toolkit.control.node_tree.Parameter`):
             The intended reference clock source to be used as the
             frequency and time base reference. When the source is
@@ -89,6 +91,7 @@ class SHFQA(BaseInstrument):
         super().__init__(name, DeviceTypes.SHFQA, serial, discovery, **kwargs)
         self._qachannels = []
         self._scope = None
+        self.sw_trigger = None
         self.ref_clock = None
         self.ref_clock_actual = None
         self.ref_clock_status = None
@@ -98,12 +101,14 @@ class SHFQA(BaseInstrument):
         ]
         self._allowed_trigger_modes = [
             TriggerMode.NONE,
+            TriggerMode.RECEIVE_TRIGGER,
+            TriggerMode.ZSYNC_TRIGGER,
         ]
 
     def connect_device(self, nodetree: bool = True) -> None:
         """Connects the device to the data server.
 
-        Keyword Arguments:
+        Arguments:
             nodetree (bool): A flag that specifies if all the parameters from
                 the device's nodetree should be added to the object's attributes
                 as `zhinst-toolkit` Parameters. (default: True)
@@ -130,7 +135,7 @@ class SHFQA(BaseInstrument):
     ) -> None:
         """Check if reference clock is locked successfully.
 
-        Keyword Arguments:
+        Arguments:
             blocking (bool): A flag that specifies if the program should
                 be blocked until the reference clock is 'locked'.
                 (default: True)
@@ -172,6 +177,11 @@ class SHFQA(BaseInstrument):
     def _init_params(self):
         """Initialize parameters associated with device nodes."""
         super()._init_params()
+        self.sw_trigger = Parameter(
+            self,
+            self._get_node_dict(f"system/swtriggers/0/single"),
+            device=self,
+        )
         self.ref_clock = Parameter(
             self,
             self._get_node_dict(f"system/clocks/referenceclock/in/source"),
@@ -201,11 +211,17 @@ class SHFQA(BaseInstrument):
         m_ch = 0
         low_trig = 2
         continuous_trig = 1
-        self._set(f"/raw/markers/*/testsource", low_trig)
+        self._set(f"/raw/markers/*/testsource", low_trig, sync=True)
         self._set(f"/raw/markers/{m_ch}/testsource", continuous_trig)
         self._set(f"/raw/markers/{m_ch}/frequency", 1e3)
         self._set(f"/raw/triggers/{m_ch}/loopback", 1)
         time.sleep(0.2)
+
+    def clear_trigger_loopback(self):
+        """Stop the the internal loopback trigger pulse."""
+        m_ch = 0
+        self._set(f"/raw/markers/*/testsource", 0)
+        self._set(f"/raw/triggers/{m_ch}/loopback", 0)
 
     @property
     def qachannels(self):
@@ -402,6 +418,9 @@ class Generator(SHFGenerator):
             (default: 'chan0trigin0'). \n
             To list the available options: \n
             >>> shf.qachannels[0].generator.dig_trigger2_source
+        playback_delay (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            A common delay for the start of the playback for all
+            Waveform Memories. The resolution is 2 ns (default: 0.0).
     """
 
     def __init__(self, parent: SHFQAChannel) -> None:
@@ -409,15 +428,14 @@ class Generator(SHFGenerator):
         self._enable = None
         self.dig_trigger1_source = None
         self.dig_trigger2_source = None
+        self.playback_delay = None
         self._ready = None
         self.single = None
 
     def _init_generator_params(self):
         self._enable = Parameter(
             self,
-            self._device._get_node_dict(
-                f"qachannels/{self._index}/generator/sequencer/enable"
-            ),
+            self._device._get_node_dict(f"qachannels/{self._index}/generator/enable"),
             device=self._device,
             set_parser=Parse.set_true_false,
             get_parser=Parse.get_true_false,
@@ -425,7 +443,7 @@ class Generator(SHFGenerator):
         self.dig_trigger1_source = Parameter(
             self,
             self._device._get_node_dict(
-                f"qachannels/{self._index}/generator/sequencer/auxtriggers/0/channel"
+                f"qachannels/{self._index}/generator/auxtriggers/0/channel"
             ),
             device=self._device,
             auto_mapping=True,
@@ -433,47 +451,32 @@ class Generator(SHFGenerator):
         self.dig_trigger2_source = Parameter(
             self,
             self._device._get_node_dict(
-                f"qachannels/{self._index}/generator/sequencer/auxtriggers/1/channel"
+                f"qachannels/{self._index}/generator/auxtriggers/1/channel"
             ),
             device=self._device,
             auto_mapping=True,
         )
+        self.playback_delay = Parameter(
+            self,
+            self._device._get_node_dict(f"qachannels/{self._index}/generator/delay"),
+            device=self._device,
+            set_parser=lambda v: Parse.multiple_of(v, 2e-9, "nearest"),
+        )
         self._ready = Parameter(
             self,
-            self._device._get_node_dict(
-                f"qachannels/{self._index}/generator/sequencer/ready"
-            ),
+            self._device._get_node_dict(f"qachannels/{self._index}/generator/ready"),
             device=self._device,
         )
         self.single = Parameter(
             self,
-            self._device._get_node_dict(
-                f"qachannels/{self._index}/generator/sequencer/single"
-            ),
+            self._device._get_node_dict(f"qachannels/{self._index}/generator/single"),
             device=self._device,
             set_parser=Parse.set_true_false,
             get_parser=Parse.get_true_false,
         )
 
-    def _apply_sequence_settings(self, **kwargs):
-        # check sequence type
-        if "sequence_type" in kwargs.keys():
-            t = SequenceType(kwargs["sequence_type"])
-            if t not in self._device.allowed_sequences:
-                _logger.error(
-                    f"Sequence type {t} must be one of "
-                    f"{[s.value for s in self._device.allowed_sequences]}!",
-                    _logger.ExceptionTypes.ToolkitError,
-                )
-        # check trigger mode
-        if "trigger_mode" in kwargs.keys():
-            t = TriggerMode(kwargs["trigger_mode"])
-            if t not in self._device.allowed_trigger_modes:
-                _logger.error(
-                    f"Trigger mode {t} must be one of "
-                    f"{[s.value for s in self._device.allowed_trigger_modes]}!",
-                    _logger.ExceptionTypes.ToolkitError,
-                )
+    def _apply_sequence_settings(self, **kwargs) -> None:
+        super()._apply_sequence_settings(**kwargs)
 
 
 class Sweeper(SHFSweeper):
@@ -518,24 +521,38 @@ class Sweeper(SHFSweeper):
             updates the `integration_time`. The integration length has
             a minimum value and a granularity of 4 samples. Up to
             33.5 MSa (2^25 samples) can be recorded (default: 1024).
+        integration_delay (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Sets the delay of the integration in Spectroscopy mode with
+            respect to the Trigger signal. The resolution is 2 ns
+            (default: 0).
         oscillator_gain (:class:`zhinst.toolkit.control.node_tree.Parameter`):
             Gain of the digital Oscillator. The gain is defined relative
-            to the Output Range of the QAChannel. Must be between 2^-17
+            to the Output Range of the QAChannel. Must be between 0
             and 1.0 (default: 1.0).
+        oscillator_freq (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Controls the frequency of each digital Oscillator. Must be
+            between 0 and 1e9 (default: 10e6).
+        trigger_source (:class:`zhinst.toolkit.control.node_tree.Parameter`):
+            Selects the source of the trigger for the integration and
+            envelope in Spectroscopy mode (default: "chan0trigin0"). \n
+            To list the available options: \n
+            >>> shf.qachannels[0].sweeper.trigger_source
     """
 
     def __init__(self, parent: SHFQAChannel) -> None:
         super().__init__(parent)
-        self._trigger_source = "sw_trigger"
+        self.oscillator_gain = None
+        self.oscillator_freq = None
+        self.integration_time = None
+        self.integration_length = None
+        self.integration_delay = None
+        self.trigger_source = None
         self._trigger_level = 0.5
         self._trigger_imp50 = True
         self._start_freq = -300e6
         self._stop_freq = 300e6
         self._num_points = 100
         self._mapping = "linear"
-        self.oscillator_gain = None
-        self.integration_time = None
-        self.integration_length = None
         self._num_averages = 1
         self._averaging_mode = "cyclic"
 
@@ -546,6 +563,15 @@ class Sweeper(SHFSweeper):
             device=self._device,
             set_parser=[
                 lambda v: Parse.smaller_equal(v, 1.0),
+                lambda v: Parse.greater_equal(v, 0.0),
+            ],
+        )
+        self.oscillator_freq = Parameter(
+            self,
+            self._device._get_node_dict(f"qachannels/{self._index}/oscs/0/freq"),
+            device=self._device,
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 1e9),
                 lambda v: Parse.greater_equal(v, 0.0),
             ],
         )
@@ -576,25 +602,25 @@ class Sweeper(SHFSweeper):
                 lambda v: Parse.multiple_of(v, 4, "down"),
             ],
         )
-
-    def trigger_source(self, source=None):
-        """Set or get the trigger source for the sweeper.
-
-        Keyword Arguments:
-            source (str): Trigger source of the sweeper
-                (default: None).
-
-        """
-        if source is None:
-            return self._trigger_source
-        else:
-            self._trigger_source = source
-        self._update_trigger_settings()
+        self.integration_delay = Parameter(
+            self,
+            self._device._get_node_dict(f"qachannels/{self._index}/spectroscopy/delay"),
+            device=self._device,
+            set_parser=lambda v: Parse.multiple_of(v, 2e-9, "nearest"),
+        )
+        self.trigger_source = Parameter(
+            self,
+            self._device._get_node_dict(
+                f"qachannels/{self._index}/spectroscopy/trigger/channel"
+            ),
+            device=self._device,
+            auto_mapping=True,
+        )
 
     def trigger_level(self, level=None):
         """Set or get the trigger level for the sweeper.
 
-        Keyword Arguments:
+        Arguments:
             level (float): Trigger level of the sweeper
                 (default: None).
 
@@ -608,7 +634,7 @@ class Sweeper(SHFSweeper):
     def trigger_imp50(self, imp50=None):
         """Set or get the trigger input impedance setting for the sweeper.
 
-        Keyword Arguments:
+        Arguments:
             imp50 (bool): Trigger input impedance selection for the
                 sweeper. When set to True, the trigger input impedance is
                 50 Ohm. When set to False, it is 1 kOhm (default: None).
@@ -623,7 +649,7 @@ class Sweeper(SHFSweeper):
     def start_frequency(self, freq=None):
         """Set or get the start frequency for the sweeper.
 
-        Keyword Arguments:
+        Arguments:
             freq (float): Start frequency in Hz of the sweeper
                 (default: None).
 
@@ -637,7 +663,7 @@ class Sweeper(SHFSweeper):
     def stop_frequency(self, freq=None):
         """Set or get the stop frequency for the sweeper.
 
-        Keyword Arguments:
+        Arguments:
             freq (float): Stop frequency in Hz of the sweeper
                 (default: None).
 
@@ -648,10 +674,21 @@ class Sweeper(SHFSweeper):
             self._stop_freq = freq
         self._update_sweep_params()
 
+    def output_freq(self):
+        """Get the output frequency.
+
+        Returns:
+            The carrier frequency in Hz of the microwave signal at the
+            Out connector. This frequency corresponds to the sum of the
+            Center Frequency and the Offset Frequency.
+
+        """
+        return self._parent.center_freq() + self.oscillator_freq()
+
     def num_points(self, num=None):
         """Set or get the number of points for the sweeper.
 
-        Keyword Arguments:
+        Arguments:
             num (int): Number of frequency points to sweep between
                 start and stop frequency values (default: None).
         """
@@ -664,7 +701,7 @@ class Sweeper(SHFSweeper):
     def mapping(self, map=None):
         """Set or get the mapping configuration for the sweeper.
 
-        Keyword Arguments:
+        Arguments:
             map (str): Mapping that specifies the distances between
                 frequency points of the sweeper. Can be either "linear"
                 or "log" (default: None).
@@ -681,7 +718,7 @@ class Sweeper(SHFSweeper):
         Number of averages specifies how many times a frequency point
         will be measured and averaged.
 
-        Keyword Arguments:
+        Arguments:
             num (int): Number of times the sweeper measures one
                 frequency point (default: None).
         """
@@ -694,9 +731,9 @@ class Sweeper(SHFSweeper):
     def averaging_mode(self, mode=None):
         """Set or get the averaging mode for the sweeper.
 
-        Keyword Arguments:
+        Arguments:
             mode (str): Averaging mode for the sweeper. Can be either
-                "sequantial" or "cyclic" (default: None).\n
+                "sequential" or "cyclic" (default: None).\n
                 "sequential": A frequency point is measured the number
                 of times specified by the number of averages setting.
                 In other words, the same frequency point is measured

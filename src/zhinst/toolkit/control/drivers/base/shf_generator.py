@@ -8,8 +8,13 @@ import time
 from typing import List, Union
 import re
 
-from zhinst.toolkit.helpers import SequenceProgram, SHFWaveform, SequenceType
-from zhinst.toolkit.interface import DeviceTypes, LoggerModule
+from zhinst.toolkit.helpers import (
+    SequenceProgram,
+    SHFWaveform,
+    SequenceType,
+    TriggerMode,
+)
+from zhinst.toolkit.interface import LoggerModule
 from .shf_qachannel import SHFQAChannel
 
 _logger = LoggerModule(__name__)
@@ -320,13 +325,38 @@ class SHFGenerator:
         self._program.set_params(**kwargs)
         self._apply_sequence_settings(**kwargs)
 
-    def _apply_sequence_settings(self, **kwargs):
-        pass
+    def _apply_sequence_settings(self, **kwargs) -> None:
+        if "sequence_type" in kwargs.keys():
+            if kwargs["sequence_type"] == "None":
+                # If sequence type is given as string `None`, return
+                # enumeration for `None` from the SequenceType class
+                t = SequenceType(None)
+            else:
+                t = SequenceType(kwargs["sequence_type"])
+            if t not in self._device.allowed_sequences:
+                _logger.error(
+                    f"Sequence type {t} must be one of "
+                    f"{[s.value for s in self._device.allowed_sequences]}!",
+                    _logger.ExceptionTypes.ToolkitError,
+                )
+        if "trigger_mode" in kwargs.keys():
+            if kwargs["trigger_mode"] == "None":
+                # If trigger mode is given as string `None`, return
+                # enumeration for `None` from the TriggerMode class
+                t = TriggerMode(None)
+            else:
+                t = TriggerMode(kwargs["trigger_mode"])
+            if t not in self._device.allowed_trigger_modes:
+                _logger.error(
+                    f"Trigger mode {t} must be one of "
+                    f"{[s.value for s in self._device.allowed_trigger_modes]}!",
+                    _logger.ExceptionTypes.ToolkitError,
+                )
 
     def _seqc_error(self, statusstring):
         """Extract the relevant lines from seqc program in case of error.
 
-        Ihis method extracts the line number from the compiler status
+        This method extracts the line number from the compiler status
         and then finds the relevant lines in the seqc program to guide
         the user. It works both for errors and warnings.
         """

@@ -123,7 +123,7 @@ class SHFSweeper:
         self._update_averaging_settings()
         self._module.run()
 
-    def get_result(self):
+    def read(self):
         """Get the measurement data of the last sweep.
 
         This method eventually wraps around the `get_result` method of
@@ -153,7 +153,7 @@ class SHFSweeper:
 
     def _update_trigger_settings(self):
         trig_config = self._trig_config(
-            source=self._trigger_source,
+            source=self.trigger_source(),
             level=self._trigger_level,
             imp50=self._trigger_imp50,
         )

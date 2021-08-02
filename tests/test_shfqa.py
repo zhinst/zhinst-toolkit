@@ -36,6 +36,8 @@ def test_init_shfqa():
     ]
     assert qa.allowed_trigger_modes == [
         TriggerMode.NONE,
+        TriggerMode.RECEIVE_TRIGGER,
+        TriggerMode.ZSYNC_TRIGGER,
     ]
     with pytest.raises(shfqa_logger.ToolkitConnectionError):
         qa._init_qachannels()
