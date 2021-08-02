@@ -96,7 +96,7 @@ class SHFScope:
         self.wait_done(timeout=30)
         # read and post-process the recorded data
         recorded_data = [[], [], [], []]
-        num_channels = self._parent._num_qachannels()
+        num_channels = self._parent.num_qachannels()
         # generate the wave data
         for i in range(num_channels):
             channel_state = getattr(self, f"channel{i+1}")
