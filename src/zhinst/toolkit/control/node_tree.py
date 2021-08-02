@@ -97,6 +97,7 @@ class Parameter:
         self._set_parser = set_parser
         self._auto_mapping = auto_mapping
         self._map = mapping
+        self._map_extended = None
         self._inverse_map = {}
         self._flat_mapping_values = []
         if self._map is None and self._auto_mapping is True:
@@ -252,17 +253,26 @@ class Parameter:
                 "contain any information regarding the allowed options!",
                 _logger.ExceptionTypes.ToolkitNodeTreeError,
             )
+
         elif self._options is not None:
             map_from_options = {}
+            map_from_options_extended = {}
             options = self._options
             for key, value in options.items():
                 value_split = value.split(": ")
                 value_options = value_split[0].split(", ")
                 value_options = [re.sub(r'"', "", option) for option in value_options]
+                value_options_extended = value_options.copy()
+                if len(value_split) > 1:
+                    value_options_extended.append(value_split[1].strip("."))
                 if len(value_options) < 2:
                     value_options = value_options[0]
                 map_from_options.update(dict({int(key): value_options}))
+                map_from_options_extended.update(
+                    dict({int(key): value_options_extended})
+                )
             self._map = dict(map_from_options)
+            self._map_extended = dict(map_from_options_extended)
 
     def assert_value(
         self,
