@@ -307,5 +307,7 @@ def test_demod_weights(length, freq, phase):
     else:
         clk_rate = 1.8e9
         x = np.arange(0, length)
-        y = np.sin(2 * np.pi * freq * x / clk_rate + np.deg2rad(phase))
+        y_real = np.cos(2 * np.pi * freq * x / clk_rate + np.deg2rad(phase))
+        y_imag = np.sin(2 * np.pi * freq * x / clk_rate + np.deg2rad(phase))
+        y = y_real + 1j * y_imag
         assert max(abs(y - ch._demod_weights(length, 1.0, freq, phase))) < 1e-3

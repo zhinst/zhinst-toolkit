@@ -938,12 +938,14 @@ class ReadoutChannel:
         freq = self.readout_frequency()
         envelope = self.int_weights_envelope()
         node = f"/qas/0/integration/weights/{self._index}/"
-        self._parent._set(node + "real", self._demod_weights(length, envelope, freq, 0))
-        self._parent._set(
-            node + "imag", self._demod_weights(length, envelope, freq, 90)
-        )
+        _demod_weights = self._demod_weights(length, envelope, freq, 0)
+        _demod_weights_real = np.ascontiguousarray(np.real(_demod_weights))
+        _demod_weights_imag = np.ascontiguousarray(np.imag(_demod_weights))
+        self._parent._set_vector(node + "real", _demod_weights_real)
+        self._parent._set_vector(node + "imag", _demod_weights_imag)
 
-    def _demod_weights(self, length, envelope, freq, phase):
+    @staticmethod
+    def _demod_weights(length, envelope, freq, phase):
         if length > 4096:
             _logger.error(
                 "The maximum length of the integration weights is 4096 samples.",
@@ -956,7 +958,9 @@ class ReadoutChannel:
             )
         clk_rate = 1.8e9
         x = np.arange(0, length, 1)
-        y = envelope * np.sin(2 * np.pi * freq * x / clk_rate + np.deg2rad(phase))
+        y_real = envelope * np.cos(2 * np.pi * freq * x / clk_rate + np.deg2rad(phase))
+        y_imag = envelope * np.sin(2 * np.pi * freq * x / clk_rate + np.deg2rad(phase))
+        y = y_real + 1j * y_imag
         return y
 
     def _average_result(self, result):
