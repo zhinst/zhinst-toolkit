@@ -179,13 +179,23 @@ class Scope:
                 _logger.ExceptionTypes.TimeoutError,
             )
 
-    def read(self, channel=None, timeout: float = 10, sleep_time: float = 0.005):
+    def read(
+        self,
+        channel=None,
+        blocking: bool = True,
+        timeout: float = 10,
+        sleep_time: float = 0.005,
+    ):
         """Read out the recorded data from the specified channel of the scope.
 
         Arguments:
             channel (int): The scope channel to read the data from. If
                 no channel is specified, the method will return the data
                 for all channels (default: None).
+            blocking (bool): A flag that specifies if the program
+                should be blocked until the Scope Module has received
+                and  processed the desired number of records
+                (default: True).
             timeout (float): The maximum waiting time in seconds for the
                 Scope (default: 10).
             sleep_time (float): Time in seconds to wait between
@@ -200,9 +210,10 @@ class Scope:
         """
         num_records = self.num_records()
         wave_nodepath = f"/{self._parent.serial}/scopes/0/wave"
-        # Wait until the Scope Module has received and
-        # processed the desired number of records.
-        self.wait_done(timeout=timeout, sleep_time=sleep_time)
+        if blocking:
+            # Wait until the Scope Module has received and
+            # processed the desired number of records.
+            self.wait_done(timeout=timeout, sleep_time=sleep_time)
         # Stop the scope
         self.stop()
         # read and post-process the recorded data
