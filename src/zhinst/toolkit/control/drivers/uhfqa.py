@@ -579,17 +579,12 @@ class AWG(AWGCore):
             get_parser=Parse.get_true_false,
         )
 
-    def _apply_sequence_settings(self, **kwargs):
-        # apply settings depending on the sequence type
+    def _apply_sequence_settings(self, **kwargs) -> None:
+        super()._apply_sequence_settings(**kwargs)
         if "sequence_type" in kwargs.keys():
             t = SequenceType(kwargs["sequence_type"])
-            if t not in self._parent.allowed_sequences:
-                _logger.error(
-                    f"Sequence type {t} must be one of "
-                    f"{[s.value for s in self._parent.allowed_sequences]}!",
-                    _logger.ExceptionTypes.ToolkitError,
-                )
-            elif t == SequenceType.CW_SPEC:
+            # apply settings depending on the sequence type
+            if t == SequenceType.CW_SPEC:
                 self._apply_cw_settings()
             elif t == SequenceType.PULSED_SPEC:
                 self._apply_pulsed_settings()
@@ -597,16 +592,10 @@ class AWG(AWGCore):
                 self._apply_readout_settings()
             else:
                 self._apply_base_settings()
-        # apply settings dependent on trigger mode
         if "trigger_mode" in kwargs.keys():
             t = TriggerMode(kwargs["trigger_mode"])
-            if t not in self._parent.allowed_trigger_modes:
-                _logger.error(
-                    f"Trigger mode {t} must be one of "
-                    f"{[s.value for s in self._parent.allowed_trigger_modes]}!",
-                    _logger.ExceptionTypes.ToolkitError,
-                )
-            elif t in [TriggerMode.EXTERNAL_TRIGGER, TriggerMode.RECEIVE_TRIGGER]:
+            # apply settings depending on trigger mode
+            if t in [TriggerMode.EXTERNAL_TRIGGER, TriggerMode.RECEIVE_TRIGGER]:
                 self._apply_receive_trigger_settings()
             elif t == TriggerMode.ZSYNC_TRIGGER:
                 self._apply_zsync_trigger_settings()
