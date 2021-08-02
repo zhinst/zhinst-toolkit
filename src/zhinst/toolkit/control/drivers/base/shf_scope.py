@@ -55,12 +55,14 @@ class SHFScope:
         """Stops the scope recording."""
         self._enable(False)
 
-    def wait_done(self, timeout: float = 10) -> None:
+    def wait_done(self, timeout: float = 10, sleep_time: float = 0.005) -> None:
         """Wait until the Scope recording is finished.
 
         Keyword Arguments:
             timeout (int): The maximum waiting time in seconds for the
                 Scope (default: 10).
+            sleep_time (float): Time in seconds to wait between
+                requesting the progress and records values
 
         Raises:
             ToolkitError: If the Scope recording is not done before the
@@ -69,20 +71,33 @@ class SHFScope:
         """
         start_time = time.time()
         while self.is_running and start_time + timeout >= time.time():
-            time.sleep(0.1)
+            time.sleep(sleep_time)
         if self.is_running and start_time + timeout < time.time():
             _logger.error(
                 "Scope recording timed out!",
                 _logger.ExceptionTypes.TimeoutError,
             )
 
-    def read(self, channel=None):
+    def read(
+        self,
+        channel=None,
+        blocking: bool = True,
+        timeout: float = 10,
+        sleep_time: float = 0.005,
+    ):
         """Read out the recorded data from the specified channel of the scope.
 
         Arguments:
             channel (int): The scope channel to read the data from. If
                 no channel is specified, the method will return the data
                 for all channels.
+            blocking (bool): A flag that specifies if the program
+                should be blocked until the scope has finished
+                recording (default: True).
+            timeout (float): The maximum waiting time in seconds for the
+                Scope (default: 10).
+            sleep_time (float): Time in seconds to wait between
+                requesting the progress and records values
 
         Returns:
             A dictionary showing the recorded data and scope time.
@@ -92,8 +107,9 @@ class SHFScope:
                 timeout.
         """
 
-        # wait until scope has finished recording, 30s timeout
-        self.wait_done(timeout=30)
+        if blocking:
+            # Wait until scope has finished recording
+            self.wait_done(timeout=timeout, sleep_time=sleep_time)
         # read and post-process the recorded data
         recorded_data = [[], [], [], []]
         num_channels = self._parent.num_qachannels()
