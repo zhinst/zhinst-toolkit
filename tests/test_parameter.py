@@ -136,7 +136,6 @@ def test_set_get(v):
         p(1)
 
 
-
 def test_set_get_readonly():
     dev = Device()
     parent = Parent(dev)
