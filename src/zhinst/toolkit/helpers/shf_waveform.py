@@ -13,16 +13,17 @@ _logger = LoggerModule(__name__)
 class SHFWaveform(object):
     """Implements a waveform for single channel.
 
-    The 'data' attribute holds the waveform samples with the proper scaling,
-    granularity and minimal length. The 'data' attribute holds the actual
-    waveform array that can be sent to the instrument.
+    The 'data' attribute holds the waveform samples with the proper
+    scaling, granularity and minimal length. The 'data' attribute holds
+    the actual waveform array that can be sent to the instrument.
 
     Arguments:
         wave (array): list or numpy array for the waveform, will be
             scaled to have a maximum amplitude of 1
-        delay (float): individual waveform delay in seconds with respect
-            to the time origin of the sequence, a positive value shifts
-            the start of the waveform forward in time (default: 0)
+        delay (float): individual waveform delay in seconds with
+            respect to the time origin of the sequence, a positive
+            value shifts the start of the waveform forward in time
+            (default: 0).
         granularity (int): granularity that the number of samples are
             aligned to (default: 4)
         min_length (int): minimum waveform length that the number of
@@ -51,16 +52,9 @@ class SHFWaveform(object):
 
     def replace_data(self, wave, delay=0):
         """Replaces the data in the waveform."""
-        new_buffer_length = self._round_up(len(wave))
         self._delay = delay
-        if new_buffer_length == self.buffer_length:
-            self._wave = wave
-            self._update()
-        else:
-            _logger.error(
-                "Waveform lengths don't match!",
-                _logger.ExceptionTypes.ToolkitError,
-            )
+        self._wave = wave
+        self._update()
 
     @property
     def data(self):
@@ -82,7 +76,8 @@ class SHFWaveform(object):
     def _adjust_scale(self, wave):
         """Adjust the scaling of the waveform.
 
-        The data is actually sent as complex values in the range of (-1, 1).
+        The data is actually sent as complex values in the range of
+        (-1, 1).
 
         """
         if len(wave) == 0:
@@ -90,7 +85,7 @@ class SHFWaveform(object):
         n = len(wave)
         n = min(n, self.buffer_length)
         m = np.max(np.abs(wave))
-        data = np.zeros(self.buffer_length)
+        data = np.zeros(self.buffer_length, dtype=np.complex)
 
         if self._align_start:
             if len(wave) > n:
@@ -109,11 +104,12 @@ class SHFWaveform(object):
         return complex_data
 
     def _round_up(self, waveform_length):
-        """Adapt to the allowed granularity and minimum length of waveforms.
+        """Adapt to the allowed granularity and minimum length of
+        waveforms.
 
         The length of the waveform is rounded up if it does not match
-        the waveform granularity and minimum waveform length specifications
-        of the instrument.
+        the waveform granularity and minimum waveform length
+        specifications of the instrument.
         """
         length = max(waveform_length, self._min_length)
         multiplier, rest = divmod(length, self._granularity)

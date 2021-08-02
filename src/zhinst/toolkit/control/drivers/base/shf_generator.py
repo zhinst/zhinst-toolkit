@@ -152,28 +152,54 @@ class SHFGenerator:
             s += f"            {i}\n"
         return s
 
-    def run(self) -> None:
-        """Run the generator."""
-        self._enable(True)
+    def run(self, sync=True) -> None:
+        """Run the generator.
 
-    def stop(self) -> None:
-        """Stops the generator."""
-        self._enable(False)
+        Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after enabling the generator (default: True).
+        """
+        self._enable(True, sync=sync)
 
-    def wait_done(self, timeout: float = 10) -> None:
-        """Wait until the Generator is finished.
+    def stop(self, sync=True) -> None:
+        """Stop the generator.
 
-        Keyword Arguments:
-            timeout (int): The maximum waiting time in seconds for the
-                Generator (default: 10).
+        Arguments:
+            sync (bool): A flag that specifies if a synchronisation
+                should be performed between the device and the data
+                server after disabling the generator (default: True).
+        """
+        self._enable(False, sync=sync)
+
+    def wait_done(self, timeout: float = 10, sleep_time: float = 0.005) -> None:
+        """Wait until the generator is finished.
+
+        Arguments:
+            timeout (float): The maximum waiting time in seconds for the
+                generator (default: 10).
+            sleep_time (float): Time in seconds to wait between
+                requesting generator state
+
+        Raises:
+            ToolkitError: If the generator is running in continuous
+                mode.
+            TimeoutError: If the generator is not finished before the
+                timeout.
 
         """
+        if not self.single():
+            _logger.error(
+                "The generator is running in continuous mode, it will never be "
+                "finished.",
+                _logger.ExceptionTypes.ToolkitError,
+            )
         start_time = time.time()
         while self.is_running and start_time + timeout >= time.time():
-            time.sleep(0.1)
+            time.sleep(sleep_time)
         if self.is_running and start_time + timeout < time.time():
             _logger.error(
-                "The generator timed out!",
+                "Generator timed out!",
                 _logger.ExceptionTypes.TimeoutError,
             )
 
@@ -245,8 +271,6 @@ class SHFGenerator:
 
         Arguments:
             wave (array): The waveform to be queued as a 1D numpy array.
-
-        Keyword Arguments:
             delay (int): An individual delay in seconds for this waveform
                 w.r.t. the time origin of the sequence. (default: 0)
 
@@ -260,6 +284,32 @@ class SHFGenerator:
             )
         self._waveforms.append(SHFWaveform(wave, delay=delay))
         print(f"Current length of queue: {len(self._waveforms)}")
+
+    def replace_waveform(
+        self,
+        wave: Union[List, np.array],
+        i: int = 0,
+        delay: float = 0,
+    ) -> None:
+        """Replace a waveform in the queue at a given index.
+
+        Arguments:
+            wave (array): Waveform to replace current wave
+            i (int): The index of the waveform in the queue to be
+                replaced.
+            delay (int): An individual delay in seconds for this
+                waveform w.r.t. the time origin of the sequence. (default: 0)
+
+        Raises:
+            ValueError: If the given index is out of range.
+
+        """
+        if i not in range(len(self._waveforms)):
+            _logger.error(
+                "Index out of range!",
+                _logger.ExceptionTypes.ValueError,
+            )
+        self._waveforms[i].replace_data(wave, delay=delay)
 
     def upload_waveforms(self) -> None:
         """Upload all waveforms in the queue to the Generator.
