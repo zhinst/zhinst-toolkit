@@ -480,26 +480,12 @@ class AWG(AWGCore):
         self.set_sequence_params(reset_phase=False)
         self._parent._set("system/awg/oscillatorcontrol", 0)
 
-    def _apply_sequence_settings(self, **kwargs):
-        # check sequence type
-        if "sequence_type" in kwargs.keys():
-            t = SequenceType(kwargs["sequence_type"])
-            if t not in self._parent.allowed_sequences:
-                _logger.error(
-                    f"Sequence type {t} must be one of "
-                    f"{[s.value for s in self._parent.allowed_sequences]}!",
-                    _logger.ExceptionTypes.ToolkitError,
-                )
-        # apply settings dependent on trigger mode
+    def _apply_sequence_settings(self, **kwargs) -> None:
+        super()._apply_sequence_settings(**kwargs)
         if "trigger_mode" in kwargs.keys():
             t = TriggerMode(kwargs["trigger_mode"])
-            if t not in self._parent.allowed_trigger_modes:
-                _logger.error(
-                    f"Trigger mode {t} must be one of "
-                    f"{[s.value for s in self._parent.allowed_trigger_modes]}!",
-                    _logger.ExceptionTypes.ToolkitError,
-                )
-            elif t in [TriggerMode.EXTERNAL_TRIGGER, TriggerMode.RECEIVE_TRIGGER]:
+            # apply settings depending on trigger mode
+            if t in [TriggerMode.EXTERNAL_TRIGGER, TriggerMode.RECEIVE_TRIGGER]:
                 self._apply_receive_trigger_settings()
             elif t == TriggerMode.ZSYNC_TRIGGER:
                 self._apply_zsync_trigger_settings()
