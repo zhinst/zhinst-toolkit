@@ -2,6 +2,13 @@
 #
 # This software may be modified and distributed under the terms
 # of the MIT license. See the LICENSE file for details.
+"""Zurich Instruments Toolkit (zhinst-toolkit) UHFQA Driver.
+
+This driver provides a high-level controller for the Zurich Instruments
+UHFQA Quantum Analyzer for Zurich Instruments Toolkit (zhinst-toolkit).
+It is based on our Python API ziPython and forms the basis for UHFQA
+drivers used in QCoDeS and Labber.
+"""
 
 import numpy as np
 from typing import List
@@ -32,7 +39,8 @@ MAPPINGS = {
 
 
 class UHFQA(BaseInstrument):
-    """High-level driver for the Zurich Instruments UHFQA Quantum Analyzer.
+    """High-level driver for the Zurich Instruments UHFQA Quantum
+    Analyzer.
 
     Inherits from :class:`BaseInstrument` and adds an :class:`AWGCore`
     and a list of :class:`ReadoutChannels`. They can be accessed as
@@ -102,7 +110,8 @@ class UHFQA(BaseInstrument):
         integration_length (:class:`zhinst.toolkit.control.node_tree.Parameter`):
             The integration length in number of samples. The value
             must be gerater than and multiple of 4. The maximum value
-            when using weighted integration is 4096 samples (default: 4096).
+            when using weighted integration is 4096 samples
+            (default: 4096).
         result_source (:class:`zhinst.toolkit.control.node_tree.Parameter`):
             This parameter selects the stage in the signal processing
             path that is used as the source for the QA results. It can
@@ -117,10 +126,10 @@ class UHFQA(BaseInstrument):
             the *result averages* setting. The second point is the
             average of the next *N* results, and so forth.
             `"Cyclic"`: The first point in the Result vector is the
-            average of the results *1, M+1, 2M+1, ...*, where *M* is the
-            value of the *result length* setting. The second point is
-            the average of the results number *2, M+2, 2M+2, ...*, and
-            so forth.
+            average of the results *1, M+1, 2M+1, ...*, where *M* is
+            the value of the *result length* setting. The second point
+            is the average of the results number *2, M+2, 2M+2, ...*,
+            and so forth.
         ref_clock (:class:`zhinst.toolkit.control.node_tree.Parameter`):
             Clock source used as the frequency and time base reference.
             Either `0: "internal"` or `1: "external"`.
@@ -156,12 +165,14 @@ class UHFQA(BaseInstrument):
         ]
 
     def connect_device(self, nodetree: bool = True) -> None:
-        """Connects the device to the data server and initializes the AWG.
+        """Connects the device to the data server and initializes the
+        AWG.
 
-        Keyword Arguments:
-            nodetree (bool): A flag that specifies if all the parameters from
-                the device's nodetree should be added to the object's attributes
-                as `zhinst-toolkit` Parameters. (default: True)
+        Arguments:
+            nodetree (bool): A flag that specifies if all the
+                parameters from the device's nodetree should be added
+                to the object's attributes as `zhinst-toolkit`
+                Parameters (default: True).
 
         """
         super().connect_device(nodetree=nodetree)
@@ -187,16 +198,16 @@ class UHFQA(BaseInstrument):
     def crosstalk_matrix(self, matrix=None):
         """Sets or gets the crosstalk matrix of the UHFQA as a 2D array.
 
-        Keyword Arguments:
+        Arguments:
             matrix (2D array): The 2D matrix used in the digital signal
                 processing path to compensate for crosstalk between the
-                different channels. The given matrix can also be a part of the
-                entire 10 x 10 matrix. Its maximum dimensions are 10 x 10.
-                (default: None)
+                different channels. The given matrix can also be a part
+                of the entire 10 x 10 matrix. Its maximum dimensions
+                are 10 x 10 (default: None).
 
         Returns:
-            If no argument is given the method returns the current crosstalk
-            matrix as a 2D numpy array.
+            If no argument is given the method returns the current
+            crosstalk matrix as a 2D numpy array.
 
         Raises:
             ValueError: If the matrix size exceeds the maximum size of
@@ -222,9 +233,10 @@ class UHFQA(BaseInstrument):
                     self._set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
 
     def enable_readout_channels(self, channels: List = range(10)) -> None:
-        """Enables weighted integration on the specified readout channels.
+        """Enables weighted integration on the specified readout
+        channels.
 
-        Keyword Arguments:
+        Arguments:
             channels (list): A list of indices of channels to enable.
                 (default: range(10))
 
@@ -241,9 +253,10 @@ class UHFQA(BaseInstrument):
             self.channels[i].enable()
 
     def disable_readout_channels(self, channels: List = range(10)) -> None:
-        """Disables weighted integration on the specified readout channels.
+        """Disables weighted integration on the specified readout
+        channels.
 
-        Keyword Arguments:
+        Arguments:
             channels (list): A list of indices of channels to disable.
                 (default: range(10))
 
@@ -261,7 +274,7 @@ class UHFQA(BaseInstrument):
             self.channels[i].disable()
 
     def enable_qccs_mode(self) -> None:
-        """Configure the instrument to work with PQSC
+        """Configure the instrument to work with PQSC.
 
         This method sets the reference clock source and DIO settings
         correctly to connect the instrument to the PQSC.
@@ -280,7 +293,7 @@ class UHFQA(BaseInstrument):
         self._set(settings)
 
     def enable_manual_mode(self) -> None:
-        """Disconnect from PQSC
+        """Disconnect from the PQSC.
 
         This method sets the reference clock source and DIO settings to
         factory default states and the instrument is disconnected from
@@ -289,7 +302,7 @@ class UHFQA(BaseInstrument):
         settings = [
             # Use internal clock as reference
             ("/system/extclk", "internal"),
-            # Configure DIO settigns to factory default values
+            # Configure DIO settings to factory default values
             # Clock DIO internally with a frequency of 56.25 MHz
             ("/dios/0/extclk", 0),
             # Enable manual control of the DIO output bits
@@ -302,16 +315,17 @@ class UHFQA(BaseInstrument):
     def arm(self, length=None, averages=None) -> None:
         """Prepare UHFQA for result acquisition.
 
-        This method enables the QA Results Acquisition and resets the acquired
-        points. Optionally, the *result length* and *result averages* can be set
-        when specified as keyword arguments. If they are not specified, they are
-        not changed.
+        This method enables the QA Results Acquisition and resets the
+        acquired points. Optionally, the *result length* and
+        *result averages* can be set when specified as keyword
+        arguments. If they are not specified,they are not changed.
 
-        Keyword Arguments:
-            length (int): If specified, the length of the result vector will be
-                set before arming the UHFQA readout. (default: None)
-            averages (int): If specified, the result averages will be set before
-                arming the UHFQA readout. (default: None)
+        Arguments:
+            length (int): If specified, the length of the result vector
+                will be set before arming the UHFQA readout
+                (default: None).
+            averages (int): If specified, the result averages will be
+                set before arming the UHFQA readout (default: None).
 
         """
         if length is not None:
@@ -326,9 +340,9 @@ class UHFQA(BaseInstrument):
     def qa_delay(self, value=None):
         """Set or get the adjustment in the the quantum analyzer delay.
 
-        Keyword Arguments:
-            value (int): Number of additional samples to adjust the delay
-                (default: None)
+        Arguments:
+            value (int): Number of additional samples to adjust the
+                delay (default: None)
 
         Returns:
             The adjustment in delay in units of samples.
@@ -364,9 +378,9 @@ class UHFQA(BaseInstrument):
     def _qa_delay_default(self):
         """Return the default value for the quantum analyzer delay.
 
-        Quantum analyzer delay adjusts the time at which the integration
-        starts in relation to the trigger signal of the weighted
-        integration units.
+        Quantum analyzer delay adjusts the time at which the
+        integration starts in relation to the trigger signal of the
+        weighted integration units.
 
         The default delay value is:
         184 samples if deskew matrix is bypassed
@@ -651,8 +665,8 @@ class AWG(AWGCore):
         ]
         # Apply the settings above
         self._parent._set(settings)
-        # Set the Quantum Analyzer delay. Enabling of deskew matrix
-        # and previous user adjustment are taken into account automatically.
+        # Set the Quantum Analyzer delay. Enabling of deskew matrix and
+        # previous user adjustment are taken into account automatically.
         self._parent.qa_delay(self._parent._qa_delay_user)
         # Disable readout channels
         self._parent.disable_readout_channels(range(10))
@@ -692,7 +706,8 @@ class AWG(AWGCore):
         sequence parameters.
 
         Raises:
-            ToolkitError: If the selected sequence type is not 'Readout'
+            ToolkitError: If the selected sequence type is not
+                'Readout'
         """
         if self.sequence_params["sequence_type"] == SequenceType.READOUT:
             freqs = []
@@ -715,7 +730,8 @@ class AWG(AWGCore):
             )
 
     def compile(self) -> None:
-        """Wraps the 'compile(...)' method of the parent class `AWGCore`."""
+        """Wrap the 'compile(...)' method of the parent class
+        `AWGCore`."""
         if self.sequence_params["sequence_type"] == SequenceType.READOUT:
             self.update_readout_params()
         super().compile()
@@ -724,9 +740,9 @@ class AWG(AWGCore):
 class ReadoutChannel:
     """Implements a Readout Channel for UHFQA.
 
-    This class represents the signal processing chain for one of the ten
-    :class:`ReadoutChannels` of a UHFQA. One channel is typically used for
-    dispersive resonator readout of superconducting qubits.
+    This class represents the signal processing chain for one of the
+    ten :class:`ReadoutChannels` of a UHFQA. One channel is typically
+    used for dispersive resonator readout of superconducting qubits.
 
         >>> ch = uhfqa.channels[0]
         >>> uhfqa.result_source("Threshold")
@@ -746,23 +762,24 @@ class ReadoutChannel:
         >>> ch.result()
         array([0.0, 1.0, 1.0, 1.0, 0.0, ...])
 
-    The readout channel can be enabled with `enable()` which means that the
-    weighted integration mode is activated and integration weights are set to
-    demodulate the signal at the given readout frequency. If the channel is
-    enabled, the readout parameters are also used for signal generation in the
-    :class:`AWGCore` if the sequence type is set to *'Readout'*.
+    The readout channel can be enabled with `enable()` which means that
+    the weighted integration mode is activated and integration weights
+    are set to demodulate the signal at the given readout frequency. If
+    the channel is enabled, the readout parameters are also used for
+    signal generation in the :class:`AWGCore` if the sequence type is
+    set to *'Readout'*.
 
     Attributes:
         index (int): The index of the Readout Channel from 1 - 10.
-        rotation (:class:`zhinst.toolkit.control.nodetree.Parameter`): The
-            rotation applied to the signal in IQ plane. The angle is specified
-            in degrees.
-        threshold (:class:`zhinst.toolkit.control.nodetree.Parameter`): The
-            signal threshold used for state discrimination in the thresholding
-            unit.
-        result (:class:`zhinst.toolkit.control.nodetree.Parameter`): This
-            read-only Parameter holds the result vector for the given readout
-            channel as a 1D numpy array.
+        rotation (:class:`zhinst.toolkit.control.nodetree.Parameter`):
+            The rotation applied to the signal in IQ plane. The angle
+            is specified in degrees.
+        threshold (:class:`zhinst.toolkit.control.nodetree.Parameter`):
+            The signal threshold used for state discrimination in the
+            thresholding unit.
+        result (:class:`zhinst.toolkit.control.nodetree.Parameter`):
+            This read-only Parameter holds the result vector for the
+            given readout channel as a 1D numpy array.
 
     Raises:
         ValueError: If the channel index is not in the allowed range.
@@ -829,11 +846,12 @@ class ReadoutChannel:
         """Sets or gets the readout frequency for this channel.
 
         Readout frequency in Hz of the readout channel. If the AWG
-        :class:`SequenceProgram` is of type "Readout", this Parameter is used to
-        generate a readout tone at the given readout frequency for all readout
-        channels that are enabled. This frequency is also used in the signal
-        acquisition for digital demodulation if the readout channel is
-        enabled. The frequency must be positive.
+        :class:`SequenceProgram` is of type "Readout", this Parameter
+        is used to generate a readout tone at the given readout
+        frequency for all readout channels that are enabled. This
+        frequency is also used in the signal acquisition for digital
+        demodulation if the readout channel is enabled. The frequency
+        must be positive.
 
         """
         if freq is None:
@@ -845,12 +863,13 @@ class ReadoutChannel:
             return self._readout_frequency
 
     def int_weights_envelope(self, envelope=None):
-        """Set or get the envelope multiplied with the integration weights.
+        """Set or get the envelope multiplied with the integration
+        weights.
 
         Arguments:
             envelope (list or double): Envelope value or list of values
-                to be multiplied with the integration weights. Each value
-                must be between 0.0 and 1.0 (default: 1.0).
+                to be multiplied with the integration weights. Each
+                value must be between 0.0 and 1.0 (default: 1.0).
         Raises:
             ToolkitError: If integration weight envelope is given as a
                 list or array but the length of the list does not match
@@ -881,9 +900,10 @@ class ReadoutChannel:
     def readout_amplitude(self, amp=None):
         """Sets or gets the readout amplitude for this channel.
 
-        The amplitude of the readout pulse is used for signal generation of the
-        readout tone if the channel is enabled and if the AWG
-        :class:`SequenceProgram` is of type *'Readout'*. (default: 1.0)
+        The amplitude of the readout pulse is used for signal
+        generation of the readout tone if the channel is enabled and if
+        the AWG :class:`SequenceProgram` is of type *'Readout'*
+        (default: 1.0).
 
         """
         if amp is None:
@@ -898,7 +918,7 @@ class ReadoutChannel:
         """Sets or gets the readout phase shift for this channel.
 
         Additional phase shift in the signal generation between I and Q
-        quadtratures. (default: 0)
+        quadratures. (default: 0)
 
         """
         if ph is None:
