@@ -150,17 +150,16 @@ class SHFQA(BaseInstrument):
         """Sets initial device settings on startup."""
         pass
 
-    def _num_qachannels(self):
+    def num_qachannels(self):
         """Find the number of qachannels available in the instrument."""
         serial = self.serial
         daq = self._controller.connection.daq
         qachannels = daq.listNodes(f"{serial}/qachannels/")
-        num_qachannels = len(qachannels)
-        return num_qachannels
+        return len(qachannels)
 
     def _init_qachannels(self):
         """Initialize the qachannels of the device."""
-        self._qachannels = [QAChannel(self, i) for i in range(self._num_qachannels())]
+        self._qachannels = [QAChannel(self, i) for i in range(self.num_qachannels())]
         [qachannel._init_qachannel_params() for qachannel in self.qachannels]
         [qachannel._init_generator() for qachannel in self.qachannels]
         [qachannel._init_sweeper() for qachannel in self.qachannels]
@@ -337,7 +336,7 @@ class QAChannel(SHFQAChannel):
         )
 
     def _init_generator(self):
-        """Initialize the genereator of the qachannel."""
+        """Initialize the generator of the qachannel."""
         self._generator = Generator(self)
         self._generator._setup()
         self._generator._init_generator_params()
