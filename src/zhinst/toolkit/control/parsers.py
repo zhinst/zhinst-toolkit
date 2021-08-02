@@ -235,7 +235,13 @@ class Parse:
 
     @staticmethod
     def deg2complex(v):
-        return np.exp(1j * np.deg2rad(v))
+        if isinstance(v, complex):
+            # Return the input without changing it, if it is already
+            # a complex number
+            return v
+        else:
+            # If it is an angle, convert it to complex number
+            return np.exp(1j * np.deg2rad(v))
 
     @staticmethod
     def complex2deg(v):
