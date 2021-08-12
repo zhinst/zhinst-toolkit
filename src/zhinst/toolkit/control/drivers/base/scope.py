@@ -72,6 +72,7 @@ class Scope:
                 greater than 1, the scope  record shots are averaged
                 using an exponentially weighted moving average
                 (default: None).
+
         """
         if self._module is None:
             _logger.error(
@@ -108,6 +109,7 @@ class Scope:
             sync (bool): A flag that specifies if a synchronisation
                 should be performed between the device and the data
                 server after enabling the scope (default: True).
+
         """
         # Enable the scope:
         # Now the scope is ready to record data upon receiving triggers.
@@ -140,6 +142,7 @@ class Scope:
             sync (bool): A flag that specifies if a synchronisation
                 should be performed between the device and the data
                 server after disabling the scope (default: True).
+
         """
         self._enable(False, sync=sync)
         # Stop the module; to use it again we need to call execute().
@@ -207,6 +210,7 @@ class Scope:
 
         Returns:
             A dictionary showing the recorded data and scope time.
+            
         """
         num_records = self.num_records()
         wave_nodepath = f"/{self._parent.serial}/scopes/0/wave"

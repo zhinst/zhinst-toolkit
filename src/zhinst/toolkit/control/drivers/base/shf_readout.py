@@ -187,6 +187,7 @@ class SHFReadout:
         Raises:
             TimeoutError: if the readout recording is not completed
                 before timeout.
+                
         """
         if blocking:
             # Wait until result logger has finished recording

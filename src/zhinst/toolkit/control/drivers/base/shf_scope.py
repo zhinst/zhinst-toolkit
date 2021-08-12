@@ -74,7 +74,7 @@ class SHFScope:
     def wait_done(self, timeout: float = 10, sleep_time: float = 0.005) -> None:
         """Wait until the Scope recording is finished.
 
-        Keyword Arguments:
+        Arguments:
             timeout (int): The maximum waiting time in seconds for the
                 Scope (default: 10).
             sleep_time (float): Time in seconds to wait between
@@ -121,8 +121,8 @@ class SHFScope:
         Raises:
             TimeoutError: if the scope recording is not completed before
                 timeout.
-        """
 
+        """
         if blocking:
             # Wait until scope has finished recording
             self.wait_done(timeout=timeout, sleep_time=sleep_time)
@@ -160,7 +160,7 @@ class SHFScope:
     def channels(self, value=None):
         """Set all Scope channels simultaneously.
 
-        Keyword Arguments:
+        Arguments:
             value (tuple): Tuple of values {'on', 'off'} for channel 1,
                 2, 3 and 4 (default: None).
 
@@ -236,6 +236,7 @@ class SHFScope:
 
         Returns:
             A dictionary showing the enable state and segment count
+
         """
         if count is not None:
             self._segments_count(count)
@@ -254,6 +255,7 @@ class SHFScope:
 
         Returns:
             A dictionary showing the enable state and averaging count
+            
         """
         if count is not None:
             self._averaging_count(count)

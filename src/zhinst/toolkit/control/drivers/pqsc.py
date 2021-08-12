@@ -141,6 +141,7 @@ class PQSC(BaseInstrument):
             sync (bool): A flag that specifies if a synchronisation
                 should be performed between the device and the data
                 server after enabling the PQSC (default: True).
+
         """
         self._enable(True, sync=sync)
 
@@ -170,6 +171,7 @@ class PQSC(BaseInstrument):
             sync (bool): A flag that specifies if a synchronisation
                 should be performed between the device and the data
                 server after disabling the PQSC (default: True).
+                
         """
         self._enable(False, sync=sync)
 
