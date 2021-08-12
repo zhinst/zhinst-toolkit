@@ -177,6 +177,7 @@ class AWGCore:
             sync (bool): A flag that specifies if a synchronisation
                 should be performed between the device and the data
                 server after enabling the AWG Core (default: True).
+
         """
         self._enable(True, sync=sync)
 
@@ -187,6 +188,7 @@ class AWGCore:
             sync (bool): A flag that specifies if a synchronisation
                 should be performed between the device and the data
                 server after disabling the AWG Core (default: True).
+
         """
         self._enable(False, sync=sync)
 
@@ -292,16 +294,28 @@ class AWGCore:
         wave2: Union[List, np.array],
         delay: float = 0,
     ) -> None:
-        """Adds a new waveform to the queue.
+        """Queues up a waveform to the *AWG Core*.
+
+        Uploading custom waveforms is only possible when using the
+        *'Simple'* or *'Custom'* sequence types. The waveform is
+        specified with two numpy arrays for the two channels of the
+        *AWG Core*. The waveform will then automatically align them to
+        the correct minimum waveform length, sample granularity and
+        scaling. An individual delay can be specified to shift the
+        individual waveform with respect to the time origin of the
+        period.
 
         Arguments:
-            wave1 (array): The waveform to be queued for Channel 1 as a 1D numpy
-                array.
-            wave2 (array): The waveform to be queued for Channel 2 as a 1D numpy
-                array.
-            delay (int): An individual delay in seconds for this waveform w.r.t.
-                the time origin of the sequence. (default: 0)
-
+            wave1 (array like): A list or array of samples in the
+                waveform to be queued for channel 1. An empty list '[]'
+                will upload zeros of the minimum waveform length.
+            wave2 (array like): A list or array of samples in the
+                waveform to be queued for channel 2. An empty list '[]'
+                will upload zeros of the minimum waveform length.
+            delay (float): An individual delay for the queued sequence
+                with respect to the time origin. Positive values shift
+                the start of the waveform forwards in time. (default: 0)
+                
         Raises:
             ToolkitError: If the sequence is not of type *'Simple'* or
                 *'Custom'*.
@@ -326,15 +340,23 @@ class AWGCore:
         i: int = 0,
         delay: float = 0,
     ) -> None:
-        """Replaces a waveform in the queue at a given index.
+        """Replaces the data in a waveform in the queue.
+
+        The new data must have the same length as the previous data 
+        s.t. the waveform data can be replaced without recompilation of 
+        the sequence program.
 
         Arguments:
-            wave1 (array): Waveform to replace current wave for Channel 1.
-            wave2 (array): Waveform to replace current wave for Channel 2.
-            i (int): The index of the waveform in the queue to be replaced.
-            delay (int): An individual delay in seconds for this waveform w.r.t.
-                the time origin of the sequence. (default: 0)
-
+            wave1 (array): Waveform to replace current wave for 
+                Channel 1.
+            wave2 (array): Waveform to replace current wave for 
+                Channel 2.
+            i (int): The index of the waveform in the queue to be 
+                replaced.
+            delay (int): An individual delay in seconds for this 
+                waveform w.r.t. the time origin of the sequence
+                (default: 0).
+                
         Raises:
             ValueError: If the given index is out of range.
 
@@ -350,9 +372,8 @@ class AWGCore:
         """Uploads all waveforms in the queue to the AWG Core.
 
         This method only works as expected if the Sequence Program is in
-        *'Simple'* mode and has been compiled beforehand. See
-        :func:`compile_and_upload_waveforms(...)`.
-
+        'Simple' or 'Custom' modes and has been compiled beforehand.
+        See :func:`compile_and_upload_waveforms(...)`.
         """
         waveform_data = [w.data for w in self._waveforms]
         nodes = [
@@ -368,21 +389,21 @@ class AWGCore:
 
         Simply combines the two methods to make sure the sequence is compiled
         before the waveform queue is uplaoded.
-
         """
         self.compile()
         self.upload_waveforms()
 
     def set_sequence_params(self, **kwargs) -> None:
-        """Sets the parameters of the Sequence Program.
+        """Sets the parameters of the *Sequence Program*.
 
         Passes all the keyword arguments to the `set_param(...)` method of the
-        Sequence Program. The available sequence parameters may vary between
+        *Sequence Program*. The available sequence parameters may vary between
         different sequences. For a list of all current sequence parameters see
-        the property `sequence_params`.
+        the method `sequence_params()`.
 
-        They include *'sequence_type'*, *'period'*, *'repetitions'*,
-        *'trigger_mode'*, *'trigger_delay'*, ...
+        They include:
+            *'sequence_type', 'period', 'repetitions', 'trigger_mode',
+            'trigger_delay', ...*
 
             >>> hdawg.awgs[0]
             <zhinst.toolkit.hdawg.AWG object at 0x0000021E467D3320>

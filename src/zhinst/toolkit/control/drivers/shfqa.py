@@ -868,6 +868,7 @@ class Sweeper(SHFSweeper):
         Arguments:
             num (int): Number of frequency points to sweep between
                 start and stop frequency values (default: None).
+
         """
         if num is None:
             return self._num_points
@@ -882,6 +883,7 @@ class Sweeper(SHFSweeper):
             map (str): Mapping that specifies the distances between
                 frequency points of the sweeper. Can be either "linear"
                 or "log" (default: None).
+
         """
         if map is None:
             return self._mapping
@@ -898,6 +900,7 @@ class Sweeper(SHFSweeper):
         Arguments:
             num (int): Number of times the sweeper measures one
                 frequency point (default: None).
+                
         """
         if num is None:
             return self._num_averages

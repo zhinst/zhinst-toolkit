@@ -187,6 +187,7 @@ class UHFQA(BaseInstrument):
             sync (bool): A flag that specifies if a synchronisation
                 should be performed between the device and the data
                 server after loading the factory preset (default: True).
+
         """
         super().factory_reset(sync=sync)
         # Set the AWG to single shot mode manually since the firmware
@@ -233,8 +234,8 @@ class UHFQA(BaseInstrument):
                     self._set(f"qas/0/crosstalk/rows/{r}/cols/{c}", matrix[r, c])
 
     def enable_readout_channels(self, channels: List = range(10)) -> None:
-        """Enables weighted integration on the specified readout
-        channels.
+        """Enable weighted integration on the specified readout
+         channels.
 
         Arguments:
             channels (list): A list of indices of channels to enable.
@@ -243,6 +244,7 @@ class UHFQA(BaseInstrument):
         Raises:
             ValueError: If the channel list contains an element outside
                 the allowed range.
+
         """
         for i in channels:
             if i not in range(10):
@@ -832,13 +834,21 @@ class ReadoutChannel:
         return self._enabled
 
     def enable(self) -> None:
-        """Enables weighted integration for this channel."""
+        """Enable weighted integration for this channel. 
+        
+        This enables weighted integration mode and sets the 
+        corresponding integration weights to  demodulate at the given 
+        readout frequency.
+        """
         self._enabled = True
         self._parent._set("qas/0/integration/mode", 0)
         self._set_int_weights()
 
     def disable(self) -> None:
-        """Disables weighted integration for this channel."""
+        """Disable weighted integration for this channel.
+
+        This method also resets the corresponding integration weights.
+        """
         self._enabled = False
         self._reset_int_weights()
 

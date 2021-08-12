@@ -131,6 +131,7 @@ class SHFSweeper:
 
         Returns:
              A dictionary with measurement data of the last sweep
+             
         """
         return self._module.get_result()
 

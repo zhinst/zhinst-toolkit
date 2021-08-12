@@ -159,6 +159,7 @@ class SHFGenerator:
             sync (bool): A flag that specifies if a synchronisation
                 should be performed between the device and the data
                 server after enabling the generator (default: True).
+
         """
         self._enable(True, sync=sync)
 
@@ -169,6 +170,7 @@ class SHFGenerator:
             sync (bool): A flag that specifies if a synchronisation
                 should be performed between the device and the data
                 server after disabling the generator (default: True).
+
         """
         self._enable(False, sync=sync)
 
@@ -213,6 +215,7 @@ class SHFGenerator:
                 upload is not successful.
             TimeoutError: if the program upload is not completed before
                 timeout.
+
         """
         if self._module is None:
             _logger.error(
@@ -276,6 +279,7 @@ class SHFGenerator:
 
         Raises:
             ToolkitError: If the sequence is not of type *'Custom'*.
+
         """
         if self._program.sequence_type != SequenceType.CUSTOM:
             _logger.error(
@@ -317,7 +321,6 @@ class SHFGenerator:
         This method only works as expected if the Sequence Program has
         been compiled beforehand.
         See :func:`compile_and_upload_waveforms(...)`.
-
         """
         waveform_data = [w.data for w in self._waveforms]
         nodes = [

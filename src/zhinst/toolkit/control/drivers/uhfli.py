@@ -97,6 +97,7 @@ class UHFLI(BaseInstrument):
             sync (bool): A flag that specifies if a synchronisation
                 should be performed between the device and the data
                 server after loading the factory preset (default: True).
+                
         """
         super().factory_reset(sync=sync)
 
