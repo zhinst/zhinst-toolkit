@@ -187,14 +187,15 @@ class SHFReadout:
         Raises:
             TimeoutError: if the readout recording is not completed
                 before timeout.
-                
+
         """
+        num_integrations = self._device.num_integrations_per_qachannel()
         if blocking:
             # Wait until result logger has finished recording
             self.wait_done(timeout=timeout, sleep_time=sleep_time)
         # read the measurement data
         result = []
-        for j in range(16):
+        for j in range(num_integrations):
             result.append(self.integrations[j].result())
         # decide what to return
         if not integrations:
