@@ -164,6 +164,13 @@ class SHFQA(BaseInstrument):
         qachannels = daq.listNodes(f"{serial}/qachannels/")
         return len(qachannels)
 
+    def num_integrations_per_qachannel(self):
+        """Find the number of integration units per qachannel."""
+        serial = self.serial
+        daq = self._controller.connection.daq
+        integrations = daq.listNodes(f"{serial}/qachannels/0/readout/discriminators")
+        return len(integrations)
+
     def _init_qachannels(self):
         """Initialize the qachannels of the device."""
         self._qachannels = [QAChannel(self, i) for i in range(self.num_qachannels())]
@@ -592,7 +599,10 @@ class Readout(SHFReadout):
 
     def _init_integrations(self):
         """Initialize the integration units of the readout module."""
-        self._integrations = [Integration(self, i) for i in range(16)]
+        self._integrations = [
+            Integration(self, i)
+            for i in range(self._device.num_integrations_per_qachannel())
+        ]
         [integration._init_integration_params() for integration in self._integrations]
 
     @property
@@ -603,12 +613,12 @@ class Readout(SHFReadout):
 class Integration(SHFIntegration):
     """Implements an integration for the SHFQA.
 
-    This class represents the signal processing chain for one of the 16
+    This class represents the signal processing chain for one of the
     :class:`Integration`s of the SHFQA. Integration is typically used
     for dispersive resonator readout of superconducting qubits.
 
     Attributes:
-        index (int): The index of the Integration from 0 to 15.
+        index (int): The index of the Integration.
         threshold (:class:`zhinst.toolkit.control.nodetree.Parameter`):
             The signal threshold used for state discrimination in the
             thresholding unit.
@@ -900,7 +910,7 @@ class Sweeper(SHFSweeper):
         Arguments:
             num (int): Number of times the sweeper measures one
                 frequency point (default: None).
-                
+
         """
         if num is None:
             return self._num_averages
