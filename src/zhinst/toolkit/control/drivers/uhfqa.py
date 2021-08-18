@@ -597,7 +597,7 @@ class AWG(AWGCore):
 
     def _apply_sequence_settings(self, **kwargs) -> None:
         super()._apply_sequence_settings(**kwargs)
-        if "sequence_type" in kwargs.keys():
+        if "sequence_type" in kwargs.keys() and kwargs["sequence_type"] != "None":
             t = SequenceType(kwargs["sequence_type"])
             # apply settings depending on the sequence type
             if t == SequenceType.CW_SPEC:
@@ -608,7 +608,7 @@ class AWG(AWGCore):
                 self._apply_readout_settings()
             else:
                 self._apply_base_settings()
-        if "trigger_mode" in kwargs.keys():
+        if "trigger_mode" in kwargs.keys() and kwargs["trigger_mode"] != "None":
             t = TriggerMode(kwargs["trigger_mode"])
             # apply settings depending on trigger mode
             if t in [TriggerMode.EXTERNAL_TRIGGER, TriggerMode.RECEIVE_TRIGGER]:
