@@ -345,9 +345,15 @@ class AWG(AWGCore):
             set_parser=Parse.set_on_off,
             get_parser=Parse.get_on_off,
         )
+        #If the HDAWG has the MF option, the oscillator assignment
+        # per core is different
+        if 'MF' in self._parent.options:
+            oscs_multiplier = 4
+        else:
+            oscs_multiplier = 1
         self.modulation_freq = Parameter(
             self,
-            self._parent._get_node_dict(f"oscs/{4 * self._index}/freq"),
+            self._parent._get_node_dict(f"oscs/{oscs_multiplier* self._index}/freq"),
             device=self._parent,
             set_parser=lambda v: Parse.greater(v, 0),
         )
