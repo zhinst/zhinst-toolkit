@@ -11,7 +11,7 @@ import setuptools
 requirements = [
     "numpy>=1.13",
     "setuptools>=40.1.0",
-    "zhinst>=20.01",
+    "zhinst>=21.8",
     "attrs",
     "deprecation>=2.1.0",
     "jsonschema>=3.2.0",
