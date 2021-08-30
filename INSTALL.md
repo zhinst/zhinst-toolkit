@@ -7,11 +7,11 @@ It can be downloaded for free at [https://www.zhinst.com/labone](https://www.zhi
 In principle LabOne can be installed in a remote machine, but we highly recommend to install on the local machine where you intend to run the experiment.
 
 ## Anaconda
-A working installation of Python 3.6+ is required to use zhinst-toolkit. On Windows and MacOS X, [Anaconda](https://www.anaconda.com/download) is highly recommended. At the moment Python 3.8 is not supported, we recommend to use Python 3.7.
+A working installation of Python 3.6+ is required to use zhinst-toolkit. On Windows and MacOS X, [Anaconda](https://www.anaconda.com/download) is highly recommended. We recommend to use Python 3.8.
 
 After installation, is recommended to create a new envirornment. This can be done by opening the *Anaconda Prompt* from the start menu and by typing these lines in the prompt
 ```shell script
-conda create -n NAME python=3.7
+conda create -n NAME python=3.8
 conda activate NAME
 ```
 where *NAME* should be the name of the envirornment that you ant to create. The first line will create the envirornment, while the second activate it.
