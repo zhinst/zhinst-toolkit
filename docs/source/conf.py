@@ -33,7 +33,9 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx.ext.napoleon",
     "nbsphinx",
+    "nbsphinx_link",
     "IPython.sphinxext.ipython_console_highlighting",
+    'm2r2',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
