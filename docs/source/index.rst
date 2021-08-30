@@ -1,5 +1,6 @@
 .. image:: images/zhinst_logo_sep_horiz_2019_1000.png
    :width: 400
+   :target: https://www.zhinst.com
 
 |
 |
