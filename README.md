@@ -1,5 +1,5 @@
-![CI](https://github.com/zhinst/zhinst-toolkit/workflows/CI/badge.svg?branch=master)
-[![Coverage](https://codecov.io/gh/zhinst/zhinst-toolkit/branch/master/graph/badge.svg?token=VUDDFQE20M)](https://codecov.io/gh/zhinst/zhinst-toolkit)
+![CI](https://github.com/zhinst/zhinst-toolkit/workflows/CI/badge.svg?branch=main)
+[![Coverage](https://codecov.io/gh/zhinst/zhinst-toolkit/branch/main/graph/badge.svg?token=VUDDFQE20M)](https://codecov.io/gh/zhinst/zhinst-toolkit)
 [![PyPI version](https://badge.fury.io/py/zhinst-toolkit.svg)](https://badge.fury.io/py/zhinst-toolkit)
 [![DOI](https://zenodo.org/badge/245159715.svg)](https://zenodo.org/badge/latestdoi/245159715)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
