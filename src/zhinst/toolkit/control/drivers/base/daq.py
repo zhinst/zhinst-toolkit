@@ -167,7 +167,11 @@ class DAQModule:
             setattr(self, name, Parameter(self, v, device=self, mapping=mapping))
         self._init_settings()
 
-    def _set(self, *args):
+    def _set(self, *args, **kwargs):
+        if kwargs.get("sync", False):
+            _logger.warning(
+                "The daq module does not support the `sync` flag."
+            )
         if self._module is None:
             _logger.error(
                 "This DAQ is not connected to a dataAcquisitionModule!",
