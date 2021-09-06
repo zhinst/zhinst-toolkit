@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 0.2.1
+* Bugfix #86
+
 ## Version 0.2.0
 * Python 3.8 support
 * General
