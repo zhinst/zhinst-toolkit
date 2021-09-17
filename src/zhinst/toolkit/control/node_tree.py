@@ -582,10 +582,14 @@ class NodeTree(Node):
         :class:`NodeTree`.
 
         """
+        # remove device id form key (case insensitive).
+        device_id_regex = re.compile(
+            re.escape(f"/{self._device.serial.upper()}/"), re.IGNORECASE
+        )
         tree = self._device._get_nodetree(f"{self._device.serial}/*")
         nodetree = {}
         for key, value in tree.items():
-            key = key.replace(f"/{self._device.serial.upper()}/", "")
+            key = device_id_regex.sub("", key)
             hierarchy = key.split("/")
             dictify(nodetree, hierarchy, value)
         return nodetree
