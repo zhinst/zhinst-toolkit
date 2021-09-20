@@ -84,6 +84,7 @@ class Parameter:
         get_parser: Callable = lambda v: v,
         auto_mapping: bool = False,
         mapping: Dict = None,
+        dynamic_path: Callable = None,
     ) -> None:
         self._parent = parent
         self._device = parent._device if device is None else device
@@ -110,6 +111,10 @@ class Parameter:
         else:
             # Otherwise, display the automatic mapping in the docstring
             self._display_mapping = True
+        if dynamic_path is None:
+            self._dynamic_path = lambda v: self._path
+        else:
+            self._dynamic_path = dynamic_path
 
     def _getter(self):
         """Implements a getter for the :class:`Parameter`.
@@ -130,7 +135,8 @@ class Parameter:
 
         """
         if "Read" in self._properties:
-            value = self._device._get(self._path)
+            path = self._dynamic_path(self._parent)
+            value = self._device._get(path)
             if self._map is not None:
                 allowed_values = list(self._map.keys())
                 if value not in allowed_values:
@@ -201,7 +207,11 @@ class Parameter:
                     value = callable_element(value)
             else:
                 value = self._set_parser(value)
-            self._device._set(self._path, value, sync=sync)
+            path = self._dynamic_path(self._parent)
+            if self._type == "ZIVectorData":
+                self._device._set_vector(path, value)
+            else:       
+                self._device._set(path, value, sync=sync)
         else:
             _logger.error(
                 "This parameter is not settable!",
@@ -317,8 +327,9 @@ class Parameter:
                 value = callable_element(value)
         else:
             value = self._set_parser(value)
+        path = self._dynamic_path(self._parent)
         return self._device._assert_node_value(
-            self._path, value, blocking=blocking, timeout=timeout, sleep_time=sleep_time
+            path, value, blocking=blocking, timeout=timeout, sleep_time=sleep_time
         )
 
     def __call__(self, value=None, sync=False):
@@ -350,7 +361,7 @@ class Parameter:
             return self._setter(value, sync)
 
     def __repr__(self):
-        s = f"Node: {self._path}\n"
+        s = f"Node: {self._dynamic_path(self._parent)}\n"
         if self._description is not None:
             s += f"Description: {self._description}\n"
         if self._type is not None:
@@ -582,10 +593,14 @@ class NodeTree(Node):
         :class:`NodeTree`.
 
         """
+        # remove device id form key (case insensitive).
+        device_id_regex = re.compile(
+            re.escape(f"/{self._device.serial.upper()}/"), re.IGNORECASE
+        )
         tree = self._device._get_nodetree(f"{self._device.serial}/*")
         nodetree = {}
         for key, value in tree.items():
-            key = key.replace(f"/{self._device.serial.upper()}/", "")
+            key = device_id_regex.sub("", key)
             hierarchy = key.split("/")
             dictify(nodetree, hierarchy, value)
         return nodetree

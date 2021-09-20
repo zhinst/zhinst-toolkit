@@ -131,7 +131,13 @@ class Sequence(object):
     target = attr.ib(
         default=DeviceTypes.HDAWG,
         validator=attr.validators.in_(
-            [DeviceTypes.HDAWG, DeviceTypes.UHFQA, DeviceTypes.UHFLI, DeviceTypes.SHFQA]
+            [
+                DeviceTypes.HDAWG,
+                DeviceTypes.UHFQA,
+                DeviceTypes.UHFLI,
+                DeviceTypes.SHFQA,
+                DeviceTypes.SHFSG,
+            ]
         ),
     )
     clock_rate = attr.ib(default=2.4e9, validator=is_greater_equal(0))
@@ -175,6 +181,7 @@ class Sequence(object):
         default=12000, validator=is_greater_equal(0)
     )  # 5 us by default (Assuming HDAWG)
     reset_phase = attr.ib(default=False)
+    ct = list()
 
     def set(self, **settings):
         """Sets attributes, updates related attributes and checks attributes."""
@@ -189,7 +196,9 @@ class Sequence(object):
         self.update_params()
         self.check_attributes()
         self.write_sequence()
-        return self.sequence
+        self.ct = list()
+        self.write_ct()
+        return [self.sequence, self.ct]
 
     def write_sequence(self):
         """Create header for the sequencer program.
@@ -203,6 +212,9 @@ class Sequence(object):
         self.sequence = SequenceCommand.header_info(
             SequenceType.NONE, self.trigger_mode, self.alignment
         )
+
+    def write_ct(self):
+        """generate commandtable"""
 
     def update_params(self):
         """Update interrelated parameters."""
@@ -235,6 +247,18 @@ class Sequence(object):
                 self.readout_cmd_trigger = SequenceCommand.readout_trigger()
             else:
                 self.readout_cmd_trigger = SequenceCommand.comment_line()
+        elif self.target in [DeviceTypes.SHFSG]:
+            self.clock_rate = 2e9
+            if self.trigger_mode in [TriggerMode.ZSYNC_TRIGGER]:
+                # Default trigger latency for HDAWG with ZSync trigger
+                # = 0 cycles
+                self.latency_cycles = 0 + self.latency_adjustment
+            else:
+                # Default trigger latency for HDAWG with Master trigger
+                # = 27 cycles
+                self.latency_cycles = 27 + self.latency_adjustment
+            # HDAWG has no quantum analyzer
+            self.readout_cmd_trigger = SequenceCommand.comment_line()
         elif self.target in [DeviceTypes.SHFQA]:
             self.clock_rate = 2e9
         # Set the oscillator phase to 0 if the reset_phase option is on
@@ -332,16 +356,21 @@ class Sequence(object):
         current_version=__version__,
         details="Use the time_to_samples function instead",
     )
-    def time_to_cycles(self, time, wait_time=True):
+    def time_to_cycles(self, time):
         """Helper method to convert time to FPGA clock cycles."""
-        if wait_time:
-            return int(time * self.clock_rate / 8)
-        else:
-            return int(time * self.clock_rate)
+        return int(time * self.clock_rate / 8)
 
     def time_to_samples(self, time):
         """Helper method to convert time to number of samples."""
-        return round(time * self.clock_rate)
+        return int(time * self.clock_rate)
+
+    def cycles_to_samples(self, cycles: int):
+        """Helper method to convert FPGA clock cycles to number of samples."""
+        return cycles * 8
+
+    def samples_to_cycles(self, samples: int):
+        """Helper method to convert FPGA clock cycles to number of samples."""
+        return int(samples / 8)
 
     def get_gauss_params(self, width, truncation):
         """Calculates the attribute `gauss_params` from width and truncation.
@@ -352,11 +381,9 @@ class Sequence(object):
                 at `truncation * width`
 
         """
-        gauss_length = (
-            self.time_to_cycles(2 * truncation * width, wait_time=False) // 16 * 16
-        )
+        gauss_length = self.time_to_samples(2 * truncation * width) // 16 * 16
         gauss_pos = int(gauss_length / 2)
-        gauss_width = self.time_to_cycles(width, wait_time=False)
+        gauss_width = self.time_to_samples(width)
         self.gauss_params = [gauss_length, gauss_pos, gauss_width]
 
     def check_attributes(self):
@@ -423,55 +450,95 @@ class SimpleSequence(Sequence):
         self.sequence = SequenceCommand.replace_sequence_type(
             self.sequence, SequenceType.SIMPLE
         )
-        # Loop over the waveforms and initialize placeholders
-        self.sequence += SequenceCommand.inline_comment("Waveform definitions")
-        for i in range(self.n_HW_loop):
-            self.sequence += SequenceCommand.init_buffer_indexed(
-                self.buffer_lengths[i], i, self.target
-            )
-        # Define trigger waveform (depends on the trigger mode)
-        self.sequence += self.trigger_cmd_define
-        self.sequence += SequenceCommand.new_line()
-        # Loop over the waveforms and assign indices
-        for i in range(self.n_HW_loop):
-            self.sequence += SequenceCommand.assign_wave_index(i)
-        self.sequence += SequenceCommand.new_line()
-        self.sequence += SequenceCommand.inline_comment("Trigger commands")
-        # Send trigger (depends on the trigger mode)
-        self.sequence += self.trigger_cmd_send
-        # Wait for external trigger (depends on the trigger mode)
-        self.sequence += self.trigger_cmd_wait
-        # Compensate for trigger latency differences (depends on the device type)
-        self.sequence += self.trigger_cmd_latency
-        self.sequence += SequenceCommand.new_line()
-        self.sequence += SequenceCommand.inline_comment("Start main sequence")
-        # Start repeat loop in sequencer
-        self.sequence += SequenceCommand.repeat(self.repetitions)
-        # Loop over the waveforms
-        for i in range(self.n_HW_loop):
-            self.sequence += SequenceCommand.tab() + SequenceCommand.count_waveform(
-                i, self.n_HW_loop
-            )
-            # Play zeros to wait before playing the waveform.
-            # (depends on `period`, `dead_time` and alignment options)
-            self.sequence += SequenceCommand.tab() + SequenceCommand.play_zero(
-                self.wait_samples_updated[i], self.target
-            )
-            # Reset oscillator phase (depends on `reset_phase` option)
-            self.sequence += SequenceCommand.tab() + self.osc_cmd_reset
-            # Play the waveforms
-            self.sequence += SequenceCommand.tab() + SequenceCommand.play_wave_indexed(
-                i
-            )
-            # Trigger quantum analyzer (depends on the device type)
-            self.sequence += SequenceCommand.tab() + self.readout_cmd_trigger
-            # Play zeros to wait until end of period.
-            # (depends on `dead_time` and alignment options)
-            self.sequence += SequenceCommand.tab() + SequenceCommand.play_zero(
-                self.dead_samples_updated[i], self.target
-            )
-        # Finish repeat loop
-        self.sequence += SequenceCommand.close_bracket()
+        if self.target in [DeviceTypes.SHFSG]:
+            self.sequence += SequenceCommand.inline_comment("Waveform definitions")
+            for i in range(self.n_HW_loop):
+                self.sequence += SequenceCommand.init_buffer_indexed(
+                    self.buffer_lengths[i], i, self.target
+                )
+            self.sequence += self.trigger_cmd_2
+            self.sequence += SequenceCommand.new_line()
+            # Loop over the waveforms and assign indices
+            for i in range(self.n_HW_loop):
+                self.sequence += SequenceCommand.assign_wave_index(i, self.target)
+            self.sequence += SequenceCommand.new_line()
+            self.sequence += SequenceCommand.inline_comment("Start main sequence")
+            # Start repeat loop in sequencer
+            self.sequence += SequenceCommand.repeat(self.repetitions)
+            # Loop over the waveforms
+            for i in range(self.n_HW_loop):
+                self.sequence += SequenceCommand.tab() + SequenceCommand.count_waveform(
+                    i, self.n_HW_loop
+                )
+                # Play the Trigger
+                self.sequence += SequenceCommand.tab() + self.trigger_cmd_1
+                if self.reset_phase:
+                    self.sequence += SequenceCommand.tab() + SequenceCommand.reset_osc_phase()
+                self.sequence += SequenceCommand.tab() + SequenceCommand.wait(self.samples_to_cycles(self.wait_samples_updated[i]))
+                self.sequence += SequenceCommand.tab() + self.trigger_cmd_2
+                # Wait for external trigger (depends on the trigger mode)
+                self.sequence += self.trigger_cmd_wait
+
+                # Play the waveforms
+                self.sequence += SequenceCommand.tab() + SequenceCommand.play_wave(
+                    index=i, target=self.target
+                )
+                self.sequence += SequenceCommand.tab() + SequenceCommand.play_zero(
+                    self.dead_samples_updated[i], self.target
+                )
+            # Finish repeat loop
+            self.sequence += SequenceCommand.close_bracket()
+        
+        else:
+            # Loop over the waveforms and initialize placeholders
+            self.sequence += SequenceCommand.inline_comment("Waveform definitions")
+            for i in range(self.n_HW_loop):
+                self.sequence += SequenceCommand.init_buffer_indexed(
+                    self.buffer_lengths[i], i, self.target
+                )
+            # Define trigger waveform (depends on the trigger mode)
+            self.sequence += self.trigger_cmd_define
+            self.sequence += SequenceCommand.new_line()
+            # Loop over the waveforms and assign indices
+            for i in range(self.n_HW_loop):
+                self.sequence += SequenceCommand.assign_wave_index(i, self.target)
+            self.sequence += SequenceCommand.new_line()
+            self.sequence += SequenceCommand.inline_comment("Trigger commands")
+            # Send trigger (depends on the trigger mode)
+            self.sequence += self.trigger_cmd_send
+            # Wait for external trigger (depends on the trigger mode)
+            self.sequence += self.trigger_cmd_wait
+            # Compensate for trigger latency differences (depends on the device type)
+            self.sequence += self.trigger_cmd_latency
+            self.sequence += SequenceCommand.new_line()
+            self.sequence += SequenceCommand.inline_comment("Start main sequence")
+            # Start repeat loop in sequencer
+            self.sequence += SequenceCommand.repeat(self.repetitions)
+            # Loop over the waveforms
+            for i in range(self.n_HW_loop):
+                self.sequence += SequenceCommand.tab() + SequenceCommand.count_waveform(
+                    i, self.n_HW_loop
+                )
+                # Play zeros to wait before playing the waveform.
+                # (depends on `period`, `dead_time` and alignment options)
+                self.sequence += SequenceCommand.tab() + SequenceCommand.play_zero(
+                    self.wait_samples_updated[i], self.target
+                )
+                # Reset oscillator phase (depends on `reset_phase` option)
+                self.sequence += SequenceCommand.tab() + self.osc_cmd_reset
+                # Play the waveforms
+                self.sequence += SequenceCommand.tab() + SequenceCommand.play_wave(
+                    index=i, target=self.target
+                )
+                # Trigger quantum analyzer (depends on the device type)
+                self.sequence += SequenceCommand.tab() + self.readout_cmd_trigger
+                # Play zeros to wait until end of period.
+                # (depends on `dead_time` and alignment options)
+                self.sequence += SequenceCommand.tab() + SequenceCommand.play_zero(
+                    self.dead_samples_updated[i], self.target
+                )
+            # Finish repeat loop
+            self.sequence += SequenceCommand.close_bracket()
 
     def update_params(self):
         super().update_params()
@@ -572,7 +639,7 @@ class RabiSequence(Sequence):
     This sequence plays a Gaussian pulse with width `pulse_width` and varies its
     amplitude. The values for the amplitude sweep are defined in the array
     parameter `pulse_amplitudes`. For each value in the array, one pulse of that
-    amplitude is played in the main loop of the seuence program in the same
+    amplitude is played in the main loop of the sequence program in the same
     order as in the array.
 
         >>> awg.set_sequence_params(
@@ -601,20 +668,102 @@ class RabiSequence(Sequence):
 
     def write_sequence(self):
         self.sequence = SequenceCommand.header_comment(sequence_type="Rabi")
-        self.sequence += SequenceCommand.init_gauss(self.gauss_params)
-        self.sequence += self.trigger_cmd_2
-        self.sequence += SequenceCommand.repeat(self.repetitions)
-        for i, amp in enumerate(self.pulse_amplitudes):
-            self.sequence += SequenceCommand.count_waveform(i, self.n_HW_loop)
-            self.sequence += self.trigger_cmd_1
+        if self.target in [DeviceTypes.SHFSG]:
+            self.sequence += SequenceCommand.init_gauss(self.gauss_params)
+            self.sequence += SequenceCommand.assign_wave_index(
+                i=0, indexed=False, amplitude=0.5, target=self.target
+            )
+            self.sequence += self.trigger_cmd_2
+            self.sequence += SequenceCommand.repeat(self.repetitions)
+            self.sequence += SequenceCommand.inline_comment(
+                "First pulse with 0 amplitude"
+            )
             if self.reset_phase:
                 self.sequence += SequenceCommand.reset_osc_phase()
+            self.sequence += self.trigger_cmd_1
             self.sequence += SequenceCommand.wait(self.wait_cycles)
             self.sequence += self.trigger_cmd_2
-            self.sequence += SequenceCommand.play_wave_scaled(amp, amp)
+            self.sequence += SequenceCommand.executeTableEntry(0)
+            self.sequence += SequenceCommand.play_zero(
+                self.cycles_to_samples(self.dead_cycles)
+            )
             self.sequence += SequenceCommand.wait_wave()
-            self.sequence += SequenceCommand.wait(self.dead_cycles)
-        self.sequence += SequenceCommand.close_bracket()
+            self.sequence += SequenceCommand.repeat(len(self.pulse_amplitudes) - 1)
+            self.sequence += SequenceCommand.inline_comment(
+                "Increment amplitude each repetition"
+            )
+            if self.reset_phase:
+                self.sequence += SequenceCommand.reset_osc_phase()
+            self.sequence += self.trigger_cmd_1
+            self.sequence += SequenceCommand.wait(self.wait_cycles)
+            self.sequence += self.trigger_cmd_2
+            self.sequence += SequenceCommand.executeTableEntry(1)
+            self.sequence += SequenceCommand.play_zero(
+                self.cycles_to_samples(self.dead_cycles)
+            )
+            self.sequence += SequenceCommand.wait_wave()
+            self.sequence += SequenceCommand.close_bracket()
+            self.sequence += SequenceCommand.close_bracket()
+        else:
+
+            self.sequence += SequenceCommand.init_gauss(self.gauss_params)
+            self.sequence += self.trigger_cmd_2
+            self.sequence += SequenceCommand.repeat(self.repetitions)
+            for i, amp in enumerate(self.pulse_amplitudes):
+                self.sequence += SequenceCommand.count_waveform(i, self.n_HW_loop)
+                self.sequence += self.trigger_cmd_1
+                if self.reset_phase:
+                    self.sequence += SequenceCommand.reset_osc_phase()
+                self.sequence += SequenceCommand.wait(self.wait_cycles)
+                self.sequence += self.trigger_cmd_2
+                self.sequence += SequenceCommand.play_wave(
+                    amplitude=amp, target=self.target
+                )
+                self.sequence += SequenceCommand.wait_wave()
+                self.sequence += SequenceCommand.wait(self.dead_cycles)
+            self.sequence += SequenceCommand.close_bracket()
+
+    def write_ct(self):
+        """generate the commandtable for the sequence"""
+        if self.target in [DeviceTypes.SHFSG]:
+            entry = {}
+            entry["index"] = 0
+            entry["waveform"] = {"index": 0}
+            entry["amplitude00"] = {
+                "value": self.pulse_amplitudes[0],
+                "increment": False,
+            }
+            entry["amplitude01"] = {
+                "value": -self.pulse_amplitudes[0],
+                "increment": False,
+            }
+            entry["amplitude10"] = {
+                "value": self.pulse_amplitudes[0],
+                "increment": False,
+            }
+            entry["amplitude11"] = {
+                "value": self.pulse_amplitudes[0],
+                "increment": False,
+            }
+            self.ct.append(entry)
+            if len(self.pulse_amplitudes) > 1:
+                delta =  round(self.pulse_amplitudes[1] - self.pulse_amplitudes[0],9)
+                if not all(
+                    round(val - self.pulse_amplitudes[idx],9) == delta
+                    for idx, val in enumerate(self.pulse_amplitudes[1:])
+                ):
+                    _logger.error(
+                        "Amplitudes needs to be equal spaced for the Rabi Sequence with the SHFSG",
+                        _logger.ExceptionTypes.ValueError,
+                    )
+                entry = {}
+                entry["index"] = 1
+                entry["waveform"] = {"index": 0}
+                entry["amplitude00"] = {"value": delta, "increment": True}
+                entry["amplitude01"] = {"value": -delta, "increment": True}
+                entry["amplitude10"] = {"value": delta, "increment": True}
+                entry["amplitude11"] = {"value": delta, "increment": True}
+                self.ct.append(entry)
 
     def update_params(self):
         super().update_params()
@@ -622,15 +771,15 @@ class RabiSequence(Sequence):
         self.get_gauss_params(self.pulse_width, self.pulse_truncation)
         if self.trigger_mode == TriggerMode.NONE:
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
-            self.dead_cycles = (
-                self.time_to_cycles(self.dead_time) - self.gauss_params[0] / 8
-            )
+            self.dead_cycles = self.time_to_cycles(
+                self.dead_time
+            ) - self.samples_to_cycles(self.gauss_params[0])
         elif self.trigger_mode == TriggerMode.SEND_TRIGGER:
             self.wait_cycles = self.time_to_cycles(self.period - self.dead_time)
             if self.alignment == Alignment.END_WITH_TRIGGER:
-                self.wait_cycles -= self.gauss_params[0] / 8
+                self.wait_cycles -= self.samples_to_cycles(self.gauss_params[0])
             elif self.alignment == Alignment.START_WITH_TRIGGER:
-                self.dead_cycles -= self.gauss_params[0] / 8
+                self.dead_cycles -= self.samples_to_cycles(self.gauss_params[0])
         elif self.trigger_mode in [
             TriggerMode.EXTERNAL_TRIGGER,
             TriggerMode.RECEIVE_TRIGGER,
@@ -639,7 +788,7 @@ class RabiSequence(Sequence):
                 self.period - self.dead_time - self.latency + self.trigger_delay
             )
             if self.alignment == Alignment.END_WITH_TRIGGER:
-                self.wait_cycles -= self.gauss_params[0] / 8
+                self.wait_cycles -= self.samples_to_cycles(self.gauss_params[0])
             elif self.alignment == Alignment.START_WITH_TRIGGER:
                 self.dead_cycles = 0
 
@@ -710,9 +859,15 @@ class T1Sequence(Sequence):
                 self.sequence += SequenceCommand.reset_osc_phase()
             self.sequence += SequenceCommand.wait(self.wait_cycles - t)
             self.sequence += self.trigger_cmd_2
-            self.sequence += SequenceCommand.play_wave()
-            self.sequence += SequenceCommand.wait_wave()
-            self.sequence += SequenceCommand.wait(self.dead_cycles + t)
+            self.sequence += SequenceCommand.play_wave(target=self.target)
+            if self.target in [DeviceTypes.SHFSG]:
+                self.sequence += SequenceCommand.play_zero(
+                    self.cycles_to_samples(self.dead_cycles + t), self.target
+                )
+                self.sequence += SequenceCommand.wait_wave()
+            else:
+                self.sequence += SequenceCommand.wait_wave()
+                self.sequence += SequenceCommand.wait(self.dead_cycles + t)
         self.sequence += SequenceCommand.close_bracket()
 
     def update_params(self):
@@ -754,7 +909,7 @@ class T2Sequence(T1Sequence):
     second pulse is played.
 
         >>> awg.set_sequence_params(
-        >>>     sequence_type="T1",
+        >>>     sequence_type="T2*",
         >>>     pulse_amplitude=0.876,
         >>>     pulse_width=50e-9,
         >>>     delay_times=np.linspace(0.1e-6, 10e-6, 100),
@@ -786,16 +941,25 @@ class T2Sequence(T1Sequence):
                 self.sequence += SequenceCommand.reset_osc_phase()
             self.sequence += SequenceCommand.wait(self.wait_cycles - t)
             self.sequence += self.trigger_cmd_2
-            self.sequence += SequenceCommand.play_wave()
-            if t > 3:
-                self.sequence += SequenceCommand.wait(
-                    t - 3
-                )  # -3 to subtract additional cycles of playWave()
+            self.sequence += SequenceCommand.play_wave(target=self.target)
+
+            t_real = t - 3 if t > 3 else t
+            if self.target in [DeviceTypes.SHFSG]:
+                self.sequence += SequenceCommand.play_zero(
+                    self.cycles_to_samples(t_real), self.target
+                )
             else:
-                self.sequence += SequenceCommand.wait(t)
-            self.sequence += SequenceCommand.play_wave()
-            self.sequence += SequenceCommand.wait_wave()
-            self.sequence += SequenceCommand.wait(self.dead_cycles)
+                self.sequence += SequenceCommand.wait(t_real)
+
+            self.sequence += SequenceCommand.play_wave(target=self.target)
+            if self.target in [DeviceTypes.SHFSG]:
+                self.sequence += SequenceCommand.play_zero(
+                    self.cycles_to_samples(self.dead_cycles), self.target
+                )
+                self.sequence += SequenceCommand.wait_wave()
+            else:
+                self.sequence += SequenceCommand.wait_wave()
+                self.sequence += SequenceCommand.wait(self.dead_cycles)
         self.sequence += SequenceCommand.close_bracket()
 
 
@@ -874,7 +1038,7 @@ class ReadoutSequence(Sequence):
 
     def write_sequence(self):
         self.sequence = SequenceCommand.header_comment(sequence_type="Readout")
-        length = self.time_to_cycles(self.readout_length, wait_time=False) // 16 * 16
+        length = self.time_to_samples(self.readout_length) // 16 * 16
         self.sequence += SequenceCommand.init_readout_pulse(
             length,
             self.readout_amplitudes,
@@ -889,7 +1053,7 @@ class ReadoutSequence(Sequence):
         self.sequence += self.trigger_cmd_2
         if self.target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
             self.sequence += SequenceCommand.readout_trigger()
-        self.sequence += SequenceCommand.play_wave()
+        self.sequence += SequenceCommand.play_wave(target=self.target)
         self.sequence += SequenceCommand.wait_wave()
         self.sequence += SequenceCommand.wait(self.dead_cycles)
         self.sequence += SequenceCommand.close_bracket()
@@ -1000,7 +1164,9 @@ class PulsedSpectroscopySequence(Sequence):
         # Reset oscillator phase
         self.sequence += SequenceCommand.tab() + self.osc_cmd_reset
         # Play the waveforms
-        self.sequence += SequenceCommand.tab() + SequenceCommand.play_wave()
+        self.sequence += SequenceCommand.tab() + SequenceCommand.play_wave(
+            target=self.target
+        )
         # Trigger quantum analyzer
         self.sequence += SequenceCommand.tab() + self.readout_cmd_trigger
         # Play zeros to wait until end of period.
@@ -1101,6 +1267,7 @@ class CustomSequence(Sequence):
         >>>    sequence_type="Custom",
         >>>    path="...\Zurich Instruments\LabOne\WebServer\awg\src\myProgram.seqC",
         >>>    custom_params=[1000, 99, 1],
+        >>>    ct_path="Path\to\valid\ct.json
         >>> )
 
     If the specified *'myProgram.seqC'* sequence program has placeholders
@@ -1117,6 +1284,7 @@ class CustomSequence(Sequence):
     path = attr.ib(default="")
     program = attr.ib(default="")
     custom_params = attr.ib(default=[])
+    ct_path = attr.ib(default="")
 
     def write_sequence(self):
         self.sequence = SequenceCommand.header_comment(sequence_type="Custom")
@@ -1138,3 +1306,8 @@ class CustomSequence(Sequence):
                     "Specified file is not a .seqc file!",
                     _logger.ExceptionTypes.ValueError,
                 )
+
+    def write_ct(self):
+        """copy commandtable path"""
+        if self.ct_path:
+            self.ct = Path(self.ct_path).read_text()

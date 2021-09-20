@@ -22,6 +22,7 @@ from zhinst.toolkit.control.drivers import (
     MFLI,
     PQSC,
     SHFQA,
+    SHFSG,
 )
 from zhinst.toolkit.interface import DeviceTypes
 from zhinst.toolkit.control.multi_device_connection import MultiDeviceConnection

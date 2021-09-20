@@ -18,6 +18,7 @@ class DeviceTypes(Enum):
     MFLI = "mfli"
     PQSC = "pqsc"
     SHFQA = "shfqa"
+    SHFSG = "shfsg"
 
 
 @attr.s

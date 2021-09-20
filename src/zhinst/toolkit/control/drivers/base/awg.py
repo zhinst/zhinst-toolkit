@@ -7,8 +7,10 @@ import numpy as np
 import time
 from typing import List, Union
 import re
+from zhinst.toolkit.control.drivers.base.ct import CommandTable
 
 from zhinst.toolkit.helpers import SequenceProgram, Waveform, SequenceType, TriggerMode
+from zhinst.toolkit.interface.interface import DeviceTypes
 from .base import BaseInstrument
 from zhinst.toolkit.interface import LoggerModule
 from ...parsers import Parse
@@ -102,6 +104,7 @@ class AWGCore:
         self._waveforms = []
         self._program = SequenceProgram()
         self.set_sequence_params(target=self._parent.device_type)
+        self._ct = None
 
     def _setup(self):
         self._module = self._parent._controller.connection.awg_module
@@ -114,6 +117,9 @@ class AWGCore:
 
         """
         pass
+
+    def _init_ct(self, ct_schema_url, ct_node):
+        self._ct = CommandTable(self, ct_schema_url, ct_node)
 
     @property
     def index(self):
@@ -134,6 +140,10 @@ class AWGCore:
     @property
     def sequence_params(self):
         return self._program.list_params()
+
+    @property
+    def ct(self):
+        return self._ct
 
     def __repr__(self):
         params = self.sequence_params["sequence_parameters"]
@@ -162,13 +172,24 @@ class AWGCore:
                 of length 2.
 
         """
-        if value is None:
-            output_states = (self.output1(), self.output2())
-            return Parse.get_on_off_tuple_list(output_states, 2)
+        if self._parent.device_type == DeviceTypes.SHFSG:
+            if value is None:
+                output_states = (self.output1(), self.output2())
+                return Parse.get_on_off_tuple_list(self.output_states(), 2)
+            else:
+                _logger.error(
+                    "The AWG outputs of the SHFSG are read only. Please use the output control of the \
+                    SG Channel to enable or disable the physical output of the instrument.",
+                    _logger.ExceptionTypes.ToolkitError,
+                )
         else:
-            output_states = Parse.set_on_off_tuple_list(value, 2)
-            self.output1(output_states[0])
-            self.output2(output_states[1])
+            if value is None:
+                output_states = (self.output1(), self.output2())
+                return Parse.get_on_off_tuple_list(output_states, 2)
+            else:
+                output_states = Parse.set_on_off_tuple_list(value, 2)
+                self.output1(output_states[0])
+                self.output2(output_states[1])
 
     def run(self, sync=True) -> None:
         """Run the AWG Core.
@@ -243,7 +264,7 @@ class AWGCore:
             buffer_lengths = [w.buffer_length for w in self._waveforms]
             delays = [w.delay for w in self._waveforms]
             self.set_sequence_params(buffer_lengths=buffer_lengths, delay_times=delays)
-        seqc_program = self._program.get_seqc()
+        seqc_program, ct = self._program.get_seqc_ct()
         self._module.set("compiler/sourcestring", seqc_program)
         compiler_status = self._module.get_int("compiler/status")
         while compiler_status == -1:
@@ -283,6 +304,8 @@ class AWGCore:
                 f"{self.name}: Sequencer status: ELF upload failed!",
                 _logger.ExceptionTypes.ToolkitError,
             )
+        if ct:
+            self._ct.load(ct)
 
     def reset_queue(self) -> None:
         """Resets the waveform queue to an empty list."""
@@ -315,7 +338,7 @@ class AWGCore:
             delay (float): An individual delay for the queued sequence
                 with respect to the time origin. Positive values shift
                 the start of the waveform forwards in time. (default: 0)
-                
+
         Raises:
             ToolkitError: If the sequence is not of type *'Simple'* or
                 *'Custom'*.
@@ -342,21 +365,21 @@ class AWGCore:
     ) -> None:
         """Replaces the data in a waveform in the queue.
 
-        The new data must have the same length as the previous data 
-        s.t. the waveform data can be replaced without recompilation of 
+        The new data must have the same length as the previous data
+        s.t. the waveform data can be replaced without recompilation of
         the sequence program.
 
         Arguments:
-            wave1 (array): Waveform to replace current wave for 
+            wave1 (array): Waveform to replace current wave for
                 Channel 1.
-            wave2 (array): Waveform to replace current wave for 
+            wave2 (array): Waveform to replace current wave for
                 Channel 2.
-            i (int): The index of the waveform in the queue to be 
+            i (int): The index of the waveform in the queue to be
                 replaced.
-            delay (int): An individual delay in seconds for this 
+            delay (int): An individual delay in seconds for this
                 waveform w.r.t. the time origin of the sequence
                 (default: 0).
-                
+
         Raises:
             ValueError: If the given index is out of range.
 
@@ -376,9 +399,16 @@ class AWGCore:
         See :func:`compile_and_upload_waveforms(...)`.
         """
         waveform_data = [w.data for w in self._waveforms]
-        nodes = [
-            f"awgs/{self._index}/waveform/waves/{i}" for i in range(len(waveform_data))
-        ]
+        if self._parent.device_type == DeviceTypes.SHFSG:
+            nodes = [
+                f"sgchannels/{self._index}/awg/waveform/waves/{i}"
+                for i in range(len(waveform_data))
+            ]
+        else:
+            nodes = [
+                f"awgs/{self._index}/waveform/waves/{i}"
+                for i in range(len(waveform_data))
+            ]
         tok = time.time()
         self._parent._set(zip(nodes, waveform_data))
         tik = time.time()
@@ -435,6 +465,8 @@ class AWGCore:
                 # If sequence type is given as string `None`, return
                 # enumeration for `None` from the SequenceType class
                 t = SequenceType(None)
+            elif kwargs["sequence_type"] in ["Ramsey", "T2"] :
+                t = SequenceType("T2*")
             else:
                 t = SequenceType(kwargs["sequence_type"])
             if t not in self._parent.allowed_sequences:

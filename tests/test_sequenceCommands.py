@@ -150,39 +150,6 @@ def test_assign_wave_index(i):
         assert f"w{i + 1}" in line
         assert str(i) in line
 
-
-@given(amp1=st.floats(-1, 1), amp2=st.floats(-1, 1))
-def test_play_wave_scaled(amp1, amp2):
-    line = SequenceCommand.play_wave_scaled(amp1, amp2)
-    assert str(amp1) in line
-    assert str(amp1) in line
-
-
-@given(amp1=st.floats(-2, -1.001), amp2=st.floats(1.0001, 2))
-def test_play_wave_scaled_error(amp1, amp2):
-    with pytest.raises(ValueError):
-        SequenceCommand.play_wave_scaled(amp1, amp2)
-
-
-@given(i=st.integers(-10, 10))
-def test_play_wave_indexed(i):
-    if i < 0:
-        with pytest.raises(ValueError):
-            SequenceCommand.play_wave_indexed(i)
-    else:
-        assert str(i + 1) in SequenceCommand.play_wave_indexed(i)
-
-
-@given(i=st.integers(-10, 10), amp=st.floats(-2, 2))
-def test_play_wave_indexed_scaled(i, amp):
-    if i < 0 or abs(amp) > 1:
-        with pytest.raises(ValueError):
-            SequenceCommand.play_wave_indexed_scaled(amp, amp, i)
-    else:
-        assert str(i + 1) in SequenceCommand.play_wave_indexed_scaled(amp, amp, i)
-        assert str(amp) in SequenceCommand.play_wave_indexed_scaled(amp, amp, i)
-
-
 @given(
     l=st.integers(-10, 100),
     i=st.integers(-1, 10),
@@ -228,8 +195,7 @@ def test_init_gauss_scaled(amp, l, p, w):
             SequenceCommand.init_gauss_scaled(amp, [l, p, w])
     else:
         line = SequenceCommand.init_gauss_scaled(amp, [l, p, w])
-        assert f"({l}, {p}, {w})" in line
-        assert str(amp) in line
+        assert f"({l}, {amp}, {p}, {w})" in line
 
 
 def test_close_bracket():

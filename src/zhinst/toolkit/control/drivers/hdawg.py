@@ -163,12 +163,25 @@ class HDAWG(BaseInstrument):
         ]
         self._set(settings)
 
+    def num_awg_cores(self):
+        """Find the number of AWG Cores available in the instrument."""
+        serial = self.serial
+        daq = self._controller.connection.daq
+        cores = daq.listNodes(f"{serial}/awgs/")
+        return len(cores)
+
     def _init_awg_cores(self):
         """Initialize the AWGs cores of the device."""
-        self._awgs = [AWG(self, i) for i in range(4)]
+        self._awgs = [AWG(self, i) for i in range(self.num_awg_cores())]
         [awg._setup() for awg in self.awgs]
         [awg._init_awg_params() for awg in self.awgs]
-        [awg._init_ct() for awg in self.awgs]
+        [
+            awg._init_ct(
+                "https://docs.zhinst.com/hdawg/commandtable/v2/schema",
+                f"awgs/{awg._index}/commandtable",
+            )
+            for awg in self.awgs
+        ]
 
     def _init_params(self):
         """Initialize parameters associated with device nodes."""
@@ -345,9 +358,9 @@ class AWG(AWGCore):
             set_parser=Parse.set_on_off,
             get_parser=Parse.get_on_off,
         )
-        #If the HDAWG has the MF option, the oscillator assignment
+        # If the HDAWG has the MF option, the oscillator assignment
         # per core is different
-        if 'MF' in self._parent.options:
+        if "MF" in self._parent.options:
             oscs_multiplier = 4
         else:
             oscs_multiplier = 1
@@ -443,10 +456,6 @@ class AWG(AWGCore):
             ],
         )
 
-    def _init_ct(self):
-        """Initialize the command table of the AWG."""
-        self._ct = CT(self, "https://docs.zhinst.com/hdawg/commandtable/v2/schema")
-
     def enable_iq_modulation(self) -> None:
         """Enables IQ Modulation on the AWG Core.
 
@@ -523,17 +532,3 @@ class AWG(AWGCore):
         else:
             s += f"      IQ Modulation DISABLED\n"
         return s
-
-    @property
-    def ct(self):
-        return self._ct
-
-
-class CT(CommandTable):
-    """Device-specific CommandTable for HDAWG.
-
-    This class inherits from the base :class:`CommandTable`.
-    """
-
-    def __init__(self, parent: AWGCore, ct_schema_url: str) -> None:
-        super().__init__(parent, ct_schema_url)
