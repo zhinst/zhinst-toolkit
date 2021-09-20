@@ -148,7 +148,7 @@ class SequenceCommand(object):
                 "Number of samples cannot be negative!",
                 _logger.ExceptionTypes.ValueError,
             )
-        elif target in [DeviceTypes.HDAWG]:
+        elif target in [DeviceTypes.HDAWG, DeviceTypes.SHFSG]:
             if i < 32:
                 _logger.error(
                     "Number of samples cannot be lower than 32 samples!",
@@ -217,55 +217,30 @@ class SequenceCommand(object):
         return f"// waveform {i+1} / {n}\n"
 
     @staticmethod
-    def assign_wave_index(i):
+    def assign_wave_index(i, indexed=True, amplitude=1, target=DeviceTypes.HDAWG):
         """Assign an index to the labeled waveforms.
 
         Arguments:
             i (int): index to be assigned for the labeled waveforms.
-
+            amplitude (int): amplitude of the wave (<= 1).
         """
         if i < 0:
             _logger.error(
                 "Waveform Index cannot be negative!",
                 _logger.ExceptionTypes.ValueError,
             )
-        return f"assignWaveIndex(w{i + 1}_1, w{i + 1}_2, {i});\n"
+        wave = f"w{i+1}" if indexed else "w"
+        wave = f"{amplitude}*{wave}" if amplitude != 1 else wave
+        wave = "1,2," + wave if target in [DeviceTypes.SHFSG] else wave
+        return "assignWaveIndex(" + wave + "_1," + wave + f"_2,{i});\n"
 
     @staticmethod
-    def play_wave():
-        return "playWave(w_1, w_2);\n"
+    def play_wave(index = -1, amplitude=1, target=DeviceTypes.HDAWG):
 
-    @staticmethod
-    def play_wave_scaled(amp1, amp2):
-        if abs(amp1) > 1 or abs(amp2) > 1:
-            _logger.error(
-                "Amplitude cannot be larger than 1.0!",
-                _logger.ExceptionTypes.ValueError,
-            )
-        return f"playWave({amp1}*w_1, {amp2}*w_2);\n"
-
-    @staticmethod
-    def play_wave_indexed(i):
-        if i < 0:
-            _logger.error(
-                "Invalid Waveform Index!",
-                _logger.ExceptionTypes.ValueError,
-            )
-        return f"playWave(w{i + 1}_1, w{i + 1}_2);\n"
-
-    @staticmethod
-    def play_wave_indexed_scaled(amp1, amp2, i):
-        if i < 0:
-            _logger.error(
-                "Invalid Waveform Index!",
-                _logger.ExceptionTypes.ValueError,
-            )
-        if abs(amp1) > 1 or abs(amp2) > 1:
-            _logger.error(
-                "Amplitude cannot be larger than 1.0!",
-                _logger.ExceptionTypes.ValueError,
-            )
-        return f"playWave({amp1}*w{i+1}_1, {amp2}*w{i+2}_2);\n"
+        wave = f"w{index+1}" if index >=0 else "w"
+        wave = f"{amplitude}*{wave}" if amplitude != 1 else wave
+        wave = "1,2," + wave if target in [DeviceTypes.SHFSG] else wave
+        return "playWave(" + wave + "_1," + wave + f"_2);\n"
 
     @staticmethod
     def init_buffer_indexed(length, i, target=DeviceTypes.HDAWG):
@@ -286,7 +261,7 @@ class SequenceCommand(object):
                 "Invalid Values for waveform buffer!",
                 _logger.ExceptionTypes.ValueError,
             )
-        elif target in [DeviceTypes.HDAWG]:
+        elif target in [DeviceTypes.HDAWG, DeviceTypes.SHFSG]:
             if length < 32:
                 _logger.error(
                     "Buffer Length cannot be lower than 32 samples!",
@@ -370,8 +345,8 @@ class SequenceCommand(object):
                 _logger.ExceptionTypes.ValueError,
             )
         return (
-            f"wave w_1 = {amp} * gauss({length}, {pos}, {width});\n"
-            f"wave w_2 = {amp} * drag({length}, {pos}, {width});\n"
+            f"wave w_1 = gauss({length}, {amp}, {pos}, {width});\n"
+            f"wave w_2 = drag({length}, {amp}, {pos}, {width});\n"
         )
 
     @staticmethod
@@ -429,7 +404,7 @@ class SequenceCommand(object):
                 "Invalid Trigger Index!",
                 _logger.ExceptionTypes.ValueError,
             )
-        if target in [DeviceTypes.HDAWG, DeviceTypes.SHFQA]:
+        if target in [DeviceTypes.HDAWG, DeviceTypes.SHFQA, DeviceTypes.SHFSG]:
             return f"waitDigTrigger({index});\n"
         elif target in [DeviceTypes.UHFQA, DeviceTypes.UHFLI]:
             return f"waitDigTrigger({index}, 1);\n"
@@ -458,3 +433,7 @@ class SequenceCommand(object):
     @staticmethod
     def reset_osc_phase():
         return f"resetOscPhase();\n"
+
+    @staticmethod
+    def executeTableEntry(i):
+        return f"executeTableEntry({i});\n"

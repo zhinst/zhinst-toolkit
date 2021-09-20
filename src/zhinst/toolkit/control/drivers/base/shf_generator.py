@@ -384,6 +384,8 @@ class SHFGenerator:
                 # If sequence type is given as string `None`, return
                 # enumeration for `None` from the SequenceType class
                 t = SequenceType(None)
+            elif kwargs["sequence_type"] in ["Ramsey", "T2"] :
+                t = SequenceType("T2*")
             else:
                 t = SequenceType(kwargs["sequence_type"])
             if t not in self._device.allowed_sequences:

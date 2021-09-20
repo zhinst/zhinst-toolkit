@@ -76,6 +76,7 @@ class MultiDeviceConnection:
         self._mflis = {}
         self._pqsc = None
         self._shfqas = {}
+        self._shfsgs = {}
         config = InstrumentConfiguration()
         config.api_config.host = kwargs.get("host", "localhost")
         config.api_config.port = kwargs.get("port", 8004)
@@ -116,6 +117,8 @@ class MultiDeviceConnection:
             self._mflis = device
         elif isinstance(device, SHFQA):
             self._shfqas[device.name] = device
+        elif isinstance(device, SHFSG):
+            self._shfsgs[device.name] = device
         else:
             _logger.error(
                 "This device is not recognized!",
@@ -147,3 +150,7 @@ class MultiDeviceConnection:
     @property
     def shfqas(self):
         return self._shfqas
+
+    @property
+    def shfsgs(self):
+        return self._shfsgs

@@ -47,15 +47,27 @@ class SequenceProgram(object):
             The sequence C code for of the current program as a string.
 
         """
+        return self._sequence.get()[0]
+
+    def get_seqc_ct(self):
+        """Get the sequence program.
+
+        Returns:
+            The sequence C code for of the current program as a string.
+
+        """
         return self._sequence.get()
 
     def set_params(self, **settings):
         """Sets the sequence parameters of the sequence program."""
         if "sequence_type" in settings:
             current_params = attr.asdict(self._sequence)
+            for key in settings.keys():
+                current_params[key] = settings[key]
             self.__init__(sequence_type=settings["sequence_type"])
             self._sequence.set(**current_params)
-        self._sequence.set(**settings)
+        else:
+            self._sequence.set(**settings)
 
     def list_params(self):
         """List all the current sequence parameters.
@@ -72,6 +84,8 @@ class SequenceProgram(object):
     def _set_type(self, t: SequenceType):
         if t == "None":
             t = None
+        elif t in ["Ramsey", "T2"]:
+            t = "T2*"
         t = SequenceType(t)
         sequence_classes = {
             SequenceType.NONE: Sequence,

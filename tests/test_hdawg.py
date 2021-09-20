@@ -77,12 +77,6 @@ def test_init_hdawg_awg():
         awg._init_awg_params()
 
 
-def test_ct_hdawg_awg():
-    awg = HDAWG_AWG(HDAWG("name", "dev8000"), 0)
-    awg._init_ct()
-    assert awg.ct is not None
-
-
 @given(i=st.booleans())
 def test_repr_str_hdawg_awg(i):
     awg = HDAWG_AWG(HDAWG("name", "dev8000"), 0)

@@ -87,6 +87,19 @@ class Parse:
         pass
 
     @staticmethod
+    def set_rf_lf(value):
+        mapping = {"rf": 1, "lf": 0}
+        value = Parse._setter_validate_and_parse(value, mapping)
+        return value
+
+    @staticmethod
+    def get_rf_lf(value):
+        value = int(value)
+        mapping = {"rf": 1, "lf": 0}
+        value = Parse._getter_validate_and_parse(value, mapping)
+        return value
+
+    @staticmethod
     def set_on_off(value):
         mapping = {"on": 1, "off": 0}
         value = Parse._setter_validate_and_parse(value, mapping)
@@ -123,7 +136,8 @@ class Parse:
         if isinstance(values, (tuple, list)) and len(values) == length:
             values = list(values)
             for i, v in enumerate(values):
-                values[i] = Parse.get_on_off(v)
+                if isinstance(v, int) or v.isdigit():
+                    values[i] = Parse.get_on_off(v)
             values = tuple(values)
         else:
             _logger.error(

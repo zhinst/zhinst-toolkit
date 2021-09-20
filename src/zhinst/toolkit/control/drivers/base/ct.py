@@ -6,8 +6,7 @@ import json
 import urllib
 import jsonschema
 
-from .awg import AWGCore
-from zhinst.toolkit.interface import LoggerModule
+from zhinst.toolkit.interface import DeviceTypes, LoggerModule
 
 _logger = LoggerModule(__name__)
 
@@ -21,11 +20,15 @@ class CommandTable:
 
     """
 
-    def __init__(self, parent: AWGCore, ct_schema_url: str) -> None:
+    def __init__(self, parent, ct_schema_url: str, ct_node: str) -> None:
         self._parent = parent
         self._index = self._parent._index
         self._device = self._parent._parent
         self._ct_schema_url = ct_schema_url
+        self._node = ct_node
+        with urllib.request.urlopen(self._ct_schema_url) as f:
+            ct_schema_str = f.read().decode()
+        self.ct_schema_dict = json.loads(ct_schema_str)
 
     def load(self, table):
         """Load a given command table to the instrument"""
@@ -33,19 +36,21 @@ class CommandTable:
         table_updated = self._validate(table)
         # Convert the json object
         # Load the command table to the device
-        node = f"awgs/{self._index}/commandtable/data"
+        node = self._node + "/data"
         self._device._set_vector(node, json.dumps(table_updated))
+
+    def download(self):
+        """Downloads a command table """
+        node = self._node + "/data"
+        return self._device._get_vector(node)
 
     def _validate(self, table):
         """Ensure command table is valid JSON and compliant with schema"""
         # Validation only works if the command table is in dictionary
         # format (json object). Make the encessary conversion
         table_updated = self._to_dict(table)
-        with urllib.request.urlopen(self._ct_schema_url) as f:
-            ct_schema_str = f.read().decode()
-        ct_schema_dict = json.loads(ct_schema_str)
         jsonschema.validate(
-            table_updated, schema=ct_schema_dict, cls=jsonschema.Draft4Validator
+            table_updated, schema=self.ct_schema_dict, cls=jsonschema.Draft4Validator
         )
         return table_updated
 
@@ -54,9 +59,13 @@ class CommandTable:
         if isinstance(table, str):
             table_updated = json.loads(table)
         elif isinstance(table, list):
+            version = self.ct_schema_dict["definitions"]["header"]["properties"][
+                "version"
+            ]["enum"]
+            version = version[len(version) - 1]
             table_updated = {
                 "$schema": self._ct_schema_url,
-                "header": {"version": "0.2", "partial": False},
+                "header": {"version": version, "partial": False},
                 "table": table,
             }
         elif isinstance(table, dict):
