@@ -1,5 +1,7 @@
 # zhinst-toolkit Changelog
 
+## Version 0.2.2
+* SHFQA Adapt oscillator_freq to +-500e6 Hz
 ## Version 0.2.1
 * Bugfix #86
 
