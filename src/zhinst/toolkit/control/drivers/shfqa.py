@@ -758,8 +758,8 @@ class Sweeper(SHFSweeper):
             self._device._get_node_dict(f"qachannels/{self._index}/oscs/0/freq"),
             device=self._device,
             set_parser=[
-                lambda v: Parse.smaller_equal(v, 1e9),
-                lambda v: Parse.greater_equal(v, 0.0),
+                lambda v: Parse.smaller_equal(v, 500e6),
+                lambda v: Parse.greater_equal(v, -500e6),
             ],
         )
         self.integration_time = Parameter(
