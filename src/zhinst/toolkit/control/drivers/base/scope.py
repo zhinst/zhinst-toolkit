@@ -222,11 +222,11 @@ class Scope:
         self.stop()
         # read and post-process the recorded data
         result = []
-        recorded_data = [[], []]
         # generate the wave data
         channel_states = self.channels()
         data = self._module.read()
         for j in range(num_records):
+            recorded_data = [[], []]
             wave_data = data[wave_nodepath][j][0]["wave"]
             dt = data[wave_nodepath][j][0]["dt"]
             for i in range(2):
