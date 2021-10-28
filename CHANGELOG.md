@@ -1,7 +1,13 @@
 # zhinst-toolkit Changelog
 
+## Version 0.2.3
+* Make the command table validation optional
+
 ## Version 0.2.2
 * SHFQA Adapt oscillator_freq to +-500e6 Hz
+* Initial support for SHFSG
+* Make nodetree generation case insensitive
+
 ## Version 0.2.1
 * Bugfix #86
 
@@ -26,13 +32,13 @@
     * Add support for PQSC
     * Add command table support
 * Add PQSC driver
-* Add SHFQA driver 
+* Add SHFQA driver
 
 ## Version 0.1.5
 * fix error when the device serial is uppercase
 
 ## Version 0.1.4
-* fix busy error on AWG program upload 
+* fix busy error on AWG program upload
 
 ## Version 0.1.3
 * extend AWG upload timeout to 100 s
