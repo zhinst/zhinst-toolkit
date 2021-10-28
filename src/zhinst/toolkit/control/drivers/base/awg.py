@@ -305,7 +305,7 @@ class AWGCore:
                 _logger.ExceptionTypes.ToolkitError,
             )
         if ct:
-            self._ct.load(ct)
+            self._ct.load(ct, validate = False)
 
     def reset_queue(self) -> None:
         """Resets the waveform queue to an empty list."""
