@@ -29,7 +29,7 @@ class CommandTable:
         try:
             request = urllib.request.Request(url=self._ct_schema_url)
             with urllib.request.urlopen(request) as f:
-                self.ct_schema_dict = json.loads(f)
+                self.ct_schema_dict = json.loads(f.read())
             version = self.ct_schema_dict["definitions"]["header"]["properties"][
                 "version"
             ]["enum"]
