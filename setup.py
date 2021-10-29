@@ -49,7 +49,9 @@ setuptools.setup(
         where="src", exclude=["test*", "docs*"], include=["zhinst.*"]
     ),
     package_dir={"": "src"},
-    use_scm_version={"write_to": "src/zhinst/toolkit/_version.py"},
+    use_scm_version={
+        "write_to": "src/zhinst/toolkit/_version.py",
+        "local_scheme": "no-local-version"},
     setup_requires=["setuptools_scm"],
     install_requires=requirements,
     include_package_data=True,
