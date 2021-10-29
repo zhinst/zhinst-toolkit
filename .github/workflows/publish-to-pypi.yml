@@ -14,11 +14,11 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.9
-      - name: Install pypa/build
+      - name: Install pypa/build & co
         run: >-
           python -m
           pip install
-          build
+          build setuptools wheel
           --user
       - name: Build a binary wheel and a source tarball
         run: >-
