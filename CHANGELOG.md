@@ -1,5 +1,10 @@
 # zhinst-toolkit Changelog
 
+## Version 0.2.4
+* Adapt modulation frequence range to +-1GHz
+  (shfsg.sgchannels[i].modulation_freq, shfqa.qachannels[i].sweeper.oscillator_freq)
+* Bugfix: DAQ module timout exception raises AttributeError
+
 ## Version 0.2.3
 * Make the command table validation optional
 
