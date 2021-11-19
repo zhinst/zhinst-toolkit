@@ -350,7 +350,7 @@ class DAQModule:
             tok = time.time()
             if tok - tik > timeout:
                 _logger.error(
-                    f"{self.name}: Measurement timed out!",
+                    f"DAQ Module: Measurement timed out!",
                     _logger.ExceptionTypes.TimeoutError,
                 )
         if verbose:

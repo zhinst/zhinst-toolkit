@@ -460,7 +460,10 @@ class AWG(AWGCore):
             self._parent._get_node_dict(f"sgchannels/{self._index}/oscs/0/freq"),
             device=self._parent,
             dynamic_path=lambda v: v._get_modulation_freq_node(),
-            set_parser=lambda v: Parse.greater(v, 0),
+            set_parser=[
+                lambda v: Parse.smaller_equal(v, 1e9),
+                lambda v: Parse.greater_equal(v, -1e9),
+            ],
         )
         self.modulation_phase_shift = Parameter(
             self,
