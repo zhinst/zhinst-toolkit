@@ -13,18 +13,3 @@ especially for device management and multiple AWG distributed control.
 The Toolkit forms the basis for instrument drivers used in QCoDeS and
 Labber. It comes in the form of a package compatible with Python 3.6+.
 """
-
-from zhinst.toolkit.control.drivers import (
-    BaseInstrument,
-    HDAWG,
-    UHFQA,
-    UHFLI,
-    MFLI,
-    PQSC,
-    SHFQA,
-    SHFSG,
-)
-from zhinst.toolkit.interface import DeviceTypes
-from zhinst.toolkit.control.multi_device_connection import MultiDeviceConnection
-from zhinst.toolkit.helpers.utils import SequenceType, TriggerMode, Alignment
-from zhinst.toolkit._version import version as __version__
