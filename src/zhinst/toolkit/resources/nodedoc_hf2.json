@@ -1,0 +1,1739 @@
+{
+    "/devxxxx/clockbase": {
+        "Description": "Provides clockbase value for the device",
+        "Properties": "Read",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/CLOCKBASE"
+    },
+    "/devxxxx/system/extclk": {
+        "Description": "Boolean value switching from internal to external clock., When using external clock, make sure that a clock generator is connected to the Clock In connector.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Internal clock",
+            "1": "External clock"
+        },
+        "Node": "/DEVXXXX/SYSTEM/EXTCLK"
+    },
+    "/devxxxx/system/hwrevision": {
+        "Description": "The revision of the main-board.",
+        "Properties": "Read",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/SYSTEM/HWREVISION"
+    },
+    "/devxxxx/system/syncenable": {
+        "Description": "Boolean value enabling multi-device timestamp synchronization over ZSync., When synchronizing timestamps between devices make sure that an appropriate cable is connected between the ZSync ports of the leader and follower devices.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Default",
+            "1": "Timestamp synchronization enabled"
+        },
+        "Node": "/DEVXXXX/SYSTEM/SYNCENABLE"
+    },
+    "/devxxxx/system/syncreset": {
+        "Description": "Boolean value activating timestamp reset over ZSync., When synchronizing timestamps between devices make sure that an appropriate cable is connected between the ZSync ports of the leader and follower devices.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Default",
+            "1": "Timestamp reset activated"
+        },
+        "Node": "/DEVXXXX/SYSTEM/SYNCRESET"
+    },
+    "/devxxxx/system/synctime": {
+        "Description": "The timestamp to load when timestamp reset is activated.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "s",
+        "Node": "/DEVXXXX/SYSTEM/SYNCTIME"
+    },
+    "/devxxxx/system/activeinterface": {
+        "Description": "Node providing the active interface of the device.",
+        "Properties": "Read",
+        "Type": "String",
+        "Node": "/DEVXXXX/SYSTEM/ACTIVEINTERFACE"
+    },
+    "/devxxxx/system/properties/minfreq": {
+        "Description": "Minimum oscillator frequency of the device.",
+        "Unit": "Hz",
+        "Properties": "Read",
+        "Type": "Double",
+        "Node": "/DEVXXXX/SYSTEM/PROPERTIES/MINFREQ"
+    },
+    "/devxxxx/system/properties/maxfreq": {
+        "Description": "Maximum oscillator frequency of the device.",
+        "Unit": "Hz",
+        "Properties": "Read",
+        "Type": "Double",
+        "Node": "/DEVXXXX/SYSTEM/PROPERTIES/MAXFREQ"
+    },
+    "/devxxxx/system/properties/negativefreq": {
+        "Description": "Device does support negative frequencies.",
+        "Unit": "Boolean",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "Negative frequencies not supported.",
+            "1": "Negative frequencies supported."
+        },
+        "Properties": "Read",
+        "Node": "/DEVXXXX/SYSTEM/PROPERTIES/NEGATIVEFREQ"
+    },
+    "/devxxxx/system/properties/timebase": {
+        "Description": "Time base of the device.",
+        "Unit": "s",
+        "Properties": "Read",
+        "Type": "Double",
+        "Node": "/DEVXXXX/SYSTEM/PROPERTIES/TIMEBASE"
+    },
+    "/devxxxx/system/properties/freqresolution": {
+        "Description": "Frequency resolution of the device.",
+        "Unit": "bits",
+        "Properties": "Read",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/SYSTEM/PROPERTIES/FREQRESOLUTION"
+    },
+    "/devxxxx/system/properties/mintimeconstant": {
+        "Description": "Minimum filter time constant of the device.",
+        "Unit": "s",
+        "Properties": "Read",
+        "Type": "Double",
+        "Node": "/DEVXXXX/SYSTEM/PROPERTIES/MINTIMECONSTANT"
+    },
+    "/devxxxx/system/properties/maxtimeconstant": {
+        "Description": "Maximum filter time constant of the device.",
+        "Unit": "s",
+        "Properties": "Read",
+        "Type": "Double",
+        "Node": "/DEVXXXX/SYSTEM/PROPERTIES/MAXTIMECONSTANT"
+    },
+    "/devxxxx/features/serial": {
+        "Description": "Node providing the serial number of the device.",
+        "Properties": "Read",
+        "Type": "String",
+        "Node": "/DEVXXXX/FEATURES/SERIAL"
+    },
+    "/devxxxx/features/devtype": {
+        "Description": "Node providing a string about the type of device.",
+        "Properties": "Read",
+        "Type": "String",
+        "Node": "/DEVXXXX/FEATURES/DEVTYPE"
+    },
+    "/devxxxx/features/options": {
+        "Description": "Node giving information on enabled options., Reading this node returns a string containing a newline-separated list of all installed options.",
+        "Properties": "Read",
+        "Type": "String",
+        "Node": "/DEVXXXX/FEATURES/OPTIONS"
+    },
+    "/devxxxx/features/code": {
+        "Description": "Node providing a mechanism to write feature codes.",
+        "Properties": "Write",
+        "Type": "String",
+        "Node": "/DEVXXXX/FEATURES/CODE"
+    },
+    "/devxxxx/status/time": {
+        "Description": "The current timestamp.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "s",
+        "Node": "/DEVXXXX/STATUS/TIME"
+    },
+    "/devxxxx/status/flags/binary": {
+        "Description": "A binary representation of all flags., When multiple flags are set the values are or-ed.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "bit-coded",
+        "Options": {
+            "1": "\"b0\": PLL unlocked",
+            "2": "\"b1\": HF clock unlocked",
+            "4": "\"b2\": FX2 RX error",
+            "8": "\"b3\": Package loss",
+            "16": "\"b4\": Output 1 clipped",
+            "32": "\"b5\": Output 2 clipped",
+            "64": "\"b6\": Input 1 clipped",
+            "128": "\"b7\": Input 2 clipped",
+            "256": "\"b8\": Scope skipped a shot",
+            "512": "\"b9\": FX2 TX buffer almost full",
+            "1024": "\"b10\": 0",
+            "2048": "\"b11\": PLL unlocked (version without de-bouncing)",
+            "4096": "\"b12\": FX2 TX package lost",
+            "1048576": "\"b20\": PLL 1 locked",
+            "2097152": "\"b21\": PLL 2 locked"
+        },
+        "Node": "/DEVXXXX/STATUS/FLAGS/BINARY"
+    },
+    "/devxxxx/status/flags/plllock": {
+        "Description": "Flag indicating if the internal PLL for clock generation has locked.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "PLL locked",
+            "1": "PLL not locked"
+        },
+        "Node": "/DEVXXXX/STATUS/FLAGS/PLLLOCK"
+    },
+    "/devxxxx/status/flags/dcmlock": {
+        "Description": "Flag indicating if the internal digital clock manager (DCM) has locked.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "DCM locked",
+            "1": "DCM not locked"
+        },
+        "Node": "/DEVXXXX/STATUS/FLAGS/DCMLOCK"
+    },
+    "/devxxxx/status/flags/fx2rx": {
+        "Description": "Flag indicating if the device receives data via USB.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Device receives",
+            "1": "Device does not receive"
+        },
+        "Node": "/DEVXXXX/STATUS/FLAGS/FX2RX"
+    },
+    "/devxxxx/status/flags/pkgloss": {
+        "Description": "Flag indicating that the device lost data when sending via USB.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "no packet loss",
+            "1": "packets are lost"
+        },
+        "Node": "/DEVXXXX/STATUS/FLAGS/PKGLOSS"
+    },
+    "/devxxxx/status/flags/mixerclip/n": {
+        "Description": "Flag indicating that this mixer-channel is clipping.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "no clipping",
+            "1": "clipping"
+        },
+        "Node": "/DEVXXXX/STATUS/FLAGS/MIXERCLIP/n"
+    },
+    "/devxxxx/status/flags/adcclip/n": {
+        "Description": "Flag indicating that this ADC-channel is clipping.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "no clipping",
+            "1": "clipping"
+        },
+        "Node": "/DEVXXXX/STATUS/FLAGS/ADCCLIP/n"
+    },
+    "/devxxxx/status/flags/scopeskipped": {
+        "Description": "Flag indicating that scope data has been skipped., This happens when too much data is being sent over USB.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "no data skipped",
+            "1": "data skipped"
+        },
+        "Node": "/DEVXXXX/STATUS/FLAGS/SCOPESKIPPED"
+    },
+    "/devxxxx/status/flags/demodsampleloss": {
+        "Description": "Flag indicating that demodulator data has been lost.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "no demodulator data lost",
+            "1": "demodulator data lost"
+        },
+        "Node": "/DEVXXXX/STATUS/FLAGS/DEMODSAMPLELOSS"
+    },
+    "/devxxxx/status/fifolevel": {
+        "Description": "Percentage of TX FIFO used.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Percent",
+        "Node": "/DEVXXXX/STATUS/FIFOLEVEL"
+    },
+    "/devxxxx/status/adc0min": {
+        "Description": "The minimum value on Signal Input 1 (ADC0) during 100 ms.",
+        "Properties": "Read",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/STATUS/ADC0MIN"
+    },
+    "/devxxxx/status/adc0max": {
+        "Description": "The maximum value on Signal Input 1 (ADC0) during 100 ms.",
+        "Properties": "Read",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/STATUS/ADC0MAX"
+    },
+    "/devxxxx/status/adc1min": {
+        "Description": "The minimum value on Signal Input 2 (ADC1) during 100 ms.",
+        "Properties": "Read",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/STATUS/ADC1MIN"
+    },
+    "/devxxxx/status/adc1max": {
+        "Description": "The maximum value on Signal Input 2 (ADC1) during 100 ms.",
+        "Properties": "Read",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/STATUS/ADC1MAX"
+    },
+    "/devxxxx/status/echowrite": {
+        "Description": "32 bits written to this node will be echoed back via ECHOREAD node.",
+        "Properties": "Write",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/STATUS/ECHOWRITE"
+    },
+    "/devxxxx/status/echoread": {
+        "Description": "32 bits written to ECHOWRITE node are echoed here.",
+        "Properties": "Read",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/STATUS/ECHOREAD"
+    },
+    "/devxxxx/stats/bytessent": {
+        "Description": "Total amount of bytes sent via USB.",
+        "Properties": "Read",
+        "Type": "Integer",
+        "Unit": "Bytes",
+        "Node": "/DEVXXXX/STATS/BYTESSENT"
+    },
+    "/devxxxx/stats/bytesreceived": {
+        "Description": "Total amount of bytes received via USB.",
+        "Properties": "Read",
+        "Type": "Integer",
+        "Unit": "Bytes",
+        "Node": "/DEVXXXX/STATS/BYTESRECEIVED"
+    },
+    "/devxxxx/stats/meanpollcnt": {
+        "Description": "Average poll-count.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Polls/Second",
+        "Node": "/DEVXXXX/STATS/MEANPOLLCNT"
+    },
+    "/devxxxx/stats/meanmsgcnt": {
+        "Description": "Average message-count.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Messages/Second",
+        "Node": "/DEVXXXX/STATS/MEANMSGCNT"
+    },
+    "/devxxxx/stats/physical/1v2": {
+        "Description": "Actual voltage of the 1.2 Volts supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Volts",
+        "Node": "/DEVXXXX/STATS/PHYSICAL/1V2"
+    },
+    "/devxxxx/stats/physical/1v8": {
+        "Description": "Actual voltage of the 1.8 Volts supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Volts",
+        "Node": "/DEVXXXX/STATS/PHYSICAL/1V8"
+    },
+    "/devxxxx/stats/physical/2v5": {
+        "Description": "Actual voltage of the 2.5 Volts supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Volts",
+        "Node": "/DEVXXXX/STATS/PHYSICAL/2V5"
+    },
+    "/devxxxx/stats/physical/3v3": {
+        "Description": "Actual voltage of the 3.3 Volts supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Volts",
+        "Node": "/DEVXXXX/STATS/PHYSICAL/3V3"
+    },
+    "/devxxxx/stats/physical/5v0": {
+        "Description": "Actual voltage of the 5.0 Volts supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Volts",
+        "Node": "/DEVXXXX/STATS/PHYSICAL/5V0"
+    },
+    "/devxxxx/stats/physical/temp": {
+        "Description": "Actual temperature.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Degrees Celsius",
+        "Node": "/DEVXXXX/STATS/PHYSICAL/TEMP"
+    },
+    "/devxxxx/stats/physical/overtemperature": {
+        "Description": "Too high FPGA temperature detected during session.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "No overtemperature",
+            "1": "Overtemperature detected"
+        },
+        "Node": "/DEVXXXX/STATS/PHYSICAL/OVERTEMPERATURE"
+    },
+    "/devxxxx/raw/read/address": {
+        "Description": "address to listen to.",
+        "Properties": "Write, Read",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/RAW/READ/ADDRESS"
+    },
+    "/devxxxx/raw/read/request": {
+        "Description": "write a length into this node and the register will be read.",
+        "Properties": "Write",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/RAW/READ/REQUEST"
+    },
+    "/devxxxx/raw/read/data": {
+        "Description": "output of the data.",
+        "Properties": "Stream",
+        "Type": "String",
+        "Node": "/DEVXXXX/RAW/READ/DATA"
+    },
+    "/devxxxx/raw/write": {
+        "Description": "node to write registers.",
+        "Properties": "Write",
+        "Type": "String",
+        "Node": "/DEVXXXX/RAW/WRITE"
+    },
+    "/devxxxx/raw/properties/timeconstant": {
+        "Description": "Time constant of the device used for testing.",
+        "Unit": "s",
+        "Properties": "Read",
+        "Type": "Double",
+        "Node": "/DEVXXXX/RAW/PROPERTIES/TIMECONSTANT"
+    },
+    "/devxxxx/demods/n/adcselect": {
+        "Description": "Selects the index of the signal input for the demodulator.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Index",
+        "Options": {
+            "0": "Signal input 0",
+            "1": "Signal input 1",
+            "2": "Aux Input 0",
+            "3": "Aux Input 1",
+            "4": "DIO 0",
+            "5": "DIO 1"
+        },
+        "Node": "/DEVXXXX/DEMODS/n/ADCSELECT"
+    },
+    "/devxxxx/demods/n/order": {
+        "Description": "Selects the order of the low-pass filter.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Order",
+        "Options": {
+            "1": "6 dB/oct slope",
+            "2": "12 dB/oct slope",
+            "3": "18 dB/oct slope",
+            "4": "24 dB/oct slope",
+            "5": "30 dB/oct slope",
+            "6": "36 dB/oct slope",
+            "7": "42 dB/oct slope",
+            "8": "48 dB/oct slope"
+        },
+        "Node": "/DEVXXXX/DEMODS/n/ORDER"
+    },
+    "/devxxxx/demods/n/timeconstant": {
+        "Description": "Sets the time constant of the low-pass filter., The time constant is set for each stage of the low-pass filter. The total time constant and bandwidth depends on the selected order.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "s",
+        "Node": "/DEVXXXX/DEMODS/n/TIMECONSTANT"
+    },
+    "/devxxxx/demods/n/rate": {
+        "Description": "The number of output values sent to the computer per second.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "Hz",
+        "Node": "/DEVXXXX/DEMODS/n/RATE"
+    },
+    "/devxxxx/demods/n/enable": {
+        "Description": "Enables the demodulator data stream.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Demodulator stream off",
+            "1": "Demodulator stream on"
+        },
+        "Node": "/DEVXXXX/DEMODS/n/ENABLE"
+    },
+    "/devxxxx/demods/n/trigger": {
+        "Description": "Sets the trigger- and gating-functionality of the demodulator., The triggers are configured by the bits of an integer. When multiple bits/triggers are set, they are or-ed. If trigger is set to 0 then demodulator data is sent continuously.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "bit-coded",
+        "Options": {
+            "1": "\"b0\": DIO0 rising edge",
+            "2": "\"b1\": DIO0 falling edge",
+            "4": "\"b2\": DIO1 rising edge",
+            "8": "\"b3\": DIO1 falling edge",
+            "16": "\"b4\": DIO0 high",
+            "32": "\"b5\": DIO0 low",
+            "64": "\"b6\": DIO1 high",
+            "128": "\"b7\": DIO1 low"
+        },
+        "Node": "/DEVXXXX/DEMODS/n/TRIGGER"
+    },
+    "/devxxxx/demods/n/oscselect": {
+        "Description": "Index of the oscillator used to demodulate the signal.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Unit": "Index",
+        "Node": "/DEVXXXX/DEMODS/n/OSCSELECT"
+    },
+    "/devxxxx/demods/n/harmonic": {
+        "Description": "The harmonic of the base frequency to be used., Selecting 1 chooses the fundamental frequency.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Unit": "Harmonic",
+        "Node": "/DEVXXXX/DEMODS/n/HARMONIC"
+    },
+    "/devxxxx/demods/n/freq": {
+        "Description": "Frequency to of the demodulator.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Hz",
+        "Node": "/DEVXXXX/DEMODS/n/FREQ"
+    },
+    "/devxxxx/demods/n/phaseshift": {
+        "Description": "The phase shift of the demodulator.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "deg",
+        "Node": "/DEVXXXX/DEMODS/n/PHASESHIFT"
+    },
+    "/devxxxx/demods/n/sinc": {
+        "Description": "Boolean value enabling Sinc filter functionality.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Sinc filtering disabled",
+            "1": "Sinc filtering enabled"
+        },
+        "Node": "/DEVXXXX/DEMODS/n/SINC"
+    },
+    "/devxxxx/demods/n/sample": {
+        "Description": "Samples of the demodulator are given out at this node.",
+        "Properties": "Read, Stream",
+        "Type": "ZIDemodSample",
+        "Node": "/DEVXXXX/DEMODS/n/SAMPLE"
+    },
+    "/devxxxx/oscs/n/freq": {
+        "Description": "Frequency to of the oscillator.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "Hz",
+        "Node": "/DEVXXXX/OSCS/n/FREQ"
+    },
+    "/devxxxx/mods/n/enable": {
+        "Description": "Enables the modulation.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Modulation Off",
+            "1": "Modulation On"
+        },
+        "Node": "/DEVXXXX/MODS/n/ENABLE"
+    },
+    "/devxxxx/mods/n/output": {
+        "Description": "Modulation output.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "none",
+            "1": "1",
+            "2": "2",
+            "3": "1 and 2"
+        },
+        "Node": "/DEVXXXX/MODS/n/OUTPUT"
+    },
+    "/devxxxx/mods/n/mode": {
+        "Description": "Modulation mode.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "Amplitude modulation",
+            "1": "Frequency modulation",
+            "2": "Manual"
+        },
+        "Node": "/DEVXXXX/MODS/n/MODE"
+    },
+    "/devxxxx/mods/n/freqdevenable": {
+        "Description": "In FM mode, enable peak deviation.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Peak deviation off",
+            "1": "Peak deviation on"
+        },
+        "Node": "/DEVXXXX/MODS/n/FREQDEVENABLE"
+    },
+    "/devxxxx/mods/n/freqdev": {
+        "Description": "In FM mode, set peak deviation value.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "V",
+        "Node": "/DEVXXXX/MODS/n/FREQDEV"
+    },
+    "/devxxxx/mods/n/index": {
+        "Description": "In FM mode, set modulation index value. The modulation index equals peak deviation divided by modulation frequency.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Node": "/DEVXXXX/MODS/n/INDEX"
+    },
+    "/devxxxx/mods/n/rate": {
+        "Description": "The number of output values sent to the computer per second.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "Hz",
+        "Node": "/DEVXXXX/MODS/n/RATE"
+    },
+    "/devxxxx/mods/n/trigger": {
+        "Description": "Sets the trigger- and gating-functionality of the demodulator.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "bit-coded",
+        "Options": {
+            "1": "\"b0\": DIO0 rising edge",
+            "2": "\"b1\": DIO0 falling edge",
+            "4": "\"b2\": DIO1 rising edge",
+            "8": "\"b3\": DIO1 falling edge",
+            "16": "\"b4\": DIO0 high",
+            "32": "\"b5\": DIO0 low",
+            "64": "\"b6\": DIO1 high",
+            "128": "\"b7\": DIO1 low"
+        },
+        "Node": "/DEVXXXX/MODS/n/TRIGGER"
+    },
+    "/devxxxx/mods/n/carrier/inputselect": {
+        "Description": "Signal Input for the carrier demodulation.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "Sig In 1",
+            "1": "Sig In 2"
+        },
+        "Node": "/DEVXXXX/MODS/n/CARRIER/INPUTSELECT"
+    },
+    "/devxxxx/mods/n/carrier/order": {
+        "Description": "Filter order for carrier demodulation.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Order",
+        "Options": {
+            "1": "6 dB/oct slope",
+            "2": "12 dB/oct slope",
+            "3": "18 dB/oct slope",
+            "4": "24 dB/oct slope",
+            "5": "30 dB/oct slope",
+            "6": "36 dB/oct slope",
+            "7": "42 dB/oct slope",
+            "8": "48 dB/oct slope"
+        },
+        "Node": "/DEVXXXX/MODS/n/CARRIER/ORDER"
+    },
+    "/devxxxx/mods/n/carrier/timeconstant": {
+        "Description": "Sets the time constant of the carrier low-pass filter., The time constant is set for each stage of the low-pass filter. The total time constant and bandwidth depends on the selected order.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "s",
+        "Node": "/DEVXXXX/MODS/n/CARRIER/TIMECONSTANT"
+    },
+    "/devxxxx/mods/n/carrier/oscselect": {
+        "Description": "Index of the oscillator used to demodulate the signal.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Unit": "Index",
+        "Node": "/DEVXXXX/MODS/n/CARRIER/OSCSELECT"
+    },
+    "/devxxxx/mods/n/carrier/harmonic": {
+        "Description": "Harmonic of the carrier frequency., Selecting 1 chooses the fundamental frequency.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Unit": "Harmonic",
+        "Node": "/DEVXXXX/MODS/n/CARRIER/HARMONIC"
+    },
+    "/devxxxx/mods/n/carrier/phaseshift": {
+        "Description": "The phase shift of the carrier demodulator.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "deg",
+        "Node": "/DEVXXXX/MODS/n/CARRIER/PHASESHIFT"
+    },
+    "/devxxxx/mods/n/carrier/enable": {
+        "Description": "Enables the carrier data stream.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Demodulator stream off",
+            "1": "Demodulator stream on"
+        },
+        "Node": "/DEVXXXX/MODS/n/CARRIER/ENABLE"
+    },
+    "/devxxxx/mods/n/carrier/amplitude": {
+        "Description": "Carrier amplitude., Fraction of the output range added to the output signal., Multiply this value with the range setting to obtain voltage in V.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "Gain",
+        "Node": "/DEVXXXX/MODS/n/CARRIER/AMPLITUDE"
+    },
+    "/devxxxx/mods/n/sidebands/n/mode": {
+        "Description": "Sideband selector.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "Off",
+            "1": "C + M",
+            "2": "C - M"
+        },
+        "Node": "/DEVXXXX/MODS/n/SIDEBANDS/n/MODE"
+    },
+    "/devxxxx/mods/n/sidebands/n/inputselect": {
+        "Description": "Signal Input for the sideband demodulation.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "Sig In 1",
+            "1": "Sig In 2"
+        },
+        "Node": "/DEVXXXX/MODS/n/SIDEBANDS/n/INPUTSELECT"
+    },
+    "/devxxxx/mods/n/sidebands/n/order": {
+        "Description": "Filter order for sideband demodulation.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Order",
+        "Options": {
+            "1": "6 dB/oct slope",
+            "2": "12 dB/oct slope",
+            "3": "18 dB/oct slope",
+            "4": "24 dB/oct slope",
+            "5": "30 dB/oct slope",
+            "6": "36 dB/oct slope",
+            "7": "42 dB/oct slope",
+            "8": "48 dB/oct slope"
+        },
+        "Node": "/DEVXXXX/MODS/n/SIDEBANDS/n/ORDER"
+    },
+    "/devxxxx/mods/n/sidebands/n/timeconstant": {
+        "Description": "Sets the time constant of the sideband low-pass filter., The time constant is set for each stage of the low-pass filter. The total time constant and bandwidth depends on the selected order.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "s",
+        "Node": "/DEVXXXX/MODS/n/SIDEBANDS/n/TIMECONSTANT"
+    },
+    "/devxxxx/mods/n/sidebands/n/oscselect": {
+        "Description": "Index of the oscillator used to demodulate the signal.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Unit": "Index",
+        "Node": "/DEVXXXX/MODS/n/SIDEBANDS/n/OSCSELECT"
+    },
+    "/devxxxx/mods/n/sidebands/n/harmonic": {
+        "Description": "Harmonic of the sideband frequency., Selecting 1 chooses the fundamental frequency.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Unit": "Harmonic",
+        "Node": "/DEVXXXX/MODS/n/SIDEBANDS/n/HARMONIC"
+    },
+    "/devxxxx/mods/n/sidebands/n/phaseshift": {
+        "Description": "The phase shift of the sideband demodulator.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "deg",
+        "Node": "/DEVXXXX/MODS/n/SIDEBANDS/n/PHASESHIFT"
+    },
+    "/devxxxx/mods/n/sidebands/n/enable": {
+        "Description": "Enables the sideband data stream.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Demodulator stream off",
+            "1": "Demodulator stream on"
+        },
+        "Node": "/DEVXXXX/MODS/n/SIDEBANDS/n/ENABLE"
+    },
+    "/devxxxx/mods/n/sidebands/n/amplitude": {
+        "Description": "Sideband amplitude, Fraction of the output range added to the output signal., Multiply this value with the range setting to obtain voltage in V.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "Gain",
+        "Node": "/DEVXXXX/MODS/n/SIDEBANDS/n/AMPLITUDE"
+    },
+    "/devxxxx/mods/n/rawmode": {
+        "Properties": "Read, Write",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "Off",
+            "1": "Amplitude modulation",
+            "2": "Frequency demodulation",
+            "3": "Frequency modulation"
+        },
+        "Node": "/DEVXXXX/MODS/n/RAWMODE"
+    },
+    "/devxxxx/mods/n/rawfmcoeff": {
+        "Properties": "Read, Write",
+        "Type": "Double",
+        "Node": "/DEVXXXX/MODS/n/RAWFMCOEFF"
+    },
+    "/devxxxx/mods/n/rawsideband": {
+        "Properties": "Read, Write",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "Both",
+            "1": "Upper",
+            "2": "Lower"
+        },
+        "Node": "/DEVXXXX/MODS/n/RAWSIDEBAND"
+    },
+    "/devxxxx/mods/n/sample": {
+        "Description": "Modulation Samples.",
+        "Properties": "Read, Stream",
+        "Type": "ZIDemodSample",
+        "Node": "/DEVXXXX/MODS/n/SAMPLE"
+    },
+    "/devxxxx/plls/n/adcselect": {
+        "Description": "Selects an input for the PLL.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Index",
+        "Options": {
+            "0": "Signal Input 1",
+            "1": "Signal Input 2",
+            "2": "Aux Input 1",
+            "3": "Aux Input 2",
+            "4": "DIO 0",
+            "5": "DIO 1"
+        },
+        "Node": "/DEVXXXX/PLLS/n/ADCSELECT"
+    },
+    "/devxxxx/plls/n/autocenter": {
+        "Description": "Switches auto-center.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Auto-center off",
+            "1": "Auto-center on"
+        },
+        "Node": "/DEVXXXX/PLLS/n/AUTOCENTER"
+    },
+    "/devxxxx/plls/n/freqcenter": {
+        "Description": "Selects a center frequency.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "Hz",
+        "Node": "/DEVXXXX/PLLS/n/FREQCENTER"
+    },
+    "/devxxxx/plls/n/freqrange": {
+        "Description": "Selects a frequency range for the PLL.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "Hz",
+        "Node": "/DEVXXXX/PLLS/n/FREQRANGE"
+    },
+    "/devxxxx/plls/n/enable": {
+        "Description": "Enables the PLL.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "PLL off",
+            "1": "PLL on"
+        },
+        "Node": "/DEVXXXX/PLLS/n/ENABLE"
+    },
+    "/devxxxx/plls/n/error": {
+        "Description": "Error of the PLL.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "deg",
+        "Node": "/DEVXXXX/PLLS/n/ERROR"
+    },
+    "/devxxxx/plls/n/autotimeconstant": {
+        "Description": "Switches external time constant control.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "External time constant off",
+            "1": "External time constant on"
+        },
+        "Node": "/DEVXXXX/PLLS/n/AUTOTIMECONSTANT"
+    },
+    "/devxxxx/plls/n/timeconstant": {
+        "Description": "The external time constant.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "s",
+        "Node": "/DEVXXXX/PLLS/n/TIMECONSTANT"
+    },
+    "/devxxxx/plls/n/autopid": {
+        "Description": "Switches external PID.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "External PID off",
+            "1": "External PID on"
+        },
+        "Node": "/DEVXXXX/PLLS/n/AUTOPID"
+    },
+    "/devxxxx/plls/n/p": {
+        "Description": "Proportional gain of the PID controller.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "Hz/deg",
+        "Node": "/DEVXXXX/PLLS/n/P"
+    },
+    "/devxxxx/plls/n/i": {
+        "Description": "Integral gain of the PID controller.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "Hz^2/deg",
+        "Node": "/DEVXXXX/PLLS/n/I"
+    },
+    "/devxxxx/plls/n/d": {
+        "Description": "Derivative gain of the PID.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "1/deg",
+        "Node": "/DEVXXXX/PLLS/n/D"
+    },
+    "/devxxxx/plls/n/freqdelta": {
+        "Description": "Frequency deviation from center frequency.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Hz",
+        "Node": "/DEVXXXX/PLLS/n/FREQDELTA"
+    },
+    "/devxxxx/plls/n/adcthreshold": {
+        "Description": "Threshold for edge detection., Full scale corresponds to -4096 and 4095.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/PLLS/n/ADCTHRESHOLD"
+    },
+    "/devxxxx/plls/n/auxavg": {
+        "Description": "Delta frequency averaging control.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/PLLS/n/AUXAVG"
+    },
+    "/devxxxx/plls/n/setpoint": {
+        "Description": "The setpoint in degrees of the PLL.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "deg",
+        "Node": "/DEVXXXX/PLLS/n/SETPOINT"
+    },
+    "/devxxxx/plls/n/harmonic": {
+        "Description": "The harmonic of the base frequency to be used., Selecting 1 chooses the fundamental frequency.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Unit": "Harmonic",
+        "Node": "/DEVXXXX/PLLS/n/HARMONIC"
+    },
+    "/devxxxx/plls/n/order": {
+        "Description": "Selects the order of the low-pass filter.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Order",
+        "Options": {
+            "1": "6 dB/oct slope",
+            "2": "12 dB/oct slope",
+            "3": "18 dB/oct slope",
+            "4": "24 dB/oct slope",
+            "5": "30 dB/oct slope",
+            "6": "36 dB/oct slope",
+            "7": "42 dB/oct slope",
+            "8": "48 dB/oct slope"
+        },
+        "Node": "/DEVXXXX/PLLS/n/ORDER"
+    },
+    "/devxxxx/plls/n/rate": {
+        "Description": "Update rate information.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Samples/s",
+        "Node": "/DEVXXXX/PLLS/n/RATE"
+    },
+    "/devxxxx/plls/n/oscselect": {
+        "Description": "Index of the oscillator used.",
+        "Properties": "Read",
+        "Type": "Integer",
+        "Unit": "Index",
+        "Node": "/DEVXXXX/PLLS/n/OSCSELECT"
+    },
+    "/devxxxx/plls/n/demodselect": {
+        "Description": "Source demodulator.",
+        "Properties": "Read",
+        "Type": "Integer",
+        "Unit": "Index",
+        "Node": "/DEVXXXX/PLLS/n/DEMODSELECT"
+    },
+    "/devxxxx/plls/n/locked": {
+        "Description": "Lock indicator for the PLL.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "PLL not locked",
+            "1": "PLL locked"
+        },
+        "Node": "/DEVXXXX/PLLS/n/LOCKED"
+    },
+    "/devxxxx/pids/input": {
+        "Description": "Selects the input for the PID.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "Demodulator X value [Vrms]",
+            "1": "Demodulator Y value [Vrms]",
+            "2": "Demodulator R value [Vrms]",
+            "3": "Demodulator Theta value [deg]",
+            "4": "Auxiliary Input [V]",
+            "5": "Auxiliary Output (as input) [V]",
+            "6": "Modulation Index [0,1]",
+            "7": "Dual Frequency Tracking |Z(n+)| - |Z(n)| [Vrms]",
+            "8": "Demodulator x(n+1) - x(n) [Vrms]",
+            "9": "Demodulator |z(n+1) - z(n)| [Vrms]",
+            "10": "Oscillator Frequency [Hz]"
+        },
+        "Node": "/DEVXXXX/PIDS/INPUT"
+    },
+    "/devxxxx/pids/inputchannel": {
+        "Description": "If applicable, selects the channel of the selected INPUT., Sets the input channel index for the selected INPUT, i.e., 0,1,2 etc.. The available channels depend on the input type.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/PIDS/INPUTCHANNEL"
+    },
+    "/devxxxx/pids/output": {
+        "Description": "Selects the output for the PID.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "Signal Output 1 [Vrms]",
+            "1": "Signal Output 2 [Vrms]",
+            "2": "Oscillator frequency [Hz]",
+            "3": "Auxiliary Output (manual mode) [V]",
+            "4": "DIO [5 Volt TTL]"
+        },
+        "Node": "/DEVXXXX/PIDS/OUTPUT"
+    },
+    "/devxxxx/pids/outputchannel": {
+        "Description": "If applicable, selects the channel of the selected OUTPUT., Sets the input channel index for the selected OUTPUT, i.e., 0,1,2 etc.. The available channels depend on the output type",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/PIDS/OUTPUTCHANNEL"
+    },
+    "/devxxxx/pids/outputdefaultenable": {
+        "Description": "If OUTPUTDEFAULTENABLE is set, the value specified by OUTPUTDEFAULT will be applied when the PID is switched off.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "OFF",
+            "1": "ON"
+        },
+        "Node": "/DEVXXXX/PIDS/OUTPUTDEFAULTENABLE"
+    },
+    "/devxxxx/pids/outputdefault": {
+        "Description": "If OUTPUTDEFAULTENABLE is set, this node specifies the value to be applied.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Node": "/DEVXXXX/PIDS/OUTPUTDEFAULT"
+    },
+    "/devxxxx/pids/p": {
+        "Description": "Proportional gain., Sets the proportional gain for the error signal. Negative feedback corresponds to a negative gain.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "[OUTPUT Unit]/[INPUT Unit]",
+        "Node": "/DEVXXXX/PIDS/P"
+    },
+    "/devxxxx/pids/i": {
+        "Description": "Proportional gain for integrator., Sets the proportional gain for the integrated (accumulated) error signal. Negative feedback corresponds to a negative gain.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "[OUTPUT Unit]/[INPUT Unit]/s",
+        "Node": "/DEVXXXX/PIDS/I"
+    },
+    "/devxxxx/pids/d": {
+        "Description": "Proportional gain for differentiator., Sets the proportional gain for the differentiated error signal. Negative feedback corresponds to a negative gain.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "[OUTPUT Unit]/[INPUT Unit]*s",
+        "Node": "/DEVXXXX/PIDS/D"
+    },
+    "/devxxxx/pids/setpoint": {
+        "Description": "Target settle point.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "[INPUT Unit]",
+        "Node": "/DEVXXXX/PIDS/SETPOINT"
+    },
+    "/devxxxx/pids/setpointselect": {
+        "Description": "Set point selection.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "Manual Setpoint",
+            "1": "Auxiliary Input 1",
+            "2": "Auxiliary Input 2",
+            "3": "PID n"
+        },
+        "Node": "/DEVXXXX/PIDS/SETPOINTSELECT"
+    },
+    "/devxxxx/pids/monitoroffset": {
+        "Description": "Offset for the monitor output.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Node": "/DEVXXXX/PIDS/MONITOROFFSET"
+    },
+    "/devxxxx/pids/monitorscale": {
+        "Description": "Scale for the monitor output.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Node": "/DEVXXXX/PIDS/MONITORSCALE"
+    },
+    "/devxxxx/pids/error": {
+        "Description": "Shows the error value., The calculated error is : ERROR = SETPOINT - IN.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "[OUTPUT Unit]",
+        "Node": "/DEVXXXX/PIDS/ERROR"
+    },
+    "/devxxxx/pids/center": {
+        "Description": "Sets the output center point.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "[OUTPUT Unit]",
+        "Node": "/DEVXXXX/PIDS/CENTER"
+    },
+    "/devxxxx/pids/range": {
+        "Description": "Sets the output range., The limits for the output are : OUT = [CENTER - RANGE,CENTER + RANGE] with RANGE > 0.0.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "[OUTPUT Unit]",
+        "Node": "/DEVXXXX/PIDS/RANGE"
+    },
+    "/devxxxx/pids/shift": {
+        "Description": "Shows the output shift., The calculated output value is : OUT = CENTER + SHIFT.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "[OUTPUT Unit]",
+        "Node": "/DEVXXXX/PIDS/SHIFT"
+    },
+    "/devxxxx/pids/enable": {
+        "Description": "Enable PID controller.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "OFF",
+            "1": "ON"
+        },
+        "Node": "/DEVXXXX/PIDS/ENABLE"
+    },
+    "/devxxxx/pids/rate": {
+        "Description": "Control update rate.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Samples/s",
+        "Node": "/DEVXXXX/PIDS/RATE"
+    },
+    "/devxxxx/pids/tipprotect/enable": {
+        "Description": "Enable TipProtect for the PID controller.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "OFF",
+            "1": "ON"
+        },
+        "Node": "/DEVXXXX/PIDS/TIPPROTECT/ENABLE"
+    },
+    "/devxxxx/pids/tipprotect/pll": {
+        "Description": "Selects a PLL for TipProtect.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/PIDS/TIPPROTECT/PLL"
+    },
+    "/devxxxx/pids/tipprotect/active": {
+        "Description": "Indicates whether TipProtect is active.",
+        "Properties": "Read",
+        "Type": "Integer",
+        "Unit": "Boolean",
+        "Node": "/DEVXXXX/PIDS/TIPPROTECT/ACTIVE"
+    },
+    "/devxxxx/pids/tipprotect/activetimeconstant": {
+        "Description": "Time constant when TipProtect is active., Time constant for low-pass filtering the PLL error\u00b2 when TipProtect is active, i.e., when waiting to re-enable the PID controller.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "s",
+        "Node": "/DEVXXXX/PIDS/TIPPROTECT/ACTIVETIMECONSTANT"
+    },
+    "/devxxxx/pids/tipprotect/activethreshold": {
+        "Description": "Threshold for the active state., Threshold for PLL error\u00b2 when TipProtect is active, i.e., when waiting to re-enable the PID controller.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "deg\u00b2",
+        "Node": "/DEVXXXX/PIDS/TIPPROTECT/ACTIVETHRESHOLD"
+    },
+    "/devxxxx/pids/tipprotect/inactivetimeconstant": {
+        "Description": "Time constant when TipProtect is inactive., Time constant for low-pass filtering the PLL error\u00b2 when TipProtect is inactive, i.e., when waiting to disable the PID controller.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "s",
+        "Node": "/DEVXXXX/PIDS/TIPPROTECT/INACTIVETIMECONSTANT"
+    },
+    "/devxxxx/pids/tipprotect/inactivethreshold": {
+        "Description": "Threshold for the inactive state., Threshold for PLL error\u00b2 when TipProtect is inactive, i.e., when waiting to disable the PID controller.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "deg\u00b2",
+        "Node": "/DEVXXXX/PIDS/TIPPROTECT/INACTIVETHRESHOLD"
+    },
+    "/devxxxx/pids/demod/adcselect": {
+        "Description": "Selects the index of the signal input for the demodulator.",
+        "Properties": "Read, Write",
+        "Type": "Integer (enumerated)",
+        "Unit": "Index",
+        "Options": {
+            "0": "Signal input 0",
+            "1": "Signal input 1",
+            "2": "Aux Input 0",
+            "3": "Aux Input 1",
+            "4": "DIO 0",
+            "5": "DIO 1"
+        },
+        "Node": "/DEVXXXX/PIDS/DEMOD/ADCSELECT"
+    },
+    "/devxxxx/pids/demod/order": {
+        "Description": "Selects the order of the low-pass filter.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Order",
+        "Options": {
+            "1": "6 dB/oct slope",
+            "2": "12 dB/oct slope",
+            "3": "18 dB/oct slope",
+            "4": "24 dB/oct slope",
+            "5": "30 dB/oct slope",
+            "6": "36 dB/oct slope",
+            "7": "42 dB/oct slope",
+            "8": "48 dB/oct slope"
+        },
+        "Node": "/DEVXXXX/PIDS/DEMOD/ORDER"
+    },
+    "/devxxxx/pids/demod/timeconstant": {
+        "Description": "Sets the time constant of the low-pass filter., The time constant is set for each stage of the low-pass filter. The total time constant and bandwidth depends on the selected order.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "s",
+        "Node": "/DEVXXXX/PIDS/DEMOD/TIMECONSTANT"
+    },
+    "/devxxxx/pids/demod/harmonic": {
+        "Description": "The harmonic of the base frequency to be used., Selecting 1 chooses the fundamental frequency.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Unit": "Harmonic",
+        "Node": "/DEVXXXX/PIDS/DEMOD/HARMONIC"
+    },
+    "/devxxxx/sigins/n/range": {
+        "Description": "Voltage range for the signal input.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "V",
+        "Node": "/DEVXXXX/SIGINS/n/RANGE"
+    },
+    "/devxxxx/sigins/n/ac": {
+        "Description": "Boolean value setting for AC coupling of the Signal Input.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "DC coupling",
+            "1": "AC coupling"
+        },
+        "Node": "/DEVXXXX/SIGINS/n/AC"
+    },
+    "/devxxxx/sigins/n/imp50": {
+        "Description": "Boolean value enabling 50 Ohm input impedance termination.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "High impedance",
+            "1": "50 Ohm impedance"
+        },
+        "Node": "/DEVXXXX/SIGINS/n/IMP50"
+    },
+    "/devxxxx/sigins/n/diff": {
+        "Description": "Boolean value switching differential input mode.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Single-ended inputs",
+            "1": "Differential inputs"
+        },
+        "Node": "/DEVXXXX/SIGINS/n/DIFF"
+    },
+    "/devxxxx/sigouts/n/on": {
+        "Description": "Switches the output on and off.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Output off",
+            "1": "Output on"
+        },
+        "Node": "/DEVXXXX/SIGOUTS/n/ON"
+    },
+    "/devxxxx/sigouts/n/add": {
+        "Description": "Switches the output adder on and off.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Adder off",
+            "1": "Adder on"
+        },
+        "Node": "/DEVXXXX/SIGOUTS/n/ADD"
+    },
+    "/devxxxx/sigouts/n/range": {
+        "Description": "Selects the output range for the Signal Output.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "V",
+        "Options": {
+            "0.01": "0.01 V range",
+            "0.1": "0.1 V range",
+            "1": "1 V range",
+            "10": "10 V range"
+        },
+        "Node": "/DEVXXXX/SIGOUTS/n/RANGE"
+    },
+    "/devxxxx/sigouts/n/offset": {
+        "Description": "Offset added to the Signal Output., Multiply this value with the range setting to obtain offset voltage in V.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "Gain",
+        "Node": "/DEVXXXX/SIGOUTS/n/OFFSET"
+    },
+    "/devxxxx/sigouts/n/enables/n": {
+        "Description": "Switches a channel in the mixer on and off.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "Channel off (unconditionally)",
+            "1": "Channel on (unconditionally)",
+            "2": "Channel off (will be turned off on next change of sign from negative to positive)",
+            "3": "Channel on (will be turned on on next change of sign from negative to positive)"
+        },
+        "Node": "/DEVXXXX/SIGOUTS/n/ENABLES/n"
+    },
+    "/devxxxx/sigouts/n/amplitudes/n": {
+        "Description": "Fraction of the output range added to the output signal., Multiply this value with the range setting to obtain voltage in V.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "Gain",
+        "Node": "/DEVXXXX/SIGOUTS/n/AMPLITUDES/n"
+    },
+    "/devxxxx/sigouts/n/waveforms/n": {
+        "Description": "Waveforms for a channel in the mixer., For hardware revisions 1.4 and lower, the\n        output signal range for rectangular output is limited to 1 V.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "Sine",
+            "1": "Square"
+        },
+        "Node": "/DEVXXXX/SIGOUTS/n/WAVEFORMS/n"
+    },
+    "/devxxxx/scopes/n/enable": {
+        "Description": "Enables the scope.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Scope off",
+            "1": "Scope on"
+        },
+        "Node": "/DEVXXXX/SCOPES/n/ENABLE"
+    },
+    "/devxxxx/scopes/n/channel": {
+        "Description": "Selects the channel for which scope data should be provided.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Index",
+        "Options": {
+            "0": "Signal Input 1",
+            "1": "Signal Input 2",
+            "2": "Signal Output 1",
+            "3": "Signal Output 2"
+        },
+        "Node": "/DEVXXXX/SCOPES/n/CHANNEL"
+    },
+    "/devxxxx/scopes/n/trigchannel": {
+        "Description": "Selects the channel which should be used as source for the scope's trigger.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Index",
+        "Options": {
+            "-2": "Continuous",
+            "-1": "Off",
+            "0": "Oscillator 7 phase",
+            "1": "Signal Input 2",
+            "2": "Signal Output 1",
+            "3": "Signal Output 2",
+            "4": "Oscillator 1 phase",
+            "5": "Oscillator 2 phase",
+            "6": "Oscillator 3 phase",
+            "7": "Oscillator 4 phase",
+            "8": "Oscillator 5 phase",
+            "9": "Oscillator 6 phase",
+            "11": "Oscillator 8 phase",
+            "12": "DIO 0",
+            "13": "DIO 1"
+        },
+        "Node": "/DEVXXXX/SCOPES/n/TRIGCHANNEL"
+    },
+    "/devxxxx/scopes/n/bwlimit": {
+        "Description": "The bandwidth-limit for the scope.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "BW-limit off",
+            "1": "BW-limit on"
+        },
+        "Node": "/DEVXXXX/SCOPES/n/BWLIMIT"
+    },
+    "/devxxxx/scopes/n/trigedge": {
+        "Description": "Selects whether the scope should trigger on rising or falling edge.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "Falling edge",
+            "1": "Rising edge"
+        },
+        "Node": "/DEVXXXX/SCOPES/n/TRIGEDGE"
+    },
+    "/devxxxx/scopes/n/triglevel": {
+        "Description": "Level at which a trigger is raised., Full scale is covered by min and max values",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Unit": "LSB",
+        "Node": "/DEVXXXX/SCOPES/n/TRIGLEVEL"
+    },
+    "/devxxxx/scopes/n/trigholdoff": {
+        "Description": "Time to wait for re-arming the trigger after one occurred.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "s",
+        "Node": "/DEVXXXX/SCOPES/n/TRIGHOLDOFF"
+    },
+    "/devxxxx/scopes/n/time": {
+        "Description": "Timescale of the scope wave (logarithmic decimation)., Determines the decimation of the sample\n      rate. The following formulas apply: span = 2^val * 10 us, sample rate =\n      210 MSamples/2^val",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/SCOPES/n/TIME"
+    },
+    "/devxxxx/scopes/n/wave": {
+        "Description": "Samples of scope-waveforms.",
+        "Properties": "Read, Stream",
+        "Type": "ZIScopeWave",
+        "Node": "/DEVXXXX/SCOPES/n/WAVE"
+    },
+    "/devxxxx/dios/n/extclk": {
+        "Description": "Selects whether an external clock source should be used., The external clock needs to be applied to the DIO connector when this node is set to 1.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Internal clock",
+            "1": "External clock"
+        },
+        "Node": "/DEVXXXX/DIOS/n/EXTCLK"
+    },
+    "/devxxxx/dios/n/decimation": {
+        "Description": "Decimation for the sample rate of the DIO.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/DIOS/n/DECIMATION"
+    },
+    "/devxxxx/dios/n/drive": {
+        "Description": "Selects if the outputs should be driven.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "Drive off",
+            "1": "Drive lower 8 bits",
+            "2": "Drive higher 8 bits",
+            "3": "Drive all 16 bits"
+        },
+        "Node": "/DEVXXXX/DIOS/n/DRIVE"
+    },
+    "/devxxxx/dios/n/output": {
+        "Description": "Bits to output.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/DIOS/n/OUTPUT"
+    },
+    "/devxxxx/dios/n/syncselect0": {
+        "Description": "Source to output the sync signal on bit 0.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/DIOS/n/SYNCSELECT0"
+    },
+    "/devxxxx/dios/n/syncselect1": {
+        "Description": "Source to output the sync signal on bit 1.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/DIOS/n/SYNCSELECT1"
+    },
+    "/devxxxx/dios/n/input": {
+        "Description": "Samples of the input.",
+        "Properties": "Read, Stream",
+        "Type": "ZIDIOSample",
+        "Node": "/DEVXXXX/DIOS/n/INPUT"
+    },
+    "/devxxxx/auxins/n/averaging": {
+        "Description": "Averaging of the samples.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/AUXINS/n/AVERAGING"
+    },
+    "/devxxxx/auxins/n/sample": {
+        "Description": "Auxiliary input samples.",
+        "Properties": "Read, Stream",
+        "Type": "ZIAuxInSample",
+        "Node": "/DEVXXXX/AUXINS/n/SAMPLE"
+    },
+    "/devxxxx/auxins/n/values/0": {
+        "Description": "Input 0 value.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V",
+        "Node": "/DEVXXXX/AUXINS/n/VALUES/0"
+    },
+    "/devxxxx/auxins/n/values/1": {
+        "Description": "Input 1 value.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V",
+        "Node": "/DEVXXXX/AUXINS/n/VALUES/1"
+    },
+    "/devxxxx/auxouts/n/value": {
+        "Description": "Output value.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V",
+        "Node": "/DEVXXXX/AUXOUTS/n/VALUE"
+    },
+    "/devxxxx/auxouts/n/outputselect": {
+        "Description": "Signal to be given out.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "-1": "Manual",
+            "0": "X",
+            "1": "Y",
+            "2": "R",
+            "3": "Theta",
+            "4": "PLL 1 (with installed PLL option))"
+        },
+        "Node": "/DEVXXXX/AUXOUTS/n/OUTPUTSELECT"
+    },
+    "/devxxxx/auxouts/n/demodselect": {
+        "Description": "Source demodulator.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Unit": "Index",
+        "Node": "/DEVXXXX/AUXOUTS/n/DEMODSELECT"
+    },
+    "/devxxxx/auxouts/n/scale": {
+        "Description": "Scaling of the signal which is given out.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Node": "/DEVXXXX/AUXOUTS/n/SCALE"
+    },
+    "/devxxxx/auxouts/n/offset": {
+        "Description": "Value to be added to the output., The offset value is applied after scaling.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "V",
+        "Node": "/DEVXXXX/AUXOUTS/n/OFFSET"
+    },
+    "/devxxxx/cpus/n/workload": {
+        "Description": "Usage of the processor-time.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Node": "/DEVXXXX/CPUS/n/WORKLOAD"
+    },
+    "/devxxxx/cpus/n/program": {
+        "Description": "Node to write user programs to.",
+        "Properties": "Write",
+        "Type": "String",
+        "Node": "/DEVXXXX/CPUS/n/PROGRAM"
+    },
+    "/devxxxx/cpus/n/output": {
+        "Description": "Node containing the standard output stream written by the real time program.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Node": "/DEVXXXX/CPUS/n/OUTPUT"
+    },
+    "/devxxxx/cpus/n/userregs/n": {
+        "Description": "General purpose register.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer",
+        "Node": "/DEVXXXX/CPUS/n/USERREGS/n"
+    },
+    "/devxxxx/zctrls/n/camp/available": {
+        "Description": "1 when HF2CA is connected to the corresponding ZCtrl port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "HF2CA is not connected",
+            "1": "HF2CA is connected"
+        },
+        "Node": "/DEVXXXX/ZCTRLS/n/CAMP/AVAILABLE"
+    },
+    "/devxxxx/zctrls/n/camp/r": {
+        "Description": "Chooses a value for the shunt-resistor.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Ohm",
+        "Options": {
+            "0": "open, high ohmic",
+            "10": "10 Ohm",
+            "100": "100 Ohm",
+            "1000": "1 kOhm",
+            "10000": "10 kOhm",
+            "100000": "100 kOhm",
+            "1000000": "1 MOhm"
+        },
+        "Node": "/DEVXXXX/ZCTRLS/n/CAMP/R"
+    },
+    "/devxxxx/zctrls/n/camp/gain": {
+        "Description": "Switches between factor 1 and 10 gain.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Gain",
+        "Options": {
+            "1": "Factor 1 gain",
+            "10": "Factor 10 gain"
+        },
+        "Node": "/DEVXXXX/ZCTRLS/n/CAMP/GAIN"
+    },
+    "/devxxxx/zctrls/n/camp/dc": {
+        "Description": "Switches between AC coupling and DC coupling.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "AC coupling",
+            "1": "DC coupling"
+        },
+        "Node": "/DEVXXXX/ZCTRLS/n/CAMP/DC"
+    },
+    "/devxxxx/zctrls/n/camp/singleended": {
+        "Description": "Switches between differential and single-ended input.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "Differential inputs",
+            "1": "Single-ended inputs"
+        },
+        "Node": "/DEVXXXX/ZCTRLS/n/CAMP/SINGLEENDED"
+    },
+    "/devxxxx/zctrls/n/tamp/available": {
+        "Description": "1 when HF2TA is connected to the corresponding ZCtrl port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "HF2TA is not connected",
+            "1": "HF2TA is connected"
+        },
+        "Node": "/DEVXXXX/ZCTRLS/n/TAMP/AVAILABLE"
+    },
+    "/devxxxx/zctrls/n/tamp/biasout": {
+        "Description": "Switches between internal and external bias.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "V",
+        "Node": "/DEVXXXX/ZCTRLS/n/TAMP/BIASOUT"
+    },
+    "/devxxxx/zctrls/n/tamp/extbias": {
+        "Description": "Switches the external bias.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "External bias off",
+            "1": "External bias on"
+        },
+        "Node": "/DEVXXXX/ZCTRLS/n/TAMP/EXTBIAS"
+    },
+    "/devxxxx/zctrls/n/tamp/n/currentgain": {
+        "Description": "Chooses a value for the current gain.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Gain",
+        "Options": {
+            "100": "Factor 100",
+            "1000": "Factor 1 k",
+            "10000": "Factor 10 k",
+            "100000": "Factor 100 k",
+            "1000000": "Factor 1 M",
+            "10000000": "Factor 10 M",
+            "100000000": "Factor 100 M"
+        },
+        "Node": "/DEVXXXX/ZCTRLS/n/TAMP/n/CURRENTGAIN"
+    },
+    "/devxxxx/zctrls/n/tamp/n/dc": {
+        "Description": "Switches between AC and DC Mode.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Boolean",
+        "Options": {
+            "0": "AC Mode",
+            "1": "DC Mode"
+        },
+        "Node": "/DEVXXXX/ZCTRLS/n/TAMP/n/DC"
+    },
+    "/devxxxx/zctrls/n/tamp/n/voltagegain": {
+        "Description": "Chooses a value for the voltage gain.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "Gain",
+        "Options": {
+            "1": "1 x",
+            "10": "10 x"
+        },
+        "Node": "/DEVXXXX/ZCTRLS/n/TAMP/n/VOLTAGEGAIN"
+    },
+    "/devxxxx/zctrls/n/tamp/n/offset": {
+        "Description": "Adjust offset value.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "V",
+        "Node": "/DEVXXXX/ZCTRLS/n/TAMP/n/OFFSET"
+    }
+}

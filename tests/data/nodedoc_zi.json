@@ -1,0 +1,161 @@
+{
+    "/zi/config/open": {
+        "Node": "/ZI/CONFIG/OPEN",
+        "Description": "Enable communication with the LabOne Data Server from other computers in the network.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "\"local\": Communication only possible with the local machine.",
+            "1": "\"network\": Communication possible with other machines in the network."
+        }
+    },
+    "/zi/config/port": {
+        "Node": "/ZI/CONFIG/PORT",
+        "Description": "The IP port on which the LabOne Data Server listens.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "/zi/about/revision": {
+        "Node": "/ZI/ABOUT/REVISION",
+        "Description": "Contains the revision number of the Zurich Instruments Data Server.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "/zi/about/version": {
+        "Node": "/ZI/ABOUT/VERSION",
+        "Description": "Contains the version of the LabOne software.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "/zi/about/copyright": {
+        "Node": "/ZI/ABOUT/COPYRIGHT",
+        "Description": "Holds the copyright notice.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "/zi/about/fwrevision": {
+        "Node": "/ZI/ABOUT/FWREVISION",
+        "Description": "Contains the revision of the device firmware.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "/zi/about/dataserver": {
+        "Node": "/ZI/ABOUT/DATASERVER",
+        "Description": "Contains information about the Zurich Instruments Data Server.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "/zi/about/commit": {
+        "Node": "/ZI/ABOUT/COMMIT",
+        "Description": "Contains the commit hash of the source code used to build this version of the LabOne software.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "/zi/clockbase": {
+        "Node": "/ZI/CLOCKBASE",
+        "Description": "A fallback clock frequency that can be used by clients for calculating time bases when no other is available.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "None"
+    },
+    "/zi/devices/visible": {
+        "Node": "/ZI/DEVICES/VISIBLE",
+        "Description": "Contains a list of devices in the network visible to the LabOne Data Server.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "/zi/devices/connected": {
+        "Node": "/ZI/DEVICES/CONNECTED",
+        "Description": "Contains a list of devices connected to the LabOne Data Server.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "/zi/devices/discover": {
+        "Node": "/ZI/DEVICES/DISCOVER",
+        "Description": "Not used.",
+        "Properties": "Read, Write",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "/zi/debug/log": {
+        "Node": "/ZI/DEBUG/LOG",
+        "Description": "Returns the logfile text of the LabOne Data Server.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "/zi/debug/level": {
+        "Node": "/ZI/DEBUG/LEVEL",
+        "Description": "Set the logging level (amount of detail) of the LabOne Data Server.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "\"trace\": Trace. Messages designated as traces are logged.",
+            "1": "\"debug\": Debug. Messages designated as debugging info are logged.",
+            "2": "\"info\": Info. Messages designated as informational are logged.",
+            "3": "\"status\": Status. Messages designated as status info are logged.",
+            "4": "\"warning\": Warning. Messages designated as warnings are logged.",
+            "5": "\"error\": Error. Messages designated as errors are logged.",
+            "6": "\"fatal\": Fatal. Messages designated as fatal errors are logged."
+        }
+    },
+    "/zi/debug/logpath": {
+        "Node": "/ZI/DEBUG/LOGPATH",
+        "Description": "Returns the path of the log directory.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "/zi/mds/groups/0/devices": {
+        "Node": "/ZI/MDS/GROUPS/0/DEVICES",
+        "Description": "Contains a list of devices in this synchronization group.",
+        "Properties": "Read, Write, Setting",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "/zi/mds/groups/0/status": {
+        "Node": "/ZI/MDS/GROUPS/0/STATUS",
+        "Description": "Indicates the status the synchronization group.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "-1": "Error. An error occurred in the synchronization process.",
+            "0": "New",
+            "1": "Sync",
+            "2": "Alive"
+        }
+    },
+    "/zi/mds/groups/0/locked": {
+        "Node": "/ZI/MDS/GROUPS/0/LOCKED",
+        "Description": "Indicates whether the device group is locked by a MDS module.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "/zi/mds/groups/0/keepalive": {
+        "Node": "/ZI/MDS/GROUPS/0/KEEPALIVE",
+        "Description": "Set by the MDS module to indicate control over this synchronization group.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "/zi/system/usagedata": {
+        "Node": "/ZI/SYSTEM/USAGEDATA",
+        "Description": "Contains a JSON formatted string giving usage information about the LabOne Software (which tabs/modules used, error conditions).",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    }
+}

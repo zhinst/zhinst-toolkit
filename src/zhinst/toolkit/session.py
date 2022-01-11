@@ -1,0 +1,909 @@
+"""Module for managing a session to a Data Server through zhinst.ziPython."""
+import json
+import typing as t
+from collections.abc import MutableMapping
+from enum import IntFlag
+from pathlib import Path
+
+import zhinst.toolkit.driver.devices as tk_devices
+import zhinst.toolkit.driver.modules as tk_modules
+from zhinst import ziPython
+from zhinst.toolkit.nodetree import Node, NodeTree
+from zhinst.toolkit.nodetree.helper import lazy_property
+
+
+class Devices(MutableMapping):
+    """Mapping class for the connected devices.
+
+    Mapps the connected devices from data server to lazy device objects.
+    On every access the connected devices are read from the data server. This
+    ensures that even if devices get connected/disconnected through another
+    session the list will be up to date.
+
+    Args:
+        session: An active session to the data server.
+    """
+
+    def __init__(self, session: "Session"):
+        self._session = session
+        self._devices = {}
+        self._device_classes = tk_devices.DEVICE_CLASS_BY_MODEL
+
+    def __getitem__(self, key) -> tk_devices.DeviceType:
+        key = key.lower()
+        if key in self.connected():
+            if key not in self._devices:
+                self._devices[key] = self._create_device(key)
+            return self._devices[key]
+        self._devices.pop(key, None)
+        raise KeyError(key)
+
+    def __setitem__(self, *_):
+        raise LookupError(
+            "Illegal operation. Can not add a device manually. Devices must be "
+            "connected through the session (session.connect_device)."
+        )
+
+    def __delitem__(self, key):
+        self._devices.pop(key, None)
+
+    def __iter__(self):
+        return iter(self.connected())
+
+    def __len__(self):
+        return len(self.connected())
+
+    def _create_device(self, serial: str) -> tk_devices.DeviceType:
+        """Creates a new device object.
+
+        Maps the device type to the correct instrument class (The default is
+        the ``BaseInstrument`` which is a generic instrument class that supports
+        all devices).
+
+        Warning:
+            The device must be connected to the data server.
+
+        Args:
+            serial: Device serial
+
+        Returns:
+            Newly created instrument object
+
+        Raises:
+            RuntimeError: If the device is not connected to the data server
+        """
+        dev_type = self._session.daq_server.getString(f"/{serial}/features/devtype")
+        return self._device_classes.get(dev_type, tk_devices.BaseInstrument)(
+            serial, dev_type, self._session
+        )
+
+    def connected(self) -> t.List[str]:
+        """Get a list of devices connected to the data server.
+
+        Returns:
+            List of all connected devices.
+        """
+        return (
+            self._session.daq_server.getString("/zi/devices/connected")
+            .lower()
+            .split(",")
+        )
+
+    def visible(self) -> t.List[str]:
+        """Get a list of devices visible to the data server.
+
+        Returns:
+            List of all connected devices.
+        """
+        return (
+            self._session.daq_server.getString("/zi/devices/visible").lower().split(",")
+        )
+
+
+class HF2Devices(Devices):
+    """Mapping class for the connected HF2 devices.
+
+    Maps the connected devices from data server to lazy device objects.
+    It derives from the general ``Devices`` class and adds the special handling
+    for the HF2 data server. Since the HF2 Data Server is based on the API Level
+    1 it as a much more resticted API. This means it is not possible to get
+    the connected or visible devices from the data server. This class must
+    track the connected devices itself and use discovery to mimic the
+    behaviour of the new data server used for the other devices.
+    """
+
+    def _create_device(self, serial: str) -> tk_devices.BaseInstrument:
+        """Creates a new device object.
+
+        Maps the device type to the correct instrument class (The default is
+        the ``BaseInstrument`` which is a generic instrument class that supports
+        all devices).
+
+        Warning:
+            The device must already be connected to the data server
+
+        Args:
+            serial: Device serial
+
+        Returns:
+            Newly created instrument object
+
+        Raises:
+            RuntimeError: If the device is not connected to the data server
+        """
+        try:
+            return super()._create_device(serial)
+        except RuntimeError as error:
+            if "ZIAPINotFoundException" in error.args[0]:
+                discovery = ziPython.ziDiscovery()
+                discovery.find(serial)
+                dev_type = discovery.get(serial)["devicetype"]
+                raise RuntimeError(
+                    "Can only connect HF2 devices to an HF2 data "
+                    f"server. {serial} identifies itself as a {dev_type}."
+                ) from error
+            raise
+
+    def connected(self) -> t.List[str]:
+        """Get a list of devices connected to the data server.
+
+        Returns:
+            List of all connected devices.
+        """
+        return list(self._devices.keys())
+
+    def visible(self) -> t.List[str]:
+        """Get a list of devices visible to the data server.
+
+        Returns:
+            List of all connected devices.
+        """
+        return ziPython.ziDiscovery().findAll()
+
+    def add_hf2_device(self, serial: str) -> None:
+        """Add a new HF2 device.
+
+        Since the HF2 data server is not able to report its connected devices
+        toolkit manualy needs to update the list of kown connected devices.
+
+        Args:
+            serial: Serial of the HF2 device
+
+        Raises:
+            RuntimeError: If the device was already added in that session.
+        """
+        if serial in self._devices:
+            raise RuntimeError(f"Can only create one instance of {serial}.")
+        self._devices[serial] = self._create_device(serial)
+
+
+class ModuleHandler:
+    """LabOne modules
+
+    Handler for all additional so called modules by LabOne. A LabOne module is
+    bound to a user session but creates a independent session to the Data Server.
+    This has the advantage that they do not interfer with the user session. It
+    also means that creating a session causes additional resources allocation,
+    both at the client and the data server. New modules should therfore only be
+    instantiated with care.
+
+    Toolkit holds a lazy generated instance of all modules. This ensures that
+    not more than one modules of each type gets created by accident and that the
+    access to the modules is optimized.
+
+    Of course there are many use cases where more than one module of a single
+    type is required. This class therfor also exposes a ``create`` function for
+    each LabOne module. These functions create a unmanaged instance of that
+    module (unmanaged means toolkit does not hold an instance of that module).
+
+    Args:
+        session: Active user session
+        server_host: Host address of the session
+        server_port: Port of the session
+    """
+
+    def __init__(self, session: "Session", server_host: str, server_port: int):
+        self._session = session
+        self._server_host = server_host
+        self._server_port = server_port
+
+    def __repr__(self):
+        return f"LabOneModules({self._server_host}:{self._server_port})"
+
+    def create_awg_module(self) -> tk_modules.BaseModule:
+        """Create an instance of the AwgModule.
+
+        The resulting Module will have the nodetree accessible. The underlying
+        zhinst.ziPython Module can be accessed through the `raw_module`
+        property.
+
+        The new instance establishes a new session to the DataServer.
+        New instances should therefor be created carefully since they consume
+        resources.
+
+        The new module is not managed by toolkit. A managed instance is provided
+        by the property `awg`.
+
+        Returns:
+            Created module
+        """
+        return tk_modules.BaseModule(
+            self._session.daq_server.awgModule(), self._session
+        )
+
+    def create_daq_module(self) -> tk_modules.DAQModule:
+        """Create an instance of the DataAcquisitionModule.
+
+        The resulting Module will have the nodetree accessible. The underlying
+        zhinst.ziPython Module can be accessed through the `raw_module`
+        property.
+
+        The new instance establishes a new session to the DataServer.
+        New instances should therefor be created carefully since they consume
+        resources.
+
+        The new module is not managed by toolkit. A managed instance is provided
+        by the property `daq`.
+
+        Returns:
+            Created module
+        """
+        return tk_modules.DAQModule(
+            self._session.daq_server.dataAcquisitionModule(), self._session
+        )
+
+    def create_device_settings_module(self) -> tk_modules.BaseModule:
+        """Create an instance of the DeviceSettingsModule.
+
+        The resulting Module will have the nodetree accessible. The underlying
+        zhinst.ziPython Module can be accessed through the `raw_module`
+        property.
+
+        The new instance establishes a new session to the DataServer.
+        New instances should therefor be created carefully since they consume
+        resources.
+
+        The new module is not managed by toolkit. A managed instance is provided
+        by the property `device_settings_module`.
+
+        Returns:
+            Created module
+        """
+        return tk_modules.BaseModule(
+            self._session.daq_server.deviceSettings(), self._session
+        )
+
+    def create_impedance_module(self) -> tk_modules.BaseModule:
+        """Create an instance of the ImpedanceModule.
+
+        The resulting Module will have the nodetree accessible. The underlying
+        zhinst.ziPython Module can be accessed through the `raw_module`
+        property.
+
+        The new instance establishes a new session to the DataServer.
+        New instances should therefor be created carefully since they consume
+        resources.
+
+        The new module is not managed by toolkit. A managed instance is provided
+        by the property `impedance_module`.
+
+        Returns:
+            Created module
+        """
+        return tk_modules.BaseModule(
+            self._session.daq_server.impedanceModule(), self._session
+        )
+
+    def create_mds_module(self) -> tk_modules.BaseModule:
+        """Create an instance of the MultiDeviceSyncModule.
+
+        The resulting Module will have the nodetree accessible. The underlying
+        zhinst.ziPython Module can be accessed through the `raw_module`
+        property.
+
+        The new instance establishes a new session to the DataServer.
+        New instances should therefor be created carefully since they consume
+        resources.
+
+        The new module is not managed by toolkit. A managed instance is provided
+        by the property `mds_module`.
+
+        Returns:
+            Created module
+        """
+        return tk_modules.BaseModule(
+            self._session.daq_server.multiDeviceSyncModule(), self._session
+        )
+
+    def create_pid_advisor_module(self) -> tk_modules.BaseModule:
+        """Create an instance of the PidAdvisorModule.
+
+        The resulting Module will have the nodetree accessible. The underlying
+        zhinst.ziPython Module can be accessed through the `raw_module`
+        property.
+
+        The new instance establishes a new session to the DataServer.
+        New instances should therefor be created carefully since they consume
+        resources.
+
+        The new module is not managed by toolkit. A managed instance is provided
+        by the property `pid_advisor_module`.
+
+        Returns:
+            Created module
+        """
+        return tk_modules.BaseModule(
+            self._session.daq_server.pidAdvisor(), self._session
+        )
+
+    def create_precompensation_advisor_module(
+        self,
+    ) -> tk_modules.BaseModule:
+        """Create an instance of the PrecompensationAdvisorModule.
+
+        In contrast to ziPython.ziDAQServer.precompensationAdvisor() a nodetree property
+        is added.
+
+        The new instance establishes a new session to the DataServer.
+        New instances should therefor be created carefully since they consume
+        resources.
+
+        The new module is not managed by toolkit. A managed instance is provided
+        by the property `precompensation_advisor_module`.
+
+        Returns:
+            Created module
+        """
+        return tk_modules.BaseModule(
+            self._session.daq_server.precompensationAdvisor(), self._session
+        )
+
+    def create_qa_module(self) -> tk_modules.BaseModule:
+        """Create an instance of the QuantumAnalyzerModule.
+
+        The resulting Module will have the nodetree accessible. The underlying
+        zhinst.ziPython Module can be accessed through the `raw_module`
+        property.
+
+        The new instance establishes a new session to the DataServer.
+        New instances should therefor be created carefully since they consume
+        resources.
+
+        The new module is not managed by toolkit. A managed instance is provided
+        by the property `qa_module`.
+
+        Returns:
+            Created module
+        """
+        return tk_modules.BaseModule(
+            self._session.daq_server.quantumAnalyzerModule(), self._session
+        )
+
+    def create_scope_module(self) -> tk_modules.BaseModule:
+        """Create an instance of the ScopeModule.
+
+        The resulting Module will have the nodetree accessible. The underlying
+        zhinst.ziPython Module can be accessed through the `raw_module`
+        property.
+
+        The new instance establishes a new session to the DataServer.
+        New instances should therefor be created carefully since they consume
+        resources.
+
+        The new module is not managed by toolkit. A managed instance is provided
+        by the property `awg_module`.
+
+        Returns:
+            Created module
+        """
+        return tk_modules.BaseModule(
+            self._session.daq_server.scopeModule(), self._session
+        )
+
+    def create_sweeper_module(self) -> tk_modules.SweeperModule:
+        """Create an instance of the SweeperModule.
+
+        The resulting Module will have the nodetree accessible. The underlying
+        zhinst.ziPython Module can be accessed through the `raw_module`
+        property.
+
+        The new instance establishes a new session to the DataServer.
+        New instances should therefor be created carefully since they consume
+        resources.
+
+        The new module is not managed by toolkit. A managed instance is provided
+        by the property `sweeper_module`.
+
+        Returns:
+            Created module
+        """
+        return tk_modules.SweeperModule(self._session.daq_server.sweep(), self._session)
+
+    def create_shfqa_sweeper(self) -> tk_modules.SHFQASweeper:
+        """Create an instance of the SHFQASweeper.
+
+        For now the general sweeper module does not support the SHFQA. However a
+        python based implementation called ``SHFSweeper`` does already provide
+        this functionality. The ``SHFSweeper`` is part of the ``zhinst`` module
+        and can be found in the utils.
+
+        Toolkit wraps around the ``SHFSweeper`` and exposes a interface that is
+        similar to the LabOne modules, meaning the parameters are exposed in a
+        node tree like structure.
+
+        In addition a new session is created. This has the benefit that the
+        sweeper implementation does not interfer with the the commands and
+        setups from the user.
+
+        Returns:
+            Created object
+        """
+        return tk_modules.SHFQASweeper(
+            ziPython.ziDAQServer(
+                self._server_host,
+                self._server_port,
+                6,
+            ),
+            self._session,
+        )
+
+    @lazy_property
+    def awg(self) -> tk_modules.BaseModule:
+        """Managed instance of the awg module.
+
+        Managed means that only one instance is created
+        and is held inside the connection Manager. This makes it easier to access
+        the modules from within toolkit, since creating a module requires
+        resources. (``use create_awg_module`` to create an unmanaged instance)
+        """
+        return self.create_awg_module()
+
+    @lazy_property
+    def daq(self) -> tk_modules.DAQModule:
+        """Managed instance of the daq module.
+
+        Managed means that only one instance is created
+        and is held inside the connection Manager. This makes it easier to access
+        the modules from within toolkit, since creating a module requires
+        resources. (``use create_daq_module`` to create an unmanaged instance)
+        """
+        return self.create_daq_module()
+
+    @lazy_property
+    def device_settings(self) -> tk_modules.BaseModule:
+        """Managed instance of the device settings module.
+
+        Managed means that only one instance is created
+        and is held inside the connection Manager. This makes it easier to access
+        the modules from within toolkit, since creating a module requires
+        resources. (``use create_device_settings_module`` to create an
+        unmanaged instance)
+        """
+        return self.create_device_settings_module()
+
+    @lazy_property
+    def impedance(self) -> tk_modules.BaseModule:
+        """Managed instance of the impedance module.
+
+        Managed means that only one instance is created
+        and is held inside the connection Manager. This makes it easier to access
+        the modules from within toolkit, since creating a module requires
+        resources. (``use create_awg_module`` to create an unmanaged instance)
+        """
+        return self.create_impedance_module()
+
+    @lazy_property
+    def mds(self) -> tk_modules.BaseModule:
+        """Managed instance of the multi device sync module.
+
+        Managed means that only one instance is created
+        and is held inside the connection Manager. This makes it easier to access
+        the modules from within toolkit, since creating a module requires
+        resources. (``use create_mds_module`` to create an unmanaged instance)
+        """
+        return self.create_mds_module()
+
+    @lazy_property
+    def pid_advisor(self) -> tk_modules.BaseModule:
+        """Managed instance of the pid advisor module.
+
+        Managed means that only one instance is created
+        and is held inside the connection Manager. This makes it easier to access
+        the modules from within toolkit, since creating a module requires
+        resources. (``use create_pid_advisor_module`` to create an unmanaged
+        instance)
+        """
+        return self.create_pid_advisor_module()
+
+    @lazy_property
+    def precompensation_advisor(self) -> tk_modules.BaseModule:
+        """Managed instance of the precompensation advisor module.
+
+        Managed means that only one instance is created
+        and is held inside the connection Manager. This makes it easier to access
+        the modules from within toolkit, since creating a module requires
+        resources. (``use create_precomensation_advisor_module`` to create an
+        unmanaged instance)
+        """
+        return self.create_precompensation_advisor_module()
+
+    @lazy_property
+    def qa(self) -> tk_modules.BaseModule:
+        """Managed instance of the quantum analyer module.
+
+        Managed means that only one instance is created
+        and is held inside the connection Manager. This makes it easier to access
+        the modules from within toolkit, since creating a module requires
+        resources. (``use create_qa_module`` to create an unmanaged instance)
+        """
+        return self.create_qa_module()
+
+    @lazy_property
+    def scope(self) -> tk_modules.BaseModule:
+        """Managed instance of the scope module.
+
+        Managed means that only one instance is created
+        and is held inside the connection Manager. This makes it easier to access
+        the modules from within toolkit, since creating a module requires
+        resources. (``use create_scope_module`` to create an unmanaged
+        instance)
+        """
+        return self.create_scope_module()
+
+    @lazy_property
+    def sweeper(self) -> tk_modules.SweeperModule:
+        """Managed instance of the sweeper module.
+
+        Managed means that only one instance is created
+        and is held inside the connection Manager. This makes it easier to access
+        the modules from within toolkit, since creating a module requires
+        resources. (``use create_sweeper_module`` to create an unmanaged instance)
+        """
+        return self.create_sweeper_module()
+
+    @lazy_property
+    def shfqa_sweeper(self) -> tk_modules.SHFQASweeper:
+        """Managed instance of the shfqa sweeper implementation.
+
+        Managed means that only one instance is created
+        and is held inside the connection Manager. This makes it easier to access
+        the modules from within toolkit, since creating a module requires
+        resources. (``use create_shfqa_sweeper`` to create an unmanaged
+        instance)
+        """
+        return self.create_shfqa_sweeper()
+
+
+class PollFlags(IntFlag):
+    """Flags for polling Command.
+
+    DETECT_AND_THROW(12): 
+        Detect data loss holes and throw EOFError exception
+
+    DETECT(8): 
+        Detect data loss holes
+
+    FILL(1): 
+        Fill holes
+
+    DEFAULT(0): 
+        No Flags
+
+    Can be combined with bitwise operations
+
+    >>> PollFlags.FILL | PollFlags.DETECT
+        <PollFlags.DETECT|FILL: 9>
+    """
+
+    DETECT_AND_THROW = 12
+    DETECT = 8
+    FILL = 1
+    DEFAULT = 0
+
+
+class Session(Node):
+    """Session to a data server.
+
+    Zurich Instruments devices use a server-based connectivity methodology.
+    Server-based means that all communication between the user and the
+    instrument takes place via a computer program called a server, the data
+    sever. The data sever recognizes available instruments and manages all
+    communication between the instrument and the host computer on one side, and
+    communication to all the connected clients on the other side. (For more
+    information on the architecture please refer to the user manual
+    http://docs.zhinst.com/labone_programming_manual/introduction.html)
+
+    The entry point into for any connection is therfor a client session to a
+    existing data sever. This class represents a single client session to a
+    data server. The session enables the user to connect to one or multiple
+    instruments (also creates the deticated objects for each device), access
+    the LabOne modules and poll data. In short it is the only object the user
+    need to create by himself.
+
+    Info:
+        Except for the HF2 a single session can be used to connect to all
+        devices from Zurich Instruments. Since the HF2 is historically based on
+        another data server called the hf2 data server it is not possible to
+        connect HF2 devices a "normal" data server and also not possible to
+        connect devices apart from HF2 to the hf2 data server.
+
+    Args:
+        server_host: Host address of the data server (e.g. localhost)
+        server_port: Port number of the data server. If not specified the session
+            uses the default port 8004 (8005 for HF2 if specified).
+            (default = None)
+        hf2: Flag if the session should be established with an HF2 data sever or
+            the "normal" one for all other devices. If not specified the session
+            will detect the type of the data server based on the port.
+            (default = None)
+        connection: Existing DAQ server object. If specified the session will
+            not create a new session to the data server but reuse the passed
+            one. (default = None)
+    """
+
+    def __init__(
+        self,
+        server_host: str,
+        server_port: int = None,
+        *,
+        hf2: bool = None,
+        connection: ziPython.ziDAQServer = None,
+    ):
+        self._is_hf2_server = bool(hf2)
+        self._server_host = server_host
+        self._server_port = server_port if server_port else 8004
+        if connection is not None:
+            self._is_hf2_server = "HF2" in connection.getString("/zi/about/dataserver")
+            if hf2 and not self._is_hf2_server:
+                raise RuntimeError(
+                    "hf2_server Flag was set but the passed "
+                    "DAQServer instance is no HF2 data server."
+                )
+            if hf2 is False and self._is_hf2_server:
+                raise RuntimeError(
+                    "hf2_server Flag was reset but the passed "
+                    "DAQServer instance is a HF2 data server."
+                )
+            self._daq_server = connection
+        else:
+            if self._is_hf2_server and self._server_port == 8004:
+                self._server_port = 8005
+            try:
+                self._daq_server = ziPython.ziDAQServer(
+                    self._server_host,
+                    self._server_port,
+                    1 if self._is_hf2_server else 6,
+                )
+            except RuntimeError as error:
+                if "Unsupported API level" not in error.args[0]:
+                    raise
+                if hf2 is None:
+                    self._is_hf2_server = True
+                    self._daq_server = ziPython.ziDAQServer(
+                        self._server_host,
+                        self._server_port,
+                        1,
+                    )
+                elif not hf2:
+                    raise RuntimeError(
+                        "hf2_server Flag was reset but the specified "
+                        f"server at {self._server_host}:{self._server_port} is a "
+                        "HF2 data server."
+                    ) from error
+
+        if self._is_hf2_server and "HF2" not in self._daq_server.getString(
+            "/zi/about/dataserver"
+        ):
+            raise RuntimeError(
+                "hf2_server Flag was set but the specified "
+                f"server at {self._server_host}:{self._server_port} is not a "
+                "HF2 data server."
+            )
+        self._devices = HF2Devices(self) if self._is_hf2_server else Devices(self)
+        self._modules = ModuleHandler(self, self._server_host, self._server_port)
+
+        hf2_node_doc = Path(__file__).parent / "resources/nodedoc_hf2_data_server.json"
+        nodetree = NodeTree(
+            self.daq_server,
+            prefix_hide="zi",
+            list_nodes=["/zi/*"],
+            preloaded_json=json.loads(hf2_node_doc.open("r").read())
+            if self._is_hf2_server
+            else None,
+        )
+        super().__init__(nodetree, tuple())
+
+    def __repr__(self):
+        return str(
+            f"{'HF2' if self._is_hf2_server else ''}DataServerSession("
+            f"{self._server_host}:{self._server_port})"
+        )
+
+    def connect_device(
+        self, serial: str, *, interface: str = None
+    ) -> tk_devices.DeviceType:
+        """Establish a connection to a device.
+
+        Info:
+            It is allowed to call this function for an already connected device.
+            In that case the function simply returns the device object of the
+            device.
+
+        Args:
+            serial: Serial number of the device, e.g. *'dev12000'*.
+                The serial number can be found on the back panel of the
+                instrument.
+            interface: Device interface (e.g. = "1GbE"). If not specified
+                the default interface from the discover is used.
+
+        Returns:
+            Device object
+
+        Raises:
+            KeyError: Device is not found.
+            RuntimeError: Connection failed.
+        """
+        serial = serial.lower()
+        if serial not in self._devices:
+            if not interface:
+                if self._is_hf2_server:
+                    interface = "USB"
+                else:
+                    # Take interface from the discovery
+                    interface = json.loads(self.daq_server.getString("/zi/devices"))[
+                        serial.upper()
+                    ]["INTERFACE"]
+            try:
+                self._daq_server.connectDevice(serial, interface)
+            except RuntimeError as error:
+                if (
+                    interface == "PCIe"
+                    and "Device does not support the specified interface"
+                    in error.args[0]
+                ):
+                    self._daq_server.connectDevice(serial, "1GbE")
+                else:
+                    raise
+            if self._is_hf2_server:
+                self._devices.add_hf2_device(serial)
+        return self._devices[serial]
+
+    def disconnect_device(self, serial: str) -> None:
+        """Disconnect a device.
+
+        Warning:
+            This function will return immediately. The disconnection of the
+            device may not yet finished.
+
+        Args:
+            serial: Serial number of the device, e.g. *'dev12000'*.
+                The serial number can be found on the back panel of the instrument.
+        """
+        self._devices.pop(serial, None)
+        self.daq_server.disconnectDevice(serial)
+
+    def sync(self) -> None:
+        """Synchronize all connected devices.
+
+        Synchronization in this case means creating a defined state.
+
+        The following steps are performed:
+            * Ensures that all set commands have been flushed to the device
+            * Ensures that get and poll commands only return data which was
+              recorded after the sync command. (ALL poll buffers are cleared!)
+            * Blocks until all devices have cleared their bussy flag.
+
+        Warning:
+            The sync is performed for all devices connected to the DAQ server
+
+        Warning:
+            This command is a blocking command that can take a substantial
+            amount of time.
+
+        Raises:
+            RuntimeError: ZIAPIServerException: Timeout during sync of device
+        """
+        self.daq_server.sync()
+
+    def poll(
+        self,
+        recording_time: float = 0.1,
+        *,
+        timeout: float = 0.5,
+        flags: PollFlags = PollFlags.DEFAULT,
+    ) -> t.Dict[Node, t.Dict[str, t.Any]]:
+        """Polls all subscribed data
+
+        Poll the value changes in all subscribed nodes since either subscribing
+        or the last poll (assuming no buffer overflow has occurred on the Data
+        Server).
+
+        Args:
+            recording_time: Defines the duration of the poll in seconds. (Note that not
+                only the newly recorded values are polled but all values since
+                either subscribing or the last poll). Needs to be larger than
+                zero. (default = 0.1)
+            timeout: Adds an additional timeout in seconds on top of
+                `recording_time`. Only relevant when communicating in a slow
+                network. In this case it may be set to a value larger than the
+                expected round-trip time in the network. (default = 0.5)
+            flags: Flags for the polling (see :class `PollFlags`:)
+
+        Returns:
+            Polled data in a dictionary. The key is a `Node` object and the
+            value is a dictionary with the raw data from the device
+        """
+        data_raw = self.daq_server.poll(
+            recording_time, int(timeout * 1000), flags=flags.value, flat=True
+        )
+        return {self.raw_path_to_node(node): data for node, data in data_raw.items()}
+
+    def raw_path_to_node(
+        self, raw_path: str, *, module: tk_modules.ModuleType = None
+    ) -> Node:
+        """Converts a raw node path string into a Node object.
+
+        The device that this strings belongs to must be connected to the Data
+        Server. Optionally a module can be specified to which the node belongs to.
+        (The module is only an additional search path, meaning even if a module
+        is specified the node can belong to a connected device.)
+
+        Args:
+            raw_path: Raw node path (e.g. /dev1234/relative/path/to/node).
+
+        Returns:
+            Corresponding toolkit node object.
+
+        Raises:
+            RuntimeError: If the node does not belong to the optional module or
+                to a connected device.
+        """
+        if not raw_path.startswith("/"):
+            raise RuntimeError(
+                f"{raw_path} does not seem to be an absolute path. "
+                "(it must start with a leading slash)"
+            )
+        if module is not None:
+            node = module.root.raw_path_to_node(raw_path)
+            if node.raw_tree[0] in module.root:
+                return node
+        try:
+            serial = raw_path.split("/")[1]
+            if serial == "zi":
+                return self.root.raw_path_to_node(raw_path)
+            return self.devices[serial].root.raw_path_to_node(raw_path)
+        except KeyError as error:
+            raise RuntimeError(
+                f"Node belongs to a device({raw_path.split('/')[1]}) not connected to "
+                "the Data Server."
+            ) from error
+
+    @property
+    def devices(self) -> Devices:
+        """Mapping for the connected devices."""
+        return self._devices
+
+    @property
+    def modules(self) -> ModuleHandler:
+        """LabOne modules"""
+        return self._modules
+
+    @property
+    def is_hf2_server(self) -> bool:
+        """Flag if the data server is a HF2 Data Server"""
+        return self._is_hf2_server
+
+    @property
+    def daq_server(self) -> ziPython.ziDAQServer:
+        """Managed instance of the ziPython.ziDAQServer."""
+        return self._daq_server
+
+    @property
+    def server_host(self) -> str:
+        """Server host"""
+        return self._server_host
+
+    @property
+    def server_port(self) -> int:
+        """Server port"""
+        return self._server_port

@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft-04/schema#",
+  "title": "AWG Command Table Schema",
+  "description": "Schema for ZI SHFSG AWG Command Table",
+  "definitions": {
+    "header": {
+      "properties": {
+        "version": {
+          "type": "string",
+          "enum": [
+            "1.1.0",
+            "1.1"
+          ],
+          "description": "File format version (Major.Minor / Major.Minor.Patch). This version must match with the relevant schema version."
+        },
+        "partial": {
+          "description": "Set to true for incremental table updates",
+          "type": "boolean",
+          "default": "false"
+        },
+        "userString": {
+          "description": "User-definable label",
+          "type": "string",
+          "maxLength": 30
+        }
+      },
+      "required": [
+        "version"
+      ]
+    },
+    "table": {
+      "items": {
+        "$ref": "#/definitions/entry"
+      },
+      "minItems": 0,
+      "maxItems": 4096
+    },
+    "entry": {
+      "properties": {
+        "index": {
+          "$ref": "#/definitions/tableindex"
+        },
+        "waveform": {
+          "$ref": "#/definitions/waveform"
+        },
+        "phase": {
+          "$ref": "#/definitions/phase"
+        },
+        "amplitude00": {
+          "$ref": "#/definitions/amplitude"
+        },
+        "amplitude01": {
+          "$ref": "#/definitions/amplitude"
+        },
+        "amplitude10": {
+          "$ref": "#/definitions/amplitude"
+        },
+        "amplitude11": {
+          "$ref": "#/definitions/amplitude"
+        },
+        "oscillatorSelect": {
+          "$ref": "#/definitions/oscillatorselect"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "index"
+      ]
+    },
+    "tableindex": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4095,
+      "exclusiveMinimum": false,
+      "exclusiveMaximum": false
+    },
+    "waveform": {
+      "properties": {
+        "index": {
+          "$ref": "#/definitions/waveformindex"
+        },
+        "length": {
+          "$ref": "#/definitions/waveformlength"
+        },
+        "samplingRateDivider": {
+          "$ref": "#/definitions/samplingratedivider"
+        },
+        "playZero": {
+          "$ref": "#/definitions/playzero"
+        }
+      },
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "index"
+          ]
+        },
+        {
+          "required": [
+            "playZero",
+            "length"
+          ]
+        }
+      ]
+    },
+    "waveformindex": {
+      "description": "Index of the waveform to play as defined with the assignWaveIndex sequencer instruction",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 65535,
+      "exclusiveMinimum": false,
+      "exclusiveMaximum": false
+    },
+    "waveformlength": {
+      "description": "The length of the waveform in samples",
+      "type": "integer",
+      "multipleOf": 16,
+      "minimum": 32,
+      "exclusiveMinimum": false
+    },
+    "samplingratedivider": {
+      "descpription": "Integer exponent n of the sampling rate divider: 2.0 GSa/s / 2^n, n in range 0 ... 13",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 13
+    },
+    "playzero": {
+      "description": "Play a zero-valued waveform for specified length of waveform, equivalent to the playZero sequencer instruction",
+      "type": "boolean",
+      "default": "false"
+    },
+    "phase": {
+      "properties": {
+        "value": {
+          "description": "Phase value of the given sine generator in degree",
+          "type": "number"
+        },
+        "increment": {
+          "description": "Set to true for incremental phase value, or to false for absolute",
+          "type": "boolean",
+          "default": "false"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "value"
+      ]
+    },
+    "amplitude": {
+      "properties": {
+        "value": {
+          "description": "Amplitude scaling factor of the given AWG channel",
+          "type": "number",
+          "minimum": -1.0,
+          "maximum": 1.0,
+          "exclusiveMinimum": false,
+          "exclusiveMaximum": false
+        },
+        "increment": {
+          "description": "Set to true for incremental amplitude value, or to false for absolute",
+          "type": "boolean",
+          "default": "false"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "value"
+      ]
+    },
+    "oscillatorselect": {
+      "properties": {
+        "value": {
+          "description": "Index of oscillator that is selected for sine/cosine generation",
+          "type": "number",
+          "minimum": 0,
+          "maximum": 7,
+          "exclusiveMinimum": false,
+          "exclusiveMaximum": false
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "value"
+      ]
+    }
+  },
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "header": {
+      "$ref": "#/definitions/header"
+    },
+    "table": {
+      "$ref": "#/definitions/table"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "header"
+  ]
+}

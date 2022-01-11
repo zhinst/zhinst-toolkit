@@ -1,0 +1,23 @@
+{
+    "/car/seat": {
+        "Node": "/car/seat",
+        "Description": "car seat",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Integer"
+    },
+    "/car/color": {
+        "Node": "/car/color",
+        "Description": "car color",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "String"
+    },
+    "/street/length": {
+        "Node": "/street/length",
+        "Description": "length of the street",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    }
+}

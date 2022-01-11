@@ -1,7 +1,7 @@
 zhinst
+git+https://github.com/zhinst/device-utils
 numpy
-attrs
 pytest
 hypothesis
-deprecation
 jsonschema
+jsonref

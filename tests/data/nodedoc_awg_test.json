@@ -1,0 +1,133 @@
+{
+    "/awg/enable": {
+        "Node": "/awg/enable",
+        "Description": "Start the AWG sequencers. In MDS mode, this will enable all devices in the correct order.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/compiler/sourcefile": {
+        "Node": "/compiler/sourcefile",
+        "Description": "The filename of an AWG sequencer program file to compile and load. The file must be located in the \"awg/src\" sub-directory of the LabOne user directory. This directory path is provided by the value of the read-only directory parameter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/compiler/sourcestring": {
+        "Node": "/compiler/sourcestring",
+        "Description": "A string containing an AWG sequencer program may directly loaded to this parameter using the module command setString. This allows compilation and upload of a sequencer program without saving it to a file first. Compilation starts automatically after compiler/sourcestring has been set.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/compiler/start": {
+        "Node": "/compiler/start",
+        "Description": "Set to 1 to start compiling the AWG sequencer program specified by compiler/ sourcefile. The module sets compiler/ start to 0 once compilation has successfully completed (or failed). If compiler/upload is enabled then the sequencer program will additionally be uploaded to the AWG upon after successful compilation.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/compiler/status": {
+        "Node": "/compiler/status",
+        "Description": "Compilation status",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "-1": "Idle.",
+            "0": "Compilation successful.",
+            "1": "Compilation failed.",
+            "2": "Compilation completed with warnings."
+        }
+    },
+    "/compiler/statusstring": {
+        "Node": "/compiler/statusstring",
+        "Description": "Status message of the compiler.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/compiler/upload": {
+        "Node": "/compiler/upload",
+        "Description": "Specify whether the sequencer program should be automatically uploaded to the AWG following successful compilation.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/compiler/waveforms": {
+        "Node": "/compiler/waveforms",
+        "Description": "A comma-separated list of waveform CSV files to be used by the AWG sequencer program.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/device": {
+        "Node": "/device",
+        "Description": "The target device for AWG sequencer programs upload, e.g. 'dev2006'.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/directory": {
+        "Node": "/directory",
+        "Description": "The path of the LabOne user directory. The AWG Module uses the following subdirectories in the LabOne web server directory: \"awg/src\": Contains AWG sequencer program source files (user created); \"awg/elf\": Contains compiled AWG binary (ELF) files (created by the module); \"awg/waves\": Contains CSV waveform files (user created).",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/elf/checksum": {
+        "Node": "/elf/checksum",
+        "Description": "The checksum of the generated ELF file.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/elf/file": {
+        "Node": "/elf/file",
+        "Description": "The filename of the compiled binary ELF file. If not set, the name is automatically set based on the source filename. The ELF file will be saved by the AWG Module in the \"awg/elf\" sub-directory of the LabOne user directory. This directory path is provided by the value of the read-only directory parameter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/elf/status": {
+        "Node": "/elf/status",
+        "Description": "Status of the ELF file upload.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "-1": "Idle.",
+            "0": "Upload successful.",
+            "1": "Upload failed.",
+            "2": "Upload in progress."
+        }
+    },
+    "/elf/upload": {
+        "Node": "/elf/upload",
+        "Description": "Set to 1 to start uploading the AWG sequencer program to the device. The module sets elf/upload to 0 once the upload has finished.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/index": {
+        "Node": "/index",
+        "Description": "The index of the current AWG Module to use when running with multiple AWG groups. See section on channel grouping in the manual for further explanation.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/mds/group": {
+        "Node": "/mds/group",
+        "Description": "The MDS group (multiDeviceSyncModule/group) to use for synchronized AWG playback.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/progress": {
+        "Node": "/progress",
+        "Description": "Reports the progress of the upload as a value between 0 and 1.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Double"
+    }
+}

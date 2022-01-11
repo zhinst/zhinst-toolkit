@@ -1,0 +1,20 @@
+{
+    "DEV1234": {
+        "AVAILABLE": 1,
+        "INTERFACE": "1GbE",
+        "INTERFACES": "1GbE",
+        "OWNER": "",
+        "STATUS": "Available",
+        "DEVTYPE": "Test",
+        "STATUSFLAGS": 2
+    },
+    "DEV5678": {
+        "AVAILABLE": 1,
+        "INTERFACE": "PCIe",
+        "INTERFACES": "PCIe",
+        "OWNER": "Device FW upgrade available. Please update",
+        "STATUS": "Device FW upgrade available. Please update",
+        "DEVTYPE": "Test2",
+        "STATUSFLAGS": 32
+    }
+}

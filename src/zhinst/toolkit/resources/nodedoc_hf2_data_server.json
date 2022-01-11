@@ -1,0 +1,117 @@
+{
+  "/zi/about/version": {
+    "Description": "The version of this program.",
+    "Properties": "Read",
+    "Type": "String",
+    "Node": "/ZI/ABOUT/VERSION"
+  },
+  "/zi/about/revision": {
+    "Description": "The revision of this program.",
+    "Properties": "Read",
+    "Type": "Integer",
+    "Node": "/ZI/ABOUT/REVISION"
+  },
+  "/zi/about/commit": {
+    "Description": "The commit hash of this program.",
+    "Properties": "Read",
+    "Type": "String",
+    "Node": "/ZI/ABOUT/COMMIT"
+  },
+  "/zi/about/fwrevision": {
+    "Description": "The revision of the used firmware.",
+    "Properties": "Read",
+    "Type": "Integer",
+    "Node": "/ZI/ABOUT/FWREVISION"
+  },
+  "/zi/about/copyright": {
+    "Description": "The copyright string of this program.",
+    "Properties": "Read",
+    "Type": "String",
+    "Node": "/ZI/ABOUT/COPYRIGHT"
+  },
+  "/zi/about/dataserver": {
+    "Description": "The name identifier of this data server.",
+    "Properties": "Read",
+    "Type": "String",
+    "Node": "/ZI/ABOUT/DATASERVER"
+  },
+  "/zi/config/port": {
+    "Description": "Configures the TCP/IP port on which the ziServer listens.",
+    "Properties": "Read, Write",
+    "Type": "Integer",
+    "Node": "/ZI/CONFIG/PORT"
+  },
+  "/zi/config/open": {
+    "Description": "Configures whether the ziServer should be open for connections from outside the local host.",
+    "Properties": "Read, Write",
+    "Type": "Integer (enumerated)",
+    "Unit": "Boolean",
+    "Options": {
+      "0": "server only listens to localhost",
+      "1": "server is open for connections from outside"
+    },
+    "Node": "/ZI/CONFIG/OPEN"
+  },
+  "/zi/trees": {
+    "Description": "Messages on tree changes., This node sends out a message every time a device is connected or disconnected or its tree has changed.",
+    "Properties": "Stream",
+    "Type": "TODO",
+    "Node": "/ZI/TREES"
+  },
+  "/zi/mds/groups/0/devices": {
+    "Description": "Devices in this group.",
+    "Properties": "Read, Write",
+    "Type": "String",
+    "Node": "/ZI/MDS/GROUPS/0/DEVICES"
+  },
+  "/zi/mds/groups/0/status": {
+    "Description": "Status of the synchronization in this group.",
+    "Properties": "Read, Write",
+    "Type": "Integer",
+    "Node": "/ZI/MDS/GROUPS/0/STATUS"
+  },
+  "/zi/mds/groups/0/locked": {
+    "Description": "Group is locked.",
+    "Properties": "Read, Write",
+    "Type": "Integer",
+    "Unit": "Boolean",
+    "Node": "/ZI/MDS/GROUPS/0/LOCKED"
+  },
+  "/zi/mds/groups/0/keepalive": {
+    "Description": "Acquire lock on this group.",
+    "Properties": "Write",
+    "Type": "Integer",
+    "Unit": "Boolean",
+    "Node": "/ZI/MDS/GROUPS/0/KEEPALIVE"
+  },
+  "/zi/debug/level": {
+    "Description": "Sets the level of debugging.",
+    "Properties": "Read, Write",
+    "Type": "Integer",
+    "Node": "/ZI/DEBUG/LEVEL"
+  },
+  "/zi/debug/logpath": {
+    "Description": "Returns the log directory.",
+    "Properties": "Read",
+    "Type": "String",
+    "Node": "/ZI/DEBUG/LOGPATH"
+  },
+  "/zi/debug/out": {
+    "Description": "Outputs debugging messages according to the level which has been set in the LEVEL node.",
+    "Properties": "Stream",
+    "Type": "String",
+    "Node": "/ZI/DEBUG/OUT"
+  },
+  "/zi/debug/log": {
+    "Description": "Returns recent log output of the server",
+    "Properties": "Read",
+    "Type": "String",
+    "Node": "/ZI/DEBUG/LOG"
+  },
+  "/zi/clockbase": {
+    "Description": "Provides timebase value for the server nodes",
+    "Properties": "Read",
+    "Type": "Integer",
+    "Node": "/ZI/CLOCKBASE"
+  }
+}

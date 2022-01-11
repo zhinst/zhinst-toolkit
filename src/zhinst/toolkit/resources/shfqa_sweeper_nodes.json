@@ -1,0 +1,199 @@
+{
+    "/device": {
+        "Node": "/device",
+        "Description": "The target device for sweeper, e.g. 'dev2006'.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/sweep/start_freq": {
+        "Node": "/sweep/start_freq",
+        "Description": "Minimum frequency for the sweep",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/sweep/stop_freq": {
+        "Node": "/sweep/stop_freq",
+        "Description": "Maximum frequency for the sweep",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/sweep/num_points": {
+        "Node": "/sweep/num_points",
+        "Description": "Number of frequency points to measure",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer"
+    },
+    "/sweep/mapping": {
+        "Node": "/sweep/mapping",
+        "Description": "Linear or logarithmic frequency axis",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer",
+        "Options": {
+            "0": "\"linear\": Linear frequency axis.",
+            "1": "\"log\": Logarithmic frequency axis."
+        }
+    },
+    "/sweep/oscillator_gain": {
+        "Node": "/sweep/oscillator_gain",
+        "Description": "Amplitude gain for the oscilator used for modulation",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/sweep/settling_time": {
+        "Node": "/sweep/settling_time",
+        "Description": "Time to wait to ensure new frequency took effect in the device under test",
+        "Properties": "Read, Write",
+        "Unit": "s",
+        "Type": "Double"
+    },
+    "/sweep/mode": {
+        "Node": "/sweep/mode",
+        "Description": "Specify whether to use the fast sequencer-based sweep (1) or the slower host-driven sweep (0)",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer",
+        "Options": {
+            "0": "\"host-driven\": host-driven sweep (slower). ",
+            "1": "\"sequencer-based\": sequencer-based sweep (faster)."
+        }
+    },
+    "/rf/channel": {
+        "Node": "/rf/channel",
+        "Description": "Device channel to be used",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer"
+    },
+    "/rf/input_range": {
+        "Node": "/rf/input_range",
+        "Description": "Maximal Range of the Signal Input power",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer"
+    },
+    "/rf/output_range": {
+        "Node": "/rf/output_range",
+        "Description": "Maximal Range of the Signal Output power",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer"
+    },
+    "/rf/center_freq": {
+        "Node": "/rf/center_freq",
+        "Description": "Center Frequency of the analysis band",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/average/integration_time": {
+        "Node": "/average/integration_time",
+        "Description": "Total time while samples are integrated",
+        "Properties": "Read, Write",
+        "Unit": "s",
+        "Type": "Double"
+    },
+    "/average/num_averages": {
+        "Node": "/average/num_averages",
+        "Description": "Total time while samples are integrated",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer"
+    },
+    "/average/mode": {
+        "Node": "/average/mode",
+        "Description": "Averaging mode",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer",
+        "Options": {
+            "0": "\"cyclic\": First scan the frequency and then repeat.",
+            "1": "\"sequential\": Average each point before changing the frequency."
+        }
+    },
+    "/average/integration_delay": {
+        "Node": "/average/integration_delay",
+        "Description": "Time delay after the trigger for the integrator to start",
+        "Properties": "Read, Write",
+        "Unit": "s",
+        "Type": "Double"
+    },
+    "/trigger/source": {
+        "Node": "/trigger/source",
+        "Description": "Trigger source for spectroscopy. Further note that the software trigger is not supported for the sequencer-based sweeps (exception see force_sw_trigger)!",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer",
+        "Options": {
+            "0": "\"auto\": Repetition rate of the experiment will be determined by the sequencer using the integration time in AvgConfig and settling time in SweepConfig.",
+            "1": "\"channel0_trigger_input0\": Channel 0 trigger input 0.",
+            "2": "\"channel0_trigger_input1\": Channel 0 trigger input 1.",
+            "3": "\"channel1_trigger_input0\": Channel 1 trigger input 0.",
+            "4": "\"channel1_trigger_input1\": Channel 1 trigger input 1.",
+            "5": "\"channel2_trigger_input0\": Channel 2 trigger input 0.",
+            "6": "\"channel2_trigger_input1\": Channel 2 trigger input 1.",
+            "7": "\"channel3_trigger_input0\": Channel 3 trigger input 0.",
+            "8": "\"channel3_trigger_input1\": Channel 3 trigger input 1.",
+            "9": "\"channel0_sequencer_trigger0\": Channel 0 sequencer trigger 0.",
+            "10": "\"channel1_sequencer_trigger0\": Channel 1 sequencer trigger 0.",
+            "11": "\"channel2_sequencer_trigger0\": Channel 2 sequencer trigger 0.",
+            "12": "\"channel3_sequencer_trigger0\": Channel 3 sequencer trigger 0.",
+            "13": "\"software_trigger0\": Software trigger 0."
+        }
+    },
+    "/trigger/level": {
+        "Node": "/trigger/level",
+        "Description": "Trigger level",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/trigger/input_impedance": {
+        "Node": "/trigger/input_impedance",
+        "Description": "Trigger input impedance",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer",
+        "Options": {
+            "0": "\"imp1k\": 1kOhm input impedance.",
+            "1": "\"imp50\": 50Ohm input impedance."
+        }
+    },
+    "/trigger/sw_trigger_mode": {
+        "Node": "/trigger/sw_trigger_mode",
+        "Description": "software trigger mode (only relevant for sequencer-based mode)",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer",
+        "Options": {
+            "0": "\"normal\": The sequencer program ignores the software trigger in sequencer-based mode.",
+            "1": "\"force\": The sequencer program waits for the software trigger in sequencer-based mode."
+        }
+    },
+    "/envelope/enable": {
+        "Node": "/envelope/enable",
+        "Description": "Enable the multiplication with the envelope",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer"
+    },
+    "/envelope/waveform": {
+        "Node": "/envelope/waveform",
+        "Description": "Complex envelope for pulsed spectroscopy",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "ZIVectorData"
+    },
+    "/envelope/delay": {
+        "Node": "/envelope/delay",
+        "Description": "Time delay the waveform is generated after the trigger",
+        "Properties": "Read, Write",
+        "Unit": "s",
+        "Type": "Double"
+    }
+}

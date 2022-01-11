@@ -1,0 +1,3369 @@
+{
+    "\/dev1234\/zsyncs\/0\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/0\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/1\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/2\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/3\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/4\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/5\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/6\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/7\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/8\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/9\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/10\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/11\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/12\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/13\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/14\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/15\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/16\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error",
+            "4": "Data is being sent\/received"
+        }
+    },
+    "\/dev1234\/zsyncs\/17\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/execution\/enable": {
+        "Node": "\/DEV1234\/EXECUTION\/ENABLE",
+        "Description": "Activate the trigger generation. Auto-resets to zero when done.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/execution\/repetitions": {
+        "Node": "\/DEV1234\/EXECUTION\/REPETITIONS",
+        "Description": "Number of triggers to be generated.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/execution\/holdoff": {
+        "Node": "\/DEV1234\/EXECUTION\/HOLDOFF",
+        "Description": "Hold-off time between repeated triggers.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "s"
+    },
+    "\/dev1234\/execution\/progress": {
+        "Node": "\/DEV1234\/EXECUTION\/PROGRESS",
+        "Description": "The fraction of the triggers generated so far.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/registerbank\/reset": {
+        "Node": "\/DEV1234\/FEEDBACK\/REGISTERBANK\/RESET",
+        "Description": "Clear all the readout registers.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/registerbank\/sources\/0\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/registerbank\/sources\/0\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/registerbank\/sources\/0\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/REGISTERBANK\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/registerbank\/sources\/1\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/registerbank\/sources\/1\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/registerbank\/sources\/1\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/REGISTERBANK\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/registerbank\/sources\/2\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/registerbank\/sources\/2\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/registerbank\/sources\/2\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/REGISTERBANK\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/registerbank\/sources\/3\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/ENABLE",
+        "Description": "Enable forwarding of given bit.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/registerbank\/sources\/3\/register": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/registerbank\/sources\/3\/index": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/REGISTERBANK\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/0\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/0\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/0\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/0\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/1\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/1\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/1\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/1\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/2\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/2\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/2\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/2\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/3\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/3\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/3\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/3\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/4\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/4\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/4\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/4\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/5\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/5\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/5\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/5\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/6\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/6\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/6\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/6\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/7\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/7\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/7\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/7\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/8\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/8\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/8\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/8\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/9\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/9\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/9\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/9\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/10\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/10\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/10\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/10\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/11\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/11\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/11\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/11\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/12\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/12\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/12\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/12\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/13\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/13\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/13\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/13\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/14\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/14\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/14\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/14\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/15\/register": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/15\/REGISTER",
+        "Description": "The readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/sources\/15\/index": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/SOURCES\/15\/INDEX",
+        "Description": "The index of the bit in the readout register used as source address of the Lookup Table.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/decoder\/source": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/DECODER\/SOURCE",
+        "Description": "The index of the lookup table in the LUT decoder that is forwarded.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/tables\/0": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/TABLES\/0",
+        "Description": "The lookup Table. A vector of 2^16 elements, each represents the output when its corresponding index is the source input address. Each element is an unsigned integer of 8 bits",
+        "Properties": "Read, Write",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/tables\/1": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/TABLES\/1",
+        "Description": "The lookup Table. A vector of 2^16 elements, each represents the output when its corresponding index is the source input address. Each element is an unsigned integer of 8 bits",
+        "Properties": "Read, Write",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/tables\/2": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/TABLES\/2",
+        "Description": "The lookup Table. A vector of 2^16 elements, each represents the output when its corresponding index is the source input address. Each element is an unsigned integer of 8 bits",
+        "Properties": "Read, Write",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/feedback\/decoder\/lut\/tables\/3": {
+        "Node": "\/DEV1234\/FEEDBACK\/DECODER\/LUT\/TABLES\/3",
+        "Description": "The lookup Table. A vector of 2^16 elements, each represents the output when its corresponding index is the source input address. Each element is an unsigned integer of 8 bits",
+        "Properties": "Read, Write",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/decoder\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/DECODER\/ENABLE",
+        "Description": "Enable decoder output forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/output\/registerbank\/enable": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/OUTPUT\/REGISTERBANK\/ENABLE",
+        "Description": "Enable readout registers forwarding for a given port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/triggers\/out\/0\/enable": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/0\/ENABLE",
+        "Description": "Enable the Trigger Out.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/triggers\/out\/0\/source": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/0\/SOURCE",
+        "Description": "Select the source of the trigger Out.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "\"start_trigger\": Generate a trigger when a \"start trigger\" is sent over the selected ZSync.",
+            "1": "\"feedback\": Generate a trigger when feedback is sent over the selected ZSync."
+        }
+    },
+    "\/dev1234\/triggers\/out\/0\/port": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/0\/PORT",
+        "Description": "The ZSync port associated with the Trigger Out source.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/triggers\/out\/0\/pulsewidth": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/0\/PULSEWIDTH",
+        "Description": "Defines the minimum pulse width of the generated pulses.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "s"
+    },
+    "\/dev1234\/triggers\/out\/1\/enable": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/1\/ENABLE",
+        "Description": "Enable the Trigger Out.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/triggers\/out\/1\/source": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/1\/SOURCE",
+        "Description": "Select the source of the trigger Out.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "\"start_trigger\": Generate a trigger when a \"start trigger\" is sent over the selected ZSync.",
+            "1": "\"feedback\": Generate a trigger when feedback is sent over the selected ZSync."
+        }
+    },
+    "\/dev1234\/triggers\/out\/1\/port": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/1\/PORT",
+        "Description": "The ZSync port associated with the Trigger Out source.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/triggers\/out\/1\/pulsewidth": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/1\/PULSEWIDTH",
+        "Description": "Defines the minimum pulse width of the generated pulses.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "s"
+    },
+    "\/dev1234\/system\/nics\/0\/saveip": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/SAVEIP",
+        "Description": "If written, this action will program the defined static IP address to the device.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/defaultip4": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/DEFAULTIP4",
+        "Description": "IPv4 address of the device to use if static IP is enabled.",
+        "Properties": "Read, Write",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/defaultmask": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/DEFAULTMASK",
+        "Description": "IPv4 mask in case of static IP.",
+        "Properties": "Read, Write",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/defaultgateway": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/DEFAULTGATEWAY",
+        "Description": "Default gateway configuration for the network connection.",
+        "Properties": "Read, Write",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/static": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/STATIC",
+        "Description": "Enable this flag if the device is used in a network with fixed IP assignment without a DHCP server.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/mac": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/MAC",
+        "Description": "Current MAC address of the device network interface.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/ip4": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/IP4",
+        "Description": "Current IPv4 of the device.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/mask": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/MASK",
+        "Description": "Current network mask.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/gateway": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/GATEWAY",
+        "Description": "Current network gateway.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/stall": {
+        "Node": "\/DEV1234\/SYSTEM\/STALL",
+        "Description": "Indicates if the network connection is stalled.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/identify": {
+        "Node": "\/DEV1234\/SYSTEM\/IDENTIFY",
+        "Description": "Setting this node to 1 will cause the device to blink the power led for a few seconds.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/saveports": {
+        "Node": "\/DEV1234\/SYSTEM\/SAVEPORTS",
+        "Description": "Flag indicating that the TCP and UDP ports should be saved.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/porttcp": {
+        "Node": "\/DEV1234\/SYSTEM\/PORTTCP",
+        "Description": "Returns the current TCP port used for communication to the dataserver.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/portudp": {
+        "Node": "\/DEV1234\/SYSTEM\/PORTUDP",
+        "Description": "Returns the current UDP port used for communication to the dataserver.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/features\/options": {
+        "Node": "\/DEV1234\/FEATURES\/OPTIONS",
+        "Description": "Returns enabled options.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/features\/code": {
+        "Node": "\/DEV1234\/FEATURES\/CODE",
+        "Description": "Node providing a mechanism to write feature codes.",
+        "Properties": "Write",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/properties\/timebase": {
+        "Node": "\/DEV1234\/SYSTEM\/PROPERTIES\/TIMEBASE",
+        "Description": "Minimal time difference between two timestamps. The value is equal to 1\/(maximum sampling rate).",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "s"
+    },
+    "\/dev1234\/system\/properties\/negativefreq": {
+        "Node": "\/DEV1234\/SYSTEM\/PROPERTIES\/NEGATIVEFREQ",
+        "Description": "Indicates whether negative frequencies are supported.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/properties\/minfreq": {
+        "Node": "\/DEV1234\/SYSTEM\/PROPERTIES\/MINFREQ",
+        "Description": "The minimum oscillator frequency that can be set.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/properties\/maxfreq": {
+        "Node": "\/DEV1234\/SYSTEM\/PROPERTIES\/MAXFREQ",
+        "Description": "The maximum oscillator frequency that can be set.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/fwlogenable": {
+        "Node": "\/DEV1234\/SYSTEM\/FWLOGENABLE",
+        "Description": "Enables logging to the fwlog node.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/boardrevisions\/0": {
+        "Node": "\/DEV1234\/SYSTEM\/BOARDREVISIONS\/0",
+        "Description": "Hardware revision of the FPGA base board",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/boardrevisions\/1": {
+        "Node": "\/DEV1234\/SYSTEM\/BOARDREVISIONS\/1",
+        "Description": "Hardware revision of the analog board",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/shutdown": {
+        "Node": "\/DEV1234\/SYSTEM\/SHUTDOWN",
+        "Description": "Sending a '1' to this node initiates a shutdown of the operating system on the MFLI device. It is recommended to trigger this shutdown before switching the device off with the hardware switch at the back side of the device.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/fx3revision": {
+        "Node": "\/DEV1234\/SYSTEM\/FX3REVISION",
+        "Description": "USB firmware revision.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/powerconfigdate": {
+        "Node": "\/DEV1234\/SYSTEM\/POWERCONFIGDATE",
+        "Description": "Contains the date of power configuration (format is: (year << 16) | (month << 8) | day)",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/clocks\/referenceclock\/in\/source": {
+        "Node": "\/DEV1234\/SYSTEM\/CLOCKS\/REFERENCECLOCK\/IN\/SOURCE",
+        "Description": "The intended reference clock source. When the source is changed, all the instruments connected with ZSync links will be disconnected. The connection should be re-established manually.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "\"internal\": The internal clock is intended to be used as the frequency and time base reference.",
+            "1": "\"external\": An external clock is intended to be used as the frequency and time base reference. Provide a clean and stable 10 MHz or 100 MHz reference to the appropriate back panel connector."
+        }
+    },
+    "\/dev1234\/system\/clocks\/referenceclock\/in\/status": {
+        "Node": "\/DEV1234\/SYSTEM\/CLOCKS\/REFERENCECLOCK\/IN\/STATUS",
+        "Description": "Status of the reference clock.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "Reference clock has been locked on.",
+            "1": "There was an error locking onto the reference clock signal.",
+            "2": "The device is busy trying to lock onto the reference clock signal."
+        }
+    },
+    "\/dev1234\/system\/clocks\/referenceclock\/in\/freq": {
+        "Node": "\/DEV1234\/SYSTEM\/CLOCKS\/REFERENCECLOCK\/IN\/FREQ",
+        "Description": "Indicates the frequency of the reference clock.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Hz"
+    },
+    "\/dev1234\/system\/clocks\/referenceclock\/out\/enable": {
+        "Node": "\/DEV1234\/SYSTEM\/CLOCKS\/REFERENCECLOCK\/OUT\/ENABLE",
+        "Description": "Enable clock signal on the reference clock output. When the clock output is turned on or off, all the instruments connected with ZSync links will be disconnected. The connection should be re-established manually.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/clocks\/referenceclock\/out\/freq": {
+        "Node": "\/DEV1234\/SYSTEM\/CLOCKS\/REFERENCECLOCK\/OUT\/FREQ",
+        "Description": "Select the frequency of the output reference clock. Only 10 MHz and 100 MHz are allowed. When the frequency is changed, all the instruments connected with ZSync links will be disconnected. The connection should be re-established manually.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "Hz"
+    },
+    "\/dev1234\/system\/clocks\/referenceclock\/in\/sourceactual": {
+        "Node": "\/DEV1234\/SYSTEM\/CLOCKS\/REFERENCECLOCK\/IN\/SOURCEACTUAL",
+        "Description": "The actual reference clock source.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "\"internal\": The internal clock is used as the frequency and time base reference.",
+            "1": "\"external\": An external clock is used as the frequency and time base reference."
+        }
+    },
+    "\/dev1234\/system\/clocks\/ready": {
+        "Node": "\/DEV1234\/SYSTEM\/CLOCKS\/READY",
+        "Description": "[empty]",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/fwlog": {
+        "Node": "\/DEV1234\/SYSTEM\/FWLOG",
+        "Description": "Returns log output of the firmware.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/update": {
+        "Node": "\/DEV1234\/SYSTEM\/UPDATE",
+        "Description": "Requests update of the device firmware and bitstream from the dataserver.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/status\/flags\/binary": {
+        "Node": "\/DEV1234\/STATUS\/FLAGS\/BINARY",
+        "Description": "A set of binary flags giving an indication of the state of various parts of the device. Reserved for future use.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/status\/time": {
+        "Node": "\/DEV1234\/STATUS\/TIME",
+        "Description": "The current timestamp.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/stats\/physical\/fpga\/temp": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/FPGA\/TEMP",
+        "Description": "Internal temperature of the FPGA.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/fpga\/core": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/FPGA\/CORE",
+        "Description": "Core voltage of the FPGA.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/fpga\/aux": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/FPGA\/AUX",
+        "Description": "Supply voltage of the FPGA.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/overtemperature": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/OVERTEMPERATURE",
+        "Description": "This flag is set to 1 if the temperature of the FPGA exceeds 85°C. It will be reset to 0 after a restart of the device.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/preset\/load": {
+        "Node": "\/DEV1234\/SYSTEM\/PRESET\/LOAD",
+        "Description": "Load the selected preset.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/preset\/busy": {
+        "Node": "\/DEV1234\/SYSTEM\/PRESET\/BUSY",
+        "Description": "Indicates if presets are currently loaded.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/preset\/error": {
+        "Node": "\/DEV1234\/SYSTEM\/PRESET\/ERROR",
+        "Description": "Indicates if the last operation was illegal. Successful: 0, Error: 1.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/features\/serial": {
+        "Node": "\/DEV1234\/FEATURES\/SERIAL",
+        "Description": "Device serial number.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/features\/devtype": {
+        "Node": "\/DEV1234\/FEATURES\/DEVTYPE",
+        "Description": "Returns the device type.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/fpgarevision": {
+        "Node": "\/DEV1234\/SYSTEM\/FPGAREVISION",
+        "Description": "HDL firmware revision.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/fwrevision": {
+        "Node": "\/DEV1234\/SYSTEM\/FWREVISION",
+        "Description": "Revision of the device-internal controller software.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/status\/fifolevel": {
+        "Node": "\/DEV1234\/STATUS\/FIFOLEVEL",
+        "Description": "USB FIFO level: Indicates the USB FIFO fill level inside the device. When 100%, data is lost",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "None"
+    },
+    "\/dev1234\/clockbase": {
+        "Node": "\/DEV1234\/CLOCKBASE",
+        "Description": "Returns the internal clock frequency of the device.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Hz"
+    },
+    "\/dev1234\/system\/owner": {
+        "Node": "\/DEV1234\/SYSTEM\/OWNER",
+        "Description": "Returns the current owner of the device (IP).",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/activeinterface": {
+        "Node": "\/DEV1234\/SYSTEM\/ACTIVEINTERFACE",
+        "Description": "Currently active interface of the device.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/interfacespeed": {
+        "Node": "\/DEV1234\/SYSTEM\/INTERFACESPEED",
+        "Description": "Speed of the currently active interface (USB only).",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/stats\/cmdstream\/bytesreceived": {
+        "Node": "\/DEV1234\/STATS\/CMDSTREAM\/BYTESRECEIVED",
+        "Description": "Number of bytes received on the command stream from the device since session start.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "B"
+    },
+    "\/dev1234\/stats\/cmdstream\/bytessent": {
+        "Node": "\/DEV1234\/STATS\/CMDSTREAM\/BYTESSENT",
+        "Description": "Number of bytes sent on the command stream from the device since session start.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "B"
+    },
+    "\/dev1234\/stats\/cmdstream\/packetsreceived": {
+        "Node": "\/DEV1234\/STATS\/CMDSTREAM\/PACKETSRECEIVED",
+        "Description": "Number of packets received on the command stream from the device since session start.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/stats\/cmdstream\/packetssent": {
+        "Node": "\/DEV1234\/STATS\/CMDSTREAM\/PACKETSSENT",
+        "Description": "Number of packets sent on the command stream to the device since session start.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/stats\/cmdstream\/packetslost": {
+        "Node": "\/DEV1234\/STATS\/CMDSTREAM\/PACKETSLOST",
+        "Description": "Number of command packets lost since device start. Command packets contain device settings that are sent to and received from the device.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/stats\/cmdstream\/bandwidth": {
+        "Node": "\/DEV1234\/STATS\/CMDSTREAM\/BANDWIDTH",
+        "Description": "Command streaming bandwidth usage on the physical network connection between device and data server.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Mbit\/s"
+    },
+    "\/dev1234\/stats\/cmdstream\/processing": {
+        "Node": "\/DEV1234\/STATS\/CMDSTREAM\/PROCESSING",
+        "Description": "Number of buffers being processed for command packets. Small values indicate proper performance. For a TCP\/IP interface, command packets are sent using the TCP protocol.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/stats\/cmdstream\/pending": {
+        "Node": "\/DEV1234\/STATS\/CMDSTREAM\/PENDING",
+        "Description": "Number of buffers ready for receiving command packets from the device.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/stats\/datastream\/bytesreceived": {
+        "Node": "\/DEV1234\/STATS\/DATASTREAM\/BYTESRECEIVED",
+        "Description": "Number of bytes received on the data stream from the device since session start.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "B"
+    },
+    "\/dev1234\/stats\/datastream\/packetsreceived": {
+        "Node": "\/DEV1234\/STATS\/DATASTREAM\/PACKETSRECEIVED",
+        "Description": "Number of packets received on the data stream from the device since session start.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/stats\/datastream\/packetslost": {
+        "Node": "\/DEV1234\/STATS\/DATASTREAM\/PACKETSLOST",
+        "Description": "Number of data packets lost since device start. Data packets contain measurement data.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/stats\/datastream\/bandwidth": {
+        "Node": "\/DEV1234\/STATS\/DATASTREAM\/BANDWIDTH",
+        "Description": "Data streaming bandwidth usage on the physical network connection between device and data server.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Mbit\/s"
+    },
+    "\/dev1234\/stats\/datastream\/processing": {
+        "Node": "\/DEV1234\/STATS\/DATASTREAM\/PROCESSING",
+        "Description": "Number of buffers being processed for data packets. Small values indicate proper performance. For a TCP\/IP interface, data packets are sent using the UDP protocol.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/stats\/datastream\/pending": {
+        "Node": "\/DEV1234\/STATS\/DATASTREAM\/PENDING",
+        "Description": "Number of buffers ready for receiving data packets from the device.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/status\/flags\/packetlosstcp": {
+        "Node": "\/DEV1234\/STATUS\/FLAGS\/PACKETLOSSTCP",
+        "Description": "Flag indicating if tcp packages have been lost.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/status\/flags\/packetlossudp": {
+        "Node": "\/DEV1234\/STATUS\/FLAGS\/PACKETLOSSUDP",
+        "Description": "Flag indicating if udp packages have been lost.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    }
+}
