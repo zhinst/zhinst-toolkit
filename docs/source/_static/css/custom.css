@@ -1,0 +1,64 @@
+/* Adapt the furo theme to match to ZI styleguide */
+
+@font-face {
+    font-family: ZIAkkurat Regular Web;
+    src:
+      url(font/ZIAkkurat-Regular.woff2) format("woff2"),
+      url(font/ZIAkkurat-Regular.woff) format("woff");
+    font-weight: 400;
+    font-style: normal;
+    font-display:swap
+  }
+
+  @font-face {
+    font-family: ZIAkkurat Light Web;
+    src:
+      url(font/ZIAkkurat-Light.woff2) format("woff2"),
+      url(font/ZIAkkurat-Light.woff) format("woff");
+    font-weight: 300;
+    font-style: normal;
+    font-display:swap
+  }
+
+  @font-face {
+    font-family: Akkurat Mono Regular Web;
+    src:
+      url(font/AkkuratMonoLLWeb-Regular.woff2) format('woff2'),
+      url(font/AkkuratMonoLLWeb-Regular.woff) format('woff');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  /* Custom bullet characters */
+
+  :root {
+    --pst-font-family-base-system: "ZIAkkurat Regular Web", sans-serif;
+    --pst-font-family-monospace-system: "Akkurat Mono Regular Web", sans-serif;
+  }
+
+  main ul {
+      list-style: none;
+    display: table;
+    padding-left: 0px;
+  }
+
+  main ul li {
+    display: table-row;
+  }
+
+  main ul li:before {
+      font-size: 0.8em;
+    content: '\00F8FF';
+    display: table-cell;
+    text-align: right;
+    padding-right: 10px;
+  }
+
+  ul.search li {
+    background-image: none;
+  }
+
+  a.navbar-brand {
+    margin-top: 11.5px;
+  }

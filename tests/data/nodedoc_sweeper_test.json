@@ -1,0 +1,273 @@
+{
+    "\/averaging\/sample": {
+        "Node": "\/averaging\/sample",
+        "Description": "Sets the number of data samples per sweeper parameter point that is considered in the measurement.",
+        "Properties": "Read, Write",
+        "Unit": "Samples",
+        "Type": "Integer (64 bit)"
+    },
+    "\/averaging\/tc": {
+        "Node": "\/averaging\/tc",
+        "Description": "Sets the effective number of time constants per sweeper parameter point that is considered in the measurement.",
+        "Properties": "Read, Write",
+        "Unit": "TC",
+        "Type": "Double"
+    },
+    "\/averaging\/time": {
+        "Node": "\/averaging\/time",
+        "Description": "Sets the effective measurement time per sweeper parameter point that is considered in the measurement.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "\/awgcontrol": {
+        "Node": "\/awgcontrol",
+        "Description": "Enable AWG control for sweeper. If enabled the sweeper will automatically start the AWG and records the sweep sample based on the even index in hwtrigger.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "\/bandwidth": {
+        "Node": "\/bandwidth",
+        "Description": "Defines the measurement bandwidth when using Fixed bandwidth mode (sweep\/bandwidthcontrol=1), and corresponds to the noise equivalent power bandwidth (NEP).",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "\/bandwidthcontrol": {
+        "Node": "\/bandwidthcontrol",
+        "Description": "Specify how the sweeper should specify the bandwidth of each measurement point. Automatic is recommended, in particular for logarithmic sweeps and assures the whole spectrum is covered.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"manual\": Manual (the sweeper module leaves the demodulator bandwidth settings entirely untouched)",
+            "1": "\"fixed\": Fixed (use the value from sweep\/bandwidth)",
+            "2": "\"auto\": Automatic. Note, to use either Fixed or Manual mode, sweep\/bandwidth must be set to a value > 0 (even though in manual mode it is ignored)."
+        }
+    },
+    "\/bandwidthoverlap": {
+        "Node": "\/bandwidthoverlap",
+        "Description": "If enabled the bandwidth of a sweep point may overlap with the frequency of neighboring sweep points. The effective bandwidth is only limited by the maximal bandwidth setting and omega suppression. As a result, the bandwidth is independent of the number of sweep points. For frequency response analysis bandwidth overlap should be enabled to achieve maximal sweep speed.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "\/clearhistory": {
+        "Node": "\/clearhistory",
+        "Description": "Remove all records from the history list.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "\/device": {
+        "Node": "\/device",
+        "Description": "The device ID to perform the sweep on, e.g., dev123 (compulsory parameter, this parameter must be set first).",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "\/endless": {
+        "Node": "\/endless",
+        "Description": "Enable Endless mode; run the sweeper continuously.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "\/filtermode": {
+        "Node": "\/filtermode",
+        "Description": "Selects the filter mode.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"application\": Application (the sweeper sets the filters and other parameters automatically)",
+            "1": "\"advanced\": Advanced (the sweeper uses manually configured parameters)"
+        }
+    },
+    "\/gridnode": {
+        "Node": "\/gridnode",
+        "Description": "The device parameter (specified by node) to be swept, e.g., \"oscs\/0\/freq\".",
+        "Properties": "Read, Write",
+        "Unit": "Node",
+        "Type": "String"
+    },
+    "\/historylength": {
+        "Node": "\/historylength",
+        "Description": "Maximum number of entries stored in the measurement history.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "\/loopcount": {
+        "Node": "\/loopcount",
+        "Description": "The number of sweeps to perform.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "\/maxbandwidth": {
+        "Node": "\/maxbandwidth",
+        "Description": "Specifies the maximum bandwidth used when in Auto bandwidth mode (sweep\/bandwidthcontrol=2). The default is 1.25 MHz.",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "\/omegasuppression": {
+        "Node": "\/omegasuppression",
+        "Description": "Damping of omega and 2omega components when in Auto bandwidth mode (sweep\/bandwidthcontrol=2). Default is 40dB in favor of sweep speed. Use a higher value for strong offset values or 3omega measurement methods.",
+        "Properties": "Read, Write",
+        "Unit": "dB",
+        "Type": "Double"
+    },
+    "\/order": {
+        "Node": "\/order",
+        "Description": "Defines the filter roll off to use in Fixed bandwidth mode (sweep\/bandwidthcontrol=1). Valid values are between 1 (6 dB\/octave) and 8 (48 dB\/octave).",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "\/phaseunwrap": {
+        "Node": "\/phaseunwrap",
+        "Description": "Enable unwrapping of slowly changing phase evolutions around the +\/-180 degree boundary.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "\/remainingtime": {
+        "Node": "\/remainingtime",
+        "Description": "Reports the remaining time of the current sweep. A valid number is only displayed once the sweeper has been started. An undefined sweep time is indicated as NAN.",
+        "Properties": "Read",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "\/samplecount": {
+        "Node": "\/samplecount",
+        "Description": "The number of measurement points to set the sweep on.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "\/save\/csvlocale": {
+        "Node": "\/save\/csvlocale",
+        "Description": "The locale to use for the decimal point character and digit grouping character for numerical values in CSV files: \"C\": Dot for the decimal point and no digit grouping (default); \"\" (empty string): Use the symbols set in the language and region settings of the computer.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "\/save\/csvseparator": {
+        "Node": "\/save\/csvseparator",
+        "Description": "The character to use as CSV separator when saving files in this format.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "\/save\/directory": {
+        "Node": "\/save\/directory",
+        "Description": "The base directory where files are saved.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "\/save\/fileformat": {
+        "Node": "\/save\/fileformat",
+        "Description": "The format of the file for saving data.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"mat\": MATLAB",
+            "1": "\"csv\": CSV",
+            "2": "\"zview\": ZView (Impedance data only)",
+            "3": "\"sxm\": SXM (Image format)",
+            "4": "\"hdf5\": HDF5"
+        }
+    },
+    "\/save\/filename": {
+        "Node": "\/save\/filename",
+        "Description": "Defines the sub-directory where files are saved. The actual sub-directory has this name with a sequence count (per save) appended, e.g. daq_000.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "\/save\/save": {
+        "Node": "\/save\/save",
+        "Description": "Initiate the saving of data to file. The saving is done in the background. When the save has finished, the module resets this parameter to 0.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "\/save\/saveonread": {
+        "Node": "\/save\/saveonread",
+        "Description": "Automatically save the data to file immediately before reading out the data from the module using the read() command. Set this parameter to 1 if you want to save data to file when running the module continuously and performing intermediate reads.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "\/scan": {
+        "Node": "\/scan",
+        "Description": "Selects the scanning type.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"sequential\": Sequential (incremental scanning from start to stop value)",
+            "1": "\"binary\": Binary (Non-sequential sweep continues increase of resolution over entire range)",
+            "2": "\"bidirectional\": Bidirectional (Sequential sweep from Start to Stop value and back to Start again)",
+            "3": "\"reverse\": Reverse (reverse sequential scanning from stop to start value)"
+        }
+    },
+    "\/settling\/inaccuracy": {
+        "Node": "\/settling\/inaccuracy",
+        "Description": "Demodulator filter settling inaccuracy defining the wait time between a sweep parameter change and recording of the next sweep point. The settling time is calculated as the time required to attain the specified remaining proportion [1e-13, 0.1] of an incoming step function. Typical inaccuracy values: 10m for highest sweep speed for large signals, 100u for precise amplitude measurements, 100n for precise noise measurements. Depending on the order of the demodulator filter the settling inaccuracy will define the number of filter time constants the sweeper has to wait. The maximum between this value and the settling time is taken as wait time until the next sweep point is recorded. See programming manual for the relationship between sweep\/settling\/inaccuracy and sweep\/settling\/tc.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "\/settling\/tc": {
+        "Node": "\/settling\/tc",
+        "Description": "Minimum wait time in factors of the time constant (TC) between setting the new sweep parameter value and the start of the measurement. This filter settling time is preferably configured via the sweep\/settling\/inaccuracy. The maximum between this value and sweep\/settling\/time is taken as effective settling time.",
+        "Properties": "Read, Write",
+        "Unit": "TC",
+        "Type": "Double"
+    },
+    "\/settling\/time": {
+        "Node": "\/settling\/time",
+        "Description": "Minimum wait time in seconds between setting the new sweep parameter value and the start of the measurement. The maximum between this value and sweep\/settling\/tc is taken as effective settling time.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "\/sincfilter": {
+        "Node": "\/sincfilter",
+        "Description": "Enables the sinc filter if the sweep frequency is below 50 Hz. This will improve the sweep speed at low frequencies as omega components do not need to be suppressed by the normal low pass filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "\/start": {
+        "Node": "\/start",
+        "Description": "The start value of the sweep parameter.",
+        "Properties": "Read, Write",
+        "Unit": "Many",
+        "Type": "Double"
+    },
+    "\/stop": {
+        "Node": "\/stop",
+        "Description": "The stop value of the sweep parameter.",
+        "Properties": "Read, Write",
+        "Unit": "Many",
+        "Type": "Double"
+    },
+    "\/xmapping": {
+        "Node": "\/xmapping",
+        "Description": "Selects the spacing of the grid used by sweep\/gridnode (the sweep parameter).",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"linear\": Linear",
+            "1": "\"log\": Logarithmic distribution of sweep parameter values"
+        }
+    }
+}

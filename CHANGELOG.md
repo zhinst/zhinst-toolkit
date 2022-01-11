@@ -1,5 +1,16 @@
 # zhinst-toolkit Changelog
 
+
+## Version 0.3
+* **Redesign and complete refactoring of zhinst-toolkit**
+  * Lazy node tree to improve setup times
+  * Switch to session based approach (no longer device based)
+  * Command table handling improved
+  * Waveform handling improved
+  * Removed automated sequencer code generation
+  * Added LabOne modules
+* Improved testing with mocking
+
 ## Version 0.2.4
 * Adapt modulation frequence range to +-1GHz
   (shfsg.sgchannels[i].modulation_freq, shfqa.qachannels[i].sweeper.oscillator_freq)

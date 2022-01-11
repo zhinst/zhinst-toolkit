@@ -7,3 +7,5 @@ About
   :width: 200
   :target: https://www.zhinst.com
 
+
+.. literalinclude:: ../../../AUTHORS

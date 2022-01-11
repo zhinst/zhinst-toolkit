@@ -1,0 +1,405 @@
+{
+    "/awgcontrol": {
+        "Node": "/awgcontrol",
+        "Description": "Enable interaction with the AWG. If enabled, the row number is identified based on the digital row ID number set by the AWG. If disabled, every new trigger event is attributed to a new row sequentially.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/bandwidth": {
+        "Node": "/bandwidth",
+        "Description": "Set to a value other than 0 in order to apply a low-pass filter with the specified bandwidth to the triggernode signal before applying the trigger criteria. For edge and pulse trigger use a bandwidth larger than the trigger signal's sampling rate divided by 20 to keep the phase delay. For tracking filter use a bandwidth smaller than the trigger signal's sampling rate divided by 100 to track slow signal components like drifts. The value of the filtered signal is returned by read() under the path /DEV..../TRIGGER/LOWPASS.",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/bitmask": {
+        "Node": "/bitmask",
+        "Description": "Specify a bit mask for the DIO trigger value. The trigger value is bits AND bit mask (bitwise). Only used when the trigger type is digital.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/bits": {
+        "Node": "/bits",
+        "Description": "Specify the value of the DIO to trigger on. All specified bits have to be set in order to trigger. Only used when the trigger type is digital.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/buffercount": {
+        "Node": "/buffercount",
+        "Description": "The number of buffers used internally by the module for data recording.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/buffersize": {
+        "Node": "/buffersize",
+        "Description": "The buffersize of the module's internal data buffers.",
+        "Properties": "Read",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/clearhistory": {
+        "Node": "/clearhistory",
+        "Description": "Set to 1 to clear all the acquired data from the module. The module immediately resets clearhistory to 0 after it has been set to 1.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/count": {
+        "Node": "/count",
+        "Description": "The number of trigger events to acquire in single-shot mode (when endless is set to 0).",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/delay": {
+        "Node": "/delay",
+        "Description": "Time delay of trigger frame position (left side) relative to the trigger edge. delay=0: Trigger edge at left border; delay<0: trigger edge inside trigger frame (pretrigger); delay>0: trigger edge before trigger frame (posttrigger)",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/device": {
+        "Node": "/device",
+        "Description": "The device serial to be used with the Data Acquisition Module, e.g. dev123 (compulsory parameter).",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/duration": {
+        "Node": "/duration",
+        "Description": "The recording length of each trigger event. This is an input parameter when the sampling mode (grid/mode) is either nearest or linear interpolation. In exact sampling mode duration is an output parameter; it is calculated and set by the module based on the value of grid/cols and the highest rate of all the subscribed signal paths.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/edge": {
+        "Node": "/edge",
+        "Description": "The trigger edge to trigger upon when running a triggered acquisition mode.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "1": "\"rising\": Rising edge",
+            "2": "\"falling\": Falling edge",
+            "3": "\"both\": Both rising and falling"
+        }
+    },
+    "/enable": {
+        "Node": "/enable",
+        "Description": "Set to 1 to enable the module and start data acquisition (is equivalent to calling execute()).",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/endless": {
+        "Node": "/endless",
+        "Description": "Set to 1 to enable endless triggering. Set to 0 and use count if the module should only acquire a certain number of trigger events.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/eventcount/mode": {
+        "Node": "/eventcount/mode",
+        "Description": "Specifies the trigger mode when the triggernode is configured as a pulse counter sample value (/DEV..../CNTS/0/SAMPLE.value).",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"every_sample\": Trigger on every sample from the pulse counter, regardless of the counter value.",
+            "1": "\"incrementing_counter\": Trigger on incrementing counter values."
+        }
+    },
+    "/fft/absolute": {
+        "Node": "/fft/absolute",
+        "Description": "Set to 1 to shift the frequencies in the FFT result so that the center frequency becomes the demodulation frequency rather than 0 Hz (when disabled).",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/fft/window": {
+        "Node": "/fft/window",
+        "Description": "The FFT window function to use (default 1 = Hann). Depending on the application, it makes a huge difference which of the provided window functions is used. Please check the literature to find out the best trade off for your needs.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"rectangular\": Rectangular",
+            "1": "\"hann\": Hann",
+            "2": "\"hamming\": Hamming",
+            "3": "\"blackman_harris\": Blackman Harris 4 term",
+            "16": "\"exponential\": Exponential (ring-down)",
+            "17": "\"cos\": Cosine (ring-down)",
+            "18": "\"cos_squared\": Cosine squared (ring-down)"
+        }
+    },
+    "/findlevel": {
+        "Node": "/findlevel",
+        "Description": "Set to 1 to automatically find appropriate values of the trigger level and hysteresis based on the current triggernode signal value. The module sets findlevel to 0 once the values have been found and set.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/flags": {
+        "Node": "/flags",
+        "Description": "Record flags. FILL = 0x1: always enabled; ALIGN = 0x2: always enabled; THROW = 0x4: Throw if sample loss is detected; DETECT = 0x8: always enabled.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/forcetrigger": {
+        "Node": "/forcetrigger",
+        "Description": "Set to 1 to force acquisition of a single trigger for all subscribed signal paths (when running in a triggered acquisition mode). The module immediately resets forcetrigger to 0 after it has been set to 1.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/grid/cols": {
+        "Node": "/grid/cols",
+        "Description": "Specify the number of columns in the returned data grid (matrix). The data along the horizontal axis is resampled to the number of samples defined by grid/cols. The grid/mode parameter specifies how the data is sample onto the time, respectively frequency, grid.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/grid/direction": {
+        "Node": "/grid/direction",
+        "Description": "The direction to organize data in the grid's matrix.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"forward\": Forward. The data in each row is ordered chronologically, e.g., the first data point in each row corresponds to the first timestamp in the trigger data.",
+            "1": "\"reverse\": Reverse. The data in each row is in reverse chronological order, e.g., the first data point in each row corresponds to the last timestamp in the trigger data.",
+            "2": "\"bidirectional\": Bidirectional. The ordering of the data alternates between Forward and Backward ordering from row-to-row. The first row is Forward ordered."
+        }
+    },
+    "/grid/mode": {
+        "Node": "/grid/mode",
+        "Description": "Specify how the acquired data is sampled onto the matrix's horizontal axis (time or frequency). Each trigger event becomes a row in the matrix and each trigger event's subscribed data is sampled onto the grid defined by the number of columns (grid/cols) and resampled as specified with this parameter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "1": "\"nearest\": Use the closest data point (nearest neighbour interpolation).",
+            "2": "\"linear\": Use linear interpolation.",
+            "4": "Do not resample the data from the subscribed signal path(s) with the highest sampling rate; the horizontal axis data points are determined from the sampling rate and the value of grid/cols. Subscribed signals with a lower sampling rate are upsampled onto this grid using linear interpolation."
+        }
+    },
+    "/grid/overwrite": {
+        "Node": "/grid/overwrite",
+        "Description": "If enabled, the module will return only one data chunk (grid) when it is running, which will then be overwritten by subsequent trigger events.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/grid/repetitions": {
+        "Node": "/grid/repetitions",
+        "Description": "Number of statistical operations performed per grid. Only applied when the subscribed signal path is, for example, an average or a standard deviation.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/grid/rowrepetition": {
+        "Node": "/grid/rowrepetition",
+        "Description": "Enable row-wise repetition. With row-wise repetition, each row is calculated from successive repetitions before starting the next row. With grid-wise repetition, the entire grid is calculated with each repetition.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/grid/rows": {
+        "Node": "/grid/rows",
+        "Description": "Specify the number of rows in the grid's matrix. Each row is the data recorded from one trigger event.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/grid/waterfall": {
+        "Node": "/grid/waterfall",
+        "Description": "Set to 1 to enable waterfall mode: Move the data upwards upon each trigger event; the data from newest trigger event is placed in row 0.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/historylength": {
+        "Node": "/historylength",
+        "Description": "Sets an upper limit for the number of data captures stored in the module.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/holdoff/count": {
+        "Node": "/holdoff/count",
+        "Description": "The number of skipped trigger events until the next trigger event is acquired.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/holdoff/time": {
+        "Node": "/holdoff/time",
+        "Description": "The hold-off time before trigger acquisition is re-armed again. A hold-off time smaller than the duration will produce overlapped trigger frames.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/hysteresis": {
+        "Node": "/hysteresis",
+        "Description": "If non-zero, hysteresis specifies an additional trigger criteria to level in the trigger condition. The trigger signal must first go higher, respectively lower, than the hysteresis value and then the trigger level for positive, respectively negative edge triggers. The hysteresis value is applied below the trigger level for positive trigger edge selection. It is applied above for negative trigger edge selection, and on both sides for triggering on both edges. A non-zero hysteresis value is helpful to trigger on the correct edge in the presence of noise to avoid false positives.",
+        "Properties": "Read, Write",
+        "Unit": "Many",
+        "Type": "Double"
+    },
+    "/level": {
+        "Node": "/level",
+        "Description": "The trigger level value.",
+        "Properties": "Read, Write",
+        "Unit": "Many",
+        "Type": "Double"
+    },
+    "/preview": {
+        "Node": "/preview",
+        "Description": "If set to 1, enable the data of an incomplete trigger to be read. Useful for long trigger durations (or FFTs) by providing access to the intermediate data.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/pulse/max": {
+        "Node": "/pulse/max",
+        "Description": "The maximum pulse width to trigger on when using a pulse trigger.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/pulse/min": {
+        "Node": "/pulse/min",
+        "Description": "The minimum pulse width to trigger on when using a pulse trigger.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/refreshrate": {
+        "Node": "/refreshrate",
+        "Description": "Set the maximum refresh rate of updated data in the returned grid. The actual refresh rate depends on other factors such as the hold-off time and duration.",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/save/csvlocale": {
+        "Node": "/save/csvlocale",
+        "Description": "The locale to use for the decimal point character and digit grouping character for numerical values in CSV files: \"C\": Dot for the decimal point and no digit grouping (default); \"\" (empty string): Use the symbols set in the language and region settings of the computer.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/save/csvseparator": {
+        "Node": "/save/csvseparator",
+        "Description": "The character to use as CSV separator when saving files in this format.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/save/directory": {
+        "Node": "/save/directory",
+        "Description": "The base directory where files are saved.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/save/fileformat": {
+        "Node": "/save/fileformat",
+        "Description": "The format of the file for saving data.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"mat\": Matlab",
+            "1": "\"csv\": CSV",
+            "2": "\"zview\": ZView (Impedance data only)",
+            "3": "\"sxm\": SXM (Image format)",
+            "4": "\"hdf5\": HDF5"
+        }
+    },
+    "/save/filename": {
+        "Node": "/save/filename",
+        "Description": "Defines the sub-directory where files are saved. The actual sub-directory has this name with a sequence count (per save) appended, e.g. daq_000.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/save/save": {
+        "Node": "/save/save",
+        "Description": "Initiate the saving of data to file. The saving is done in the background. When the save has finished, the module resets this parameter to 0.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/save/saveonread": {
+        "Node": "/save/saveonread",
+        "Description": "Automatically save the data to file immediately before reading out the data from the module using the read() command. Set this parameter to 1 if you want to save data to file when running the module continuously and performing intermediate reads.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/spectrum/autobandwidth": {
+        "Node": "/spectrum/autobandwidth",
+        "Description": "Set to 1 to initiate automatic adjustment of the subscribed demodulator bandwidths to obtain optimal alias rejection for the selected frequency span which is equivalent to the sampling rate. The FFT mode has to be enabled (spectrum/enable) and the module has to be running for this function to take effect. The module resets spectrum/autobandwidth to 0 when the adjustment has finished.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/spectrum/enable": {
+        "Node": "/spectrum/enable",
+        "Description": "Enables the FFT mode of the data Acquisition module, in addition to time domain data acquisition. Note that when the FFT mode is enabled, the grid/cols parameter value is rounded down to the nearest binary power.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/spectrum/frequencyspan": {
+        "Node": "/spectrum/frequencyspan",
+        "Description": "Sets the desired frequency span of the FFT.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/spectrum/overlapped": {
+        "Node": "/spectrum/overlapped",
+        "Description": "Enables overlapping FFTs. If disabled (0), FFTs are performed on distinct abutting data sets. If enabled, the data sets of successive FFTs overlap based on the defined refresh rate.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/triggered": {
+        "Node": "/triggered",
+        "Description": "Indicates whether the module has recently triggered: 1=Yes, 0=No.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/triggernode": {
+        "Node": "/triggernode",
+        "Description": "The node path and signal that should be used for triggering, the node path and signal should be separated by a dot (.), e.g. /DEV.../DEMODS/0/SAMPLE.X.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/type": {
+        "Node": "/type",
+        "Description": "Specifies how the module acquires data.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"continuous\": Continuous acquisition (trigger off).",
+            "1": "\"analog_edge_trigger\": Analog edge trigger.",
+            "2": "\"digital_trigger\": Digital trigger mode (on DIO source).",
+            "3": "\"analog_pulse_trigger\": Analog pulse trigger.",
+            "4": "\"analog_tracking_trigger\": Analog tracking trigger.",
+            "5": "\"change_trigger\": Change trigger.",
+            "6": "\"hardware_trigger\": Hardware trigger (on trigger line source).",
+            "7": "\"pulse_tracking_trigger\": Pulse tracking trigger, see also bandwidth.",
+            "8": "\"event_count_trigger\": Event count trigger (on pulse counter source)."
+        }
+    }
+}

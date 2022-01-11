@@ -1,0 +1,15 @@
+{
+    "/zi/about/version": {
+        "Description": "The version of this program.",
+        "Properties": "Read",
+        "Type": "String",
+        "Node": "/ZI/ABOUT/VERSION"
+    },
+    "/devxxxx/stats/n/temp": {
+        "Description": "Actual temperature.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Degrees Celsius",
+        "Node": "/DEVXXXX/STATS/n/TEMP"
+    }
+}
