@@ -37,7 +37,7 @@ from lmfit import Model
 from zhinst.toolkit import Session
 
 session = Session('localhost')
-device = session.connect_device("devxxxx")
+device = session.connect_device("DEVXXXX")
 ```
 
 ### Generate signals

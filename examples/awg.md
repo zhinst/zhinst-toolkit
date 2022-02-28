@@ -29,16 +29,16 @@ LabOne provides the AWG module to compile and upload a sequencer program to the
 device. In zhinst-toolkit this module is also available. In addition the devices
 with AWG support also have helper function directly implemented in the node tree.
 
-The functionality explained in the follwoing example are valid for all devices
+The functionality explained in the following example are valid for all devices
 and are available behind the ``/awg`` node.
 
-Connect devices and acces the ``/awg`` node.
+Connect devices and access the ``/awg`` node.
 
 ```python
 from zhinst.toolkit import Session
 
 session = Session('localhost')
-device = session.connect_device("DEV8052")
+device = session.connect_device("DEVXXXX")
 awg_node = device.awgs[0]
 ```
 

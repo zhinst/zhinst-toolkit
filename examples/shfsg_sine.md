@@ -25,7 +25,7 @@ Requirements:
 from zhinst.toolkit import Session
 
 session = Session('localhost')
-device = session.connect_device("dev12050")
+device = session.connect_device("DEVXXXX")
 ```
 
 ### Configure center frequency and RF output

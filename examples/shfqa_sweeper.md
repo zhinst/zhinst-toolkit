@@ -27,7 +27,7 @@ Create a toolkit session to the data server and connect the device:
 from zhinst.toolkit import Session
 
 session = Session('localhost')
-device = session.connect_device("dev12036")
+device = session.connect_device("DEVXXXX")
 sweeper = session.modules.shfqa_sweeper
 CHANNEL = 0
 ```
@@ -175,4 +175,8 @@ print(f"Measured at {num_points_result} frequency points.")
 
 ```python
 sweeper.plot()
+```
+
+```python
+
 ```

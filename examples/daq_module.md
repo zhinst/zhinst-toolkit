@@ -36,7 +36,7 @@ from zhinst.toolkit import Session
 import numpy as np
 
 session = Session('localhost')
-device = session.connect_device("devxxxx")
+device = session.connect_device("dev3036")
 ```
 
 ### General configuration

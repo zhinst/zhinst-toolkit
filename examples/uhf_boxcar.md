@@ -32,8 +32,8 @@ import time
 import numpy as np
 from zhinst.toolkit import Session, PollFlags
 
-session = Session('localhost')
-device = session.connect_device("devxxxx")
+session = Session("localhost")
+device = session.connect_device("DEVXXX")
 ```
 
 ### Instrument configuration

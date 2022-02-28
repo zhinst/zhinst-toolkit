@@ -35,7 +35,7 @@ Requirements:
 from zhinst.toolkit import Session
 
 session = Session('localhost')
-device = session.connect_device("devxxxx")
+device = session.connect_device("DEVXXXX")
 ```
 
 ```python
@@ -75,8 +75,7 @@ device.sigins[SIGNAL_INPUT].autorange(1)
 # The auto ranging takes some time. We do not want to continue before the
 # best range is found. Therefore, we wait for state to change to 0.
 # These nodes maintain value 1 until autoranging has finished.
-if not device.sigins[SIGNAL_INPUT].autorange.wait_for_state_change(0, timeout=20):
-    raise TimeoutError('Autoranging did not finish within timeout limit.')
+device.sigins[SIGNAL_INPUT].autorange.wait_for_state_change(0, timeout=20)
 ```
 
 ### Configuring the scope
@@ -305,4 +304,8 @@ axis.grid(True)
 axis.set_ylabel("Amplitude [V]")
 axis.autoscale(enable=True, axis="x", tight=True)
 plt.show()
+```
+
+```python
+
 ```

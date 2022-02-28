@@ -28,7 +28,7 @@ Requirements:
 from zhinst.toolkit import Session, SHFQAChannelMode, Waveforms
 
 session = Session("localhost")
-device = session.connect_device("DEV12019")
+device = session.connect_device("DEVXXXX")
 ```
 
 ### Configure channel inputs and outputs
@@ -172,4 +172,8 @@ plt.xlabel("real part")
 plt.ylabel("imaginary part")
 plt.grid()
 plt.show()
+```
+
+```python
+
 ```

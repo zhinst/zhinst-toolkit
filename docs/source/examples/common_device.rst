@@ -11,9 +11,9 @@ toolkit.
     from zhinst.toolkit import Session
 
     >>> session = Session('localhost')
-    >>> device = session.connect_device("DEV3036")
+    >>> device = session.connect_device("DEVXXXX")
     >>> device.serial
-    "DEV3036"
+    "DEVXXXX"
     >>> device.device_type
     "MFLI"
 

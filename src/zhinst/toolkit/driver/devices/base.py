@@ -14,10 +14,7 @@ from pathlib import Path
 
 from zhinst.ziPython import __version__ as zhinst_version_str
 
-try:
-    from zhinst.deviceutils._version import version as deviceutils_version_str
-except ImportError:
-    deviceutils_version_str = "0.0.1"  # TODO remove once device utils are deployed
+from zhinst.deviceutils._version import version as deviceutils_version_str
 from zhinst.toolkit._min_version import _MIN_DEVICE_UTILS_VERSION, _MIN_LABONE_VERSION
 from zhinst.toolkit.driver.parsers import node_parser
 from zhinst.toolkit.nodetree import Node, NodeTree

@@ -26,7 +26,7 @@ Requirements:
 from zhinst.toolkit import Session
 
 session = Session('localhost')
-device = session.connect_device("dev12312")
+device = session.connect_device("DEVXXXX")
 ```
 
 ### Rabi Sequence parameter configuration

@@ -31,7 +31,7 @@ with other devices.
 ```python
 from zhinst.toolkit import Session
 
-session = Session("10.42.0.92", hf2=True)
+session = Session("localhost", hf2=True)
 ```
 
 The flag ``hf2`` indicates that the session should be established with the HF2
@@ -45,7 +45,7 @@ data server.
 > for the other devices.
 
 ```python
-device = session.connect_device("DEV81")
+device = session.connect_device("DEVXXXX")
 ```
 
 The created device object has the same functionality than all other device and
@@ -57,7 +57,7 @@ list(device.child_nodes())
 ```
 
 ```python
-device.demods[0].enable(0)
+device.demods[0].enable(1)
 device.demods[0].enable()
 ```
 
@@ -249,4 +249,8 @@ plt.show()
 
 ```python
 pid_advisor.todevice(1)
+```
+
+```python
+
 ```

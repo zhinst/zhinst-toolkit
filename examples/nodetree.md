@@ -48,7 +48,7 @@ simpler to write.
 from zhinst.toolkit import Session
 
 session = Session("localhost")
-device = session.connect_device("dev3036")
+device = session.connect_device("DEVXXXX")
 device.root
 ```
 
