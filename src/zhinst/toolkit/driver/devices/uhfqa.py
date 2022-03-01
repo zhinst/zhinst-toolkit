@@ -81,13 +81,14 @@ class UHFQA(BaseInstrument):
             Use ``factory_reset`` to reset the changes if necessary
         """
         with create_or_append_set_transaction(self._root):
+            # Use external 10 MHz clock as reference
             self.system.extclk("external")
-            # Configure DIO settings to factory default values
-            # Clock DIO internally with a frequency of 56.25 MHz
+            # Configure DIO to be used in a QCCS
+            # Clock DIO internally with a frequency of 50 MHz
             self.dios[0].extclk("internal")
-            # Enable manual control of the DIO output bits
+            # Set DIO output values to QA results compatible with QCCS
             self.dios[0].mode("qa_result_qccs")
-            # Disable drive for all DIO bits
+            # Drive the two least significant bytes of the DIO port
             self.dios[0].drive(0b0011)
 
     @lazy_property
