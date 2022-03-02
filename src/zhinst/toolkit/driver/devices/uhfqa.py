@@ -66,6 +66,48 @@ class QAS(Node):
                 for c in range(cols):
                     self.crosstalk.rows[r].cols[c](matrix[r, c])
 
+    def adjusted_delay(self, value: int = None) -> int:
+        """Set or get the adjustment in the quantum analyzer delay.
+
+        Adjusts the delay that defines the time at which the integration starts
+        in relation to the trigger signal of the weighted integration units.
+
+        Depending if the deskew matrix is bypassed there exists a different
+        default delay. This function can be used to add an additional delay to
+        the default delay.
+
+        Args:
+            value: Number of additional samples to adjust the delay. If not
+                specified this function will just return the additional delay
+                currently set.
+
+        Returns:
+            The adjustment in delay in units of samples.
+
+        Raises:
+            ValueError: If the adjusted quantum analyzer delay is outside the
+                allowed range of 1021 samples.
+
+        """
+        # The default delay value is defined by wether the deskew matrix is
+        # bypassed or not.
+        default_delay = 184 if self.bypass.deskew() else 200
+        if value is None:
+            return self.delay() - default_delay
+        # Round down to greatest multiple of 4, as in LabOne.
+        qa_delay_user = int(value // 4) * 4
+        # Calculate final value of adjusted QA delay.
+        qa_delay_adjusted = qa_delay_user + default_delay
+        # Check if final delay is between 0 and 1020.
+        if qa_delay_adjusted not in range(0, 1021):
+            raise ValueError(
+                "The quantum analyzer delay is out of range (0 <= "
+                f"{qa_delay_user} + {default_delay} <= 1021)"
+            )
+        # Write the adjusted delay value to the node.
+        self.delay(qa_delay_adjusted)
+        return qa_delay_user
+
 
 class UHFQA(UHFLI):
     """High-level driver for the Zurich Instruments UHFQA."""
