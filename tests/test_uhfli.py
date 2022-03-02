@@ -26,6 +26,7 @@ def test_awg(data_dir, mock_connection, uhfli):
     mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
         nodes_json
     )
+    mock_connection.return_value.getString.return_value = 'AWG,FOOBAR'
     assert len(uhfli.awgs) == 1
     assert isinstance(uhfli.awgs[0], AWG)
     # Wildcards nodes will be converted into normal Nodes
@@ -34,3 +35,15 @@ def test_awg(data_dir, mock_connection, uhfli):
 
     # test command table
     assert not uhfli.awgs[0].commandtable
+
+
+def test_awg_option_not_found(data_dir, mock_connection, uhfli):
+    json_path = data_dir / "nodedoc_awg_test.json"
+    with json_path.open("r", encoding="UTF-8") as file:
+        nodes_json = file.read()
+    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
+        nodes_json
+    )
+    mock_connection.return_value.getString.return_value = 'FOOBAR'
+    assert len(uhfli.awgs) == 1
+    assert isinstance(uhfli.awgs[0], Node)

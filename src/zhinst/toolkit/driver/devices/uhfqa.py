@@ -1,17 +1,16 @@
 """UHFQA Instrument Driver."""
 
 import typing as t
-
 import numpy as np
 
-from zhinst.toolkit.driver.devices.base import BaseInstrument
-from zhinst.toolkit.driver.nodes.awg import AWG
+from zhinst.toolkit.driver.devices import UHFLI
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import (
     create_or_append_set_transaction,
     lazy_property,
 )
 from zhinst.toolkit.nodetree.node import NodeList
+
 
 Numpy2DArray = t.TypeVar("Numpy2DArray")
 
@@ -68,7 +67,7 @@ class QAS(Node):
                     self.crosstalk.rows[r].cols[c](matrix[r, c])
 
 
-class UHFQA(BaseInstrument):
+class UHFQA(UHFLI):
     """High-level driver for the Zurich Instruments UHFQA."""
 
     def enable_qccs_mode(self) -> None:
@@ -101,24 +100,4 @@ class UHFQA(BaseInstrument):
             ],
             self._root,
             self._tree + ("qas",),
-        )
-
-    @lazy_property
-    def awgs(self) -> t.Sequence[AWG]:
-        """A Sequence of AWG Cores"""
-        return NodeList(
-            [
-                AWG(
-                    self.root,
-                    self._tree + ("awgs", str(i)),
-                    self._session.modules.awg,
-                    self._session.daq_server,
-                    self.serial,
-                    i,
-                    self.device_type,
-                )
-                for i in range(len(self["awgs"]))
-            ],
-            self._root,
-            self._tree + ("awgs",),
         )
