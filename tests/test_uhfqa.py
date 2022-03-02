@@ -21,12 +21,14 @@ def uhfqa(data_dir, mock_connection, session):
 def test_repr(uhfqa):
     assert repr(uhfqa) == "UHFQA(UHFQA,DEV1234)"
 
+
 def test_qas(uhfqa):
     assert len(uhfqa.qas) == 1
     assert isinstance(uhfqa.qas[0], QAS)
     # Wildcards nodes will be converted into normal Nodes
     assert not isinstance(uhfqa.qas["*"], QAS)
     assert isinstance(uhfqa.qas["*"], Node)
+
 
 def test_enable_qccs_mode(mock_connection, uhfqa):
     uhfqa.enable_qccs_mode()
@@ -49,6 +51,51 @@ def test_enable_qccs_mode(mock_connection, uhfqa):
             ("/dev1234/dios/0/drive", 3),
         ]
     )
+
+
+def test_adjusted_delay(uhfqa, mock_connection):
+
+    default_delay = 0
+    bypass_deskew = 0
+
+    def get_int_side_effect(node):
+        if "/dev1234/qas/0/delay" in node:
+            return default_delay
+        if "/dev1234/qas/0/bypass/deskew" in node:
+            return bypass_deskew
+        raise RuntimeError("Node not found")
+
+    mock_connection.return_value.getInt.side_effect = get_int_side_effect
+
+    # get value
+    default_delay = 200
+    assert uhfqa.qas[0].adjusted_delay() == 0
+    default_delay = 300
+    assert uhfqa.qas[0].adjusted_delay() == 100
+    bypass_deskew = 1
+    default_delay = 200
+    assert uhfqa.qas[0].adjusted_delay() == 16
+    default_delay = 300
+    assert uhfqa.qas[0].adjusted_delay() == 116
+
+    # set value
+    bypass_deskew = 0
+    assert uhfqa.qas[0].adjusted_delay(400) == 400
+    mock_connection.return_value.set.assert_called_with(
+        f"/dev1234/qas/0/delay", 600
+    )
+    bypass_deskew = 1
+    assert uhfqa.qas[0].adjusted_delay(400) == 400
+    mock_connection.return_value.set.assert_called_with(
+        f"/dev1234/qas/0/delay", 584
+    )
+
+    with pytest.raises(ValueError):
+        uhfqa.qas[0].adjusted_delay(-185)
+
+    with pytest.raises(ValueError):
+        uhfqa.qas[0].adjusted_delay(1025-185)
+
 
 def test_qas_crosstalk_matrix(uhfqa, mock_connection):
 
