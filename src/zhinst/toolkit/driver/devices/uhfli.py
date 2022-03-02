@@ -6,7 +6,8 @@ import typing as t
 from zhinst.toolkit.driver.devices.base import BaseInstrument
 from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.nodetree.helper import lazy_property
-from zhinst.toolkit.nodetree.node import NodeList
+from zhinst.toolkit.nodetree.node import NodeList, Node
+
 
 logger = logging.getLogger(__name__)
 
@@ -15,10 +16,14 @@ class UHFLI(BaseInstrument):
     """High-level driver for the Zurich Instruments UHFLI."""
 
     @lazy_property
-    def awgs(self) -> t.Sequence[AWG]:
-        """A Sequence of AWG Cores"""
+    def awgs(self) -> t.Union[t.Sequence[AWG], Node]:
+        """A Sequence of AWG Cores.
+
+        Device options requirement(s): AWG
+        """
         if "AWG" not in self.features.options():
-            logger.error("The AWG option is not installed.")
+            logger.error("Missing option: AWG")
+            return Node(self._root, self._tree + ("awgs",),)
         return NodeList(
             [
                 AWG(

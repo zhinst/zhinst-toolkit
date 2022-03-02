@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
 
-from zhinst.toolkit.driver.devices.uhfqa import AWG, QAS, UHFQA
+from zhinst.toolkit.driver.devices.uhfqa import QAS, UHFQA
+from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.nodetree import Node
 
 
@@ -77,6 +78,7 @@ def test_qas_crosstalk_matrix(uhfqa, mock_connection):
     with pytest.raises(ValueError):
         uhfqa.qas[0].crosstalk_matrix(matrix2)
 
+
 def test_awg(data_dir, mock_connection, uhfqa):
     json_path = data_dir / "nodedoc_awg_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -84,6 +86,7 @@ def test_awg(data_dir, mock_connection, uhfqa):
     mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
         nodes_json
     )
+    mock_connection.return_value.getString.return_value = 'AWG,FOOBAR'
     assert len(uhfqa.awgs) == 1
     assert isinstance(uhfqa.awgs[0], AWG)
     # Wildcards nodes will be converted into normal Nodes
