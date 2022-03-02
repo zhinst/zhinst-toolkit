@@ -30,7 +30,7 @@ def test_enable_qccs_mode(mock_connection, hdawg):
     hdawg.enable_qccs_mode()
     mock_connection.return_value.set.assert_called_with(
         [
-            ("/dev1234/system/clocks/referenceclock/source", "zync"),
+            ("/dev1234/system/clocks/referenceclock/source", "zsync"),
             ("/dev1234/dios/0/interface", 0),
             ("/dev1234/dios/0/mode", "qccs"),
             ("/dev1234/dios/0/drive", 12),
@@ -41,7 +41,7 @@ def test_enable_qccs_mode(mock_connection, hdawg):
         hdawg.enable_qccs_mode()
     mock_connection.return_value.set.assert_called_with(
         [
-            ("/dev1234/system/clocks/referenceclock/source", "zync"),
+            ("/dev1234/system/clocks/referenceclock/source", "zsync"),
             ("/dev1234/dios/0/interface", 0),
             ("/dev1234/dios/0/mode", "qccs"),
             ("/dev1234/dios/0/drive", 12),
