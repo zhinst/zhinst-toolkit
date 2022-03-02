@@ -24,7 +24,7 @@ class HDAWG(BaseInstrument):
         """
         with create_or_append_set_transaction(self._root):
             # Set ZSync clock to be used as reference
-            self.system.clocks.referenceclock.source("zync")
+            self.system.clocks.referenceclock.source("zsync")
             # Configure DIO
             # Set interface standard to use on the 32-bit DIO to LVCMOS
             self.dios[0].interface(0),
