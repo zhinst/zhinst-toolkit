@@ -699,7 +699,9 @@ class Node:
                 except RuntimeError:
                     # Commandtable does not support set command. (L1-744)
                     if self.node_info.type == "ZIVectorData":
-                       self._root.connection.setVector(self.node_info.path, value, **kwargs)
+                        self._root.connection.setVector(
+                            self.node_info.path, value, **kwargs
+                        )
                     else:
                         raise
             return None
@@ -811,17 +813,18 @@ class Node:
             TimeoutError: Timeout exceeded.
         """
         if self.node_info.contains_wildcards:
+            start_time = time.time()
             nodes_raw = self._resolve_wildcards()
             if not nodes_raw:
                 raise KeyError(self.node_info.path)
             for node_raw in nodes_raw:
                 node = self._root.raw_path_to_node(node_raw)
                 node.wait_for_state_change(
-                    value, invert=invert, timeout=timeout, sleep_time=sleep_time
+                    value,
+                    invert=invert,
+                    timeout=max(0, timeout - (time.time() - start_time)),
+                    sleep_time=sleep_time,
                 )
-                # After the first node has been checked the other nodes do
-                # not need to wait again
-                timeout = 0
         else:
             value = self._parse_get_value(value)
             start_time = time.time()
