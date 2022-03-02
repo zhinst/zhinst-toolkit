@@ -81,7 +81,6 @@ def test_load_sequencer_program(session, generator, mock_connection):
             "DEV1234",
             0,
             "Test",
-            awg_module=session.modules.awg.raw_module,
             timeout=10,
         )
 
@@ -91,7 +90,6 @@ def test_load_sequencer_program(session, generator, mock_connection):
             "DEV1234",
             0,
             "Test",
-            awg_module=session.modules.awg.raw_module,
             timeout=1,
         )
 
