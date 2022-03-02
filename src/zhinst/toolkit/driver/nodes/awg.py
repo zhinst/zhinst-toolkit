@@ -4,9 +4,6 @@ import logging
 import time
 import typing as t
 
-from zhinst.ziPython import ziDAQServer
-
-from zhinst.toolkit.driver.modules.base_module import BaseModule
 from zhinst.toolkit.driver.nodes.command_table_node import CommandTableNode
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import lazy_property
@@ -14,6 +11,8 @@ from zhinst.toolkit.waveform import Waveforms
 
 logger = logging.getLogger(__name__)
 
+if t.TYPE_CHECKING:
+    from zhinst.toolkit.session import Session
 
 class AWG(Node):
     """AWG node.
@@ -26,8 +25,7 @@ class AWG(Node):
     Args:
         root: Root of the nodetree
         tree: Tree (node path as tuple) of the current node
-        awg_module: Instance of the AWG Module
-        daq_server: Instance of the ziDAQServer
+        session: Underlying session.
         serial: Serial of the device.
         index: Index of the coresponding awg channel
         device_type: Device type
@@ -37,15 +35,13 @@ class AWG(Node):
         self,
         root: NodeTree,
         tree: tuple,
-        awg_module: BaseModule,
-        daq_server: ziDAQServer,
+        session: "Session",
         serial: str,
         index: int,
         device_type: str,
     ):
         Node.__init__(self, root, tree)
-        self._awg_module = awg_module
-        self._daq_server = daq_server
+        self._session = session
         self._serial = serial
         self._index = index
         self._device_type = device_type
@@ -74,7 +70,7 @@ class AWG(Node):
 
         Raises:
             RuntimeError: If continuous mode is enabled
-            TimeoutError: If the sequencer program did not finish within 
+            TimeoutError: If the sequencer program did not finish within
                 the specified timeout time
         """
         if not self.single():
@@ -104,7 +100,7 @@ class AWG(Node):
             TimeoutError: If the upload or compilation times out.
             RuntimeError: If the upload or compilation failed.
         """
-        awg = self._awg_module
+        awg = self._session.modules.create_awg_module()
         raw_awg = awg.raw_module
         awg.device(self._serial)
         awg.index(self._index)
@@ -200,7 +196,7 @@ class AWG(Node):
                     ),
                 )
             )
-        self._daq_server.set(commands)
+        self._session.daq_server.set(commands)
 
     def read_from_waveform_memory(self, indexes: t.List[int] = None) -> Waveforms:
         """Read waveforms to the waveform memory.
@@ -220,7 +216,7 @@ class AWG(Node):
         else:
             nodes.append(self.waveform.node_info.path + "/waves/*")
         nodes = ",".join(nodes)
-        waveforms_raw = self._daq_server.get(nodes, settingsonly=False, flat=True)
+        waveforms_raw = self._session.daq_server.get(nodes, settingsonly=False, flat=True)
         waveforms = Waveforms()
         for node, waveform in waveforms_raw.items():
             slot = int(node[-1])

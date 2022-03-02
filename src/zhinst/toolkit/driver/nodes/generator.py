@@ -27,7 +27,6 @@ class Generator(Node):
     Args:
         root: Root of the nodetree
         tree: Tree (node path as tuple) of the current node
-        awg_module: Instance of the AWG Module
         daq_server: Instance of the ziDAQServer
         serial: Serial of the device.
         index: Index of the coresponding awg channel
@@ -38,14 +37,12 @@ class Generator(Node):
         self,
         root: NodeTree,
         tree: tuple,
-        awg_module: BaseModule,
         daq_server: ziDAQServer,
         serial: str,
         index: int,
         max_qubits_per_channel: int,
     ):
         super().__init__(root, tree)
-        self._awg_module = awg_module
         self._daq_server = daq_server
         self._serial = serial
         self._index = index
@@ -111,7 +108,6 @@ class Generator(Node):
             self._serial,
             self._index,
             sequencer_program,
-            awg_module=self._awg_module.raw_module,
             timeout=timeout,
         )
 

@@ -80,7 +80,6 @@ class QAChannel(Node):
         return Generator(
             self._root,
             self._tree + ("generator",),
-            self._session.modules.awg,
             self._session.daq_server,
             self._device.serial,
             self._index,

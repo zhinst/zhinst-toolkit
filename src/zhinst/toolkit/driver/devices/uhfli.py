@@ -29,8 +29,7 @@ class UHFLI(BaseInstrument):
                 AWG(
                     self.root,
                     self._tree + ("awgs", str(i)),
-                    self._session.modules.awg,
-                    self._session.daq_server,
+                    self._session,
                     self.serial,
                     i,
                     self.device_type,
