@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from itertools import cycle
+from socket import timeout
 
 import numpy as np
 import pytest
@@ -154,85 +155,37 @@ def test_check_zsync_connection(mock_connection, pqsc):
 
     status0 = 0
     status2 = 0
-
-    def get_side_effect(path, **kwargs):
-        if "[" in path or "?" in path:
-            raise RuntimeError("Path format invalid")
-        if "connection/status" in path and "," in path:
-            return OrderedDict(
-                [
-                    (
-                        "/dev1234/zsyncs/0/connection/status",
-                        {
-                            "timestamp": np.array([1809416561]),
-                            "value": np.array([status0]),
-                        },
-                    ),
-                    (
-                        "/dev1234/zsyncs/2/connection/status",
-                        {
-                            "timestamp": np.array([1809416561]),
-                            "value": np.array([status2]),
-                        },
-                    ),
-                ]
-            )
-        if "connection/status" in path and "0" in path:
-            return OrderedDict(
-                [
-                    (
-                        "/dev1234/zsyncs/0/connection/status",
-                        {
-                            "timestamp": np.array([1809416561]),
-                            "value": np.array([status0]),
-                        },
-                    ),
-                ]
-            )
-        if "connection/status" in path and "2" in path:
-            return OrderedDict(
-                [
-                    (
-                        "/dev1234/zsyncs/2/connection/status",
-                        {
-                            "timestamp": np.array([1809416561]),
-                            "value": np.array([status2]),
-                        },
-                    ),
-                ]
-            )
-        raise RuntimeError("Invalid Node")
+    status10 = 0
 
     def getInt_side_effect(path):
         if path == "/dev1234/zsyncs/0/connection/status":
             return status0
         if path == "/dev1234/zsyncs/2/connection/status":
             return status2
+        if path == "/dev1234/zsyncs/10/connection/status":
+            return status10
         raise RuntimeError("Invalid Node")
 
-    mock_connection.return_value.get.side_effect = get_side_effect
     mock_connection.return_value.getInt.side_effect = getInt_side_effect
 
     # not connected
-    assert False == pqsc.check_zsync_connection()
-    assert False == pqsc.check_zsync_connection(2)
-    assert [False] == pqsc.check_zsync_connection([0])
-    assert [False, False] == pqsc.check_zsync_connection([0, 2])
+    with pytest.raises(TimeoutError):
+        pqsc.check_zsync_connection(timeout=0)
+    with pytest.raises(TimeoutError):
+        pqsc.check_zsync_connection(2, timeout=0)
+    with pytest.raises(TimeoutError):
+        pqsc.check_zsync_connection([0], timeout=0)
+    with pytest.raises(TimeoutError):
+        pqsc.check_zsync_connection([0, 2], timeout=0)
 
     # one connected
     status0 = 2
     assert True == pqsc.check_zsync_connection()
-    assert False == pqsc.check_zsync_connection(2)
+    with pytest.raises(TimeoutError):
+        pqsc.check_zsync_connection(2, timeout=0)
     assert [True] == pqsc.check_zsync_connection([0])
-    assert [True, False] == pqsc.check_zsync_connection([0, 2])
-
-    # one connected the other one transfering data
-    status0 = 2
-    status2 = 4
-    assert True == pqsc.check_zsync_connection()
-    assert True == pqsc.check_zsync_connection(2)
-    assert [True] == pqsc.check_zsync_connection([0])
-    assert [True, True] == pqsc.check_zsync_connection([0, 2])
+    with pytest.raises(TimeoutError):
+        pqsc.check_zsync_connection([0, 2], timeout=0)
 
     # one connected the other one in error state
     status0 = 2
@@ -252,5 +205,11 @@ def test_check_zsync_connection(mock_connection, pqsc):
 
     with pytest.raises(TimeoutError) as e_info:
         pqsc.check_zsync_connection([0, 2], timeout=0.01)
-    assert str(e_info.value) == "Timeout while establishing ZSync " \
-        "connection to the instrument on the following ports: [2]."
+    assert "2" in str(e_info.value)
+
+    # test two decimal place value
+    status10 = 2
+    status0 = 2
+    status2 = 3
+    assert [True] == pqsc.check_zsync_connection([10])
+    assert [True, False, True] == pqsc.check_zsync_connection([0, 2, 10])

@@ -1,6 +1,7 @@
 """PQSC Instrument Driver."""
 
 import logging
+import time
 from typing import List, Union
 
 from zhinst.toolkit.driver.devices.base import BaseInstrument
@@ -132,7 +133,8 @@ class PQSC(BaseInstrument):
             )
         except TimeoutError as error:
             raise TimeoutError(
-                "Timeout during locking to reference clock signal") from error
+                "Timeout during locking to reference clock signal"
+            ) from error
         if ref_clock_status() == 0:
             return True
         if ref_clock_status() == 1 and ref_clock_actual() != ref_clock():
@@ -151,47 +153,70 @@ class PQSC(BaseInstrument):
         timeout: int = 30,
         sleep_time: int = 1,
     ) -> Union[List[bool], bool]:
+        """Check if the ZSync connection on the given port(s) is established.
+
+        This function checks the current status of the instrument connected to
+        the given ports.
+
+        Args:
+            ports: The port numbers to check the ZSync connection for.
+                It can either be a single port number given as integer or a list
+                of several port numbers. (default: 0)
+            timeout: Maximum time in seconds the program waits (default: 30).
+            sleep_time: Time in seconds to wait between requesting the reference
+                clock status (default: 1)
+
+        Raises:
+            TimeoutError: If the process of establishing a ZSync connection on
+                one of the specified ports exceeds the specified timeout.
+        """
+        ports_list = ports if isinstance(ports, list) else [ports]
+
+        start_time = time.time()
+        status = []
+        for port in ports_list:
+            status.append(
+                self._check_zsync_connection(
+                    port,
+                    timeout=max(0, timeout - (time.time() - start_time)),
+                    sleep_time=sleep_time,
+                )
+            )
+        return status if isinstance(ports, list) else status[0]
+
+    def _check_zsync_connection(
+        self, port: int, timeout: float, sleep_time: float
+    ) -> bool:
         """Check if the ZSync connection on the given port is successful.
 
         This function checks the current status of the instrument
         connected to the given port.
 
         Args:
-            ports: The port numbers to check the ZSync
-                connection for. It can either be a single port number given
-                as integer or a list of several port numbers. (default: 0)
-            timeout: Maximum time in seconds the program waits
-                (default: 30).
-            sleep_time: Time in seconds to wait between
-                requesting the reference clock status (default: 1)
+            ports: Port number to check the ZSync connection for.
+            timeout: Maximum time in seconds the program waits (default: 30).
+            sleep_time: Time in seconds to wait between requesting the status
+                (default: 1)
 
         Raises:
-            TimeoutError: If the process of establishing a TSync connection on
-                one of the specified ports exceeds the specified timeout
+            TimeoutError: If the process of establishing a ZSync connection the
+                specified port exceeds the specified timeout.
         """
-        ports_list = [ports] if type(ports) is not list else ports
-        ports_str = ",".join([str(port) for port in ports_list])
-        status = self.zsyncs[f"[{ports_str}]"].connection.status
-        # Status 0 indicates no connection => return false
-        not_connected = [value == 0 for value in status().values()]
-        ports_str_remaining = ",".join(
-            [str(port) for i, port in enumerate(ports_list) if not not_connected[i]]
-        )
-        status_remaining = self.zsyncs[f"[{ports_str_remaining}]"].connection.status
-        if ports_str_remaining:
-            try:
-                status_remaining.wait_for_state_change(
-                    1, invert=True, timeout=timeout, sleep_time=sleep_time
-                )
-            except TimeoutError as error:
-                timed_out = [value == 1 for value in status().values()]
-                _ports = []
-                if timed_out:
-                    _ports = [port for i, port in enumerate(ports_list) if timed_out[i]]
-                raise TimeoutError(
-                    "Timeout while establishing ZSync connection to the instrument "
-                    f"on the following ports: {_ports}."
-                ) from error
-        if type(ports) is not list:
-            return [value == 2 or value == 4 for value in status().values()][0]
-        return [value == 2 or value == 4 for value in status().values()]
+        status_node = self.zsyncs[port].connection.status
+        start_time = time.time()
+        try:
+            status_node.wait_for_state_change(
+                0, invert=True, timeout=timeout, sleep_time=sleep_time
+            )
+            status_node.wait_for_state_change(
+                1,
+                invert=True,
+                timeout=max(0, timeout - (time.time() - start_time)),
+                sleep_time=sleep_time,
+            )
+        except TimeoutError as error:
+            raise TimeoutError(
+                "Timeout while establishing ZSync connection to the instrument "
+                f"on the port {port}."
+            ) from error
+        return status_node() == 2
