@@ -34,7 +34,7 @@ class HDAWG(BaseInstrument):
             self.dios[0].mode("qccs")
             # Drive the two most significant bytes of the DIO port
             self.dios[0].drive(0b1100)
-            # Disable DIO triggering on the AWGs.
+            # Disable DIO triggering on the AWGs,
             # since it's not needed for ZSync messages
             self.awgs['*'].dio.strobe.slope('off')
             self.awgs['*'].dio.valid.polarity('none')
