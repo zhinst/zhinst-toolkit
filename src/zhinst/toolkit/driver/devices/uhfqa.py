@@ -131,6 +131,10 @@ class UHFQA(UHFLI):
             self.dios[0].mode("qa_result_qccs")
             # Drive the two least significant bytes of the DIO port
             self.dios[0].drive(0b0011)
+            # Set correct DIO triggering in the AWG sequencer
+            self.awgs[0].dio.strobe.slope('off')
+            self.awgs[0].dio.valid.index(16)
+            self.awgs[0].dio.valid.polarity('high')
 
     @lazy_property
     def qas(self) -> t.Sequence[QAS]:

@@ -27,13 +27,17 @@ class HDAWG(BaseInstrument):
             self.system.clocks.referenceclock.source("zsync")
             # Configure DIO
             # Set interface standard to use on the 32-bit DIO to LVCMOS
-            self.dios[0].interface(0),
+            self.dios[0].interface(0)
             # Set DIO output values to ZSync input values.
             # Forward the ZSync input values to the AWG sequencer.
             # Forward the DIO input values to the ZSync output.
-            self.dios[0].mode("qccs"),
+            self.dios[0].mode("qccs")
             # Drive the two most significant bytes of the DIO port
-            self.dios[0].drive(0b1100),
+            self.dios[0].drive(0b1100)
+            # Disable DIO triggering on the AWGs.
+            # since it's not needed for ZSync messages
+            self.awgs['*'].dio.strobe.slope('off')
+            self.awgs['*'].dio.valid.polarity('none')
 
     @lazy_property
     def awgs(self) -> t.Sequence[AWG]:
