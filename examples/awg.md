@@ -38,7 +38,7 @@ Connect devices and access the ``/awg`` node.
 from zhinst.toolkit import Session
 
 session = Session('localhost')
-device = session.connect_device("DEVXXXX")
+device = session.connect_device("DEV8541")
 awg_node = device.awgs[0]
 ```
 
@@ -65,6 +65,10 @@ waitWave();
 """
 
 awg_node.load_sequencer_program(SEQUENCER_CODE)
+```
+
+```python
+session.daq_server.listNodes("/DEV8541/AWGS/0/WAVEFORM")
 ```
 
 ```python
