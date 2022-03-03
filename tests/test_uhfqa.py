@@ -38,6 +38,9 @@ def test_enable_qccs_mode(mock_connection, uhfqa):
             ("/dev1234/dios/0/extclk", "internal"),
             ("/dev1234/dios/0/mode", "qa_result_qccs"),
             ("/dev1234/dios/0/drive", 3),
+            ("/dev1234/awgs/0/dio/strobe/slope", "off"),
+            ("/dev1234/awgs/0/dio/valid/index", 16),
+            ("/dev1234/awgs/0/dio/valid/polarity", "high"),
         ]
     )
     mock_connection.reset_mock()
@@ -49,6 +52,9 @@ def test_enable_qccs_mode(mock_connection, uhfqa):
             ("/dev1234/dios/0/extclk", "internal"),
             ("/dev1234/dios/0/mode", "qa_result_qccs"),
             ("/dev1234/dios/0/drive", 3),
+            ("/dev1234/awgs/0/dio/strobe/slope", "off"),
+            ("/dev1234/awgs/0/dio/valid/index", 16),
+            ("/dev1234/awgs/0/dio/valid/polarity", "high"),
         ]
     )
 
@@ -81,20 +87,16 @@ def test_adjusted_delay(uhfqa, mock_connection):
     # set value
     bypass_deskew = 0
     assert uhfqa.qas[0].adjusted_delay(400) == 400
-    mock_connection.return_value.set.assert_called_with(
-        f"/dev1234/qas/0/delay", 600
-    )
+    mock_connection.return_value.set.assert_called_with(f"/dev1234/qas/0/delay", 600)
     bypass_deskew = 1
     assert uhfqa.qas[0].adjusted_delay(400) == 400
-    mock_connection.return_value.set.assert_called_with(
-        f"/dev1234/qas/0/delay", 584
-    )
+    mock_connection.return_value.set.assert_called_with(f"/dev1234/qas/0/delay", 584)
 
     with pytest.raises(ValueError):
         uhfqa.qas[0].adjusted_delay(-185)
 
     with pytest.raises(ValueError):
-        uhfqa.qas[0].adjusted_delay(1025-185)
+        uhfqa.qas[0].adjusted_delay(1025 - 185)
 
 
 def test_qas_crosstalk_matrix(uhfqa, mock_connection):
@@ -133,7 +135,7 @@ def test_awg(data_dir, mock_connection, uhfqa):
     mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
         nodes_json
     )
-    mock_connection.return_value.getString.return_value = 'AWG,FOOBAR'
+    mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
     assert len(uhfqa.awgs) == 1
     assert isinstance(uhfqa.awgs[0], AWG)
     # Wildcards nodes will be converted into normal Nodes
