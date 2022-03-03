@@ -50,7 +50,7 @@ class HDAWG(BaseInstrument):
                     self._session,
                     self.serial,
                     i,
-                    "hdawg",
+                    self.device_type,
                 )
                 for i in range(len(self["awgs"]))
             ],

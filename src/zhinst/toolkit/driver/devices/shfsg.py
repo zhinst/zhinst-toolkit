@@ -229,7 +229,7 @@ class SGChannel(Node):
             self._session,
             self._device.serial,
             self._index,
-            "shfsg",
+            self._device.device_type,
         )
 
 
