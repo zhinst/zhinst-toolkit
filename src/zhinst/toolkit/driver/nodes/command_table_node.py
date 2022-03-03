@@ -10,6 +10,7 @@ from zhinst.toolkit.nodetree import Node, NodeTree
 
 _CT_RESOURCE_PATH = Path(__file__).parent.parent.parent / "resources"
 _CT_FILES = {
+    "shfqc": _CT_RESOURCE_PATH / "ct_schema_shfsg.json",
     "shfsg": _CT_RESOURCE_PATH / "ct_schema_shfsg.json",
     "hdawg": _CT_RESOURCE_PATH / "ct_schema_hdawg.json",
 }

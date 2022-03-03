@@ -6,6 +6,7 @@ import pytest
 from zhinst.toolkit import Session
 from zhinst.toolkit.driver.devices.shfqa import SHFQA
 from zhinst.toolkit.driver.devices.shfsg import SHFSG
+from zhinst.toolkit.driver.devices.shfqc import SHFQC
 
 
 @pytest.fixture()
@@ -64,6 +65,18 @@ def shfsg(data_dir, mock_connection, session):
 
     mock_connection.return_value.getString.return_value = ""
     yield SHFSG("DEV1234", "SHFSG8", session)
+
+
+@pytest.fixture()
+def shfqc(data_dir, mock_connection, session):
+
+    json_path = data_dir / "nodedoc_dev1234_shfqc.json"
+    with json_path.open("r", encoding="UTF-8") as file:
+        nodes_json = file.read()
+    mock_connection.return_value.listNodesJSON.return_value = nodes_json
+
+    mock_connection.return_value.getString.return_value = ""
+    yield SHFQC("DEV1234", "SHFQC", session)
 
 
 @pytest.fixture()

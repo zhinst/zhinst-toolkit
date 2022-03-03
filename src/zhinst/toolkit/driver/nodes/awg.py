@@ -104,6 +104,8 @@ class AWG(Node):
         raw_awg = awg.raw_module
         awg.device(self._serial)
         awg.index(self._index)
+        if "SHFQC" in self._device_type:
+            awg.sequencertype("sg")
         raw_awg.execute()
         logger.info(f"{repr(self)}: Compiling sequencer program")
         awg.compiler.sourcestring(sequencer_program)

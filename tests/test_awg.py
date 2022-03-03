@@ -19,6 +19,15 @@ def awg_module(shfsg, data_dir, mock_connection):
     )
     yield shfsg.sgchannels[0].awg
 
+@pytest.fixture()
+def awg_module_qc(shfqc, data_dir, mock_connection):
+    json_path = data_dir / "nodedoc_awg_test.json"
+    with json_path.open("r", encoding="UTF-8") as file:
+        nodes_json = file.read()
+    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
+        nodes_json
+    )
+    yield shfqc.sgchannels[0].awg
 
 @pytest.fixture()
 def waveform_descriptors_json(data_dir):
@@ -102,6 +111,7 @@ def test_load_sequencer_program(mock_connection, awg_module, caplog):
     awg_module.load_sequencer_program("Hello")
     awg_mock.set.assert_any_call("/device", "DEV1234")
     awg_mock.set.assert_any_call("/index", 0)
+    assert len(awg_mock.set.call_args_list) == 3
     awg_mock.set.assert_called_with("/compiler/sourcestring", "Hello")
     awg_mock.execute.assert_called()
 
@@ -135,6 +145,36 @@ def test_load_sequencer_program(mock_connection, awg_module, caplog):
     with pytest.raises(RuntimeError) as e_info:
         awg_module.load_sequencer_program("Hello", timeout=0.5)
 
+def test_load_sequencer_program_qc(mock_connection, awg_module_qc):
+    compiler_status = 0
+    upload_process = iter([0, 0.2, 1, 1])
+    ready = 1
+    elf_status = 0
+
+    def get_side_effect(node):
+        if node == "/compiler/status":
+            return compiler_status
+        if node == "/progress":
+            return next(upload_process)
+        if node == "/elf/status":
+            return elf_status
+        if node == "/DEV1234/SGCHANNELS/0/AWG/READY":
+            return ready
+        return RuntimeError("Undefined Node")
+
+    awg_mock = mock_connection.return_value.awgModule.return_value
+    awg_mock.getDouble.side_effect = get_side_effect
+    awg_mock.getInt.side_effect = get_side_effect
+    mock_connection.return_value.getInt.side_effect = get_side_effect
+
+    # everything ok
+    awg_module_qc.load_sequencer_program("Hello")
+    awg_mock.set.assert_any_call("/device", "DEV1234")
+    awg_mock.set.assert_any_call("/index", 0)
+    awg_mock.set.assert_any_call("/sequencertype", "sg")
+    assert len(awg_mock.set.call_args_list) == 4
+    awg_mock.set.assert_called_with("/compiler/sourcestring", "Hello")
+    awg_mock.execute.assert_called()
 
 def test_command_table(awg_module):
     assert isinstance(awg_module.commandtable, CommandTableNode)
