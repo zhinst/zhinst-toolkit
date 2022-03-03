@@ -129,5 +129,17 @@
         "Properties": "Read",
         "Unit": "None",
         "Type": "Double"
+    },
+    "/sequencertype": {
+        "Node": "/sequencertype",
+        "Description": "Type of sequencer to compile for. For all devices but the SHFQC, the sequencer type is deduced from the device type, and this node is ignored. For the SHFQC, the sequencer type must be defined (\"qa\" or \"sg\").",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"auto-detect\": The sequencer type is deduced from the device type (for all devices but the SHFQC).",
+            "1": "\"qa\": QA sequencer",
+            "2": "\"sg\": SG sequencer"
+        }
     }
 }
