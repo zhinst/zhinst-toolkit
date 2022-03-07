@@ -1,5 +1,15 @@
 # zhinst-toolkit Changelog
 
+## Version 0.3.1
+* Add missing nodes setting for QCCS mode #108
+* pqsc.check_zsync_connection blocks even if nothing is connected
+* Create a temporary awg module every time a sequencer code is uploaded
+  (The reason for it is to have de defined state) #104
+* reintroduce uhfqa.qa_deleay function
+* uhfli/uhfqa return node object for ``uhfli.awg`` instead of raising an error
+  (necessary for qcodes drivers) #102
+* ``hdawg.enable_qccs_mode`` wrong reference clock source fixed
+* Small docstring corrections
 
 ## Version 0.3
 * **Redesign and complete refactoring of zhinst-toolkit**
