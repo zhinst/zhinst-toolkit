@@ -5,7 +5,6 @@ import typing as t
 import zhinst.deviceutils.shfqa as deviceutils
 from zhinst.ziPython import ziDAQServer
 
-from zhinst.toolkit.driver.modules.base_module import BaseModule
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.waveform import Waveforms
 
@@ -82,16 +81,16 @@ class Generator(Node):
                 "it will never be finished."
             )
         try:
-            self.enable.wait_for_state_change(
-                0, timeout=timeout, sleep_time=sleep_time
-            )
+            self.enable.wait_for_state_change(0, timeout=timeout, sleep_time=sleep_time)
         except TimeoutError as error:
             raise TimeoutError(
                 f"{repr(self)}: The execution of the sequencer program did not finish "
                 f"within the specified timeout ({timeout}s)."
             ) from error
 
-    def load_sequencer_program(self, sequencer_program, *, timeout: float = 10) -> None:
+    def load_sequencer_program(
+        self, sequencer_program: str, *, timeout: float = 10
+    ) -> None:
         """Compiles and loads a sequencer program.
 
         Args:
