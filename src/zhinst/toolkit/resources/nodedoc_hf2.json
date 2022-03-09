@@ -995,7 +995,7 @@
         },
         "Node": "/DEVXXXX/PLLS/n/LOCKED"
     },
-    "/devxxxx/pids/input": {
+    "/devxxxx/pids/n/input": {
         "Description": "Selects the input for the PID.",
         "Properties": "Read, Write, Setting",
         "Type": "Integer (enumerated)",
@@ -1012,15 +1012,15 @@
             "9": "Demodulator |z(n+1) - z(n)| [Vrms]",
             "10": "Oscillator Frequency [Hz]"
         },
-        "Node": "/DEVXXXX/PIDS/INPUT"
+        "Node": "/DEVXXXX/PIDS/n/INPUT"
     },
-    "/devxxxx/pids/inputchannel": {
+    "/devxxxx/pids/n/inputchannel": {
         "Description": "If applicable, selects the channel of the selected INPUT., Sets the input channel index for the selected INPUT, i.e., 0,1,2 etc.. The available channels depend on the input type.",
         "Properties": "Read, Write, Setting",
         "Type": "Integer",
-        "Node": "/DEVXXXX/PIDS/INPUTCHANNEL"
+        "Node": "/DEVXXXX/PIDS/n/INPUTCHANNEL"
     },
-    "/devxxxx/pids/output": {
+    "/devxxxx/pids/n/output": {
         "Description": "Selects the output for the PID.",
         "Properties": "Read, Write, Setting",
         "Type": "Integer (enumerated)",
@@ -1031,15 +1031,15 @@
             "3": "Auxiliary Output (manual mode) [V]",
             "4": "DIO [5 Volt TTL]"
         },
-        "Node": "/DEVXXXX/PIDS/OUTPUT"
+        "Node": "/DEVXXXX/PIDS/n/OUTPUT"
     },
-    "/devxxxx/pids/outputchannel": {
+    "/devxxxx/pids/n/outputchannel": {
         "Description": "If applicable, selects the channel of the selected OUTPUT., Sets the input channel index for the selected OUTPUT, i.e., 0,1,2 etc.. The available channels depend on the output type",
         "Properties": "Read, Write, Setting",
         "Type": "Integer",
-        "Node": "/DEVXXXX/PIDS/OUTPUTCHANNEL"
+        "Node": "/DEVXXXX/PIDS/n/OUTPUTCHANNEL"
     },
-    "/devxxxx/pids/outputdefaultenable": {
+    "/devxxxx/pids/n/outputdefaultenable": {
         "Description": "If OUTPUTDEFAULTENABLE is set, the value specified by OUTPUTDEFAULT will be applied when the PID is switched off.",
         "Properties": "Read, Write, Setting",
         "Type": "Integer (enumerated)",
@@ -1048,43 +1048,43 @@
             "0": "OFF",
             "1": "ON"
         },
-        "Node": "/DEVXXXX/PIDS/OUTPUTDEFAULTENABLE"
+        "Node": "/DEVXXXX/PIDS/n/OUTPUTDEFAULTENABLE"
     },
-    "/devxxxx/pids/outputdefault": {
+    "/devxxxx/pids/n/outputdefault": {
         "Description": "If OUTPUTDEFAULTENABLE is set, this node specifies the value to be applied.",
         "Properties": "Read, Write, Setting",
         "Type": "Double",
-        "Node": "/DEVXXXX/PIDS/OUTPUTDEFAULT"
+        "Node": "/DEVXXXX/PIDS/n/OUTPUTDEFAULT"
     },
-    "/devxxxx/pids/p": {
+    "/devxxxx/pids/n/p": {
         "Description": "Proportional gain., Sets the proportional gain for the error signal. Negative feedback corresponds to a negative gain.",
         "Properties": "Read, Write, Setting",
         "Type": "Double",
         "Unit": "[OUTPUT Unit]/[INPUT Unit]",
-        "Node": "/DEVXXXX/PIDS/P"
+        "Node": "/DEVXXXX/PIDS/n/P"
     },
-    "/devxxxx/pids/i": {
+    "/devxxxx/pids/n/i": {
         "Description": "Proportional gain for integrator., Sets the proportional gain for the integrated (accumulated) error signal. Negative feedback corresponds to a negative gain.",
         "Properties": "Read, Write, Setting",
         "Type": "Double",
         "Unit": "[OUTPUT Unit]/[INPUT Unit]/s",
-        "Node": "/DEVXXXX/PIDS/I"
+        "Node": "/DEVXXXX/PIDS/n/I"
     },
-    "/devxxxx/pids/d": {
+    "/devxxxx/pids/n/d": {
         "Description": "Proportional gain for differentiator., Sets the proportional gain for the differentiated error signal. Negative feedback corresponds to a negative gain.",
         "Properties": "Read, Write, Setting",
         "Type": "Double",
         "Unit": "[OUTPUT Unit]/[INPUT Unit]*s",
-        "Node": "/DEVXXXX/PIDS/D"
+        "Node": "/DEVXXXX/PIDS/n/D"
     },
-    "/devxxxx/pids/setpoint": {
+    "/devxxxx/pids/n/setpoint": {
         "Description": "Target settle point.",
         "Properties": "Read, Write, Setting",
         "Type": "Double",
         "Unit": "[INPUT Unit]",
-        "Node": "/DEVXXXX/PIDS/SETPOINT"
+        "Node": "/DEVXXXX/PIDS/n/SETPOINT"
     },
-    "/devxxxx/pids/setpointselect": {
+    "/devxxxx/pids/n/setpointselect": {
         "Description": "Set point selection.",
         "Properties": "Read, Write, Setting",
         "Type": "Integer (enumerated)",
@@ -1094,49 +1094,49 @@
             "2": "Auxiliary Input 2",
             "3": "PID n"
         },
-        "Node": "/DEVXXXX/PIDS/SETPOINTSELECT"
+        "Node": "/DEVXXXX/PIDS/n/SETPOINTSELECT"
     },
-    "/devxxxx/pids/monitoroffset": {
+    "/devxxxx/pids/n/monitoroffset": {
         "Description": "Offset for the monitor output.",
         "Properties": "Read, Write, Setting",
         "Type": "Double",
-        "Node": "/DEVXXXX/PIDS/MONITOROFFSET"
+        "Node": "/DEVXXXX/PIDS/n/MONITOROFFSET"
     },
-    "/devxxxx/pids/monitorscale": {
+    "/devxxxx/pids/n/monitorscale": {
         "Description": "Scale for the monitor output.",
         "Properties": "Read, Write, Setting",
         "Type": "Double",
-        "Node": "/DEVXXXX/PIDS/MONITORSCALE"
+        "Node": "/DEVXXXX/PIDS/n/MONITORSCALE"
     },
-    "/devxxxx/pids/error": {
+    "/devxxxx/pids/n/error": {
         "Description": "Shows the error value., The calculated error is : ERROR = SETPOINT - IN.",
         "Properties": "Read",
         "Type": "Double",
         "Unit": "[OUTPUT Unit]",
-        "Node": "/DEVXXXX/PIDS/ERROR"
+        "Node": "/DEVXXXX/PIDS/n/ERROR"
     },
-    "/devxxxx/pids/center": {
+    "/devxxxx/pids/n/center": {
         "Description": "Sets the output center point.",
         "Properties": "Read, Write, Setting",
         "Type": "Double",
         "Unit": "[OUTPUT Unit]",
-        "Node": "/DEVXXXX/PIDS/CENTER"
+        "Node": "/DEVXXXX/PIDS/n/CENTER"
     },
-    "/devxxxx/pids/range": {
+    "/devxxxx/pids/n/range": {
         "Description": "Sets the output range., The limits for the output are : OUT = [CENTER - RANGE,CENTER + RANGE] with RANGE > 0.0.",
         "Properties": "Read, Write, Setting",
         "Type": "Double",
         "Unit": "[OUTPUT Unit]",
-        "Node": "/DEVXXXX/PIDS/RANGE"
+        "Node": "/DEVXXXX/PIDS/n/RANGE"
     },
-    "/devxxxx/pids/shift": {
+    "/devxxxx/pids/n/shift": {
         "Description": "Shows the output shift., The calculated output value is : OUT = CENTER + SHIFT.",
         "Properties": "Read",
         "Type": "Double",
         "Unit": "[OUTPUT Unit]",
-        "Node": "/DEVXXXX/PIDS/SHIFT"
+        "Node": "/DEVXXXX/PIDS/n/SHIFT"
     },
-    "/devxxxx/pids/enable": {
+    "/devxxxx/pids/n/enable": {
         "Description": "Enable PID controller.",
         "Properties": "Read, Write, Setting",
         "Type": "Integer (enumerated)",
@@ -1145,16 +1145,16 @@
             "0": "OFF",
             "1": "ON"
         },
-        "Node": "/DEVXXXX/PIDS/ENABLE"
+        "Node": "/DEVXXXX/PIDS/n/ENABLE"
     },
-    "/devxxxx/pids/rate": {
+    "/devxxxx/pids/n/rate": {
         "Description": "Control update rate.",
         "Properties": "Read",
         "Type": "Double",
         "Unit": "Samples/s",
-        "Node": "/DEVXXXX/PIDS/RATE"
+        "Node": "/DEVXXXX/PIDS/n/RATE"
     },
-    "/devxxxx/pids/tipprotect/enable": {
+    "/devxxxx/pids/n/tipprotect/enable": {
         "Description": "Enable TipProtect for the PID controller.",
         "Properties": "Read, Write, Setting",
         "Type": "Integer (enumerated)",
@@ -1163,50 +1163,50 @@
             "0": "OFF",
             "1": "ON"
         },
-        "Node": "/DEVXXXX/PIDS/TIPPROTECT/ENABLE"
+        "Node": "/DEVXXXX/PIDS/n/TIPPROTECT/ENABLE"
     },
-    "/devxxxx/pids/tipprotect/pll": {
+    "/devxxxx/pids/n/tipprotect/pll": {
         "Description": "Selects a PLL for TipProtect.",
         "Properties": "Read, Write, Setting",
         "Type": "Integer",
-        "Node": "/DEVXXXX/PIDS/TIPPROTECT/PLL"
+        "Node": "/DEVXXXX/PIDS/n/TIPPROTECT/PLL"
     },
-    "/devxxxx/pids/tipprotect/active": {
+    "/devxxxx/pids/n/tipprotect/active": {
         "Description": "Indicates whether TipProtect is active.",
         "Properties": "Read",
         "Type": "Integer",
         "Unit": "Boolean",
-        "Node": "/DEVXXXX/PIDS/TIPPROTECT/ACTIVE"
+        "Node": "/DEVXXXX/PIDS/n/TIPPROTECT/ACTIVE"
     },
-    "/devxxxx/pids/tipprotect/activetimeconstant": {
+    "/devxxxx/pids/n/tipprotect/activetimeconstant": {
         "Description": "Time constant when TipProtect is active., Time constant for low-pass filtering the PLL error\u00b2 when TipProtect is active, i.e., when waiting to re-enable the PID controller.",
         "Properties": "Read, Write, Setting",
         "Type": "Double",
         "Unit": "s",
-        "Node": "/DEVXXXX/PIDS/TIPPROTECT/ACTIVETIMECONSTANT"
+        "Node": "/DEVXXXX/PIDS/n/TIPPROTECT/ACTIVETIMECONSTANT"
     },
-    "/devxxxx/pids/tipprotect/activethreshold": {
+    "/devxxxx/pids/n/tipprotect/activethreshold": {
         "Description": "Threshold for the active state., Threshold for PLL error\u00b2 when TipProtect is active, i.e., when waiting to re-enable the PID controller.",
         "Properties": "Read, Write, Setting",
         "Type": "Double",
         "Unit": "deg\u00b2",
-        "Node": "/DEVXXXX/PIDS/TIPPROTECT/ACTIVETHRESHOLD"
+        "Node": "/DEVXXXX/PIDS/n/TIPPROTECT/ACTIVETHRESHOLD"
     },
-    "/devxxxx/pids/tipprotect/inactivetimeconstant": {
+    "/devxxxx/pids/n/tipprotect/inactivetimeconstant": {
         "Description": "Time constant when TipProtect is inactive., Time constant for low-pass filtering the PLL error\u00b2 when TipProtect is inactive, i.e., when waiting to disable the PID controller.",
         "Properties": "Read, Write, Setting",
         "Type": "Double",
         "Unit": "s",
-        "Node": "/DEVXXXX/PIDS/TIPPROTECT/INACTIVETIMECONSTANT"
+        "Node": "/DEVXXXX/PIDS/n/TIPPROTECT/INACTIVETIMECONSTANT"
     },
-    "/devxxxx/pids/tipprotect/inactivethreshold": {
+    "/devxxxx/pids/n/tipprotect/inactivethreshold": {
         "Description": "Threshold for the inactive state., Threshold for PLL error\u00b2 when TipProtect is inactive, i.e., when waiting to disable the PID controller.",
         "Properties": "Read, Write, Setting",
         "Type": "Double",
         "Unit": "deg\u00b2",
-        "Node": "/DEVXXXX/PIDS/TIPPROTECT/INACTIVETHRESHOLD"
+        "Node": "/DEVXXXX/PIDS/n/TIPPROTECT/INACTIVETHRESHOLD"
     },
-    "/devxxxx/pids/demod/adcselect": {
+    "/devxxxx/pids/n/demod/adcselect": {
         "Description": "Selects the index of the signal input for the demodulator.",
         "Properties": "Read, Write",
         "Type": "Integer (enumerated)",
@@ -1219,9 +1219,9 @@
             "4": "DIO 0",
             "5": "DIO 1"
         },
-        "Node": "/DEVXXXX/PIDS/DEMOD/ADCSELECT"
+        "Node": "/DEVXXXX/PIDS/n/DEMOD/ADCSELECT"
     },
-    "/devxxxx/pids/demod/order": {
+    "/devxxxx/pids/n/demod/order": {
         "Description": "Selects the order of the low-pass filter.",
         "Properties": "Read, Write, Setting",
         "Type": "Integer (enumerated)",
@@ -1236,21 +1236,21 @@
             "7": "42 dB/oct slope",
             "8": "48 dB/oct slope"
         },
-        "Node": "/DEVXXXX/PIDS/DEMOD/ORDER"
+        "Node": "/DEVXXXX/PIDS/n/DEMOD/ORDER"
     },
-    "/devxxxx/pids/demod/timeconstant": {
+    "/devxxxx/pids/n/demod/timeconstant": {
         "Description": "Sets the time constant of the low-pass filter., The time constant is set for each stage of the low-pass filter. The total time constant and bandwidth depends on the selected order.",
         "Properties": "Read, Write, Setting",
         "Type": "Double",
         "Unit": "s",
-        "Node": "/DEVXXXX/PIDS/DEMOD/TIMECONSTANT"
+        "Node": "/DEVXXXX/PIDS/n/DEMOD/TIMECONSTANT"
     },
-    "/devxxxx/pids/demod/harmonic": {
+    "/devxxxx/pids/n/demod/harmonic": {
         "Description": "The harmonic of the base frequency to be used., Selecting 1 chooses the fundamental frequency.",
         "Properties": "Read, Write, Setting",
         "Type": "Integer",
         "Unit": "Harmonic",
-        "Node": "/DEVXXXX/PIDS/DEMOD/HARMONIC"
+        "Node": "/DEVXXXX/PIDS/n/DEMOD/HARMONIC"
     },
     "/devxxxx/sigins/n/range": {
         "Description": "Voltage range for the signal input.",
