@@ -49,7 +49,9 @@ def shfqa(data_dir, mock_connection, session):
     mock_connection.return_value.listNodesJSON.return_value = nodes_json
 
     mock_connection.return_value.getString.return_value = ""
-    yield SHFQA("DEV1234", "SHFQA4", session)
+    with patch("zhinst.toolkit.driver.devices.shfqa.deviceutils.max_qubits_per_channel", autospec=True) as max_qubits:
+        max_qubits.return_value = 16
+        yield SHFQA("DEV1234", "SHFQA4", session)
 
 
 @pytest.fixture()

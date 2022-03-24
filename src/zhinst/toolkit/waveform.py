@@ -219,7 +219,7 @@ class Waveforms(MutableMapping):
         if complex_output and not np.iscomplexobj(wave1):
             if marker is not None:
                 warnings.warn("Complex values do not support markers", RuntimeWarning)
-            complex_wave = np.empty(wave1.shape, dtype=np.complex128)
+            complex_wave = np.zeros(wave1.shape, dtype=np.complex128)
             complex_wave.real = wave1
             if wave2 is not None:
                 complex_wave.imag = wave2
