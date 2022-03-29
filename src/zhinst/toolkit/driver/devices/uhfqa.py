@@ -10,10 +10,50 @@ from zhinst.toolkit.nodetree.helper import (
     lazy_property,
 )
 from zhinst.toolkit.nodetree.node import NodeList
+from zhinst.toolkit.waveform import Waveforms
 
 
 Numpy2DArray = t.TypeVar("Numpy2DArray")
 
+class Integration(Node):
+    """Integration part for the UHFQA.
+
+    Args:
+        root: Underlying node tree.
+        tree: tree (node path as tuple) of the coresponding node.
+    """
+
+    def __init__(
+        self,
+        root: NodeTree,
+        tree: tuple,
+    ):
+        super().__init__(root, tree)
+
+    def write_integration_weights(
+        self,
+        weights: t.Union[Waveforms, dict]
+    ) -> None:
+        """Configures the weighted integration.
+
+        The weight functions to be applied on the real and imaginary part of 
+        the input signal. In the hardware the weights are implemented as 17-bit integers.
+
+        Args:
+            weights: Dictionary containing the complex weight vectors, where
+                keys correspond to the indices of the integration units to be
+                configured.
+        """
+        waveform_dict = {}
+        if isinstance(weights, Waveforms):
+            for slot in weights.keys():
+                waveform_dict[slot] = weights.get_raw_vector(slot, complex_output=True)
+        else:
+            waveform_dict = weights
+        with create_or_append_set_transaction(self._root):
+            for key, waveform in waveform_dict.items():
+                self.weights[key].real(np.copy(waveform.real))
+                self.weights[key].imag(np.copy(waveform.imag))
 
 class QAS(Node):
     """Quantum Analyser Channel for the UHFQA.
@@ -107,6 +147,11 @@ class QAS(Node):
         # Write the adjusted delay value to the node.
         self.delay(qa_delay_adjusted)
         return qa_delay_user
+
+    @lazy_property
+    def integration(self) -> Integration:
+        """Integration"""
+        return Integration(self.root, self._tree + ("integration",))
 
 
 class UHFQA(UHFLI):
