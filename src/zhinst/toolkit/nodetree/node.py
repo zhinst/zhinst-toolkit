@@ -531,8 +531,10 @@ class Node:
             timestamp = raw_value["timestamp"][0]
         except TypeError:
             # ZIVectorData have a different structure
-            value = raw_value[0]["vector"]
-            timestamp = raw_value[0]["timestamp"]
+            value = raw_value[0]
+            if isinstance(value, dict):
+                timestamp = value["timestamp"]
+                value = value["vector"]
         except IndexError:
             # HF2 has not timestamp
             value = raw_value[0]
@@ -570,6 +572,14 @@ class Node:
         kwargs.setdefault("flat", True)
         try:
             result_raw = self._root.connection.get(self.node_info.path, **kwargs)
+        except TypeError:
+            del kwargs["settingsonly"]
+            try:
+                result_raw = self._root.connection.get(self.node_info.path, **kwargs)
+            except (RuntimeError, TypeError):
+                # resolve wildecard and get the value of the resulting leaf nodes
+                nodes_raw = self._resolve_wildcards()
+                result_raw = self._root.connection.get(",".join(nodes_raw), **kwargs)
         except (RuntimeError, TypeError):
             # resolve wildecard and get the value of the resulting leaf nodes
             nodes_raw = self._resolve_wildcards()
