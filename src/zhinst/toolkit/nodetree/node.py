@@ -562,12 +562,14 @@ class Node:
             parse: Flag if the GetParser, if present, should be applied or not.
 
         Returns:
-            Dictiononary with the values of all subnodes.
+            Dictionary with the values of all subnodes.
 
         Raises:
             KeyError: If the node does not resolve to at least one valid leaf
                 node.
         """
+        # modules don`t have settingsonly argument ... this will be caught in
+        # a try catch block to avoid unnecessary comparisons
         kwargs.setdefault("settingsonly", False)
         kwargs.setdefault("flat", True)
         try:
@@ -580,7 +582,7 @@ class Node:
                 # resolve wildecard and get the value of the resulting leaf nodes
                 nodes_raw = self._resolve_wildcards()
                 result_raw = self._root.connection.get(",".join(nodes_raw), **kwargs)
-        except (RuntimeError, TypeError):
+        except RuntimeError:
             # resolve wildecard and get the value of the resulting leaf nodes
             nodes_raw = self._resolve_wildcards()
             result_raw = self._root.connection.get(",".join(nodes_raw), **kwargs)
