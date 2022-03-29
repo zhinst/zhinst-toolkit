@@ -21,6 +21,8 @@ class Integration(Node):
     Args:
         root: Underlying node tree.
         tree: tree (node path as tuple) of the coresponding node.
+
+    .. versionadded:: 0.3.2
     """
 
     def __init__(
@@ -34,15 +36,22 @@ class Integration(Node):
         self,
         weights: t.Union[Waveforms, dict]
     ) -> None:
-        """Configures the weighted integration.
+        """Configures the weighted integration functions.
 
-        The weight functions to be applied on the real and imaginary part of 
+        The weight functions are applied to the real and imaginary part of
         the input signal. In the hardware the weights are implemented as 17-bit integers.
 
         Args:
-            weights: Dictionary containing the complex weight vectors, where
-                keys correspond to the indices of the integration units to be
+            weights: Dictionary containing the weight functions, where
+                keys correspond to the indices of the integration weights to be
                 configured.
+
+        note:
+
+            This function calls both `/qas/n/integration/weights/n/real` and
+            `/qas/n/integration/weights/n/imag` nodes.
+
+            If only real or imaginary part is defined, the other one is zeroed.
         """
         waveform_dict = {}
         if isinstance(weights, Waveforms):
@@ -150,7 +159,10 @@ class QAS(Node):
 
     @lazy_property
     def integration(self) -> Integration:
-        """Integration"""
+        """Integration
+        
+        .. versionadded:: 0.3.2
+        """
         return Integration(self.root, self._tree + ("integration",))
 
 
