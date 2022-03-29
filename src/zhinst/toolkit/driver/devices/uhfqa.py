@@ -48,10 +48,17 @@ class Integration(Node):
 
         note:
 
+            Does not raise an error when sample limit is exceeded, but applies only
+            the maximum number of samples. Please refer to LabOne node documentation
+            for the number of maximum integration weight samples.
+
+        note:
+
             This function calls both `/qas/n/integration/weights/n/real` and
             `/qas/n/integration/weights/n/imag` nodes.
 
-            If only real or imaginary part is defined, the other one is zeroed.
+            If only real or imaginary part is defined, the number of defined samples
+            from the other one is zeroed.
         """
         waveform_dict = {}
         if isinstance(weights, Waveforms):
