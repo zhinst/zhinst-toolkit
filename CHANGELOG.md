@@ -1,5 +1,10 @@
 # zhinst-toolkit Changelog
 
+## Version 0.3.2
+
+* Added a helper function ``uhfqa.qas[n].integration.write_integration_weights`` for 
+  QAS integration weights configuration
+
 ## Version 0.3.1
 * Add missing nodes setting for QCCS mode #108
 * pqsc.check_zsync_connection blocks even if nothing is connected
