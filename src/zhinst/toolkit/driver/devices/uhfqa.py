@@ -36,7 +36,7 @@ class Integration(Node):
         self,
         weights: t.Union[Waveforms, dict]
     ) -> None:
-        """Configures the weighted integration functions.
+        """Upload complex integration weights.
 
         The weight functions are applied to the real and imaginary part of
         the input signal. In the hardware the weights are implemented as 17-bit integers.
