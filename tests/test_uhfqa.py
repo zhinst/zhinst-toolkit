@@ -1,9 +1,10 @@
 import numpy as np
 import pytest
 
-from zhinst.toolkit.driver.devices.uhfqa import QAS, UHFQA
+from zhinst.toolkit.driver.devices.uhfqa import QAS, UHFQA, Integration
 from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.nodetree import Node
+from zhinst.toolkit import Waveforms
 
 
 @pytest.fixture()
@@ -28,6 +29,11 @@ def test_qas(uhfqa):
     # Wildcards nodes will be converted into normal Nodes
     assert not isinstance(uhfqa.qas["*"], QAS)
     assert isinstance(uhfqa.qas["*"], Node)
+
+
+def test_qas_integration(uhfqa):
+    assert isinstance(uhfqa.qas[0].integration, Integration)
+    assert isinstance(uhfqa.qas["*"].integration, Node)
 
 
 def test_enable_qccs_mode(mock_connection, uhfqa):
@@ -141,3 +147,45 @@ def test_awg(data_dir, mock_connection, uhfqa):
     # Wildcards nodes will be converted into normal Nodes
     assert not isinstance(uhfqa.awgs["*"], AWG)
     assert isinstance(uhfqa.awgs["*"], Node)
+
+
+class TestWriteIntegrationWeights:
+    def test_write_integration_weights_waveforms(self, mock_connection, uhfqa):
+        wave1 = 1.0 * np.ones(8)
+        wave2 = -1.0 * np.ones(8)
+        waveforms = Waveforms()
+        waveforms.assign_waveform(0, wave1, wave2)
+        uhfqa.qas[0].integration.write_integration_weights(waveforms)
+        call_args = mock_connection.return_value.set.call_args
+        assert "/dev1234/qas/0/integration/weights/0/real" == call_args[0][0][0][0]
+        np.testing.assert_array_equal(wave1, call_args[0][0][0][1])
+        assert "/dev1234/qas/0/integration/weights/0/imag" == call_args[0][0][1][0]
+        np.testing.assert_array_equal(wave2, call_args[0][0][1][1])
+
+    def test_write_integration_weights_waveforms_idx1(self, mock_connection, uhfqa):
+        wave1 = 1.0 * np.ones(8)
+        waveforms = Waveforms()
+        waveforms.assign_waveform(1, wave1)
+        uhfqa.qas[0].integration.write_integration_weights(waveforms)
+        call_args = mock_connection.return_value.set.call_args
+        assert "/dev1234/qas/0/integration/weights/1/real" == call_args[0][0][0][0]
+        np.testing.assert_array_equal(wave1, call_args[0][0][0][1])
+
+
+    def test_write_integration_weights_dict_complex(self, mock_connection, uhfqa):
+        wave_complex = 1.0 * np.ones(8, dtype=np.complex_)
+        uhfqa.qas[0].integration.write_integration_weights({0: wave_complex})
+        call_args = mock_connection.return_value.set.call_args
+        assert "/dev1234/qas/0/integration/weights/0/real" == call_args[0][0][0][0]
+        np.testing.assert_array_equal(wave_complex.real, call_args[0][0][0][1])
+        assert "/dev1234/qas/0/integration/weights/0/imag" == call_args[0][0][1][0]
+        np.testing.assert_array_equal(wave_complex.imag, call_args[0][0][1][1])
+
+    def test_write_integration_weights_dict_real(self, mock_connection, uhfqa):
+        wave = 1.0 * np.ones(8)
+        uhfqa.qas[0].integration.write_integration_weights({0: wave})
+        call_args = mock_connection.return_value.set.call_args
+        assert "/dev1234/qas/0/integration/weights/0/real" == call_args[0][0][0][0]
+        np.testing.assert_array_equal(wave.real, call_args[0][0][0][1])
+        assert "/dev1234/qas/0/integration/weights/0/imag" == call_args[0][0][1][0]
+        np.testing.assert_array_equal(np.zeros(8), call_args[0][0][1][1])
