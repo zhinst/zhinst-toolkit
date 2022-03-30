@@ -1,9 +1,12 @@
 # zhinst-toolkit Changelog
 
 ## Version 0.3.2
-
-* Added a helper function ``uhfqa.qas[n].integration.write_integration_weights`` for 
+* Added a helper function ``uhfqa.qas[n].integration.write_integration_weights`` for
   QAS integration weights configuration
+* Bugfix: Adapt nodetree to be able to get daq result data #113
+* Bugfix: in the ``Waveform`` class to be able to convert a single waveform into
+  a complex waveform.
+* Bugfix: HF2 PID nodes are available.
 
 ## Version 0.3.1
 * Add missing nodes setting for QCCS mode #108
