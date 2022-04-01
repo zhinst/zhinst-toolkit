@@ -399,6 +399,45 @@ def test_get_wildcard(connection):
     result = tree.demods(deep=True)
     assert result[tree.demods[0].impedance] == (None, 125)
 
+    connection.get.return_value = OrderedDict(
+        [
+            (
+                "/dev1234/demods/0/impedance",
+                {
+                    "timestamp": array("q", [3880906635]),
+                    "x": array("l", [123]),
+                    "y": array("l", [123]),
+                },
+            )
+        ]
+    )
+    result = tree.demods()
+    assert result[tree.demods[0].impedance] == connection.get.return_value["/dev1234/demods/0/impedance"]
+    connection.get.assert_called_with("/dev1234/demods", settingsonly=False, flat=True)
+
+def test_module_get_wildcard(connection):
+    tree = NodeTree(connection, "DEV1234")
+
+    return_value = OrderedDict(
+        [
+            (
+                "/dev1234/demods/0/impedance",
+                {
+                    "timestamp": array("q", [3880906635]),
+                    "value": array("l", [123]),
+                },
+            )
+        ]
+    )
+    connection.get.side_effect = [TypeError(), return_value]
+    assert tree.demods()[tree.demods[0].impedance] == 123
+
+    connection.get.side_effect = [TypeError(), RuntimeError(), return_value]
+    assert tree.demods()[tree.demods[0].impedance] == 123
+
+    connection.get.side_effect = [RuntimeError(), return_value]
+    assert tree.demods()[tree.demods[0].impedance] == 123
+
 
 def test_set(connection):
     tree = NodeTree(connection, "DEV1234")

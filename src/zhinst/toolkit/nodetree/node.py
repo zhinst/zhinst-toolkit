@@ -538,6 +538,9 @@ class Node:
         except IndexError:
             # HF2 has not timestamp
             value = raw_value[0]
+        except KeyError:
+            # HF2 returns sample nodes as well but we don`t parse them
+            value = raw_value
         return (timestamp, value)
 
     def _get_wildcard(
