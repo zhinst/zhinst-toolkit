@@ -44,6 +44,12 @@ Building the documentation
 
 Zhinst-toolkit uses `Sphinx <https://pypi.org/project/Sphinx/>`_ to build the package documentation.
 
+- Install the package in editable mode
+
+    .. code-block:: sh
+
+        $ pip install -e .
+
 Change to docs directory
 
     .. code-block:: sh
