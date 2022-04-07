@@ -37,3 +37,7 @@ jobs:
         run: |
           pytest --cov=zhinst.toolkit tests/
           codecov
+
+      - name: "Test scripts for ${{ matrix.python-version }}"
+        run: |
+          pytest scripts
