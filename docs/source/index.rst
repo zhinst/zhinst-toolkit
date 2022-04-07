@@ -35,6 +35,7 @@ an overview with the :ref:`first_steps/quickstart:Quickstart` guide.
    examples/index
    package_documentation
    changelog/index
+   contributing/index
    license/index
    about/index
 
