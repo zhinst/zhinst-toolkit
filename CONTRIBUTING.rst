@@ -19,6 +19,17 @@ Development environment setup
 
         $ pip install -r requirements.txt
 
+- Add zhinst-toolkit to `zhinst` package namespace by running the script
+  to create a symbolic link between development files and zhinst-package.
+
+    .. note:: 
+
+        Windows: Requires administration privileges.
+
+    .. code-block:: sh
+    
+        $ python .\scripts\zhinst_toolkit_symlink.py
+
 Running the unit tests
 ~~~~~~~~~~~~~~~~~~~~~~
 
