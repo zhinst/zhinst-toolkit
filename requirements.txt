@@ -5,3 +5,4 @@ pytest
 hypothesis
 jsonschema
 jsonref
+pre-commit
