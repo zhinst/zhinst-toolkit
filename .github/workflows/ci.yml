@@ -22,7 +22,7 @@ jobs:
           python: 3.8
         - name: py39
           python: 3.9
-          coverage: "--cov"
+          coverage: true
         - name: py310
           python: "3.10"
 
