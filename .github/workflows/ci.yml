@@ -9,20 +9,28 @@ on:
 
 jobs:
   tests:
-    name: "Python ${{ matrix.python-version }}"
+    name: "Python ${{ matrix.python }}"
     runs-on: "ubuntu-latest"
     env:
-      USING_COVERAGE: "3.7"
-
+      USING_COVERAGE: "3.9"
     strategy:
       matrix:
-        python-version: ["3.7"]
+        include:
+        - name: py37
+          python: 3.7
+        - name: py38
+          python: 3.8
+        - name: py39
+          python: 3.9
+          coverage: true
+        - name: py310
+          python: "3.10"
 
     steps:
       - uses: "actions/checkout@v2"
       - uses: "actions/setup-python@v1"
         with:
-          python-version: "${{ matrix.python-version }}"
+          python-version: "${{ matrix.python }}"
       - name: "Install dependencies"
         run: |
           set -xe
@@ -33,11 +41,10 @@ jobs:
           python -m pip install --upgrade -r requirements.txt
           python -m pip install .
 
-      - name: "Run pytest targets for ${{ matrix.python-version }}"
+      - name: "Run pytest targets for ${{ matrix.python }}"
         run: |
           pytest --cov=zhinst.toolkit tests/
-          codecov
-
-      - name: "Test scripts for ${{ matrix.python-version }}"
+      - name: "Run coverage for ${{ matrix.python }}"
+        if: matrix.coverage
         run: |
-          pytest scripts
+          codecov
