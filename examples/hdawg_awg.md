@@ -62,13 +62,14 @@ awg_program = textwrap.dedent(f"""
         wave w3 = placeholder(AWG_N);
         assignWaveIndex(1, w1, 1);
         assignWaveIndex(1, w3, 3);
-        while(getUserReg(0) == 0);
+        while(getUserReg(0) == 0) {
         setTrigger(1);
         setTrigger(0);
         playWave(w0);
         playWave(w1);
         playWave(w2);
         playWave(w3);
+        }
 """)
 device.awgs[0].load_sequencer_program(awg_program)
 ```
