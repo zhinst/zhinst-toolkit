@@ -3,7 +3,7 @@ name: CI
 
 on:
   push:
-    branches: ["add_tox"]
+    branches: ["main"]
   pull_request:
     branches: ["main"]
 
@@ -11,8 +11,6 @@ jobs:
   tests:
     name: "Python ${{ matrix.python }}"
     runs-on: "ubuntu-latest"
-    env:
-      USING_COVERAGE: "3.9"
     strategy:
       matrix:
         include:
@@ -46,6 +44,7 @@ jobs:
         run: |
           pip install tox
           tox -e ${{ matrix.tox }}
+
       - name: "Run coverage"
         if: matrix.coverage
         run: |
