@@ -1,11 +1,11 @@
 ---
 name: CI
 
-# on:
-#   push:
-#     branches: ["main"]
-#   pull_request:
-#     branches: ["main"]
+on:
+  push:
+    branches: ["add_tox"]
+  pull_request:
+    branches: ["main"]
 
 jobs:
   tests:
