@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
 
+from zhinst.toolkit import Waveforms
 from zhinst.toolkit.driver.devices.uhfqa import QAS, UHFQA, Integration
 from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.nodetree import Node
-from zhinst.toolkit import Waveforms
 
 
 @pytest.fixture()
@@ -170,7 +170,6 @@ class TestWriteIntegrationWeights:
         call_args = mock_connection.return_value.set.call_args
         assert "/dev1234/qas/0/integration/weights/1/real" == call_args[0][0][0][0]
         np.testing.assert_array_equal(wave1, call_args[0][0][0][1])
-
 
     def test_write_integration_weights_dict_complex(self, mock_connection, uhfqa):
         wave_complex = 1.0 * np.ones(8, dtype=np.complex_)

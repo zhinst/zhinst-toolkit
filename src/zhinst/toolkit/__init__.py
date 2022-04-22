@@ -14,10 +14,7 @@ The Toolkit forms the basis for instrument drivers used in QCoDeS and
 Labber. It comes in the form of a package compatible with Python 3.7+.
 """
 from zhinst.toolkit.command_table import CommandTable
-from zhinst.toolkit.interface import (
-    AveragingMode,
-    SHFQAChannelMode,
-)
+from zhinst.toolkit.interface import AveragingMode, SHFQAChannelMode
 from zhinst.toolkit.session import PollFlags, Session
 from zhinst.toolkit.waveform import Waveforms
 

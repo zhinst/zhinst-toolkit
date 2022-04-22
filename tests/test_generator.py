@@ -124,10 +124,14 @@ def test_write_to_waveform_memory(generator, mock_connection):
         assert np.allclose(
             deviceutils.write_to_waveform_memory.call_args[0][3][2], complex_wave
         )
-        assert deviceutils.write_to_waveform_memory.call_args[1]["clear_existing"] == True
+        assert (
+            deviceutils.write_to_waveform_memory.call_args[1]["clear_existing"] == True
+        )
 
         generator.write_to_waveform_memory(waveforms, clear_existing=False)
-        assert deviceutils.write_to_waveform_memory.call_args[1]["clear_existing"] == False
+        assert (
+            deviceutils.write_to_waveform_memory.call_args[1]["clear_existing"] == False
+        )
 
         generator.write_to_waveform_memory({0: np.ones(1000)}, clear_existing=True)
         assert all(
@@ -176,31 +180,34 @@ def test_configure_sequencer_triggering(generator, mock_connection):
         "zhinst.toolkit.driver.nodes.generator.deviceutils", autospec=True
     ) as deviceutils:
         generator.configure_sequencer_triggering(
-            aux_trigger="fobarob",
-            play_pulse_delay=0.0001
+            aux_trigger="fobarob", play_pulse_delay=0.0001
         )
         deviceutils.configure_sequencer_triggering.assert_called_with(
-            mock_connection.return_value, 'DEV1234', 0,
-            aux_trigger='fobarob', play_pulse_delay=0.0001
+            mock_connection.return_value,
+            "DEV1234",
+            0,
+            aux_trigger="fobarob",
+            play_pulse_delay=0.0001,
         )
+
 
 def test_available_aux_trigger_inputs(generator):
     assert generator.available_aux_trigger_inputs == [
-        'chan0trigin0',
-        'chan0trigin1',
-        'chan1trigin0',
-        'chan1trigin1',
-        'chan2trigin0',
-        'chan2trigin1',
-        'chan3trigin0',
-        'chan3trigin1',
-        'chan0seqtrig0',
-        'chan1seqtrig0',
-        'chan2seqtrig0',
-        'chan3seqtrig0',
-        'chan0rod',
-        'chan1rod',
-        'chan2rod',
-        'chan3rod',
-        'swtrig0'
+        "chan0trigin0",
+        "chan0trigin1",
+        "chan1trigin0",
+        "chan1trigin1",
+        "chan2trigin0",
+        "chan2trigin1",
+        "chan3trigin0",
+        "chan3trigin1",
+        "chan0seqtrig0",
+        "chan1seqtrig0",
+        "chan2seqtrig0",
+        "chan3seqtrig0",
+        "chan0rod",
+        "chan1rod",
+        "chan2rod",
+        "chan3rod",
+        "swtrig0",
     ]

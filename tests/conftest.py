@@ -5,8 +5,8 @@ import pytest
 
 from zhinst.toolkit import Session
 from zhinst.toolkit.driver.devices.shfqa import SHFQA
-from zhinst.toolkit.driver.devices.shfsg import SHFSG
 from zhinst.toolkit.driver.devices.shfqc import SHFQC
+from zhinst.toolkit.driver.devices.shfsg import SHFSG
 
 
 @pytest.fixture()
@@ -50,7 +50,10 @@ def shfqa(data_dir, mock_connection, session):
     mock_connection.return_value.listNodesJSON.return_value = nodes_json
 
     mock_connection.return_value.getString.return_value = ""
-    with patch("zhinst.toolkit.driver.devices.shfqa.deviceutils.max_qubits_per_channel", autospec=True) as max_qubits:
+    with patch(
+        "zhinst.toolkit.driver.devices.shfqa.deviceutils.max_qubits_per_channel",
+        autospec=True,
+    ) as max_qubits:
         max_qubits.return_value = 16
         yield SHFQA("DEV1234", "SHFQA4", session)
 

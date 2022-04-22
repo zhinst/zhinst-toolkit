@@ -1,7 +1,7 @@
 import json
 import operator
-from unittest.mock import MagicMock, patch, Mock
 from contextlib import _GeneratorContextManager
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
@@ -26,6 +26,7 @@ def test_basic_setup(mock_connection, base_instrument):
     assert base_instrument.serial == "DEV1234"
     assert repr(base_instrument) == "BaseInstrument(test_type(OptionA),DEV1234)"
 
+
 def test_hf2_setup(data_dir, mock_connection, hf2_session):
     list_nodes_path = data_dir / "list_nodes_hf2_dev.txt"
     with list_nodes_path.open("r", encoding="UTF-8") as file:
@@ -39,6 +40,7 @@ def test_hf2_setup(data_dir, mock_connection, hf2_session):
     assert instrument.serial == "DEV1234"
     assert repr(instrument) == "BaseInstrument(HF2LI(OptionA),DEV1234)"
 
+
 def test_factory_reset(base_instrument, mock_connection):
     base_instrument.factory_reset()
     dev_id = base_instrument.serial.lower()
@@ -46,12 +48,14 @@ def test_factory_reset(base_instrument, mock_connection):
         f"/{dev_id}/system/preset/load", 1
     )
 
+
 def test_get_streamingnodes(base_instrument):
     nodes = base_instrument.get_streamingnodes()
 
     assert base_instrument.dios[0].input in nodes
     assert base_instrument.scopes[0].wave in nodes
     assert base_instrument.demods[0].sample in nodes
+
 
 def test_set_transaction(base_instrument):
     assert isinstance(base_instrument.set_transaction(), _GeneratorContextManager)
@@ -70,9 +74,11 @@ def test_node_access(base_instrument):
     for element in dir(base_instrument.root):
         assert element in dir(base_instrument)
 
+
 def test_iter_nodetree(base_instrument):
     for res_base, res_nodetree in zip(base_instrument, base_instrument.root):
         assert res_base == res_nodetree
+
 
 def test_load_preloaded_json(base_instrument, mock_connection, data_dir):
 
@@ -91,14 +97,13 @@ def test_load_preloaded_json(base_instrument, mock_connection, data_dir):
     )
     assert len(return_value) == 0
 
+
 def test_check_python_versions():
     sub = lambda x, y: tuple(map(operator.sub, x, y))
     add = lambda x, y: tuple(map(operator.add, x, y))
 
     labone = BaseInstrument._version_string_to_tuple(_MIN_LABONE_VERSION)
-    device_utils = BaseInstrument._version_string_to_tuple(
-        _MIN_DEVICE_UTILS_VERSION
-    )
+    device_utils = BaseInstrument._version_string_to_tuple(_MIN_DEVICE_UTILS_VERSION)
 
     # matching version
     BaseInstrument._check_python_versions(labone, device_utils)
@@ -119,6 +124,7 @@ def test_check_python_versions():
     with pytest.raises(RuntimeError):
         BaseInstrument._check_python_versions(labone, sub(device_utils, (1, 0, 0)))
 
+
 def test_check_labone_version():
 
     # matching version
@@ -132,6 +138,7 @@ def test_check_labone_version():
     # patchversion missmatch
     with pytest.warns(RuntimeWarning):
         BaseInstrument._check_labone_version((21, 8, 1), (21, 8, 0))
+
 
 def test_check_firmware_update_status(base_instrument, mock_connection):
     info = {

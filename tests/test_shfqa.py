@@ -9,10 +9,12 @@ from zhinst.toolkit.driver.devices.shfqa import Generator, QAChannel, Readout, S
 def test_repr(shfqa):
     assert repr(shfqa) == "SHFQA(SHFQA4,DEV1234)"
 
+
 def test_factory_reset(shfqa):
     # factory reset not yet implemented
     with pytest.warns(RuntimeWarning) as record:
         shfqa.factory_reset()
+
 
 def test_start_continuous_sw_trigger(mock_connection, shfqa):
     with patch(
@@ -23,6 +25,7 @@ def test_start_continuous_sw_trigger(mock_connection, shfqa):
             mock_connection.return_value, "DEV1234", num_triggers=10, wait_time=20.0
         )
 
+
 def test_max_qubits_per_channel(shfqa):
     with patch(
         "zhinst.toolkit.driver.devices.shfqa.deviceutils", autospec=True
@@ -32,13 +35,16 @@ def test_max_qubits_per_channel(shfqa):
         shfqa.max_qubits_per_channel
         deviceutils.max_qubits_per_channel.assert_called_once()
 
+
 def test_qachannels(shfqa):
     assert len(shfqa.qachannels) == 4
     assert isinstance(shfqa.qachannels[0], QAChannel)
 
+
 def test_scopes(shfqa):
     assert len(shfqa.scopes) == 1
     assert isinstance(shfqa.scopes[0], SHFScope)
+
 
 def test_qa_configure_channel(mock_connection, shfqa):
     with patch(
@@ -51,8 +57,15 @@ def test_qa_configure_channel(mock_connection, shfqa):
             mode=SHFQAChannelMode.READOUT,
         )
         deviceutils.configure_channel.assert_called_once_with(
-            mock_connection.return_value, "DEV1234", 0, input_range=10, output_range=20, center_frequency=30.0, mode="readout"
+            mock_connection.return_value,
+            "DEV1234",
+            0,
+            input_range=10,
+            output_range=20,
+            center_frequency=30.0,
+            mode="readout",
         )
+
 
 def test_qa_generator(shfqa, data_dir, mock_connection):
     json_path = data_dir / "nodedoc_awg_test.json"
@@ -68,6 +81,7 @@ def test_qa_generator(shfqa, data_dir, mock_connection):
         "0",
         "generator",
     )
+
 
 def test_qa_readout(shfqa):
     assert isinstance(shfqa.qachannels[0].readout, Readout)

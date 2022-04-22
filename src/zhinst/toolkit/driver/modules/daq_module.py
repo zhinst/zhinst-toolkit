@@ -91,7 +91,7 @@ class DAQModule(BaseModule):
 
     def execute(self) -> None:
         """Start the data acquisition.
-    
+
         After that command any trigger will start the measurement.
 
         Subscription or unsubscription is not possible until the

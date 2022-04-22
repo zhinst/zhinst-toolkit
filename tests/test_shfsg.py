@@ -9,10 +9,12 @@ def test_repr(shfsg):
     shfsg.sgchannels["*"].configure_channel()
     assert repr(shfsg) == "SHFSG(SHFSG8,DEV1234)"
 
+
 def test_factory_reset(shfsg):
     # factory reset not yet implemented
     with pytest.warns(RuntimeWarning) as record:
         shfsg.factory_reset()
+
 
 def test_sgchannels(shfsg, mock_connection):
     assert len(shfsg.sgchannels) == 8
@@ -20,6 +22,7 @@ def test_sgchannels(shfsg, mock_connection):
     # Wildcards nodes will be converted into normal Nodes
     assert not isinstance(shfsg.sgchannels["*"], SGChannel)
     assert isinstance(shfsg.sgchannels["*"], Node)
+
 
 def test_sg_awg(shfsg, data_dir, mock_connection):
     json_path = data_dir / "nodedoc_awg_test.json"
@@ -35,6 +38,7 @@ def test_sg_awg(shfsg, data_dir, mock_connection):
         "0",
         "awg",
     )
+
 
 def test_sg_awg_modulation_freq(mock_connection, shfsg, data_dir):
     json_path = data_dir / "nodedoc_awg_test.json"
@@ -61,6 +65,7 @@ def test_sg_awg_modulation_freq(mock_connection, shfsg, data_dir):
         "/dev1234/sgchannels/0/oscs/1/freq"
     )
 
+
 def test_awg_configure_marker_and_trigger(data_dir, mock_connection, shfsg):
     json_path = data_dir / "nodedoc_awg_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -78,7 +83,12 @@ def test_awg_configure_marker_and_trigger(data_dir, mock_connection, shfsg):
             marker_out_source="test3",
         )
         deviceutils.configure_marker_and_trigger.assert_called_once_with(
-            mock_connection.return_value, "DEV1234", 0, trigger_in_source="test1", trigger_in_slope="test2", marker_out_source="test3"
+            mock_connection.return_value,
+            "DEV1234",
+            0,
+            trigger_in_source="test1",
+            trigger_in_slope="test2",
+            marker_out_source="test3",
         )
 
     assert shfsg.sgchannels[0].awg.available_trigger_inputs == [
@@ -120,6 +130,7 @@ def test_awg_configure_marker_and_trigger(data_dir, mock_connection, shfsg):
         "low",
     ]
 
+
 def test_configure_channel(mock_connection, shfsg):
     with patch(
         "zhinst.toolkit.driver.devices.shfsg.deviceutils", autospec=True
@@ -128,8 +139,15 @@ def test_configure_channel(mock_connection, shfsg):
             enable=True, output_range=111, center_frequency=20.4, rf_path=False
         )
         deviceutils.configure_channel.assert_called_once_with(
-            mock_connection.return_value, "DEV1234", 0, enable=1, output_range=111, center_frequency=20.4, rflf_path=0
+            mock_connection.return_value,
+            "DEV1234",
+            0,
+            enable=1,
+            output_range=111,
+            center_frequency=20.4,
+            rflf_path=0,
         )
+
 
 def test_configure_pulse_modulation(mock_connection, shfsg):
     with patch(
@@ -156,6 +174,7 @@ def test_configure_pulse_modulation(mock_connection, shfsg):
             gains=(3.0, -1.0, 5.0, 1.0),
             sine_generator_index=8,
         )
+
 
 def test_configure_sine_generation(mock_connection, shfsg):
     with patch(

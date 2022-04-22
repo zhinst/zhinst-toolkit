@@ -141,7 +141,10 @@ class SHFQA(BaseInstrument):
         """
 
         deviceutils.start_continuous_sw_trigger(
-            self._session.daq_server, self.serial, num_triggers=num_triggers, wait_time=wait_time
+            self._session.daq_server,
+            self.serial,
+            num_triggers=num_triggers,
+            wait_time=wait_time,
         )
 
     @lazy_property

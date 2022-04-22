@@ -207,18 +207,15 @@ Unit: 1/s"""
             "SetParser": add_one,
             "GetParser": sub_one,
         },
-        add=True
+        add=True,
     )
     assert tree.test.path[0].node_info.get_parser(5) == 4
     assert tree.test.path[0].node_info.set_parser(5) == 6
 
     tree.update_node(
         "/DEV1234/test/path/0",
-        {
-            "SetParser": [add_one, add_one],
-            "GetParser": [sub_one, sub_one]
-        },
-        add=True
+        {"SetParser": [add_one, add_one], "GetParser": [sub_one, sub_one]},
+        add=True,
     )
     assert tree.test.path[0].node_info.get_parser(5) == 3
     assert tree.test.path[0].node_info.set_parser(5) == 7
@@ -291,6 +288,7 @@ def test_get_cached(connection):
     tree.update_node(tree.dios[0].input, {"Type": "InvalidType"})
     with pytest.raises(RuntimeError):
         tree.dios[0].input()
+
 
 def test_get_deep(connection):
     tree = NodeTree(connection, "DEV1234")
@@ -412,8 +410,12 @@ def test_get_wildcard(connection):
         ]
     )
     result = tree.demods()
-    assert result[tree.demods[0].impedance] == connection.get.return_value["/dev1234/demods/0/impedance"]
+    assert (
+        result[tree.demods[0].impedance]
+        == connection.get.return_value["/dev1234/demods/0/impedance"]
+    )
     connection.get.assert_called_with("/dev1234/demods", settingsonly=False, flat=True)
+
 
 def test_module_get_wildcard(connection):
     tree = NodeTree(connection, "DEV1234")

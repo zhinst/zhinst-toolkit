@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 if t.TYPE_CHECKING:
     from zhinst.toolkit.session import Session
 
+
 class AWG(Node):
     """AWG node.
 
@@ -218,7 +219,9 @@ class AWG(Node):
         else:
             nodes.append(self.waveform.node_info.path + "/waves/*")
         nodes = ",".join(nodes)
-        waveforms_raw = self._session.daq_server.get(nodes, settingsonly=False, flat=True)
+        waveforms_raw = self._session.daq_server.get(
+            nodes, settingsonly=False, flat=True
+        )
         waveforms = Waveforms()
         for node, waveform in waveforms_raw.items():
             slot = int(node[-1])

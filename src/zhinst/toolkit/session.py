@@ -577,16 +577,16 @@ class ModuleHandler:
 class PollFlags(IntFlag):
     """Flags for polling Command.
 
-    DETECT_AND_THROW(12): 
+    DETECT_AND_THROW(12):
         Detect data loss holes and throw EOFError exception
 
-    DETECT(8): 
+    DETECT(8):
         Detect data loss holes
 
-    FILL(1): 
+    FILL(1):
         Fill holes
 
-    DEFAULT(0): 
+    DEFAULT(0):
         No Flags
 
     Can be combined with bitwise operations
