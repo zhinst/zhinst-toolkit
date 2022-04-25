@@ -77,7 +77,7 @@ class ConnectionDict:
         self,
         path: t.Union[str, t.List[t.Tuple[str, t.Any]]],
         value: t.Any = None,
-        **kwargs
+        **kwargs,
     ) -> None:
         """mirrors the behaviour of ziPython set command."""
         if isinstance(path, str):

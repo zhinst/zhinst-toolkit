@@ -1,3 +1,15 @@
+[tool.black]
+line-length = 88
+target-version = ['py37']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  | .mypy-cache
+  | .tox
+  | venv*
+)/
+'''
+
 [tool.isort]
 profile = "black"
 src_paths = ["src", "tests"]
