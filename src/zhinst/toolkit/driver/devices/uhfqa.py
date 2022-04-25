@@ -1,6 +1,7 @@
 """UHFQA Instrument Driver."""
 
 import typing as t
+
 import numpy as np
 
 from zhinst.toolkit.driver.devices import UHFLI
@@ -12,8 +13,8 @@ from zhinst.toolkit.nodetree.helper import (
 from zhinst.toolkit.nodetree.node import NodeList
 from zhinst.toolkit.waveform import Waveforms
 
-
 Numpy2DArray = t.TypeVar("Numpy2DArray")
+
 
 class Integration(Node):
     """Integration part for the UHFQA.
@@ -32,10 +33,7 @@ class Integration(Node):
     ):
         super().__init__(root, tree)
 
-    def write_integration_weights(
-        self,
-        weights: t.Union[Waveforms, dict]
-    ) -> None:
+    def write_integration_weights(self, weights: t.Union[Waveforms, dict]) -> None:
         """Upload complex integration weights.
 
         The weight functions are applied to the real and imaginary part of
@@ -70,6 +68,7 @@ class Integration(Node):
             for key, waveform in waveform_dict.items():
                 self.weights[key].real(np.copy(waveform.real))
                 self.weights[key].imag(np.copy(waveform.imag))
+
 
 class QAS(Node):
     """Quantum Analyser Channel for the UHFQA.
@@ -167,7 +166,7 @@ class QAS(Node):
     @lazy_property
     def integration(self) -> Integration:
         """Integration
-        
+
         .. versionadded:: 0.3.2
         """
         return Integration(self.root, self._tree + ("integration",))
@@ -196,9 +195,9 @@ class UHFQA(UHFLI):
             # Drive the two least significant bytes of the DIO port
             self.dios[0].drive(0b0011)
             # Set correct DIO triggering in the AWG sequencer
-            self.awgs[0].dio.strobe.slope('off')
+            self.awgs[0].dio.strobe.slope("off")
             self.awgs[0].dio.valid.index(16)
-            self.awgs[0].dio.valid.polarity('high')
+            self.awgs[0].dio.valid.polarity("high")
 
     @lazy_property
     def qas(self) -> t.Sequence[QAS]:

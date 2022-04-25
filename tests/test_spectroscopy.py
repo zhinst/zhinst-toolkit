@@ -19,7 +19,12 @@ def m_deviceutils():
 def test_configure_result_logger(mock_connection, spectroscopy, m_deviceutils):
     spectroscopy.configure_result_logger(result_length=10)
     m_deviceutils.configure_result_logger_for_spectroscopy.assert_called_with(
-        mock_connection.return_value, "DEV1234", 0, result_length=10, num_averages=1, averaging_mode=0
+        mock_connection.return_value,
+        "DEV1234",
+        0,
+        result_length=10,
+        num_averages=1,
+        averaging_mode=0,
     )
     spectroscopy.configure_result_logger(
         result_length=0, num_averages=2, averaging_mode=1
@@ -33,6 +38,7 @@ def test_configure_result_logger(mock_connection, spectroscopy, m_deviceutils):
         averaging_mode=1,
     )
 
+
 def test_run(mock_connection, spectroscopy, m_deviceutils):
     spectroscopy.run()
     m_deviceutils.enable_result_logger.assert_called_with(
@@ -41,6 +47,7 @@ def test_run(mock_connection, spectroscopy, m_deviceutils):
         0,
         mode="spectroscopy",
     )
+
 
 def test_stop(mock_connection, spectroscopy):
     # already disabled
@@ -54,6 +61,7 @@ def test_stop(mock_connection, spectroscopy):
     with pytest.raises(TimeoutError) as e_info:
         spectroscopy.stop(timeout=0.5)
 
+
 def test_wait_done(mock_connection, spectroscopy):
     # already disabled
     mock_connection.return_value.getInt.return_value = 0
@@ -62,6 +70,7 @@ def test_wait_done(mock_connection, spectroscopy):
     mock_connection.return_value.getInt.return_value = 1
     with pytest.raises(TimeoutError) as e_info:
         spectroscopy.wait_done(timeout=0.5)
+
 
 def test_read(mock_connection, spectroscopy, m_deviceutils):
     spectroscopy.read()

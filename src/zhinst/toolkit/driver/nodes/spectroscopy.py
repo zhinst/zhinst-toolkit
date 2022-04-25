@@ -133,5 +133,9 @@ class Spectroscopy(Node):
 
         """
         return deviceutils.get_result_logger_data(
-            self._daq_server, self._serial, self._index, mode="spectroscopy", timeout=timeout
+            self._daq_server,
+            self._serial,
+            self._index,
+            mode="spectroscopy",
+            timeout=timeout,
         )

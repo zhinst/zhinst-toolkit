@@ -6,8 +6,7 @@ import typing as t
 from zhinst.toolkit.driver.devices.base import BaseInstrument
 from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.nodetree.helper import lazy_property
-from zhinst.toolkit.nodetree.node import NodeList, Node
-
+from zhinst.toolkit.nodetree.node import Node, NodeList
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,10 @@ class UHFLI(BaseInstrument):
         """
         if "AWG" not in self.features.options():
             logger.error("Missing option: AWG")
-            return Node(self._root, self._tree + ("awgs",),)
+            return Node(
+                self._root,
+                self._tree + ("awgs",),
+            )
         return NodeList(
             [
                 AWG(

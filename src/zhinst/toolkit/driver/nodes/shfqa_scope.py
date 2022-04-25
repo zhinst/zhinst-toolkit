@@ -53,9 +53,7 @@ class SHFScope(Node):
         self.single(single)
         self.enable(True)
         try:
-            self.enable.wait_for_state_change(
-            1, timeout=timeout, sleep_time=sleep_time
-        )
+            self.enable.wait_for_state_change(1, timeout=timeout, sleep_time=sleep_time)
         except TimeoutError as error:
             raise TimeoutError(
                 "Scope could not been started within the specified timeout({timeout})s."
@@ -76,9 +74,7 @@ class SHFScope(Node):
         """
         self.enable(False)
         try:
-            self.enable.wait_for_state_change(
-            0, timeout=timeout, sleep_time=sleep_time
-        )
+            self.enable.wait_for_state_change(0, timeout=timeout, sleep_time=sleep_time)
         except TimeoutError as error:
             raise TimeoutError(
                 "Scope could not been stopped within the specified timeout({timeout})s."
@@ -98,9 +94,7 @@ class SHFScope(Node):
                 timeout.
         """
         try:
-            self.enable.wait_for_state_change(
-                0, timeout=timeout, sleep_time=sleep_time
-            )
+            self.enable.wait_for_state_change(0, timeout=timeout, sleep_time=sleep_time)
         except TimeoutError as error:
             raise TimeoutError(
                 "Scope recording did not finish "
@@ -166,7 +160,9 @@ class SHFScope(Node):
             TimeoutError: if the scope recording is not completed before
                 timeout.
         """
-        return deviceutils.get_scope_data(self._daq_server, self._serial, timeout=timeout)
+        return deviceutils.get_scope_data(
+            self._daq_server, self._serial, timeout=timeout
+        )
 
     @property
     def available_trigger_inputs(self) -> t.List[str]:

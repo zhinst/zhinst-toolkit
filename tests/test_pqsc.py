@@ -23,6 +23,7 @@ def pqsc(data_dir, mock_connection, session):
 def test_repr(pqsc):
     assert repr(pqsc) == "PQSC(PQSC,DEV1234)"
 
+
 def test_arm(mock_connection, pqsc):
     pqsc.arm()
     mock_connection.return_value.syncSetInt.assert_any_call(
@@ -47,18 +48,15 @@ def test_arm(mock_connection, pqsc):
     )
 
     pqsc.arm(deep=False, repetitions=5, holdoff=67.4)
-    mock_connection.return_value.set.assert_any_call(
-        "/dev1234/execution/enable", False
-    )
+    mock_connection.return_value.set.assert_any_call("/dev1234/execution/enable", False)
     mock_connection.return_value.set.assert_any_call(
         "/dev1234/execution/repetitions", 5
     )
-    mock_connection.return_value.set.assert_any_call(
-        "/dev1234/execution/holdoff", 67.4
-    )
+    mock_connection.return_value.set.assert_any_call("/dev1234/execution/holdoff", 67.4)
     mock_connection.return_value.set.assert_called_with(
         "/dev1234/feedback/registerbank/reset", 1
     )
+
 
 def test_run_stop(mock_connection, pqsc):
     pqsc.run(deep=False)
@@ -97,20 +95,18 @@ def test_run_stop(mock_connection, pqsc):
         "/dev1234/execution/enable", True
     )
 
+
 def test_wait_done(mock_connection, pqsc):
     mock_connection.return_value.getInt.side_effect = [1, 1, 1, 0, 0, 0, 0, 0]
     pqsc.wait_done()
-    mock_connection.return_value.getInt.assert_called_with(
-        "/dev1234/execution/enable"
-    )
+    mock_connection.return_value.getInt.assert_called_with("/dev1234/execution/enable")
 
     mock_connection.return_value.getInt.side_effect = None
     mock_connection.return_value.getInt.return_value = 1
     with pytest.raises(TimeoutError) as e_info:
         pqsc.wait_done(timeout=0.2)
-    mock_connection.return_value.getInt.assert_called_with(
-        "/dev1234/execution/enable"
-    )
+    mock_connection.return_value.getInt.assert_called_with("/dev1234/execution/enable")
+
 
 def test_ref_clock(mock_connection, pqsc):
 
@@ -148,6 +144,7 @@ def test_ref_clock(mock_connection, pqsc):
     status = cycle([2])
     with pytest.raises(TimeoutError) as e_info:
         pqsc.check_ref_clock(timeout=0.2)
+
 
 def test_check_zsync_connection(mock_connection, pqsc):
 

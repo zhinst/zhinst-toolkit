@@ -19,6 +19,7 @@ def awg_module(shfsg, data_dir, mock_connection):
     )
     yield shfsg.sgchannels[0].awg
 
+
 @pytest.fixture()
 def awg_module_qc(shfqc, data_dir, mock_connection):
     json_path = data_dir / "nodedoc_awg_test.json"
@@ -28,6 +29,7 @@ def awg_module_qc(shfqc, data_dir, mock_connection):
         nodes_json
     )
     yield shfqc.sgchannels[0].awg
+
 
 @pytest.fixture()
 def waveform_descriptors_json(data_dir):
@@ -145,6 +147,7 @@ def test_load_sequencer_program(mock_connection, awg_module, caplog):
     with pytest.raises(RuntimeError) as e_info:
         awg_module.load_sequencer_program("Hello", timeout=0.5)
 
+
 def test_load_sequencer_program_qc(mock_connection, awg_module_qc):
     compiler_status = 0
     upload_process = iter([0, 0.2, 1, 1])
@@ -175,6 +178,7 @@ def test_load_sequencer_program_qc(mock_connection, awg_module_qc):
     assert len(awg_mock.set.call_args_list) == 4
     awg_mock.set.assert_called_with("/compiler/sourcestring", "Hello")
     awg_mock.execute.assert_called()
+
 
 def test_command_table(awg_module):
     assert isinstance(awg_module.commandtable, CommandTableNode)

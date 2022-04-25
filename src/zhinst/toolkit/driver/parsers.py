@@ -200,7 +200,7 @@ class Parse:
     @staticmethod
     def shfqa_time2samples(v):
         min_samples = 4
-        max_samples = ((2 ** 23) - 1) * 4
+        max_samples = ((2**23) - 1) * 4
         multiplicity_samples = 4
         min_time = min_samples / SHFQA_SAMPLE_RATE
         max_time = max_samples / SHFQA_SAMPLE_RATE
@@ -234,7 +234,7 @@ node_parser = {
         "scopes/0/length": {
             "SetParser": [
                 lambda v: Parse.greater_equal(v, 16),
-                lambda v: Parse.smaller_equal(v, 2 ** 18),
+                lambda v: Parse.smaller_equal(v, 2**18),
                 lambda v: Parse.multiple_of(v, 16, "down"),
             ],
         },
@@ -311,7 +311,7 @@ node_parser = {
         "qachannels/*/spectroscopy/length": {
             "SetParser": [
                 lambda v: Parse.greater_equal(v, 4),
-                lambda v: Parse.smaller_equal(v, ((2 ** 23) - 1) * 4),
+                lambda v: Parse.smaller_equal(v, ((2**23) - 1) * 4),
                 lambda v: Parse.multiple_of(v, 4, "down"),
             ],
         },
@@ -395,6 +395,6 @@ node_parser = {
         "sgchannels/*/sines/*/q/enable": {
             "GetParser": Parse.get_true_false,
             "SetParser": Parse.set_true_false,
-        }
+        },
     },
 }
