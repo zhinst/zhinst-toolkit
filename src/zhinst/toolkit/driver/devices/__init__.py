@@ -8,10 +8,9 @@ from zhinst.toolkit.driver.devices.shfqa import SHFQA
 from zhinst.toolkit.driver.devices.shfsg import SHFSG
 from zhinst.toolkit.driver.devices.uhfli import UHFLI
 from zhinst.toolkit.driver.devices.uhfqa import UHFQA
-
 from zhinst.toolkit.driver.devices.shfqc import SHFQC  # isort:skip
 
-DeviceType = t.Union[BaseInstrument, HDAWG, PQSC, SHFQA, SHFSG, UHFLI, UHFQA]
+DeviceType = t.Union[BaseInstrument, HDAWG, PQSC, SHFQA, SHFSG, UHFLI, UHFQA, SHFQC]
 
 DEVICE_CLASS_BY_MODEL = {
     "SHFQC": SHFQC,
