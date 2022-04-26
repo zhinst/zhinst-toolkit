@@ -7,6 +7,9 @@ extend-exclude = '''
   | .mypy-cache
   | .tox
   | venv*
+  | docs
+  | build
+  | dist
 )/
 '''
 
