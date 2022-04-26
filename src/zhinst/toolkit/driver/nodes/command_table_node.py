@@ -49,7 +49,8 @@ class CommandTableNode(Node):
         ct_status = self.status()
         if ct_status >> 3:
             raise RuntimeError(
-                "Uploading of data to the command table failed due to a JSON parsing error"
+                "Uploading of data to the command table failed "
+                "due to a JSON parsing error."
             )
         return ct_status == 1
 

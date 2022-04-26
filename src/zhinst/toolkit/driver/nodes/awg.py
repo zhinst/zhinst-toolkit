@@ -225,7 +225,7 @@ class AWG(Node):
         waveforms = Waveforms()
         for node, waveform in waveforms_raw.items():
             slot = int(node[-1])
-            if not "__filler" in waveform_info[slot]["name"]:
+            if "__filler" not in waveform_info[slot]["name"]:
                 waveforms.assign_native_awg_waveform(
                     slot,
                     waveform[0]["vector"],

@@ -73,7 +73,7 @@ class NodeInfo:
         if self.is_partial:
             return string + "\nPartial node"
         if self._is_wildcard:
-            return string + "\Contains wildcards"
+            return string + "\nContains wildcards"
         if "Description" in self._info:
             string += "\n" + self._info["Description"]
         for key, value in self._info.items():

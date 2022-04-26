@@ -20,6 +20,7 @@ from pathlib import Path
 SRC_DIR = Path(Path(__file__).parent.parent / Path("src/zhinst/toolkit")).resolve()
 DEST_DIR = Path(sysconfig.get_path('purelib')) / "zhinst/toolkit"
 
+
 def create_symlink(src: Path, dest: Path) -> None:
     """Create symbolic link between existing toolkit and
     Python environment directories.
@@ -31,6 +32,7 @@ def create_symlink(src: Path, dest: Path) -> None:
         print(f"Symlink created. Source: {src}, Destination: {dest}")
     except FileExistsError:
         print(f"Destination: {dest} already exists.")
+
 
 if __name__ == "__main__":
     create_symlink(SRC_DIR, DEST_DIR)
