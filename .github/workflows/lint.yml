@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tool: [lint, black]
+        tool: [black, lint]
 
     steps:
     - uses: actions/checkout@v2
