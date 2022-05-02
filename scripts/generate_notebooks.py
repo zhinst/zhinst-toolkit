@@ -1,12 +1,12 @@
 """A script to generate Notebooks for documentation."""
-from urllib.request import urlopen
-import os
-from pathlib import Path
-import fnmatch
-import subprocess
 import argparse
+import fnmatch
+import os
 import typing as t
+from pathlib import Path
+from urllib.request import urlopen
 
+from jupytext import cli as jupytext_cli
 
 BASE_EXAMPLE_URL = "https://docs.zhinst.com/zhinst-toolkit/en/latest/examples"
 EXAMPLES_DIR = Path(__file__).parent.parent / "examples"
@@ -39,7 +39,8 @@ def get_notebook_examples() -> None:
 
 def generate_and_sync_example_notebooks(src: t.List[Path]) -> None:
     """Generate and sync given source files to notebooks."""
-    subprocess.run(["jupytext", "--sync", *src], check=True)
+    str_path = [str(path) for path in src]
+    jupytext_cli.jupytext(["--sync", *str_path])
 
 
 def generate_notebooks(args: argparse.Namespace) -> None:
