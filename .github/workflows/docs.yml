@@ -30,7 +30,7 @@ jobs:
 
       - name: "Generate Notebooks"
         run: |
-          python scripts/executed_notebooks.py remote
+          python scripts/generate_notebooks.py remote
 
       - name: "Build docs"
         run: |
