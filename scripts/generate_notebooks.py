@@ -1,3 +1,4 @@
+"""A script to generate Notebooks for documentation."""
 from urllib.request import urlopen
 import os
 from pathlib import Path
@@ -14,6 +15,7 @@ EXCLUDED_FILES = ["README.md"]
 
 
 def download_example_file(filename: str) -> bytes:
+    """Download example file."""
     url = f"{BASE_EXAMPLE_URL}/{filename}"
     try:
         with urlopen(url) as response:
@@ -24,6 +26,7 @@ def download_example_file(filename: str) -> bytes:
 
 
 def get_notebook_examples() -> None:
+    """Get notebook examples."""
     for example_file in fnmatch.filter(os.listdir(EXAMPLES_DIR), "*.md"):
         if example_file in EXAMPLES_ONLY_SYNC or example_file in EXCLUDED_FILES:
             continue
@@ -35,10 +38,12 @@ def get_notebook_examples() -> None:
 
 
 def generate_and_sync_example_notebooks(src: t.List[Path]) -> None:
+    """Generate and sync given source files to notebooks."""
     subprocess.run(["jupytext", "--sync", *src], check=True)
 
 
 def generate_notebooks(args: argparse.Namespace) -> None:
+    """Generate notebooks either form local or remote."""
     if args.src == "local":
         generate_and_sync_example_notebooks([EXAMPLES_DIR / "*.md"])
     else:
