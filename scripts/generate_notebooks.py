@@ -4,8 +4,8 @@ import fnmatch
 import os
 import typing as t
 from pathlib import Path
-from urllib.request import urlopen
 
+import requests
 from jupytext import cli as jupytext_cli
 
 BASE_EXAMPLE_URL = "https://docs.zhinst.com/zhinst-toolkit/en/latest/examples"
@@ -17,12 +17,9 @@ EXCLUDED_FILES = ["README.md"]
 def download_example_file(filename: str) -> bytes:
     """Download example file."""
     url = f"{BASE_EXAMPLE_URL}/{filename}"
-    try:
-        with urlopen(url) as response:
-            return response.read()
-    except Exception:
-        print(url)
-        raise
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.content
 
 
 def get_notebook_examples() -> None:
