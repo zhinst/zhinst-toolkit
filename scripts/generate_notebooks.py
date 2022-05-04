@@ -41,7 +41,7 @@ def generate_and_sync_example_notebooks(src: t.List[Path]) -> None:
 
 
 def generate_notebooks(args: argparse.Namespace) -> None:
-    """Generate notebooks either form local or remote."""
+    """Generate notebooks either from local or remote."""
     if args.src == "local":
         generate_and_sync_example_notebooks([EXAMPLES_DIR / "*.md"])
     else:
