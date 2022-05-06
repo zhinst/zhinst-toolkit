@@ -7,6 +7,9 @@ import numpy as np
 from zhinst.utils import convert_awg_waveform, parse_awg_waveform
 
 
+Waveform = t.Tuple[np.ndarray, t.Optional[np.ndarray], t.Optional[np.ndarray]]
+
+
 class Waveforms(MutableMapping):
     """Waveform dictionary
 
@@ -49,14 +52,13 @@ class Waveforms(MutableMapping):
       specified they are combined into a single complex waveform, where the
       imaginary part defined by the second wave.
     """
-
     def __init__(self):
         self._waveforms = {}
 
-    def __getitem__(self, slot: int) -> t.Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def __getitem__(self, slot: int) -> Waveform:
         return self._waveforms[slot]
 
-    def __setitem__(self, slot: int, value: t.Tuple[np.ndarray, ...]):
+    def __setitem__(self, slot: int, value: t.Union[np.ndarray, Waveform]):
         if isinstance(value, np.ndarray):
             self._set_waveform(slot, (value, None, None))
         else:
@@ -124,7 +126,7 @@ class Waveforms(MutableMapping):
     def _set_waveform(
         self,
         slot: int,
-        value: t.Tuple[np.ndarray, t.Optional[np.ndarray], t.Optional[np.ndarray]],
+        value: Waveform,
     ) -> None:
         """Assigns a tuple of waves to the slot.
 
