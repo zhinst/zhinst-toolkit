@@ -15,7 +15,13 @@ EXCLUDED_FILES = ["README.md"]
 
 
 def download_example_file(filename: str) -> bytes:
-    """Download example file."""
+    """Download example file.
+    
+    Arguments:
+        filename: notebook filename.
+    Returns:
+        Notebook contents
+    """
     url = f"{BASE_EXAMPLE_URL}/{filename}"
     response = requests.get(url)
     response.raise_for_status()
@@ -35,13 +41,21 @@ def get_notebook_examples() -> None:
 
 
 def generate_and_sync_example_notebooks(src: t.List[Path]) -> None:
-    """Generate and sync given source files to notebooks."""
+    """Generate and sync given source files to notebooks.
+    
+    Arguments:
+        src: Source files
+    """
     str_path = [str(path) for path in src]
     jupytext_cli.jupytext(["--sync", *str_path])
 
 
 def generate_notebooks(args: argparse.Namespace) -> None:
-    """Generate notebooks either from local or remote."""
+    """Generate notebooks either from local or remote.
+    
+    Arguments:
+        args: Namespace arguments
+    """
     if args.src == "local":
         generate_and_sync_example_notebooks([EXAMPLES_DIR / "*.md"])
     else:
