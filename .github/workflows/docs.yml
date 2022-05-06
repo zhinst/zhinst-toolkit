@@ -31,15 +31,11 @@ jobs:
           python -m pip install --upgrade -r docs/requirements.txt
           pip install .
 
-      - name: "Generate Notebooks"
-        run: |
-          python scripts/generate_notebooks.py remote
-
       - name: "Build docs"
         run: |
           wget https://github.com/jgm/pandoc/releases/download/2.18/pandoc-2.18-1-amd64.deb
           sudo dpkg -i pandoc-2.18-1-amd64.deb
-          cd docs && make html
+          cd docs && make html EXAMPLE_SRC=remote
 
       - name: Store artifacts
         uses: actions/upload-artifact@v2

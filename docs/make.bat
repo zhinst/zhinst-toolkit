@@ -9,8 +9,14 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=source
 set BUILDDIR=build
+set EXAMPLE_SRC=%2
+
+if %2 == "" (
+	set EXAMPLE_SRC=local
+)
 
 if "%1" == "" goto help
+
 
 %SPHINXBUILD% >NUL 2>NUL
 if errorlevel 9009 (
@@ -24,6 +30,8 @@ if errorlevel 9009 (
 	echo.http://sphinx-doc.org/
 	exit /b 1
 )
+
+python ../scripts/generate_notebooks.py %EXAMPLE_SRC%
 
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 goto end
