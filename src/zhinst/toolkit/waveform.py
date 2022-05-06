@@ -52,6 +52,7 @@ class Waveforms(MutableMapping):
       specified they are combined into a single complex waveform, where the
       imaginary part defined by the second wave.
     """
+
     def __init__(self):
         self._waveforms = {}
 
