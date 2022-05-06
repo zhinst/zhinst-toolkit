@@ -6,8 +6,6 @@ from collections.abc import MutableMapping
 import numpy as np
 from zhinst.utils import convert_awg_waveform, parse_awg_waveform
 
-NumpyArray = t.TypeVar("NumpyArray")
-
 
 class Waveforms(MutableMapping):
     """Waveform dictionary
@@ -16,7 +14,7 @@ class Waveforms(MutableMapping):
     The value is a the waveform itself, represented by a tuple
     (wave1, wave2, marker).
 
-    The value tuple(wave1, wave2=None, marker=None) consists of the follwing parts:
+    The value tuple(wave1, wave2=None, marker=None) consists of the following parts:
         * wave1 (array): Array with data of waveform 1.
         * wave2 (array): Array with data of waveform 2.
         * markers (array): Array with marker data.
@@ -38,14 +36,14 @@ class Waveforms(MutableMapping):
     >>> waveforms[7] = (wave, None, markers)
 
     The arrays can be provided as arrays of interger, float. The first wave also
-    can be of type complex. In that case the second waveform must be None.
+    can be of type complex. In that case the second waveform must be `None`.
 
     Depending on the target format the function `get_raw_vector` converts the
     waves into the following format:
 
     * native AWG waveform format (interleaved waves and markers as uint16) that
-      can be uploaded to the awg waveform nodes. In case the first wave is of
-      type complex the imag part is treated as the second wave.
+      can be uploaded to the AWG waveform nodes. In case the first wave is of
+      type complex the imaginary part is treated as the second wave.
     * complex waveform format that can be uploaded to the generator waveform
       nodes (does not support markers). In case two real waveforms have been
       specified they are combined into a single complex waveform, where the
@@ -55,10 +53,10 @@ class Waveforms(MutableMapping):
     def __init__(self):
         self._waveforms = {}
 
-    def __getitem__(self, slot: int) -> t.Tuple[NumpyArray, NumpyArray, NumpyArray]:
+    def __getitem__(self, slot: int) -> t.Tuple[np.ndarray, np.ndarray, np.ndarray]:
         return self._waveforms[slot]
 
-    def __setitem__(self, slot: int, value: t.Tuple[NumpyArray, ...]):
+    def __setitem__(self, slot: int, value: t.Tuple[np.ndarray, ...]):
         if isinstance(value, np.ndarray):
             self._set_waveform(slot, (value, None, None))
         else:
@@ -76,9 +74,9 @@ class Waveforms(MutableMapping):
     def assign_waveform(
         self,
         slot: int,
-        wave1: NumpyArray,
-        wave2: NumpyArray = None,
-        markers: NumpyArray = None,
+        wave1: np.ndarray,
+        wave2: t.Optional[np.ndarray] = None,
+        markers: t.Optional[np.ndarray] = None,
     ) -> None:
         """Assigns a waveform to a slot.
 
@@ -93,7 +91,7 @@ class Waveforms(MutableMapping):
     def assign_native_awg_waveform(
         self,
         slot: int,
-        raw_waveform: NumpyArray,
+        raw_waveform: np.ndarray,
         channels: int = 1,
         markers_present: bool = False,
     ) -> None:
@@ -123,12 +121,16 @@ class Waveforms(MutableMapping):
         else:
             self._waveforms[slot] = (wave1, None, None)
 
-    def _set_waveform(self, slot: int, value: t.Tuple[NumpyArray, ...]) -> None:
+    def _set_waveform(
+        self,
+        slot: int,
+        value: t.Tuple[np.ndarray, t.Optional[np.ndarray], t.Optional[np.ndarray]],
+    ) -> None:
         """Assigns a tuple of waves to the slot.
 
         The passed waves are validated against the following requirements:
         * At least one wave must be defined
-        * At most thre waves are defined
+        * At most three waves are defined
         * The waves must by numpy arrays
         * The waves must have the same length
         * If the first wave is complex teh second wave must be None
@@ -139,7 +141,7 @@ class Waveforms(MutableMapping):
         if len(value) < 1 or len(value) > 3:
             raise RuntimeError(
                 "Only one(complex) or two(real) waveforms (plus an optional marker) "
-                f"can be specified per Waveform. ({len(value)} where specified."
+                f"can be specified per waveform. ({len(value)} where specified."
             )
         if (
             not isinstance(value[0], np.ndarray)
@@ -154,7 +156,7 @@ class Waveforms(MutableMapping):
                 and not isinstance(value[2], np.ndarray)
             )
         ):
-            raise RuntimeError("waveform must be specified as numpy.arrays")
+            raise RuntimeError("Waveform must be specified as numpy.arrays")
         if len(value) >= 2 and value[1] is not None and len(value[0]) != len(value[1]):
             raise RuntimeError("The two waves must have the same length")
         if len(value) == 3 and value[2] is not None and len(value[0]) != len(value[2]):
@@ -163,15 +165,19 @@ class Waveforms(MutableMapping):
             )
         if np.iscomplexobj(value[0]) and not (len(value) < 3 or value[1] is None):
             raise RuntimeError(
-                "the first waveform is complex therfore only one "
+                "The first waveform is complex therefore only one "
                 "waveform can be specified."
             )
 
         self._waveforms[slot] = value + (None,) * (3 - len(value))
 
     def get_raw_vector(
-        self, slot: int, *, target_length: int = None, complex_output: bool = False
-    ) -> NumpyArray:
+        self,
+        slot: int,
+        *,
+        target_length: t.Optional[int] = None,
+        complex_output: bool = False,
+    ) -> np.ndarray:
         """Get the raw vector for a slot required by the device.
 
         Either converts a waveform into the native AWG waveform format that can
@@ -193,8 +199,7 @@ class Waveforms(MutableMapping):
             Waveform in the native AWG format or as a complex waveform
 
         Raises:
-            ValueError: The length of the waves does not matche the target
-                length.
+            ValueError: The length of the waves does not match the target length.
         """
         waves = self._waveforms[slot]
         wave1 = np.zeros(1) if len(waves[0]) == 0 else waves[0]
@@ -203,12 +208,12 @@ class Waveforms(MutableMapping):
 
         if target_length and len(wave1) > target_length:
             raise ValueError(
-                f"waveforms are larger than the target length "
+                f"Waveforms are larger than the target length "
                 f"{len(wave1)} > {target_length}."
             )
         if target_length and len(wave1) < target_length:
             raise ValueError(
-                f"waveforms are smaller than the target length "
+                f"Waveforms are smaller than the target length "
                 f"{len(wave1)} < {target_length}."
             )
 
