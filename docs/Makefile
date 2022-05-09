@@ -7,6 +7,7 @@ SPHINXOPTS    ?=
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build
+EXAMPLE_SRC   ?= local
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -17,5 +18,5 @@ help:
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
-	../examples/generate_notebooks.sh
+	python3 ../scripts/generate_notebooks.py $(EXAMPLE_SRC)
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)

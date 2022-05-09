@@ -4,5 +4,6 @@ nbsphinx_link
 m2r2
 pydata_sphinx_theme
 sphinx_autodoc_typehints
-jupytext
+jupytext==1.13.7
 ipython
+requests

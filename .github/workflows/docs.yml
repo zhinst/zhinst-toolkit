@@ -1,0 +1,44 @@
+name: Build docs
+
+on:
+  push:
+    branches: ["main"]
+    tags: 
+      - "v*.*.*"
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  generate-docs:
+    name: "Build package documentation"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Checkout tag/branch"
+        uses: "actions/checkout@v3"
+        with: { fetch-depth: 0 }
+      - name: "Setup Python"
+        uses: "actions/setup-python@v3"
+        with:
+          python-version: "3.9"
+
+      - name: "Install build dependencies"
+        run: |
+          set -xe
+          python -VV
+          python -m site
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade -r requirements.txt
+          python -m pip install --upgrade -r docs/requirements.txt
+          pip install .
+
+      - name: "Build docs"
+        run: |
+          wget https://github.com/jgm/pandoc/releases/download/2.18/pandoc-2.18-1-amd64.deb
+          sudo dpkg -i pandoc-2.18-1-amd64.deb
+          cd docs && make html EXAMPLE_SRC=remote
+
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: docs
+          path: docs/build/html
