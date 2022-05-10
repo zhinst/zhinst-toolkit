@@ -67,16 +67,21 @@ Change to docs directory
 
         $ cd docs
 
-- Install the dependencies
+- Install the docs dependencies
 
     .. code-block:: sh
 
-        $ pip install -r requirements.txt
+        $ pip install -r docs/requirements.txt
 
 - Build the HTML documentation with Sphinx
 
     .. code-block:: sh
 
-        $ make html
+        $ make html {remote | local}
 
 The generated documentation can be seen in your browser by opening `docs/html/index.html`.
+
+Contributor License Agreement
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We appreciate contributions.
