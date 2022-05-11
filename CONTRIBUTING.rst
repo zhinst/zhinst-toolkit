@@ -111,15 +111,6 @@ Change to docs directory
 
     .. code-block:: sh
 
-<<<<<<< Updated upstream
-        $ make html {remote | local}
-=======
         $ make html [local | remote]
->>>>>>> Stashed changes
 
 The generated documentation can be seen in your browser by opening `docs/html/index.html`.
-
-Contributor License Agreement
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-We appreciate contributions.
