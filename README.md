@@ -50,6 +50,8 @@ We welcome contributions by the community, either as bug reports, fixes and new
 code. Please use the GitHub issue tracker to report bugs or submit patches.
 Before developing something new, please get in contact with us.
 
+Please see [Contributing section](https://docs.zhinst.com/zhinst-toolkit/en/latest/contributing/)
+
 ## License
 This software is licensed under the terms of the MIT license.
 See [LICENSE](LICENSE) for more detail.

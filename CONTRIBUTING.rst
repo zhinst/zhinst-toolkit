@@ -1,8 +1,20 @@
-Contributing to Zhinst Toolkit
-=============================
+Ways to contribute
+==================
+
+* Opening a new ticket to `Issues`_ or by commenting on existing one with new solutions or suggestions
+* By improving the project `documentation`_.
+* By improving and adding new project `examples`_.
+* By contributing code; bug fixes, new features and so on.
+
+.. _Issues: https://github.com/zhinst/zhinst-toolkit/issues
+.. _documentation: https://docs.zhinst.com/zhinst-toolkit/en/latest/
+.. _examples: https://docs.zhinst.com/zhinst-toolkit/en/latest/examples/index.html
+
+Code contributions
+==================
 
 Development environment setup
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------------
 
 - Clone the `zhinst-toolkit` repository
 
@@ -11,7 +23,7 @@ Development environment setup
         $ git clone https://github.com/zhinst/zhinst-toolkit
         $ cd zhinst-toolkit
 
-- Create virtual environment if you wish to run tests
+- Create a Python virtual environment
 
 - Install the dependencies
 
@@ -30,14 +42,36 @@ Development environment setup
     
         $ python .\scripts\zhinst_toolkit_symlink.py
 
-Running the unit tests
-~~~~~~~~~~~~~~~~~~~~~~
+Running the tests
+-----------------
 
-Running pytest
+Running all tests
+~~~~~~~~~~~~~~~~~
 
     .. code-block:: sh
 
         $ pytest
+
+Running lint test
+~~~~~~~~~~~~~~~~~
+
+    .. code-block:: sh
+
+        $ tox -e lint
+
+Running typing tests
+~~~~~~~~~~~~~~~~~~~~
+
+    .. code-block:: sh
+
+        $ tox -e typing
+
+Running code format check
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    .. code-block:: sh
+
+        $ tox -e black
 
 Running coverage
 ~~~~~~~~~~~~~~~~
@@ -51,7 +85,7 @@ Running coverage
 The report can be seen in your browser by opening `htmlcov/index.html`.
 
 Building the documentation
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 Zhinst-toolkit uses `Sphinx <https://pypi.org/project/Sphinx/>`_ to build the package documentation.
 
@@ -67,16 +101,16 @@ Change to docs directory
 
         $ cd docs
 
-- Install the dependencies
+- Install the docs dependencies
 
     .. code-block:: sh
 
-        $ pip install -r requirements.txt
+        $ pip install -r docs/requirements.txt
 
-- Build the HTML documentation with Sphinx
+- Build the HTML documentation along with examples with Sphinx
 
     .. code-block:: sh
 
-        $ make html
+        $ make html [local | remote]
 
 The generated documentation can be seen in your browser by opening `docs/html/index.html`.
