@@ -13,6 +13,10 @@ Ways to contribute
 Code contributions
 ==================
 
+* Follow `PEP8 <https://peps.python.org/pep-0008/>`_ and you should be fine.
+
+* The project uses `Google Style Python docstrings <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html>`_
+
 Development environment setup
 -----------------------------
 
