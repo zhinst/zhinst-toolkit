@@ -88,6 +88,16 @@ Running coverage
 
 The report can be seen in your browser by opening `htmlcov/index.html`.
 
+Building the examples
+---------------------
+
+The examples are stored as Markdown files. If you wish to turn the local 
+`examples/*.md` files into Jupyter Notebooks by using the following script:
+
+    .. code-block:: sh
+
+        $ python scripts/generate_notebooks.py local
+
 Building the documentation
 --------------------------
 
