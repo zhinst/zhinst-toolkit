@@ -4902,6 +4902,13 @@
         "Type": "Integer (64 bit)",
         "Unit": "None"
     },
+    "/dev1234/sgchannels/0/awg/commandtable/schema": {
+        "Node": "/DEV1234/SGCHANNELS/0/AWG/COMMANDTABLE/SCHEMA",
+        "Description": "JSON schema describing the command table JSON format (read-only).",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
     "/dev1234/sgchannels/0/awg/dio/strobe/index": {
         "Node": "/DEV1234/SGCHANNELS/0/AWG/DIO/STROBE/INDEX",
         "Description": "Select the DIO bit to use as the STROBE signal.",

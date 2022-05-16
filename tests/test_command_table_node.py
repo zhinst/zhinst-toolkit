@@ -7,15 +7,31 @@ from unittest.mock import patch
 import pytest
 
 from zhinst.toolkit.driver.nodes.command_table_node import CommandTableNode
+from zhinst.toolkit.driver.devices.shfsg import SHFSG
 
 
 @pytest.fixture()
-def command_table_node(shfsg):
+def command_table_node(shfsg_no_ct_schema):
     yield CommandTableNode(
-        shfsg.root,
+        shfsg_no_ct_schema.root,
         ("sgchannels", "0", "awg", "commandtable"),
         device_type="shfsg",
     )
+
+
+@pytest.fixture()
+def shfsg_no_ct_schema(data_dir, mock_connection, session):
+    json_path = data_dir / "nodedoc_dev1234_shfsg.json"
+    with json_path.open("r", encoding="UTF-8") as file:
+
+        nodes_json = file.read()
+        f = json.loads(nodes_json)
+        f.pop("/dev1234/sgchannels/0/awg/commandtable/schema")
+        nodes_json = json.dumps(f)
+    mock_connection.return_value.listNodesJSON.return_value = nodes_json
+
+    mock_connection.return_value.getString.return_value = ""
+    yield SHFSG("DEV1234", "SHFSG8", session)
 
 
 def test_attributes_init_node(command_table_node):
@@ -23,17 +39,27 @@ def test_attributes_init_node(command_table_node):
     assert command_table_node.raw_tree == ("sgchannels", "0", "awg", "commandtable")
 
 
-def test_correct_ct_node_schema_loaded(shfsg):
+def test_ct_schema_load_from_device(shfsg, mock_connection):
+    ct_schema = '{\n  "$schema": "https://json-schema.org/draft-04/schema#",\n  "title": "AWG Command Table Schema",\n}\n'
+    d = {
+        "/dev1234/sgchannels/0/awg/commandtable/schema": [
+            {"timestamp": 31066847852080, "flags": 0, "vector": ct_schema}
+        ]
+    }
+    schema_rturn = OrderedDict(d)
+    mock_connection.return_value.get.return_value = schema_rturn
+    assert shfsg.sgchannels[0].awg.commandtable.schema() == ct_schema
+
+
+def test_correct_ct_node_schema_loaded(shfsg_no_ct_schema):
     mock_json = {"test ": 123}
     with patch(
         "builtins.open", mock.mock_open(read_data=json.dumps(mock_json))
     ) as mock_open:
-        ct_node = CommandTableNode(
-            shfsg.root,
-            ("sgchannels", "0", "awg", "commandtable"),
-            device_type="shfsg",
+        assert (
+            shfsg_no_ct_schema.sgchannels[0].awg.commandtable.load_validation_schema()
+            == mock_json
         )
-        assert ct_node.load_validation_schema() == mock_json
 
 
 @pytest.mark.parametrize(
@@ -83,7 +109,7 @@ def test_ct_node_upload_to_device(
 
 
 @pytest.fixture
-def shfsg_ct_node(mock_connection, shfsg):
+def shfsg_ct_node(mock_connection, shfsg_no_ct_schema):
     schema = {
         "$schema": "https://json-schema.org/draft-04/schema#",
         "header": {"version": "1.1", "userString": "Test string"},
@@ -101,7 +127,7 @@ def shfsg_ct_node(mock_connection, shfsg):
         ]
     )
     return CommandTableNode(
-        shfsg.root,
+        shfsg_no_ct_schema.root,
         ("sgchannels", "0", "awg", "commandtable"),
         device_type="shfsg",
     )
