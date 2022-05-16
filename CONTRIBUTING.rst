@@ -17,6 +17,8 @@ Code contributions
 
 * The project uses `Google Style Python docstrings <https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html>`_
 
+* The project uses `black`, `flake8` and `mypy` to check for code style.
+
 Development environment setup
 -----------------------------
 
@@ -128,3 +130,38 @@ Change to docs directory
         $ make html [local | remote]
 
 The generated documentation can be seen in your browser by opening `docs/html/index.html`.
+
+Pull requests
+--------------
+
+Use `Github pull requests <https://github.com/zhinst/zhinst-toolkit/pulls>`_ to contribute your code.
+
+Use an existing Pull request template and follow it.
+
+
+Writing examples
+================
+
+Examples are a good way to demonstrate on how the library is used to execute various 
+experiments and measurements. Examples using `zhinst Toolkit` are welcome.
+
+File format
+-----------
+
+The examples are written by using Jupyter Notebooks, but version controlled as Markdown files.
+
+The ready made example Notebooks can be translated to a Markdown file by using `Jupytext <https://jupytext.readthedocs.io/en/latest/>`_.
+
+Structure
+---------
+
+Please see the existing examples in /examples and try to keep the same structure.
+Including the output of Notebook cells is highly encouraged.
+
+Adding to documentation
+-----------------------
+
+Version controlled Markdown files are translated to Notebooks in CI and
+then to HTML for display.
+
+To include the example in HTML documentation, create an NB link in `docs <https://github.com/zhinst/zhinst-toolkit/tree/main/docs/source/examples>`_.
