@@ -55,16 +55,18 @@ class CommandTableNode(Node):
         return ct_status == 1
 
     @lru_cache()
-    def load_validation_schema(self) -> dict:
+    def load_validation_schema(self) -> t.Dict[str, t.Any]:
         """Load device command table validation schema.
 
         Returns:
             JSON validation schema for the device command tables.
         """
-        # TODO: Load from device once available.
-        device_type_striped = self._device_type.lower().rstrip(string.digits)
-        with open(_CT_FILES[device_type_striped]) as f:
-            return json.load(f)
+        try:
+            return json.loads(self.schema())
+        except KeyError:
+            device_type_striped = self._device_type.lower().rstrip(string.digits)
+            with open(_CT_FILES[device_type_striped], encoding="utf-8") as file_:
+                return json.load(file_)
 
     def upload_to_device(
         self, ct: t.Union[CommandTable, str, dict], *, validate: bool = True

@@ -1,5 +1,10 @@
 # zhinst-toolkit Changelog
 
+## Version 0.3.4
+
+* `Commandtable.load_validation_schema` can also get the command table
+  JSON schema from the device.
+
 ## Version 0.3.2
 * Added a helper function ``uhfqa.qas[n].integration.write_integration_weights`` for
   QAS integration weights configuration
