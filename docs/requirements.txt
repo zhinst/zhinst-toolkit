@@ -1,4 +1,5 @@
 sphinx
+sphinx-issues
 nbsphinx
 nbsphinx_link
 m2r2
