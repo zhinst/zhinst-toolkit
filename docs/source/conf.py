@@ -33,6 +33,7 @@ extensions = [
     "sphinx.ext.coverage",
     "sphinx.ext.napoleon",
     "sphinx.ext.autosectionlabel",
+    "sphinx_issues",
     "nbsphinx",
     "nbsphinx_link",
     "IPython.sphinxext.ipython_console_highlighting",
@@ -46,6 +47,9 @@ autodoc_default_options = {"show-inheritance": True}
 
 autosummary_generate = True
 set_type_checking_flag = False
+
+# Sphinx issues
+issues_github_path = "zhinst/zhinst-toolkit"
 
 # Make sure the target is unique
 autosectionlabel_prefix_document = True
