@@ -150,7 +150,8 @@ def test_load_sequencer_program(mock_connection, awg_module, caplog):
     # Empty string sequencer program
     with pytest.raises(ValueError):
         awg_module.load_sequencer_program("")
-
+    with pytest.raises(ValueError):
+        awg_module.load_sequencer_program(None)
 
 def test_load_sequencer_program_qc(mock_connection, awg_module_qc):
     compiler_status = 0

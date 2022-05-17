@@ -107,7 +107,7 @@ class AWG(Node):
             `sequencer_program` does not accept empty strings
 
         """
-        if sequencer_program == "":
+        if not sequencer_program:
             raise ValueError("Empty sequencer program not allowed.")
         awg = self._session.modules.create_awg_module()
         raw_awg = awg.raw_module

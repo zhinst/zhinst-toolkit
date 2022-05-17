@@ -108,7 +108,7 @@ class Generator(Node):
             `sequencer_program` does not accept empty strings
 
         """
-        if sequencer_program == "":
+        if not sequencer_program:
             raise ValueError("Empty sequencer program not allowed.")
         deviceutils.load_sequencer_program(
             self._daq_server,
