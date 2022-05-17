@@ -153,6 +153,7 @@ def test_load_sequencer_program(mock_connection, awg_module, caplog):
     with pytest.raises(ValueError):
         awg_module.load_sequencer_program(None)
 
+
 def test_load_sequencer_program_qc(mock_connection, awg_module_qc):
     compiler_status = 0
     upload_process = iter([0, 0.2, 1, 1])
