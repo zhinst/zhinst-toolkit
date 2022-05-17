@@ -101,7 +101,7 @@ class AWG(Node):
             ValueError: `sequencer_program` is an empty string.
             TimeoutError: If the upload or compilation times out.
             RuntimeError: If the upload or compilation failed.
-            
+
         .. versionadded:: 0.3.4
 
             `sequencer_program` does not accept empty strings
