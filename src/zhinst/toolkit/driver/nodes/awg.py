@@ -90,17 +90,25 @@ class AWG(Node):
     def load_sequencer_program(
         self, sequencer_program: str, *, timeout: float = 100.0
     ) -> None:
-        """Compiles the current SequenceProgram on the AWG Core.
+        """Compiles the given sequencer program on the AWG Core.
 
         Args:
-            sequencer_program: Sequencer program to be uploaded
+            sequencer_program: Sequencer program to be uploaded.
             timeout: Maximum time to wait for the compilation on the device in
                 seconds.
 
         Raises:
+            ValueError: `sequencer_program` is an empty string.
             TimeoutError: If the upload or compilation times out.
             RuntimeError: If the upload or compilation failed.
+            
+        .. versionadded:: 0.3.4
+
+            `sequencer_program` does not accept empty strings
+
         """
+        if sequencer_program == "":
+            raise ValueError("Empty sequencer program not allowed.")
         awg = self._session.modules.create_awg_module()
         raw_awg = awg.raw_module
         awg.device(self._serial)

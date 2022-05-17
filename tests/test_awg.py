@@ -147,6 +147,10 @@ def test_load_sequencer_program(mock_connection, awg_module, caplog):
     with pytest.raises(RuntimeError) as e_info:
         awg_module.load_sequencer_program("Hello", timeout=0.5)
 
+    # Empty string sequencer program
+    with pytest.raises(ValueError):
+        awg_module.load_sequencer_program("")
+
 
 def test_load_sequencer_program_qc(mock_connection, awg_module_qc):
     compiler_status = 0
