@@ -4,6 +4,8 @@
 
 * `Commandtable.load_validation_schema` can also get the command table
   JSON schema from the device.
+* ``load_sequencer_program`` now raises an ``ValueError`` 
+  if empty ``sequencer_program`` string is given. :issue:`138`
 
 ## Version 0.3.2
 * Added a helper function ``uhfqa.qas[n].integration.write_integration_weights`` for

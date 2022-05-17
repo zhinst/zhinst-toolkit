@@ -94,14 +94,22 @@ class Generator(Node):
         """Compiles and loads a sequencer program.
 
         Args:
-            sequencer_program: Sequencer program to be uploaded
+            sequencer_program: Sequencer program to be uploaded.
             timeout: Maximum time to wait for the compilation on the device in
-                seconds. (default = 10s)
+                seconds.
 
         Raises:
+            ValueError: `sequencer_program` is an empty string.
             TimeoutError: If the upload or compilation times out.
             RuntimeError: If the upload or compilation failed.
+
+        .. versionadded:: 0.3.4
+
+            `sequencer_program` does not accept empty strings
+
         """
+        if not sequencer_program:
+            raise ValueError("Empty sequencer program not allowed.")
         deviceutils.load_sequencer_program(
             self._daq_server,
             self._serial,

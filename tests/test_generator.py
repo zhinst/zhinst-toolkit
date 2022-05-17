@@ -40,6 +40,13 @@ def test_enable_sequencer(generator, mock_connection):
         )
 
 
+def test_load_sequencer_program_empty_string_none(generator):
+    with pytest.raises(ValueError):
+        generator.load_sequencer_program("")
+    with pytest.raises(ValueError):
+        generator.load_sequencer_program(None)
+
+
 def test_wait_done(mock_connection, generator):
     single = 0
     enable = iter([])
