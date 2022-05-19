@@ -25,3 +25,14 @@ DEVICE_CLASS_BY_MODEL = {
     "UHFQA": UHFQA,
     "UHFLI": UHFLI,
 }
+
+__all__ = [
+    "BaseInstrument",
+    "HDAWG",
+    "PQSC",
+    "SHFQA",
+    "SHFSG",
+    "UHFLI",
+    "UHFQA",
+    "SHFQC"
+]

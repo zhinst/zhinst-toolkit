@@ -15,7 +15,7 @@ from zhinst.toolkit.nodetree.helper import lazy_property
 class Devices(MutableMapping):
     """Mapping class for the connected devices.
 
-    Mapps the connected devices from data server to lazy device objects.
+    Maps the connected devices from data server to lazy device objects.
     On every access the connected devices are read from the data server. This
     ensures that even if devices get connected/disconnected through another
     session the list will be up to date.
@@ -26,7 +26,7 @@ class Devices(MutableMapping):
 
     def __init__(self, session: "Session"):
         self._session = session
-        self._devices = {}
+        self._devices: t.Dict[str, tk_devices.DeviceType] = {}
         self._device_classes = tk_devices.DEVICE_CLASS_BY_MODEL
 
     def __getitem__(self, key) -> tk_devices.DeviceType:
@@ -106,10 +106,10 @@ class HF2Devices(Devices):
     Maps the connected devices from data server to lazy device objects.
     It derives from the general ``Devices`` class and adds the special handling
     for the HF2 data server. Since the HF2 Data Server is based on the API Level
-    1 it as a much more resticted API. This means it is not possible to get
+    1 it as a much more restricted API. This means it is not possible to get
     the connected or visible devices from the data server. This class must
     track the connected devices itself and use discovery to mimic the
-    behaviour of the new data server used for the other devices.
+    behavior of the new data server used for the other devices.
     """
 
     def _create_device(self, serial: str) -> tk_devices.BaseInstrument:
@@ -164,7 +164,7 @@ class HF2Devices(Devices):
         """Add a new HF2 device.
 
         Since the HF2 data server is not able to report its connected devices
-        toolkit manualy needs to update the list of kown connected devices.
+        toolkit manually needs to update the list of known connected devices.
 
         Args:
             serial: Serial of the HF2 device
@@ -182,9 +182,9 @@ class ModuleHandler:
 
     Handler for all additional so called modules by LabOne. A LabOne module is
     bound to a user session but creates a independent session to the Data Server.
-    This has the advantage that they do not interfer with the user session. It
+    This has the advantage that they do not interfere with the user session. It
     also means that creating a session causes additional resources allocation,
-    both at the client and the data server. New modules should therfore only be
+    both at the client and the data server. New modules should therefore only be
     instantiated with care.
 
     Toolkit holds a lazy generated instance of all modules. This ensures that
@@ -192,7 +192,7 @@ class ModuleHandler:
     access to the modules is optimized.
 
     Of course there are many use cases where more than one module of a single
-    type is required. This class therfor also exposes a ``create`` function for
+    type is required. This class therefore also exposes a ``create`` function for
     each LabOne module. These functions create a unmanaged instance of that
     module (unmanaged means toolkit does not hold an instance of that module).
 
@@ -432,7 +432,7 @@ class ModuleHandler:
         node tree like structure.
 
         In addition a new session is created. This has the benefit that the
-        sweeper implementation does not interfer with the the commands and
+        sweeper implementation does not interfere with the the commands and
         setups from the user.
 
         Returns:
@@ -522,14 +522,14 @@ class ModuleHandler:
         Managed means that only one instance is created
         and is held inside the connection Manager. This makes it easier to access
         the modules from within toolkit, since creating a module requires
-        resources. (``use create_precomensation_advisor_module`` to create an
+        resources. (``use create_precompensation_advisor_module`` to create an
         unmanaged instance)
         """
         return self.create_precompensation_advisor_module()
 
     @lazy_property
     def qa(self) -> tk_modules.BaseModule:
-        """Managed instance of the quantum analyer module.
+        """Managed instance of the quantum analyzer module.
 
         Managed means that only one instance is created
         and is held inside the connection Manager. This makes it easier to access
@@ -613,10 +613,10 @@ class Session(Node):
     information on the architecture please refer to the user manual
     http://docs.zhinst.com/labone_programming_manual/introduction.html)
 
-    The entry point into for any connection is therfor a client session to a
+    The entry point into for any connection is therefore a client session to a
     existing data sever. This class represents a single client session to a
     data server. The session enables the user to connect to one or multiple
-    instruments (also creates the deticated objects for each device), access
+    instruments (also creates the dedicated objects for each device), access
     the LabOne modules and poll data. In short it is the only object the user
     need to create by himself.
 
@@ -764,7 +764,7 @@ class Session(Node):
                     self._daq_server.connectDevice(serial, "1GbE")
                 else:
                     raise
-            if self._is_hf2_server:
+            if isinstance(self._devices, HF2Devices):
                 self._devices.add_hf2_device(serial)
         return self._devices[serial]
 
@@ -791,7 +791,7 @@ class Session(Node):
             * Ensures that all set commands have been flushed to the device
             * Ensures that get and poll commands only return data which was
               recorded after the sync command. (ALL poll buffers are cleared!)
-            * Blocks until all devices have cleared their bussy flag.
+            * Blocks until all devices have cleared their busy flag.
 
         Warning:
             The sync is performed for all devices connected to the DAQ server
