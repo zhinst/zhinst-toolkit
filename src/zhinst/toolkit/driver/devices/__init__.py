@@ -34,5 +34,5 @@ __all__ = [
     "SHFSG",
     "UHFLI",
     "UHFQA",
-    "SHFQC"
+    "SHFQC",
 ]
