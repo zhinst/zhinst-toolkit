@@ -612,7 +612,9 @@ def test_update_nodes(connection):
 
     # Test for not raising any errors
     tree.update_nodes(
-        {"312/123": {"Unit": "test5"}, "testNOtexists": {"Node": "test5"}}, add=False, raise_for_invalid_node=False
+        {"312/123": {"Unit": "test5"}, "testNOtexists": {"Node": "test5"}},
+        add=False,
+        raise_for_invalid_node=False,
     )
     assert tree.testNOtexists.is_valid() is False
 
