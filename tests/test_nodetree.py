@@ -608,6 +608,13 @@ def test_update_nodes(connection):
         {"demods/0/rate": {"Unit": "test3"}, "test": {"Node": "test4"}}, add=True
     )
     assert tree.test.node_info.path == "test4"
+    assert tree.test.is_valid() is True
+
+    # Test for not raising any errors
+    tree.update_nodes(
+        {"312/123": {"Unit": "test5"}, "testNOtexists": {"Node": "test5"}}, add=False, raise_for_invalid_node=False
+    )
+    assert tree.testNOtexists.is_valid() is False
 
 
 def test_options(connection):

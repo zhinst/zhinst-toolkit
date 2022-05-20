@@ -39,7 +39,8 @@ class SweeperModule(BaseModule):
                     "GetParser": self._get_node,
                     "SetParser": self._set_node,
                 }
-            }
+            },
+            raise_for_invalid_node=False,
         )
 
     def execute(self) -> None:

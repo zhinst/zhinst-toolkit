@@ -3,6 +3,7 @@
 import fnmatch
 import json
 import typing as t
+import warnings
 from keyword import iskeyword as is_keyword
 
 try:
@@ -274,7 +275,7 @@ class NodeTree:
         Raises:
             KeyError: If node does not exist and the ``add`` Flag is not set
             ValueError: If the node is passed as a string in form of a relative
-                path and no perfix can be added.
+                path and no prefix can be added.
         """
         potential_key = self.to_raw_path(node).lower()
         # resolve potential wildcards
@@ -303,6 +304,7 @@ class NodeTree:
         update_dict: t.Dict[t.Union[Node, str], t.Dict[str, t.Any]],
         *,
         add: bool = False,
+        raise_for_invalid_node: bool = True,
     ) -> None:
         """Update multiple nodes in the NodeTree.
 
@@ -313,12 +315,23 @@ class NodeTree:
             update_dict: Dictionary with node as keys and entries that will be
                 updated as values.
             add: Flag a non-existing node should be added (default = False).
+            raise_for_invalid_node: If set to `True`, when `add` is False and the
+                node(s) are invalid/nonexistent, an error is raised.
+
+                Otherwise will issue a warning and continue adding the valid nodes.
+
+                .. versionadded:: 0.3.4
 
         Raises:
             KeyError: If node does not exist and the ``add`` flag is not set
         """
         for node, updates in update_dict.items():
-            self.update_node(node, updates, add=add)
+            try:
+                self.update_node(node, updates, add=add)
+            except KeyError as error:
+                if raise_for_invalid_node:
+                    raise
+                warnings.warn(f"Tried to add nonexistent node: {error.args[0]}.")
 
     def raw_path_to_node(self, raw_path: str) -> Node:
         """Converts a raw node path string into a Node object.

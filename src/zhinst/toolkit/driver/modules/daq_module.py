@@ -43,7 +43,8 @@ class DAQModule(BaseModule):
                     "GetParser": self._get_node,
                     "SetParser": self._set_node,
                 }
-            }
+            },
+            raise_for_invalid_node=False,
         )
 
     def _get_node(self, node: str) -> t.Union[Node, str]:

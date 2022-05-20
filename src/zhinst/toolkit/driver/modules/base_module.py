@@ -43,7 +43,8 @@ class BaseModule(Node):
                         "GetParser": self._get_device,
                         "SetParser": self._set_device,
                     }
-                }
+                },
+                raise_for_invalid_node=False,
             )
 
     def __repr__(self):
