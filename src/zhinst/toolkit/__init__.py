@@ -22,3 +22,12 @@ try:
     from zhinst.toolkit._version import version as __version__
 except ModuleNotFoundError:
     pass
+
+__all__ = [
+    "CommandTable",
+    "AveragingMode",
+    "SHFQAChannelMode",
+    "PollFlags",
+    "Session",
+    "Waveforms"
+]
