@@ -33,7 +33,7 @@ Requirements:
 
 * LabOne Version >= 22.02
 * Instruments:
-    1 x UHFQA Instrumemt.
+    1 x UHFQA instrument.
 * Signal output 1 connected to signal input 1 with a BNC cable.
 * Signal output 2 connected to signal input 2 with a BNC cable.
 
@@ -97,14 +97,7 @@ with device.set_transaction():
 
 ```python
 awg_program = """\
-const RATE = 0;
-const FS = 1.8e9*pow(2, -RATE);
-const LENGTH = 1.0e-6;
-const N = floor(LENGTH*FS);
-
 wave w = join(zeros(64), ones(10000), -ones(10000));
-
-setTrigger(AWG_INTEGRATION_ARM);
 var loop_cnt = getUserReg(0);
 var avg_cnt = getUserReg(1);
 var wait_delta = 1;
@@ -116,14 +109,10 @@ repeat (avg_cnt) {
         wait_time += wait_delta;
         playWave(w, w);
         wait(wait_time);
-        setTrigger(AWG_INTEGRATION_TRIGGER + AWG_INTEGRATION_ARM);
-        setTrigger(AWG_INTEGRATION_ARM);
-        waitWave();
-        wait(1024);
+        startQA(QA_INT_0 | QA_INT_1, true);
+        playZero(8*1024);
     }
 }
-
-setTrigger(0);
 """
 ```
 
