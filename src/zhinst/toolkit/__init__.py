@@ -29,5 +29,5 @@ __all__ = [
     "SHFQAChannelMode",
     "PollFlags",
     "Session",
-    "Waveforms"
+    "Waveforms",
 ]
