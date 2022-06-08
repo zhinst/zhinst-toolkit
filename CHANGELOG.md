@@ -11,6 +11,8 @@
   Now only a warning (instead of ``KeyError``) is issued when trying to initialize device/module object, which does
   not have nodes defined in node value parsers.
 
+* Minor type hint fixes. :pr:`#136`
+
 ## Version 0.3.2
 * Added a helper function ``uhfqa.qas[n].integration.write_integration_weights`` for
   QAS integration weights configuration
