@@ -82,7 +82,8 @@ class SHFQASweeper(Node):
                     "GetParser": Parse.get_true_false,
                     "SetParser": Parse.set_true_false,
                 },
-            }
+            },
+            raise_for_invalid_node=False,
         )
 
     def __repr__(self):

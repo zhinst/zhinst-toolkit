@@ -6,6 +6,10 @@
   JSON schema from the device.
 * ``load_sequencer_program`` now raises an ``ValueError`` 
   if empty ``sequencer_program`` string is given. :issue:`138`
+* Added a new `raise_for_invalid_node` keyword-argument to ``NodeTree.update_nodes``. :issue:`110`
+  
+  Now only a warning (instead of ``KeyError``) is issued when trying to initialize device/module object, which does
+  not have nodes defined in node value parsers.
 
 ## Version 0.3.2
 * Added a helper function ``uhfqa.qas[n].integration.write_integration_weights`` for

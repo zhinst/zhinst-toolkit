@@ -70,7 +70,9 @@ class BaseInstrument(Node):
             preloaded_json=preloaded_json,
         )
         # Add predefined parseres (in node_parser) to nodetree nodes
-        nodetree.update_nodes(node_parser.get(self.__class__.__name__, {}))
+        nodetree.update_nodes(
+            node_parser.get(self.__class__.__name__, {}), raise_for_invalid_node=False
+        )
 
         super().__init__(nodetree, tuple())
 
