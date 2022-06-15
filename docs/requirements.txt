@@ -1,9 +1,9 @@
-sphinx
+sphinx<5.0.0  # TODO: Custom CSS/templates do not work with newest versions.
 sphinx-issues
 nbsphinx
 nbsphinx_link
 m2r2
-pydata_sphinx_theme
+pydata_sphinx_theme<0.9.0 # TODO: Custom CSS/templates do not work with newest versions.
 sphinx_autodoc_typehints
 jupytext==1.13.7
 ipython
