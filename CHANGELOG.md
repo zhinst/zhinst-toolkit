@@ -13,6 +13,10 @@
 
 * Minor type hint fixes. :pr:`#147`
 
+## Version 0.3.3
+
+* Added support for SHFQC
+
 ## Version 0.3.2
 * Added a helper function ``uhfqa.qas[n].integration.write_integration_weights`` for
   QAS integration weights configuration
