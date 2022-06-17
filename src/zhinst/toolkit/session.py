@@ -720,7 +720,7 @@ class Session(Node):
         )
 
     def connect_device(
-        self, serial: str, *, interface: str = None
+        self, serial: str, *, interface: t.Optional[str] = None
     ) -> tk_devices.DeviceType:
         """Establish a connection to a device.
 
