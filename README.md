@@ -14,7 +14,7 @@ programming language. It is based on top of the native
 the Zurich Instruments control software. It comes in the form of a package
 compatible with Python 3.7+.
 
-The central goal of zhinst-toolkit is to provide a pythonic aproach to interact
+The central goal of zhinst-toolkit is to provide a pythonic approach to interact
 with any Zurich Instruments device and is intended as a full replacement for the
 low level ``zhinst.ziPython`` package.
 
