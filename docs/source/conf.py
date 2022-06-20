@@ -100,3 +100,10 @@ napoleon_use_rtype = True
 
 nbsphinx_codecell_lexer = "none"
 highlight_language = "none"
+
+# Spelling
+# sphinxcontrib.spelling configuration file
+spelling_word_list_filename='spelling_wordlist.txt'
+# Show suggestion in console output
+spelling_show_suggestions=False
+spelling_exclude_patterns=['examples/*']
