@@ -97,3 +97,10 @@ Loopback
 gaussian
 upconversion
 clockbase
+demodulator
+transactional
+parsers
+sideband
+crosstalk
+waveforms
+Waveforms

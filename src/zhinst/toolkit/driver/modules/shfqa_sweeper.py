@@ -41,7 +41,7 @@ class SHFQASweeper(Node):
     All parameters can be accessed through their corresponding node:
     * device: Device to run the sweeper with
     * sweep: Frequency range settings for a sweep
-    * rf: RF in- and ouput settings for a sweep
+    * rf: RF in- and output settings for a sweep
     * average: Averaging settings for a sweep
     * trigger: Settings for the trigger
     * envelope: Settings for defining a complex envelope for pulsed spectroscopy

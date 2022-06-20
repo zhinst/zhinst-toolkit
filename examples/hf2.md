@@ -21,10 +21,10 @@ developed by Zurich Instruments. Since the initial release of the HF2 a lot more
 Instruments have joined the family of Zurich Instrument and the features of
 LabOne where constantly upgraded. Never the less the HF2LI offers exceptional
 features and measurement performance and is of course still fully supported by
-LabOne and zhinst-toolkit. However it has a few specialities like a seperate
+LabOne and zhinst-toolkit. However it has a few specialties like a separate
 Data Sever or the maximal support of API level 1.
 
-Never the less toolkit offers a similiar handling of the HF2 compared to other
+Never the less toolkit offers a similar handling of the HF2 compared to other
 devices. Since the HF2 uses a different data server one can not share a session
 with other devices.
 
@@ -63,9 +63,9 @@ device.demods[0].enable()
 
 ## Polling DEMOD Samples
 
-To get samples for the device subscribe and poll is the prefered way.
+To get samples for the device subscribe and poll is the preferred way.
 After the subscribe command the data server will the node changes in an
-internaly. In case of a sample node the values will be updated by the device in
+internally. In case of a sample node the values will be updated by the device in
 the respective sampling frequency. With the poll command the buffered data can
 be fetched.
 
@@ -193,7 +193,7 @@ print(
 
 ### Plot
 
-#### Bode Diagramm
+#### Bode Diagram
 
 ```python
 import matplotlib.pyplot as plt

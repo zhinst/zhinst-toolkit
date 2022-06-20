@@ -29,25 +29,25 @@ class Connection(Protocol):
         """Returns a list of nodes with description found at the specified path."""
 
     def get(self, path: str, *args, **kwargs) -> object:
-        """Mirrors the behaviour of ziPython ``get`` command."""
+        """Mirrors the behavior of ziPython ``get`` command."""
 
     def getInt(self, path: str) -> int:
-        """Mirrors the behaviour of ziPython ``getInt`` command."""
+        """Mirrors the behavior of ziPython ``getInt`` command."""
 
     def getDouble(self, path: str) -> float:
-        """Mirrors the behaviour of ziPython ``getDouble`` command."""
+        """Mirrors the behavior of ziPython ``getDouble`` command."""
 
     def getString(self, path: str) -> str:
-        """Mirrors the behaviour of ziPython ``getDouble`` command."""
+        """Mirrors the behavior of ziPython ``getDouble`` command."""
 
     def set(self, path: str, value: object, **kwargs) -> None:
-        """Mirrors the behaviour of ziPython ``set`` command."""
+        """Mirrors the behavior of ziPython ``set`` command."""
 
     def subscribe(self, path: str) -> None:
-        """Mirrors the behaviour of ziPython ``subscribe`` command."""
+        """Mirrors the behavior of ziPython ``subscribe`` command."""
 
     def unsubscribe(self, path: str) -> None:
-        """Mirrors the behaviour of ziPython ``unsubscribe`` command."""
+        """Mirrors the behavior of ziPython ``unsubscribe`` command."""
 
 
 class Transaction:
@@ -125,7 +125,7 @@ class NodeTree:
     >>> nodetree.example.nodes[8].test
         /example/nodes/8/test
 
-    To speed up the initialisation time the node tree is initialised lazy.
+    To speed up the initialization time the node tree is initialized lazy.
     Meaning the dictionary is kept as a flat dictionary and is not converted
     into a nested one. In addition the nested node objects returned by the
     ``NodeTree`` also are just simple placeholders. Only when performing
@@ -174,7 +174,7 @@ class NodeTree:
                 self._flat_dict = {**self._flat_dict, **json.loads(nodes_json)}
         self._flat_dict = {key.lower(): value for key, value in self._flat_dict.items()}
         self._transaction = Transaction(self)
-        # First Layer must be generate during initialisation to calculate the
+        # First Layer must be generate during initialization to calculate the
         # prefixes to keep
         self._first_layer = []
         self._prefixes_keep = []
@@ -241,9 +241,9 @@ class NodeTree:
             Node(s) information.
 
         Raises:
-            KeyErrror if the node does not match an existing node.
+            KeyError if the node does not match an existing node.
             ValueError: If the node is passed as a string in form of a relative
-                path and no perfix can be added.
+                path and no prefix can be added.
         """
         key = self.to_raw_path(node)
         # resolve potential wildcards
@@ -421,7 +421,7 @@ class NodeTree:
             Raw node path that can be used a key in the internal dictionary.
 
         Raises:
-            ValueError: If the node is a relative path and no perfix can be
+            ValueError: If the node is a relative path and no prefix can be
                 added.
         """
         if not node.startswith("/"):
@@ -443,7 +443,7 @@ class NodeTree:
         and often increases the speed.
 
         Within the with block all set commands to a node will be buffered
-        and bundeld into a single command at the end of the context
+        and grouped into a single command at the end of the context
         automatically. (All other operations, e.g. getting the value of a node,
         will not be affected)
 

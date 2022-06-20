@@ -23,7 +23,7 @@ if t.TYPE_CHECKING:
 class NodeInfo:
     """Class that holds the additional information for a single node.
 
-    LabOne provides for each leaf node a dictionary of so called node infos
+    LabOne provides for each leaf node a dictionary of so called node info
     (In addition toolkit or the user may also add some information for selected
     nodes). This class wraps around these information and exposes them to a user
     in a friendly way.
@@ -162,7 +162,7 @@ class NodeInfo:
 
     @property
     def writable(self) -> t.Optional[bool]:
-        """Flag if the node is writeable.
+        """Flag if the node is writable.
 
         Returns None if the node does not provide the information (e.g. wildcard
         or partial nodes.)
@@ -281,7 +281,7 @@ class Node:
         Flag if the set operation should be blocking until the data
         has arrived at the device, respectively if the get operation should
         return the value from the device or the cached value on the data
-        server (if there is any). If this flag is set the opperation can
+        server (if there is any). If this flag is set the operation can
         take significantly longer. (default = False)
 
         For a deep get operation the timestamp from the device is returned
@@ -471,7 +471,7 @@ class Node:
 
         Args:
             deep: Flag if the get operation should return the cached value
-                from the dataserver or get the value from the device, which is
+                from the Data Server or get the value from the device, which is
                 significantly slower.
             enum: Flag if enumerated values should return the enum value as
                 string or return the raw number.
@@ -556,7 +556,7 @@ class Node:
 
         Args:
             deep: Flag if the get operation should return the cached value
-                from the dataserver or get the value from the device, which is
+                from the Data Server or get the value from the device, which is
                 significantly slower. The wildcard get is always performed as
                 deep get but the timestamp is only returned if the ``deep```
                 flag is set.
@@ -930,8 +930,8 @@ class Node:
             within the nodetree.
 
             Enabling additional flags how ever require that each node that
-            matches the wildcard needs to be checked in a seperate request by
-            the dataserver which can cause a severe latency. Therfore one
+            matches the wildcard needs to be checked in a separate request by
+            the Data Server which can cause a severe latency. Therefore one
             needs to enable the `full_wildcard` flag in order to support the
             manual generation of the matching child nodes.
 
@@ -1043,11 +1043,11 @@ class Node:
 class NodeList(Sequence, Node):
     """List of nodelike objects
 
-    List of preinitialized classes that intherit from the Node class would not
+    List of preinitialized classes that inherit from the ``Node`` class would not
     support wildcards since they would be of type list.
 
     This class holds the preinitialized objects. But if a the passed item is not
-    an interger it returns a Node instead.
+    an integer it returns a Node instead.
 
     Warning:
         Since in case of a passed wildcard symbol the return value is a node,

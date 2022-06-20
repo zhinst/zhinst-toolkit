@@ -40,8 +40,8 @@ access the node specific information.
      /dev3036/demods/0/oscselect,
      ...]
 
-The node tree is automatically generated during the initialisation of the device
-in toolkit. It is based on the information provided by the device and therfore
+The node tree is automatically generated during the initialization of the device
+in toolkit. It is based on the information provided by the device and therefore
 adapts automatically to a new firmware.
 
 Check Compatibility
@@ -53,14 +53,14 @@ if not all versions are up to date important feature or fixes by be missing.
 To ensure that all versions match each device exposes a function called
 ``check_compatibility`` which only passes if all versions match.
 
-The following criterias are checked:
+The following criteria are checked:
 
 * minimum required zhinst-deviceutils package is installed
 * minimum required zhinst-ziPython package is installed
 * zhinst package matches the LabOne Data Server version
 * firmware revision matches the LabOne Data Server version¨
 
-If any of the above criterias is not fullfilled ``check_compatibility`` will
+If any of the above criterion is not fulfilled ``check_compatibility`` will
 raise RuntimeError.
 
 Transactional Set
@@ -97,7 +97,7 @@ Factory reset
 -------------
 
 To reset a device to the factory settings LabOne has a default preset. All
-toolkit device classes therfor expose a function called ``factory_reset`` which
+toolkit device classes therefor expose a function called ``factory_reset`` which
 loads the default preset.
 
 .. code-block:: python
@@ -109,5 +109,5 @@ loads the default preset.
 
     Not all devices support the factory devices yet. If a device does not support
     the factory reset it will issue a warning when trying to call it. In that
-    case a powercycle has the same effect.
+    case a power cycle has the same effect.
 

@@ -24,7 +24,7 @@ class Readout(Node):
         tree: Tree (node path as tuple) of the current node
         daq_server: Instance of the ziDAQServer
         serial: Serial of the device.
-        index: Index of the coresponding awg channel
+        index: Index of the corresponding awg channel
         max_qubits_per_channel: Max qubits per channel
     """
 
@@ -188,11 +188,11 @@ class Readout(Node):
         """Read integration weights from the waveform memory.
 
         Args:
-            slots: List of weight slots to read from the device. If not specfied
+            slots: List of weight slots to read from the device. If not specified
                 all available weights will be downloaded.
 
         Returns:
-            Mutuable mapping of the downloaded weights.
+            Mutable mapping of the downloaded weights.
         """
         nodes = []
         if slots is not None:

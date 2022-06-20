@@ -7,16 +7,16 @@ REM Command file for Sphinx documentation
 if "%SPHINXBUILD%" == "" (
 	set SPHINXBUILD=sphinx-build
 )
+
 set SOURCEDIR=source
 set BUILDDIR=build
 set EXAMPLE_SRC=%2
 
-if %2 == "" (
+if "%2" == "" (
 	set EXAMPLE_SRC=local
 )
 
 if "%1" == "" goto help
-
 
 %SPHINXBUILD% >NUL 2>NUL
 if errorlevel 9009 (

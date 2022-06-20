@@ -8,3 +8,4 @@ sphinx_autodoc_typehints
 jupytext==1.13.7
 ipython
 requests
+sphinxcontrib-spelling

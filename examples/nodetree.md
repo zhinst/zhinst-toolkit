@@ -54,7 +54,7 @@ device.root
 
 ## Accessing nodes
 
-The nested dictionary is a lazy structure that offers a performant and user-friendly
+The nested dictionary is a lazy structure that offers a efficient and user-friendly
 approach to the LabOne® node tree. It offers full support for Unix wildcards and nodes
 can either be specified by attribute or by item.
 
@@ -80,7 +80,7 @@ value on every node that matches it (the return type will be a dictionary).
 > Warning:
 >
 > Setting a value to a non leaf node will set the value of all child lead nodes.
-> It should therefor be used with great care to avoid unintentionall changes.
+> It should therefor be used with great care to avoid unintentional changes.
 
 ```python
 device.demods[0].order()
@@ -182,7 +182,7 @@ device.demods[0].enable(parse= False)
 Setting up an experiment normal requires setting a couple of nodes to the correct
 value. Since every call operation triggers an individual message to the data
 server, this can take a noticeable amount of time. To avoid this LabOne® offers
-an api functionality called transactional set. This functionality enables the user
+an API functionality called transactional set. This functionality enables the user
 to bundle multiple set commands into a single command/message. In zhinst.toolkit
 the functionality of a transactional set is wrapped in a context manager
 (``with`` statement). Every set operation within this context will be buffered
@@ -266,7 +266,7 @@ The above described call operator is a synchronous get request. Meaning it will
 block until it receives the data from the data server or the device (in case of
 a deep get). LabOne® also provides the interface for a asynchronous get. In
 toolkit each node has a function called ``get_as_event``. It will add the current
-value of that node into the buffer of the dataserver. The next poll command will
+value of that node into the buffer of the Data Server. The next poll command will
 return that value.
 
 ```python
@@ -276,7 +276,7 @@ session.poll()
 
 ### Wait for state change
 
-Sometimes it is necessary to hold the programm until a node has a specific value.
+Sometimes it is necessary to hold the  until a node has a specific value.
 One common example is that for some operations the device resets a node value
 to signal that a measurement is complete.
 
@@ -309,7 +309,7 @@ LabOne® offers a node filter mechanism. In toolkit this filtering is implemente
 in the ``child_nodes`` function.
 
 Without any additional flags it returns all the leaf nodes that belong to that node.
-(Leaf nodes will return themself, wildcard and partial nodes will return their
+(Leaf nodes will return themselves, wildcard and partial nodes will return their
 child nodes).
 
 Since the list of nodes that will be returned is potentially very large, the

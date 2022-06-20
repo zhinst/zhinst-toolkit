@@ -28,7 +28,7 @@ class AWG(Node):
         tree: Tree (node path as tuple) of the current node
         session: Underlying session.
         serial: Serial of the device.
-        index: Index of the coresponding awg channel
+        index: Index of the corresponding awg channel
         device_type: Device type
     """
 
@@ -171,13 +171,13 @@ class AWG(Node):
     ) -> None:
         """Writes waveforms to the waveform memory.
 
-        The waveforms must already be assigned in the sequencer programm.
+        The waveforms must already be assigned in the sequencer program.
 
         Args:
             waveforms: Waveforms that should be uploaded.
 
         Raises:
-            IndexError: The index of a waveform exeeds the one on the device
+            IndexError: The index of a waveform exceeds the one on the device
             RuntimeError: One of the waveforms index points to a filler(placeholder)
         """
         waveform_info = json.loads(self.waveform.descriptors()).get("waveforms", [])
@@ -214,10 +214,10 @@ class AWG(Node):
 
         Args:
             indexes: List of waveform indexes to read from the device. If not
-                specfied all assigned waveforms will be downloaded.
+                specified all assigned waveforms will be downloaded.
 
         Returns:
-            Mutuable mapping of the downloaded waveforms.
+            Mutable mapping of the downloaded waveforms.
         """
         waveform_info = json.loads(self.waveform.descriptors()).get("waveforms", [])
         nodes = []

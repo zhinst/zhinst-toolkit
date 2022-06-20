@@ -37,12 +37,19 @@ jobs:
           sudo dpkg -i pandoc-2.18-1-amd64.deb
           cd docs && make html EXAMPLE_SRC=remote
 
-      - name: "Test spelling docs"
-        run: |
-          cd docs && sphinx-build -b spelling -q source build/spelling
-
       - name: Store artifacts
         uses: actions/upload-artifact@v2
         with:
           name: docs
           path: docs/build/html
+
+      - name: "Test spelling docs"
+        run: |
+          cd docs && sphinx-build -b spelling -q -W --keep-going source build/spelling
+
+      - name: Store spelling result artifacts
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: docs-spelling-failure-report
+          path: docs/build/spelling

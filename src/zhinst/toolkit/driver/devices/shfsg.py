@@ -86,7 +86,7 @@ class SGChannel(Node):
     Args:
         device: SHFQA device object.
         session: Underlying session.
-        tree: Node tree (node path as tuple) of the coresponding node.
+        tree: Node tree (node path as tuple) of the corresponding node.
     """
 
     def __init__(
@@ -113,7 +113,7 @@ class SGChannel(Node):
 
         Args:
             enable: Flag if the signal output should be enabled.
-            output_range: Maximal range of the signal output power in dbM
+            output_range: Maximal range of the signal output power in dBm
             center_frequency: Center frequency before modulation
             rf_path: Flag if the RF(True) or LF(False) path should be
                 configured.
@@ -240,7 +240,7 @@ class SHFSG(BaseInstrument):
         """Load the factory default settings.
 
         Args:
-            deep: A flag that specifies if a synchronisation
+            deep: A flag that specifies if a synchronization
                 should be performed between the device and the data
                 server after loading the factory preset (default: True).
         """

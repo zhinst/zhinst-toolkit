@@ -52,7 +52,7 @@ class ParentNode:
         """Check if the Node is empty and has no properties.
 
         Returns:
-            bool: If childs exists.
+            bool: If children exists.
         """
         return not bool(self._childs)
 
@@ -335,7 +335,7 @@ class CommandTable:
         """Update the existing instance of ``CommandTable`` with command table JSON.
 
         If both command tables have the same properties, the existing ones
-        are overwritted by the new command table.
+        are overwritten by the new command table.
 
         Args:
             command_table: Existing command table JSON.

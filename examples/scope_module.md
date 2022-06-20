@@ -98,7 +98,7 @@ with device.set_transaction():
     device.scopes[0].segments.enable(False)
 ```
 
-### Initialising the scope module
+### Initializing the scope module
 
 ```python
 AVERAGER_WEIGHT = 1

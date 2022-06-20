@@ -12,12 +12,12 @@ tune-up and error correction adapted to the specific algorithm and computer
 architecture in use.
 
 Please refer to the `user manual <http://docs.zhinst.com/pqsc_user_manual/overview.html>`_
-for an indepth explanation of all features.
+for an in-depth explanation of all features.
 
 Like every device the device specific settings and data is organized in a path
 like structure called the node tree. zhinst-toolkit provides a pythonic way of
 interacting with this node tree. For more information about all functionalities
-and usage of the node tree in toolkit refer to the deditacted
+and usage of the node tree in toolkit refer to the dedicated
 :doc:`section <../first_steps/nodetree>`.
 
 zhinst-toolkit offers the following helper functions for the PQSC:

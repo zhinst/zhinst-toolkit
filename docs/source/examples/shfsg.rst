@@ -9,16 +9,16 @@ system tune-up. Each SHFSG comes with 4 or 8 analog output channels with 14-bit
 vertical resolution.
 
 Please refer to the `user manual <http://docs.zhinst.com/shfsg_user_manual/overview.html>`_
-for an indepth explanation of all features.
+for an in-depth explanation of all features.
 
 Like every device the device specific settings and data is organized in a path
 like structure called the node tree. zhinst-toolkit provides a pythonic way of
 interacting with this node tree. For more information about all functionalities
-and usage of the node tree in toolkit refer to the deditacted :doc:`section <../first_steps/nodetree>`.
+and usage of the node tree in toolkit refer to the dedicated :doc:`section <../first_steps/nodetree>`.
 
 The package ``zhinst-deviceutils`` provided by Zurich Instruments offers a
 collection of helper functions to ease the use of the SHFSG among other devices.
-Toolkit embedds these functions inside the nodetree. The follwoing table shows
+Toolkit embeds these functions inside the nodetree. The following table shows
 the equivalent functions in zhinst-toolkit.
 
 
@@ -26,7 +26,7 @@ the equivalent functions in zhinst-toolkit.
    :widths: 25 25 50
    :header-rows: 1
 
-   * - zhinst-devieutils
+   * - zhinst-deviceutils
      - zhinst-toolkit
      - info
    * - **sgchannel**

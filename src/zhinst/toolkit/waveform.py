@@ -38,7 +38,7 @@ class Waveforms(MutableMapping):
     >>> waveforms[6] = (wave, -wave, markers)
     >>> waveforms[7] = (wave, None, markers)
 
-    The arrays can be provided as arrays of interger, float. The first wave also
+    The arrays can be provided as arrays of integer, float. The first wave also
     can be of type complex. In that case the second waveform must be `None`.
 
     Depending on the target format the function `get_raw_vector` converts the

@@ -22,7 +22,7 @@ class CommandTableNode(Node):
     This class implements the basic functionality of the command table allowing
     the user to load and upload their own command table.
 
-    A dedicated class called ``CommandTable`` exists that is the prefered way
+    A dedicated class called ``CommandTable`` exists that is the preferred way
     to create a valid command table. For more information about the
     ``CommandTable`` refer to the corresponding example or the documentation
     of that class directly.

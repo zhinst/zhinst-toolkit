@@ -23,7 +23,7 @@ if t.TYPE_CHECKING:
 
 
 class QAChannel(Node):
-    """Quantum Analyser Channel for the SHFQA.
+    """Quantum Analyzer Channel for the SHFQA.
 
     :class:`QAChannel` implements basic functionality to configure QAChannel
     settings of the :class:`SHFQA` instrument.
@@ -117,7 +117,7 @@ class SHFQA(BaseInstrument):
         """Load the factory default settings.
 
         Args:
-            deep: A flag that specifies if a synchronisation
+            deep: A flag that specifies if a synchronization
                 should be performed between the device and the data
                 server after loading the factory preset (default: True).
         """
