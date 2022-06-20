@@ -28,7 +28,7 @@ class Generator(Node):
         tree: Tree (node path as tuple) of the current node
         daq_server: Instance of the ziDAQServer
         serial: Serial of the device.
-        index: Index of the coresponding awg channel
+        index: Index of the corresponding awg channel
         max_qubits_per_channel: Max qubits per channel
     """
 
@@ -159,7 +159,7 @@ class Generator(Node):
                 specified all assigned waveforms will be downloaded.
 
         Returns:
-            Mutuable mapping of the downloaded waveforms.
+            Mutable mapping of the downloaded waveforms.
         """
         nodes = []
         if slots is not None:

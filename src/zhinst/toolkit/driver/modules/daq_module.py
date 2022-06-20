@@ -135,7 +135,7 @@ class DAQModule(BaseModule):
             raw: Flag if the acquired data from the subscribed device
                 device nodes should be converted into the DAQResult format
                 (raw = False) or not. (default = False)
-            clk_rate: Clockrate [Hz] for converting the timestamps. Only
+            clk_rate: Clock rate [Hz] for converting the timestamps. Only
                 applies if the raw flag is reset.
 
         Returns:

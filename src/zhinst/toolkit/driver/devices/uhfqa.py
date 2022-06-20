@@ -21,7 +21,7 @@ class Integration(Node):
 
     Args:
         root: Underlying node tree.
-        tree: tree (node path as tuple) of the coresponding node.
+        tree: tree (node path as tuple) of the corresponding node.
 
     .. versionadded:: 0.3.2
     """
@@ -72,11 +72,11 @@ class Integration(Node):
 
 
 class QAS(Node):
-    """Quantum Analyser Channel for the UHFQA.
+    """Quantum Analyzer Channel for the UHFQA.
 
     Args:
         root: Underlying node tree.
-        tree: tree (node path as tuple) of the coresponding node.
+        tree: tree (node path as tuple) of the corresponding node.
     """
 
     def __init__(

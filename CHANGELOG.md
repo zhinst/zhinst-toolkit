@@ -20,7 +20,7 @@
 ## Version 0.3.2
 * Added a helper function ``uhfqa.qas[n].integration.write_integration_weights`` for
   QAS integration weights configuration
-* Bugfix: Adapt nodetree to be able to get daq result data #113
+* Bugfix: Adapt Node Tree to be able to get daq result data #113
 * Bugfix: in the ``Waveform`` class to be able to convert a single waveform into
   a complex waveform.
 * Bugfix: HF2 PID nodes are available.
@@ -30,7 +30,7 @@
 * pqsc.check_zsync_connection blocks even if nothing is connected
 * Create a temporary awg module every time a sequencer code is uploaded
   (The reason for it is to have de defined state) #104
-* reintroduce uhfqa.qa_deleay function
+* reintroduce uhfqa.qa_delay function
 * uhfli/uhfqa return node object for ``uhfli.awg`` instead of raising an error
   (necessary for qcodes drivers) #102
 * ``hdawg.enable_qccs_mode`` wrong reference clock source fixed
@@ -47,9 +47,9 @@
 * Improved testing with mocking
 
 ## Version 0.2.4
-* Adapt modulation frequence range to +-1GHz
+* Adapt modulation frequency range to +-1GHz
   (shfsg.sgchannels[i].modulation_freq, shfqa.qachannels[i].sweeper.oscillator_freq)
-* Bugfix: DAQ module timout exception raises AttributeError
+* Bugfix: DAQ module timeout exception raises AttributeError
 
 ## Version 0.2.3
 * Make the command table validation optional
@@ -57,7 +57,7 @@
 ## Version 0.2.2
 * SHFQA Adapt oscillator_freq to +-500e6 Hz
 * Initial support for SHFSG
-* Make nodetree generation case insensitive
+* Make Node Tree generation case insensitive
 
 ## Version 0.2.1
 * Bugfix #86
@@ -103,6 +103,4 @@
 * minor fixes and additions
 
 ## Version 0.1.0
-* Intial release
-
-
+* Initial release

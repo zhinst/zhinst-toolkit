@@ -45,7 +45,7 @@ All parameters can be accessed through their corresponding node:
 
 * device: Device to run the sweeper with
 * sweep: Frequency range settings for a sweep
-* rf: RF in- and ouput settings for a sweep
+* rf: RF in- and output settings for a sweep
 * average: Averaging settings for a sweep
 * trigger: Settings for the trigger
 * envelope: Settings for defining a complex envelope for pulsed spectroscopy
@@ -59,7 +59,7 @@ used in the same way.
 ### Configure the sweeper
 
 (Besides the measurement specific parameters the device that the sweeper will use
-must be specfied as well.)
+must be specified as well.)
 
 ```python
 sweeper.device(device)

@@ -26,7 +26,7 @@ class PQSC(BaseInstrument):
         the feedback arrives. Otherwise, the feedback cannot be processed.
 
         Args:
-            deep: A flag that specifies if a synchronisation
+            deep: A flag that specifies if a synchronization
                 should be performed between the device and the data
                 server after stopping the PQSC and clearing the
                 register bank (default: True).
@@ -54,7 +54,7 @@ class PQSC(BaseInstrument):
         connected instruments over ZSync ports.
 
         Args:
-            deep: A flag that specifies if a synchronisation
+            deep: A flag that specifies if a synchronization
                 should be performed between the device and the data
                 server after enabling the PQSC (default: True).
 
@@ -64,7 +64,7 @@ class PQSC(BaseInstrument):
     def arm_and_run(self, *, repetitions: int = None, holdoff: float = None) -> None:
         """Arm the PQSC and start sending out triggers.
 
-        Simply combines the methods arm and run. A synchronisation
+        Simply combines the methods arm and run. A synchronization
         is performed between the device and the data server after
         arming and running the PQSC.
 
@@ -84,7 +84,7 @@ class PQSC(BaseInstrument):
         """Stop the trigger generation.
 
         Args:
-            deep: A flag that specifies if a synchronisation
+            deep: A flag that specifies if a synchronization
                 should be performed between the device and the data
                 server after disabling the PQSC (default: True).
 
@@ -122,7 +122,7 @@ class PQSC(BaseInstrument):
 
         Raises:
             ToolkitError: If the process of locking to the reference clock
-                exeeds the specified timeout.
+                exceeds the specified timeout.
         """
         ref_clock_status = self.system.clocks.referenceclock.in_.status
         ref_clock = self.system.clocks.referenceclock.in_.source

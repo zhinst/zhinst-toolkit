@@ -17,7 +17,7 @@ def lazy_property(property_function: t.Callable[..., T]) -> T:
         property_function (Callable): property function
 
     Returns
-        Any: Retun value of the property function
+        Return value of the property function
 
     """
     return property(lru_cache()(property_function))
@@ -36,7 +36,7 @@ def create_or_append_set_transaction(nodetree) -> None:
         before this function finishes.
 
     Warning:
-        The set is always perfromed as deep set if called on device nodes.
+        The set is always performed as deep set if called on device nodes.
 
     Examples:
         >>> with nodetree.set_transaction():

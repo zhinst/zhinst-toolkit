@@ -301,7 +301,7 @@ def test_get_deep(connection):
     with pytest.raises(TypeError) as e_info:
         tree.demods[0].rate(deep=True, test=True)
 
-    # overwrite internaly used kwarg
+    # overwrite internally used kwarg
     with pytest.raises(TypeError) as e_info:
         tree.demods[0].rate(deep=True, settingsonly=True)
 

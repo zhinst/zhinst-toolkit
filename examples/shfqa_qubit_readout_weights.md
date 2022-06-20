@@ -15,7 +15,7 @@ jupyter:
 
 # Measuring qubit readout weights
 
-Measure the integration weights for a qubit readout by using gaussian flat top pulses.
+Measure the integration weights for a qubit readout by using Gaussian flat top pulses.
 
 Requirements:
 

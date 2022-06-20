@@ -7,12 +7,12 @@ to 8.5 GHz, and up to 4 readout channels that can faithfully discriminate up to
 16 qubits, 8 qutrits or 5 ququads.
 
 Please refer to the `user manual <http://docs.zhinst.com/shfqa_user_manual/overview.html>`_
-for an indepth explanation of all features.
+for an in-depth explanation of all features.
 
 Like every device the device specific settings and data is organized in a path
 like structure called the node tree. zhinst-toolkit provides a pythonic way of
 interacting with this node tree. For more information about all functionalities
-and usage of the node tree in toolkit refer to the deditacted :doc:`section <../first_steps/nodetree>`.
+and usage of the node tree in toolkit refer to the dedicated :doc:`section <../first_steps/nodetree>`.
 
 The package ``zhinst-deviceutils`` provided by Zurich Instruments offers a
 collection of helper functions to ease the use of the SHFQA among other devices.
@@ -24,7 +24,7 @@ the equivalent functions in zhinst-toolkit.
    :widths: 25 25 50
    :header-rows: 1
 
-   * - zhinst-devieutils
+   * - zhinst-deviceutils
      - zhinst-toolkit
      - info
    * - start_continuous_sw_trigger()

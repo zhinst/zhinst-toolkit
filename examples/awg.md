@@ -38,7 +38,7 @@ Connect devices and access the ``/awg`` node.
 from zhinst.toolkit import Session
 
 session = Session('localhost')
-device = session.connect_device("DEV8541")
+device = session.connect_device("DEVXXXX")
 awg_node = device.awgs[0]
 ```
 
@@ -68,10 +68,6 @@ awg_node.load_sequencer_program(SEQUENCER_CODE)
 ```
 
 ```python
-session.daq_server.listNodes("/DEV8541/AWGS/0/WAVEFORM")
-```
-
-```python
 awg_node.enable_sequencer(single=True)
 awg_node.wait_done()
 ```
@@ -98,7 +94,7 @@ format take a look at the awg section in the
 zhinst-toolkit itself offers a second, more user friendly approach through the class
 called ``Waveforms``.
 
-The ``Waveform`` class is a mutuable mapping, meaning it behaves similiar to a
+The ``Waveform`` class is a mutable mapping, meaning it behaves similar to a
 Python dictionary. The key defines the waveform index and the value is the waveform
 data provided as a tuple. The waveform data consists of the following elements:
 
@@ -132,7 +128,7 @@ awg_node.write_to_waveform_memory(waveforms)
 >
 > The waveform data can also be assigned via the helper function
 > ``assign_waveform`` which converts the data into the same tuple
-> as used above. Similiar ``assign_native_awg_waveform`` can be used to
+> as used above. Similar ``assign_native_awg_waveform`` can be used to
 > assign already to a single native AWG format array converted waveform data to
 > an index.
 
@@ -162,10 +158,10 @@ For more information on the usage and advantages of the command table reference
 to the [user manuals](https://docs.zhinst.com/hdawg_user_manual/tutorial_command_table.html#umhd.tutorials.ct.introduction).
 Note that the command table is not supported on all devices that have an AWG.
 
-The command tables is specified in the JSON format and need to comform to a device
+The command tables is specified in the JSON format and need to conform to a device
 specific schema. The user manuals explain in detail how the command table is
 structured and used. Similar to the Waveforms zhinst-toolkit offers a helper class
-for the comman table usage called ``CommandTable``.
+for the command table usage called ``CommandTable``.
 
 > Note:
 >

@@ -1,6 +1,6 @@
 """Base Instrument Driver
 
-Nativly works with all device types and provides the basic functionality like
+Natively works with all device types and provides the basic functionality like
 the device specific nodetree.
 """
 import copy
@@ -220,7 +220,7 @@ class BaseInstrument(Node):
         """Check if the software stack is compatible.
 
         Only if all versions and revisions of the software stack match stability
-        can be ensured. The following criterias are checked:
+        can be ensured. The following criteria are checked:
 
             * minimum required zhinst-deviceutils package is installed
             * minimum required zhinst-ziPython package is installed
@@ -229,7 +229,7 @@ class BaseInstrument(Node):
 
         Raises:
             ConnectionError: If the device is currently updating
-            RuntimeError: If one of the above mentioned criterias is not
+            RuntimeError: If one of the above mentioned criterion is not
                 fulfilled
         """
         self._check_python_versions(
@@ -306,7 +306,7 @@ class BaseInstrument(Node):
         affected)
 
         Warning:
-            The set is always perfromed as deep set if called on device nodes.
+            The set is always performed as deep set if called on device nodes.
 
         Examples:
             >>> with device.set_transaction():

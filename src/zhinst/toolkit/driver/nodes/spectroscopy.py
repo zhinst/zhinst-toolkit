@@ -22,7 +22,7 @@ class Spectroscopy(Node):
         tree: Tree (node path as tuple) of the current node
         daq_server: Instance of the ziDAQServer
         serial: Serial of the device.
-        index: Index of the coresponding awg channel
+        index: Index of the corresponding awg channel
     """
 
     def __init__(
