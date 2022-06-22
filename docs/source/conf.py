@@ -83,7 +83,13 @@ html_theme = "pydata_sphinx_theme"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-html_css_files = ['css/custom.css']
+html_css_files = ['zhinst-sphinx-theme/css/custom.css']
+
+html_theme_options = {
+    "logo": {
+        "text": "zhinst-toolkit",
+    }
+}
 
 # Napoleon settings
 napoleon_google_docstring = True
@@ -108,4 +114,4 @@ highlight_language = "none"
 spelling_word_list_filename='spelling_wordlist.txt'
 # Show suggestion in console output
 spelling_show_suggestions=False
-spelling_exclude_patterns=['examples/*.nblink']
+spelling_exclude_patterns=['examples/*.nblink', 'source/_static/zhinst-sphinx-theme/**/*']
