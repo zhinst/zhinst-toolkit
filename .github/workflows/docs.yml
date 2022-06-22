@@ -3,7 +3,7 @@ name: Build docs
 on:
   push:
     branches: ["main"]
-    tags: 
+    tags:
       - "v*.*.*"
   pull_request:
     branches: ["main"]
@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: "Checkout tag/branch"
         uses: "actions/checkout@v3"
-        with: { fetch-depth: 0 }
+        with: { fetch-depth: 0, submodules: "true" }
       - name: "Setup Python"
         uses: "actions/setup-python@v3"
         with:

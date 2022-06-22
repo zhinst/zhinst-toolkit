@@ -1,0 +1,3 @@
+[submodule "docs/source/_static/zhinst-sphinx-theme"]
+	path = docs/source/_static/zhinst-sphinx-theme
+	url = https://github.com/zhinst/zhinst-sphinx-theme
