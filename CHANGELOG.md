@@ -1,13 +1,16 @@
 # zhinst-toolkit Changelog
+## Version 0.3.5
+* Adapt AWG Waveform upload (`write_to_waveform_memory`) to append to existing transactions.
+* Make consistency validate during waveform upload optional (new flag `validate` in `write_to_waveform_memory`).
 
 ## Version 0.3.4
 
 * `Commandtable.load_validation_schema` can also get the command table
   JSON schema from the device.
-* ``load_sequencer_program`` now raises an ``ValueError`` 
+* ``load_sequencer_program`` now raises an ``ValueError``
   if empty ``sequencer_program`` string is given. :issue:`138`
 * Added a new `raise_for_invalid_node` keyword-argument to ``NodeTree.update_nodes``. :issue:`110`
-  
+
   Now only a warning (instead of ``KeyError``) is issued when trying to initialize device/module object, which does
   not have nodes defined in node value parsers.
 
