@@ -239,15 +239,35 @@ def test_write_to_waveform_memory(
     )
     assert len(mock_connection.return_value.set.call_args[0][0]) == 1
 
+    # existing transaction
+    with awg_module.root.set_transaction():
+        awg_module.dio.highbits(0)
+        awg_module.write_to_waveform_memory(waveforms)
+
+    mock_connection.return_value.set.call_args[0][0][0][
+        0
+    ] == "/dev1234/sgchannels/0/awg/dio/highbits"
+    assert len(mock_connection.return_value.set.call_args[0][0]) == 3
+
     # to big index
     waveforms[10] = (wave1, wave2)
     with pytest.raises(IndexError) as e_info:
         awg_module.write_to_waveform_memory(waveforms)
+    awg_module.write_to_waveform_memory(waveforms, validate=False)
+    assert (
+        mock_connection.return_value.set.call_args[0][0][2][0]
+        == "/dev1234/sgchannels/0/awg/waveform/waves/10"
+    )
     del waveforms[10]
     # assign to filler
     waveforms[2] = (wave1, wave2)
     with pytest.raises(RuntimeError) as e_info:
         awg_module.write_to_waveform_memory(waveforms)
+    awg_module.write_to_waveform_memory(waveforms, validate=False)
+    assert (
+        mock_connection.return_value.set.call_args[0][0][2][0]
+        == "/dev1234/sgchannels/0/awg/waveform/waves/2"
+    )
 
 
 def test_read_from_waveform_memory(
@@ -258,25 +278,20 @@ def test_read_from_waveform_memory(
     single_wave_result = []
 
     def get_side_effect(nodes, **kwargs):
-        if nodes.lower() == "/dev1234/sgchannels/0/awg/waveform/descriptors":
-            return OrderedDict(
-                [
-                    (
-                        "/dev1234/sgchannels/0/awg/waveform/descriptors",
-                        [
-                            {
-                                "timestamp": 1158178198389432,
-                                "flags": 0,
-                                "vector": json.dumps(waveform_descriptiors),
-                            }
-                        ],
-                    )
-                ]
-            )
         if "/dev1234/sgchannels/0/awg/waveform/waves/" in nodes.lower():
             if nodes[-1] == "*":
                 return OrderedDict(
                     [
+                        (
+                            "/dev1234/sgchannels/0/awg/waveform/descriptors",
+                            [
+                                {
+                                    "timestamp": 1158178198389432,
+                                    "flags": 0,
+                                    "vector": json.dumps(waveform_descriptiors),
+                                }
+                            ],
+                        ),
                         (
                             "/dev1234/sgchannels/0/awg/waveform/waves/0",
                             [
@@ -315,6 +330,16 @@ def test_read_from_waveform_memory(
                 return OrderedDict(
                     [
                         (
+                            "/dev1234/sgchannels/0/awg/waveform/descriptors",
+                            [
+                                {
+                                    "timestamp": 1158178198389432,
+                                    "flags": 0,
+                                    "vector": json.dumps(waveform_descriptiors),
+                                }
+                            ],
+                        ),
+                        (
                             f"/dev1234/sgchannels/0/awg/waveform/waves/{nodes[-1]}",
                             [
                                 {
@@ -323,13 +348,18 @@ def test_read_from_waveform_memory(
                                     "vector": single_wave_result,
                                 }
                             ],
-                        )
+                        ),
                     ]
                 )
         raise RuntimeError()
 
     mock_connection.return_value.get.side_effect = get_side_effect
     waveforms = awg_module.read_from_waveform_memory()
+    mock_connection.return_value.get.assert_called_with(
+        "/dev1234/sgchannels/0/awg/waveform/descriptors,/dev1234/sgchannels/0/awg/waveform/waves/*",
+        settingsonly=False,
+        flat=True,
+    )
     assert all(waveforms[0][0] == np.ones(1008))
     assert all(waveforms[0][1] == -np.ones(1008))
     assert all(waveforms[0][2] == np.ones(1008))
@@ -337,11 +367,16 @@ def test_read_from_waveform_memory(
     assert all(waveforms[1][1] == np.ones(0))
     assert all(waveforms[1][2] == np.ones(0))
 
-    # single Node Acces
+    # single Node Access
     single_wave_result = zi_utils.convert_awg_waveform(
         np.ones(1008), -np.ones(1008), np.ones(1008)
     )
     waveforms = awg_module.read_from_waveform_memory([0])
+    mock_connection.return_value.get.assert_called_with(
+        "/dev1234/sgchannels/0/awg/waveform/descriptors,/dev1234/sgchannels/0/awg/waveform/waves/0",
+        settingsonly=False,
+        flat=True,
+    )
     assert len(waveforms) == 1
     assert all(waveforms[0][0] == np.ones(1008))
     assert all(waveforms[0][1] == -np.ones(1008))

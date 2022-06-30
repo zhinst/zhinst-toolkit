@@ -6,7 +6,10 @@ import typing as t
 
 from zhinst.toolkit.driver.nodes.command_table_node import CommandTableNode
 from zhinst.toolkit.nodetree import Node, NodeTree
-from zhinst.toolkit.nodetree.helper import lazy_property
+from zhinst.toolkit.nodetree.helper import (
+    lazy_property,
+    create_or_append_set_transaction,
+)
 from zhinst.toolkit.waveform import Waveforms
 
 logger = logging.getLogger(__name__)
@@ -167,7 +170,7 @@ class AWG(Node):
             )
 
     def write_to_waveform_memory(
-        self, waveforms: Waveforms, indexes: list = None
+        self, waveforms: Waveforms, indexes: list = None, validate: bool = True
     ) -> None:
         """Writes waveforms to the waveform memory.
 
@@ -175,39 +178,52 @@ class AWG(Node):
 
         Args:
             waveforms: Waveforms that should be uploaded.
+            indexes: Specify a list of indexes that should be uploaded. If
+                nothing is specified all available indexes in waveforms will
+                be uploaded. (default = None)
+            validate: Enable sanity check preformed by toolkit, based on the
+                waveform descriptors on the device. Can be disabled for e.g.
+                speed optimizations. Does not affect the checks happen in LabOne
+                and or the firmware. (default = True)
 
         Raises:
             IndexError: The index of a waveform exceeds the one on the device
-            RuntimeError: One of the waveforms index points to a filler(placeholder)
+                and `validate` is True.
+            RuntimeError: One of the waveforms index points to a
+                filler(placeholder) and `validate` is True.
         """
-        waveform_info = json.loads(self.waveform.descriptors()).get("waveforms", [])
-        num_waveforms = len(waveform_info)
-        commands = []
-        for waveform_index in waveforms.keys():
-            if indexes and waveform_index not in indexes:
-                continue
-            if waveform_index >= num_waveforms:
-                raise IndexError(
-                    f"There are {num_waveforms} waveforms defined "
-                    "on the device but the passed waveforms specified one with index "
-                    f"{waveform_index}."
-                )
-            if "__filler" in waveform_info[waveform_index]["name"]:
-                raise RuntimeError(
-                    f"The waveform at index {waveform_index} is only "
-                    "a filler and can not be overwritten"
-                )
-
-            commands.append(
-                (
-                    self.waveform.node_info.path + f"/waves/{waveform_index}",
+        waveform_info = None
+        num_waveforms = None
+        if validate:
+            waveform_info = json.loads(self.waveform.descriptors()).get("waveforms", [])
+            num_waveforms = len(waveform_info)
+        with create_or_append_set_transaction(self._root):
+            for waveform_index in waveforms.keys():
+                if indexes and waveform_index not in indexes:
+                    continue
+                if num_waveforms is not None and waveform_index >= num_waveforms:
+                    raise IndexError(
+                        f"There are {num_waveforms} waveforms defined on the device "
+                        "but the passed waveforms specified one with index "
+                        f"{waveform_index}."
+                    )
+                if (
+                    waveform_info
+                    and "__filler" in waveform_info[waveform_index]["name"]
+                ):
+                    raise RuntimeError(
+                        f"The waveform at index {waveform_index} is only "
+                        "a filler and can not be overwritten"
+                    )
+                self.root.transaction.add(
+                    self.waveform.waves[waveform_index],
                     waveforms.get_raw_vector(
                         waveform_index,
-                        target_length=int(waveform_info[waveform_index]["length"]),
+                        target_length=int(waveform_info[waveform_index]["length"])
+                        if waveform_info
+                        else None,
                     ),
                 )
-            )
-        self._session.daq_server.set(commands)
 
     def read_from_waveform_memory(self, indexes: t.List[int] = None) -> Waveforms:
         """Read waveforms to the waveform memory.
@@ -217,19 +233,21 @@ class AWG(Node):
                 specified all assigned waveforms will be downloaded.
 
         Returns:
-            Mutable mapping of the downloaded waveforms.
+            Waveform object with the downloaded waveforms.
         """
-        waveform_info = json.loads(self.waveform.descriptors()).get("waveforms", [])
-        nodes = []
+        nodes = [self.waveform.descriptors.node_info.path]
         if indexes is not None:
             for index in indexes:
                 nodes.append(self.waveform.node_info.path + f"/waves/{index}")
         else:
-            nodes.append(self.waveform.node_info.path + "/waves/*")
+            nodes.append(self.waveform.waves["*"].node_info.path)
         nodes = ",".join(nodes)
         waveforms_raw = self._session.daq_server.get(
             nodes, settingsonly=False, flat=True
         )
+        waveform_info = json.loads(
+            waveforms_raw.pop(self.waveform.descriptors.node_info.path)[0]["vector"]
+        ).get("waveforms", [])
         waveforms = Waveforms()
         for node, waveform in waveforms_raw.items():
             slot = int(node[-1])
