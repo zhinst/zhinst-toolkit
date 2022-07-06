@@ -109,3 +109,5 @@ customizations
 submodule
 Enum
 boolean
+Numpy
+ndarray

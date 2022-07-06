@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
 
-from zhinst.toolkit.waveform import Waveforms
+from zhinst.toolkit.waveform import Waveforms, Wave, OutputType
 
 
-def test_assign():
+def test_dict_behavior():
     waveform = Waveforms()
     wave1 = 1.0 * np.ones(1008)
     wave1_short = 1.0 * np.ones(500)
@@ -19,16 +19,22 @@ def test_assign():
 
     # "standart" waveform
     waveform[0] = (wave1, wave2)
-    assert waveform[0] == (wave1, wave2, None)
+    assert all(waveform[0][0] == wave1)
+    assert all(waveform[0][1] == wave2)
+    assert waveform[0][2] == None
     assert len(waveform.get_raw_vector(0)) == 1008 * 2
 
     # replace wave
     waveform[0] = (wave1, wave3)
-    assert waveform[0] == (wave1, wave3, None)
+    assert all(waveform[0][0] == wave1)
+    assert all(waveform[0][1] == wave3)
+    assert waveform[0][2] == None
 
     # replace wave
     waveform.assign_waveform(0, wave1, wave2)
-    assert waveform[0] == (wave1, wave2, None)
+    assert all(waveform[0][0] == wave1)
+    assert all(waveform[0][1] == wave2)
+    assert waveform[0][2] == None
 
     # delete wave
     assert 0 in waveform.keys()
@@ -49,7 +55,9 @@ def test_assign():
 
     # "standart" waveform with marker
     waveform[1] = (wave1, wave2, marker)
-    assert waveform[1] == (wave1, wave2, marker)
+    assert all(waveform[1][0] == wave1)
+    assert all(waveform[1][1] == wave2)
+    assert all(waveform[1][2] == marker)
     assert len(waveform.get_raw_vector(1)) == 1008 * 3
 
     # unequal length
@@ -115,3 +123,120 @@ def test_get_raw_vector():
         waveform.get_raw_vector(0, target_length=1000)
     with pytest.raises(ValueError):
         waveform.get_raw_vector(0, target_length=2000)
+
+
+def test_assign():
+    waveform = Waveforms()
+    wave = np.ones(1008)
+    waveform[0] = (wave,)
+    assert all(waveform[0][0] == wave)
+    waveform[1] = (wave, -wave)
+    assert all(waveform[1][0] == wave)
+    assert all(waveform[1][1] == -wave)
+    waveform[2] = (wave, wave, -wave)
+    assert all(waveform[2][0] == wave)
+    assert all(waveform[2][1] == wave)
+    assert all(waveform[2][2] == -wave)
+    waveform[3] = (0.5 * wave, None, wave)
+    assert all(waveform[3][0] == 0.5 * wave)
+    assert waveform[3][1] == None
+    assert all(waveform[3][2] == wave)
+    waveform[4] = (np.ones(1008, dtype=np.complex128), wave)
+    assert all(waveform[4][0] == np.ones(1008, dtype=np.complex128))
+    assert all(waveform[4][1] == wave)
+    waveform[6] = (Wave(-wave, "w1", 1), Wave(wave, "w2", 2), wave)
+    assert all(waveform[6][0] == -wave)
+    assert waveform[6][0].name == "w1"
+    assert waveform[6][0].output == 1
+    assert all(waveform[6][1] == wave)
+    assert waveform[6][1].name == "w2"
+    assert waveform[6][1].output == 2
+    assert all(waveform[6][2] == wave)
+    waveform[7] = (Wave(wave, "w", 1), wave)
+    assert all(waveform[7][0] == wave)
+    assert waveform[7][0].name == "w"
+    assert waveform[7][0].output == 1
+    assert all(waveform[2][1] == wave)
+    assert waveform[7][1].name == None
+    assert waveform[7][1].output == None
+    assert waveform[7][2] == None
+    waveform[8] = (Wave(wave, "test", 3), wave, -wave)
+    assert all(waveform[8][0] == wave)
+    assert waveform[8][0].name == "test"
+    assert waveform[8][0].output == 3
+    assert all(waveform[8][1] == wave)
+    assert waveform[8][1].name == None
+    assert waveform[8][1].output == None
+    assert all(waveform[8][2] == -wave)
+
+
+def test_sequence_snippet():
+    waveform = Waveforms()
+    waveform[0] = (Wave(np.ones(1008), "w1", 3), Wave(np.ones(1008), "w2", 2))
+    waveform[3] = (Wave(np.ones(252), "w3"), np.ones(252), 1 * np.ones(252))
+    waveform[1] = (np.ones(504), np.ones(504), 15 * np.ones(504))
+    waveform[5] = (np.ones(252),)
+
+    result = waveform.get_sequence_snippet()
+    assert (
+        result
+        == """\
+wave w1 = placeholder(1008, false, false);
+wave w2 = placeholder(1008, false, false);
+assignWaveIndex(1, 2, w1, 2, w2, 0);
+assignWaveIndex(placeholder(504, true, true), placeholder(504, true, true), 1);
+wave w3 = placeholder(252, true, false);
+assignWaveIndex(w3, placeholder(252, false, false), 3);
+assignWaveIndex(placeholder(252, false, false), 5);"""
+    )
+
+    waveform = Waveforms()
+    waveform.assign_waveform(
+        0,
+        Wave(np.ones(1008), name="w1", output=OutputType.OUT1 | OutputType.OUT2),
+        Wave(np.ones(1008), name="w2", output=OutputType.OUT1 | OutputType.OUT2),
+        np.ones(1008),
+    )
+    waveform.assign_waveform(
+        3,
+        np.ones(1008),
+        np.ones(1008),
+        np.ones(1008),
+    )
+    waveform.assign_waveform(
+        5,
+        np.ones(1008),
+        np.ones(1008),
+    )
+    waveform.assign_waveform(
+        4,
+        Wave(np.ones(1008), name="test1", output=OutputType.OUT2),
+        Wave(np.ones(1008), name="test2", output=OutputType.OUT1),
+    )
+    waveform[2] = (np.ones(1008, dtype=np.complex128), None, 15 * np.ones(1008))
+
+    waveform[1] = (
+        Wave(
+            np.ones(1008, dtype=np.complex128),
+            name=["comp1", "comp2"],
+            output=[OutputType.OUT2, OutputType.OUT1 | OutputType.OUT2],
+        ),
+    )
+
+    result = waveform.get_sequence_snippet()
+    assert (
+        result
+        == """\
+wave w1 = placeholder(1008, true, false);
+wave w2 = placeholder(1008, false, false);
+assignWaveIndex(1, 2, w1, 1, 2, w2, 0);
+wave comp1 = placeholder(1008, false, false);
+wave comp2 = placeholder(1008, false, false);
+assignWaveIndex(2, comp1, 1, 2, comp2, 1);
+assignWaveIndex(placeholder(1008, true, true), placeholder(1008, true, true), 2);
+assignWaveIndex(placeholder(1008, true, false), placeholder(1008, false, false), 3);
+wave test1 = placeholder(1008, false, false);
+wave test2 = placeholder(1008, false, false);
+assignWaveIndex(2, test1, 1, test2, 4);
+assignWaveIndex(placeholder(1008, false, false), placeholder(1008, false, false), 5);"""
+    )

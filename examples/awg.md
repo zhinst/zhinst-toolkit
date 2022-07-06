@@ -6,9 +6,9 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.13.7
+      jupytext_version: 1.14.0
   kernelspec:
-    display_name: Python 3 (ipykernel)
+    display_name: Python 3.10.5 64-bit ('toolkit')
     language: python
     name: python3
 ---
@@ -139,6 +139,41 @@ download the waveforms from the device
 ```python
 waveforms_device = awg_node.read_from_waveform_memory()
 waveforms_device[0]
+```
+
+### Automatic sequencer code generation
+As already discussed the waveforms must be defined in the sequencer program before they
+can be uploaded to the device. In addition to convert the assigned waveforms to the 
+native AWG format the `Waveform` class can also generate a sequencer code snippet
+that defineds the waveforms present in the `Waveform` object.
+
+```python
+print(waveforms.get_sequence_snippet())
+```
+
+Additional meta information can be added to each waveform to customize the 
+snippet output. The following meta information are supported:
+* name: The name of the waveform. If specified, the placeholder will be assigned to
+    a variable that can be in the sequencer program.
+* output: Output configuration for the waveform.
+
+```python
+from zhinst.toolkit.waveform import Wave, OutputType
+waveforms = Waveforms()
+waveforms[1] = (
+    Wave(0.5 * np.ones(1008), name= "w1", output= OutputType.OUT1 | OutputType.OUT2),
+    Wave(-0.5 * np.ones(1008), name= "w2", output= OutputType.OUT1 | OutputType.OUT2),
+    (1 << 0 | 1 << 1 | 1 << 2 | 1 << 3) * np.ones(1008),
+)
+waveforms.assign_waveform(2,
+    Wave(np.ones(1008), name= "w3", output= OutputType.OUT2),
+    Wave(-np.ones(1008), name= "w4", output= OutputType.OUT2),
+    (1 << 1 | 1 << 3) * np.ones(1008),
+)
+waveforms[0] = (0.2 * np.ones(1008), -0.2 * np.ones(1008))
+waveforms[0][0].name = "test1"
+
+print(waveforms.get_sequence_snippet())
 ```
 
 ## Command Table

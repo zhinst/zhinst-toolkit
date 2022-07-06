@@ -2,12 +2,75 @@
 import typing as t
 import warnings
 from collections.abc import MutableMapping
+from enum import IntFlag
 
 import numpy as np
 from zhinst.utils import convert_awg_waveform, parse_awg_waveform
 
-
 _Waveform = t.Tuple[np.ndarray, t.Optional[np.ndarray], t.Optional[np.ndarray]]
+
+
+class OutputType(IntFlag):
+    """Waveform output type.
+
+    OUT1: Enables the output 1 for the respective wave.
+    OUT2: Enables the output 2 for the respective wave.
+
+    .. versionadded:: 0.3.5
+    """
+
+    OUT1 = 1
+    OUT2 = 2
+
+
+class Wave(np.ndarray):
+    """Numpy array subclass containing additional waveform metadata.
+
+    This class takes a standard ndarray that already exists, casts as Wave
+    type, and adds the following extra attributes/metadata:
+    * name
+    * output
+
+    The additional metadata is only used for the sequencer code generation.
+
+    (Based on https://numpy.org/doc/stable/user/basics.subclassing.html)
+
+    Args:
+        input_array: existing ndarray
+        name: optional name of the waveform in the sequencer code snippet.
+        output: optional output configuration for the waveform in the
+                sequencer code snippet.
+
+    .. versionadded:: 0.3.5
+    """
+
+    def __new__(
+        cls,
+        input_array,
+        name: t.Optional[str] = None,
+        output: t.Optional[OutputType] = None,
+    ) -> "Wave":
+        """Casts an existing ndarray to a Wave type.
+
+        Args:
+            input_array: existing ndarray
+            name: optional name of the waveform in the sequencer code snippet.
+            output: optional output configuration for the waveform in the
+                    sequencer code snippet.
+
+        Returns:
+            Array as Wave object.
+        """
+        obj = np.asarray(input_array).view(cls)
+        obj.name = name
+        obj.output = output
+        return obj
+
+    def __array_finalize__(self, obj: t.Optional[np.ndarray]) -> None:
+        if obj is None:
+            return
+        self.name = getattr(obj, "name", None)
+        self.output = getattr(obj, "output", None)
 
 
 class Waveforms(MutableMapping):
@@ -171,8 +234,9 @@ class Waveforms(MutableMapping):
                 "The first waveform is complex therefore only one "
                 "waveform can be specified."
             )
-
-        self._waveforms[slot] = value + (None,) * (3 - len(value))
+        self._waveforms[slot] = tuple(
+            w.view(Wave) if w is not None else None for w in value
+        ) + (None,) * (3 - len(value))
 
     def get_raw_vector(
         self,
@@ -242,4 +306,119 @@ class Waveforms(MutableMapping):
             wave1,
             wave2=wave2,
             markers=marker if marker is not None else None,
+        )
+
+    def _get_waveform_sequence(self, index: int) -> str:
+        """Get sequencer code snippet for a single waveform.
+
+        The sequencer code snippet is generated with the following information:
+            * Waveform length
+            * Waveform index
+            * presence of markers and for which channel
+            * Defined names of the waveforms (if set)
+            * Defined output configuration (if set)
+
+        Returns:
+            Sequencer code snippet.
+
+        .. versionadded:: 0.3.5
+        """
+        waves = self._waveforms[index]
+        wave_length = max(1, waves[0].size)
+        w2_present = waves[1] is not None
+        marker = waves[2]
+        names = [waves[0].name, waves[1].name if waves[1] is not None else None]
+        outputs = [waves[0].output, waves[1].output if waves[1] is not None else None]
+
+        if np.iscomplexobj(waves[0]):
+            marker = waves[1] if waves[1] is not None else marker
+            w2_present = True
+            names = names if not names[0] or isinstance(names[0], str) else names[0]
+            outputs = (
+                outputs
+                if not outputs[0] or not isinstance(outputs, t.Iterable)
+                else outputs[0]
+            )
+        marker = None if marker is None else np.unpackbits(marker.astype(np.uint8))
+
+        def marker_to_bool(i: int) -> str:
+            return "true" if np.any(marker[7 - i :: 8]) else "false"  # noqa: E203
+
+        def to_wave_str(i: int) -> str:
+            if marker is None:
+                return f"placeholder({wave_length}, false, false)"
+            return (
+                f"placeholder({wave_length}, {marker_to_bool(i*2)}, "
+                + f"{marker_to_bool(i*2+1)})"
+            )
+
+        w1_assign = to_wave_str(0)
+        w2_assign = to_wave_str(1) if w2_present else ""
+        w2_decl = w1_decl = ""
+        if names[0]:
+            w1_decl = f"wave {names[0]} = {w1_assign};\n"
+            w1_assign = names[0]
+        if names[1]:
+            w2_decl = f"wave {names[1]} = {w2_assign};\n"
+            w2_assign = names[1]
+        if outputs[0]:
+            if outputs[0] in [OutputType.OUT1, OutputType.OUT2]:
+                w1_assign = f"{outputs[0]}, {w1_assign}"
+            elif outputs[0] == OutputType.OUT1 | OutputType.OUT2:
+                w1_assign = f"1, 2, {w1_assign}"
+        if outputs[1]:
+            if outputs[1] in [OutputType.OUT1, OutputType.OUT2]:
+                w2_assign = f"{outputs[1]}, {w2_assign}"
+            elif outputs[1] == OutputType.OUT1 | OutputType.OUT2:
+                w2_assign = f"1, 2, {w2_assign}"
+
+        if w2_assign:
+            return (
+                f"{w1_decl}{w2_decl}assignWaveIndex({w1_assign}, {w2_assign}, {index});"
+            )
+        return f"{w1_decl}assignWaveIndex({w1_assign}, {index});"
+
+    def get_sequence_snippet(self) -> str:
+        """Return a sequencer code snippet for the defined waveforms.
+
+        Based on the defined waveforms and their additional information this
+        function generates a sequencer code snippet that can be used to define
+        the given waveforms. The following information will be used:
+
+            * Waveform length
+            * Waveform index
+            * presence of markers and for which channel
+            * Defined names of the waveforms (if set)
+            * Defined output configuration (if set)
+
+        Example:
+            >>> waveform = Waveform()
+            >>> waveform.assign_waveform(
+                    0,
+                    wave1=Wave(
+                        np.ones(1008),
+                        name="w1",
+                        output=OutputType.OUT1 | OutputType.OUT2
+                    ),
+                    wave2=Wave(
+                        -np.ones(1008),
+                        name="w2",
+                        output=OutputType.OUT2),
+                    markers=15 * np.ones(1008),
+                )
+            >>> waveform.get_sequence_snippet()
+            wave w1 = placeholder(1008, true, true);
+            wave w2 = placeholder(1008, true, true);
+            assignWaveIndex(1, 2, w1, 2, w2, 0);
+
+        Returns:
+            Sequencer Code snippet.
+
+        .. versionadded:: 0.3.5
+        """
+        return "\n".join(
+            [
+                self._get_waveform_sequence(slot)
+                for slot in sorted(self._waveforms.keys())
+            ]
         )

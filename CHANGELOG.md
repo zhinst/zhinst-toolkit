@@ -1,7 +1,13 @@
 # zhinst-toolkit Changelog
+
 ## Version 0.3.5
 * Adapt AWG Waveform upload (`write_to_waveform_memory`) to append to existing transactions.
 * Make consistency validate during waveform upload optional (new flag `validate` in `write_to_waveform_memory`).
+* Add `get_sequence_snippet`  function to `zhinst.toolkit.Waveforms` class. 
+
+  The function is able to generated the a sequence code snippet that defines and assigns
+  the waveforms for this object. Additional meta information like an optional name 
+  or the output configuration can be specified.
 
 ## Version 0.3.4
 
