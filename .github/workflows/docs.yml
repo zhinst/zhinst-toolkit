@@ -45,11 +45,4 @@ jobs:
 
       - name: "Test spelling docs"
         run: |
-          cd docs && sphinx-build -b spelling -q -W --keep-going source build/spelling
-
-      - name: Store spelling result artifacts
-        uses: actions/upload-artifact@v2
-        if: failure()
-        with:
-          name: docs-spelling-failure-report
-          path: docs/build/spelling
+          cd docs && sphinx-build -b spelling -W --keep-going source build/spelling
