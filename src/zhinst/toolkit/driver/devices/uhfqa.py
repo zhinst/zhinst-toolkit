@@ -45,14 +45,12 @@ class Integration(Node):
                 keys correspond to the indices of the integration weights to be
                 configured.
 
-        note:
-
+        Note:
             Does not raise an error when sample limit is exceeded, but applies only
             the maximum number of samples. Please refer to LabOne node documentation
             for the number of maximum integration weight samples.
 
-        note:
-
+        Note:
             This function calls both `/qas/n/integration/weights/n/real` and
             `/qas/n/integration/weights/n/imag` nodes.
 
@@ -121,6 +119,7 @@ class QAS(Node):
             for r in range(rows):
                 for c in range(cols):
                     self.crosstalk.rows[r].cols[c](matrix[r, c])
+        return None
 
     def adjusted_delay(self, value: int = None) -> int:
         """Set or get the adjustment in the quantum analyzer delay.
@@ -166,7 +165,7 @@ class QAS(Node):
 
     @lazy_property
     def integration(self) -> Integration:
-        """Integration
+        """Integration.
 
         .. versionadded:: 0.3.2
         """
@@ -202,7 +201,7 @@ class UHFQA(UHFLI):
 
     @lazy_property
     def qas(self) -> t.Sequence[QAS]:
-        """A Sequence of QAS"""
+        """A Sequence of QAS."""
         return NodeList(
             [
                 QAS(self.root, self._tree + ("qas", str(i)))

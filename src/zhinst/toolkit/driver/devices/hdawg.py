@@ -14,7 +14,7 @@ class HDAWG(BaseInstrument):
     """High-level driver for the Zurich Instruments HDAWG."""
 
     def enable_qccs_mode(self) -> None:
-        """Configure the instrument to work with PQSC
+        """Configure the instrument to work with PQSC.
 
         This method sets the reference clock source to
         connect the instrument to the PQSC.
@@ -41,7 +41,7 @@ class HDAWG(BaseInstrument):
 
     @lazy_property
     def awgs(self) -> t.Sequence[AWG]:
-        """A Sequence of AWG Cores"""
+        """A Sequence of AWG Cores."""
         return NodeList(
             [
                 AWG(

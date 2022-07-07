@@ -1,4 +1,4 @@
-"""Base Module Driver
+"""Base Module Driver.
 
 Natively works with all module types and provides the basic functionality like
 the module specific nodetree.
@@ -7,6 +7,7 @@ import logging
 import time
 import typing as t
 
+from zhinst.ziPython import ModuleBase
 from zhinst.toolkit.nodetree import Node, NodeTree
 
 logger = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ if t.TYPE_CHECKING:
     from zhinst.toolkit.driver.devices import DeviceType
     from zhinst.toolkit.session import Session
 
-ZIModule = t.TypeVar("ZIModule")
+ZIModule = t.TypeVar("ZIModule", bound=ModuleBase)
 
 
 class BaseModule(Node):
@@ -77,7 +78,7 @@ class BaseModule(Node):
             str: device serial
         """
         try:
-            return value.serial
+            return value.serial  # type: ignore
         except AttributeError:
             return value
 
@@ -111,7 +112,7 @@ class BaseModule(Node):
             str: raw string node
         """
         try:
-            node = signal.node_info.path
+            node = signal.node_info.path  # type: ignore
         except AttributeError:
             node = signal
         return node
@@ -126,6 +127,7 @@ class BaseModule(Node):
                 measurement (default: 20).
             sleep_time (int): Time in seconds to wait between
                 requesting sweeper state. (default: 0.5)
+
         Raises:
             TimeoutError: The measurement is not completed before
                 timeout.

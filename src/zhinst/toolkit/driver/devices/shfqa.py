@@ -76,7 +76,7 @@ class QAChannel(Node):
 
     @lazy_property
     def generator(self) -> Generator:
-        """Generator"""
+        """Generator."""
         return Generator(
             self._root,
             self._tree + ("generator",),
@@ -88,7 +88,7 @@ class QAChannel(Node):
 
     @lazy_property
     def readout(self) -> Readout:
-        """Readout"""
+        """Readout."""
         return Readout(
             self._root,
             self._tree + ("readout",),
@@ -100,7 +100,7 @@ class QAChannel(Node):
 
     @lazy_property
     def spectroscopy(self) -> Spectroscopy:
-        """Spectroscopy"""
+        """Spectroscopy."""
         return Spectroscopy(
             self._root,
             self._tree + ("spectroscopy",),
@@ -139,7 +139,6 @@ class SHFQA(BaseInstrument):
             num_triggers: Number of triggers to be issued
             wait_time: Time between triggers in seconds
         """
-
         deviceutils.start_continuous_sw_trigger(
             self._session.daq_server,
             self.serial,
@@ -154,7 +153,7 @@ class SHFQA(BaseInstrument):
 
     @lazy_property
     def qachannels(self) -> t.Sequence[QAChannel]:
-        """A Sequence of QAChannels"""
+        """A Sequence of QAChannels."""
         return NodeList(
             [
                 QAChannel(self, self._session, self._tree + ("qachannels", str(i)))
@@ -166,7 +165,7 @@ class SHFQA(BaseInstrument):
 
     @lazy_property
     def scopes(self) -> t.Sequence[SHFScope]:
-        """A Sequence of SHFScopes"""
+        """A Sequence of SHFScopes."""
         return NodeList(
             [
                 SHFScope(

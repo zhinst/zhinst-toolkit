@@ -1,4 +1,6 @@
-"""A helper script for developers to create symbolic link between existing toolkit and
+"""Helper script for developers.
+
+The script creates a symbolic link between existing toolkit and
 Python environment directories.
 
 By running the script, zhinst-toolkit is added to the ``zhinst`` package namespace
@@ -10,7 +12,7 @@ zhinst-toolkit must be installed before running the script.
 
 Running the script:
 
-    >>> python scripts\\zhinst_toolkit_symlink.py
+    >>> python scripts/zhinst_toolkit_symlink.py
 """
 import os
 import sysconfig
@@ -22,8 +24,14 @@ DEST_DIR = Path(sysconfig.get_path("purelib")) / "zhinst/toolkit"
 
 
 def create_symlink(src: Path, dest: Path) -> None:
-    """Create symbolic link between existing toolkit and
+    """Create symbolic link between working dir and python environment.
+
+    Create symbolic link between existing toolkit and
     Python environment directories.
+
+    Args:
+        src: Toolkit directory (e.g. a/b/src/zhinst/toolkit).
+        dest: Python environment directory
     """
     try:
         # Windows: Requires administrator when running tests without symlink

@@ -79,8 +79,8 @@ class SHFQASweeper(Node):
                     "SetParser": self._set_device,
                 },
                 "/envelope/enable": {
-                    "GetParser": Parse.get_true_false,
-                    "SetParser": Parse.set_true_false,
+                    "GetParser": Parse.to_bool,
+                    "SetParser": Parse.from_bool,
                 },
             },
             raise_for_invalid_node=False,
@@ -105,7 +105,7 @@ class SHFQASweeper(Node):
             return serial
 
     def _set_device(self, value: t.Union["DeviceType", str]) -> str:
-        """Convert a toolkit device object into a serial string
+        """Convert a toolkit device object into a serial string.
 
         Args:
             value: Toolkit device object
@@ -116,7 +116,7 @@ class SHFQASweeper(Node):
         """
         serial = ""
         try:
-            serial = value.serial
+            serial = value.serial  # type: ignore
         except AttributeError:
             serial = value
         self._raw_module = CoreSweeper(self._daq_server, serial)

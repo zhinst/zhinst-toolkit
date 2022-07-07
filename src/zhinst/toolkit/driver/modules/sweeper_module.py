@@ -46,7 +46,8 @@ class SweeperModule(BaseModule):
     def execute(self) -> None:
         """Start the sweeper.
 
-        Subscription or unsubscription is not possible until the sweep is finished."""
+        Subscribe or unsubscribe is not possible until the sweep is finished.
+        """
         self._raw_module.execute()
 
     def read(self) -> t.Dict[Node, t.List]:

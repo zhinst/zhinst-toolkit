@@ -19,7 +19,7 @@ if t.TYPE_CHECKING:
 
 
 class AWGCore(AWG):
-    """AWG Core Node"""
+    """AWG Core Node."""
 
     def configure_marker_and_trigger(
         self,
@@ -222,7 +222,7 @@ class SGChannel(Node):
 
     @lazy_property
     def awg(self) -> AWGCore:
-        """AWG"""
+        """AWG."""
         return AWGCore(
             self._root,
             self._tree + ("awg",),
@@ -249,7 +249,7 @@ class SHFSG(BaseInstrument):
 
     @lazy_property
     def sgchannels(self) -> t.Sequence[SGChannel]:
-        """A Sequence of SG Channels"""
+        """A Sequence of SG Channels."""
         return NodeList(
             [
                 SGChannel(self, self._session, self._tree + ("sgchannels", str(i)))

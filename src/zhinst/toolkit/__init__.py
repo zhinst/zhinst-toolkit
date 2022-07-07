@@ -2,7 +2,7 @@
 #
 # This software may be modified and distributed under the terms
 # of the MIT license. See the LICENSE file for details.
-"""The Zurich Instruments Toolkit (zhinst-toolkit)
+"""The Zurich Instruments Toolkit (zhinst-toolkit).
 
 This package is a collection of Python tools for high level device
 control. Based on the native interface to Zurich Instruments LabOne,

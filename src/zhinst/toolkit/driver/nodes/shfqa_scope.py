@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 class SHFScope(Node):
-    """SHFQA Scope Node
+    """SHFQA Scope Node.
 
     Implements basic functionality of the scope node, e.g allowing the user to
     read the data.
@@ -49,7 +49,6 @@ class SHFScope(Node):
             TimeoutError: The scope did not start within the specified
                 timeout.
         """
-
         self.single(single)
         self.enable(True)
         try:

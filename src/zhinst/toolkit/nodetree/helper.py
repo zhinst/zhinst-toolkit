@@ -1,4 +1,4 @@
-"""Helper functions used in toolkit"""
+"""Helper functions used in toolkit."""
 import typing as t
 from contextlib import contextmanager
 from functools import lru_cache
@@ -6,7 +6,7 @@ from functools import lru_cache
 T = t.TypeVar("T")
 
 
-def lazy_property(property_function: t.Callable[..., T]) -> T:
+def lazy_property(property_function: t.Callable[..., T]) -> property:
     """Alternative for functools.lazy_property.
 
     functools.lazy_property is only available since python 3.8.
@@ -24,7 +24,7 @@ def lazy_property(property_function: t.Callable[..., T]) -> T:
 
 
 @contextmanager
-def create_or_append_set_transaction(nodetree) -> None:
+def create_or_append_set_transaction(nodetree) -> t.Generator[None, None, None]:
     """Context manager for a transactional set.
 
     In contrast to the set_transaction from the nodetree this function only

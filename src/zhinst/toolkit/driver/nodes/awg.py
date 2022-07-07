@@ -241,9 +241,9 @@ class AWG(Node):
                 nodes.append(self.waveform.node_info.path + f"/waves/{index}")
         else:
             nodes.append(self.waveform.waves["*"].node_info.path)
-        nodes = ",".join(nodes)
+        nodes_str = ",".join(nodes)
         waveforms_raw = self._session.daq_server.get(
-            nodes, settingsonly=False, flat=True
+            nodes_str, settingsonly=False, flat=True
         )
         waveform_info = json.loads(
             waveforms_raw.pop(self.waveform.descriptors.node_info.path)[0]["vector"]

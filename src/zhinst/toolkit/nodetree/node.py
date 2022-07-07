@@ -198,7 +198,7 @@ class NodeInfo:
 
     @property
     def path(self) -> str:
-        """LabOne path of the node."""
+        """Path (LabOne representation) of the node."""
         return self._info["Node"].lower()
 
     @property
@@ -231,7 +231,7 @@ class NodeInfo:
 
     @lazy_property
     def enum(self) -> t.Optional[IntEnum]:
-        """IntEnum of the node options."""
+        """Enum of the node options."""
         options_reversed = {value.enum: key for key, value in self.options.items()}
         return (
             IntEnum(self.path, options_reversed, module=__name__)
@@ -277,8 +277,7 @@ class Node:
 
     The call operator supports the following flags:
 
-    * deep:
-        Flag if the set operation should be blocking until the data
+    * deep: Flag if the set operation should be blocking until the data
         has arrived at the device, respectively if the get operation should
         return the value from the device or the cached value on the data
         server (if there is any). If this flag is set the operation can
@@ -295,20 +294,18 @@ class Node:
         by the device. e.g. important for floating point values with a
         limited resolution.
 
-        Warning:
-            Does not work for wildcard nodes or non leaf nodes since they
-            represent multiple nodes that are set in a transactional set
-            which does not report the acknowledged values.
-
         >>> nodetree.demods[0].freq(29999,99999, deep=True)
         3000
 
-    * enum:
-        Flag if enumerated values should return the enum value as
+    Warning:
+        The deep flag does not work for wildcard nodes or non leaf nodes since
+        they represent multiple nodes that are set in a transactional set which
+        does not report the acknowledged values.
+
+    * enum: Flag if enumerated values should return the enum value as
         string. (default = True)
 
-    * parse:
-        Flag if the SetParser/GetParser from the Node, if present,
+    * parse: Flag if the SetParser/GetParser from the Node, if present,
         should be applied or not (default = True).
 
         The parsers are hard coded lambda functions provided not directly by
@@ -409,6 +406,38 @@ class Node:
     def __call__(
         self, value: t.Any = None, *, deep=False, enum=True, parse=True, **kwargs
     ) -> t.Any:
+        """Call operator that either gets (empty) or gets the value of a node.
+
+        Args:
+            value: Optional value that should be set to the node. If not
+                specified the operator will return the value of the node
+                instead.
+            deep: Flag if the operation should block until the device has
+                acknowledged the operation. The operation returns the value
+                acknowledged by the device. This takes significantly longer
+                than a normal operation and should be used carefully.
+            enum: Flag if enumerated values should return the enum value as
+                string or return the raw number.
+            parse: Flag if the GetParser or SetParser, if present, should be
+                applied or not.
+
+        Returns:
+            Value of the node for a get operation. If the deep flag is set the
+            acknowledged value from the device is returned (applies also for
+            the set operation).
+
+        Raises:
+            AttributeError: If the connection does not support the necessary
+                function to get/set the value.
+            RuntimeError: If self.node_info.type if one of the following:
+                [ZIPWAWave, ZITriggerSample, ZICntSample, ZIImpedanceSample,
+                ZIScopeWave, ZIAuxInSample]. The reason is that these nodes can
+                only be polled.
+            TypeError: if the deep command is not available for this node
+                (e.g. sample nodes)
+            KeyError: If the node does not resolve to at least one valid leaf
+                node.
+        """
         if value is None:
             return self._get(deep=deep, enum=enum, parse=parse, **kwargs)
         return self._set(value, deep=deep, enum=enum, parse=parse, **kwargs)
@@ -426,7 +455,7 @@ class Node:
         return len(self._next_layer) > 0 and next(iter(self._next_layer)).isdecimal()
 
     def _resolve_wildcards(self) -> t.List[str]:
-        """Resolves potential wildcards
+        """Resolves potential wildcards.
 
         Also will resolve partial nodes to its leaf nodes.
 
@@ -481,6 +510,7 @@ class Node:
             value(s) from the device. If multiple values matches the the node a
             dictionary of the childnodes and their value is returned. If the
             ``deep`` flag is set the value is a pair (timestamp, value) instead.
+
         Raises:
             AttributeError: if the connection does not support the necessary
                 function the get the value.
@@ -489,7 +519,7 @@ class Node:
                 ZIScopeWave, ZIAuxInSample]. The reason is that these nodes can
                 only be polled.
             TypeError: if the deep command is not available for this node
-                (e.g. sample nodes)
+                (e.g. sample nodes) or connection object.
             KeyError: If the node does not resolve to at least one valid leaf
                 node.
         """
@@ -546,7 +576,7 @@ class Node:
     def _get_wildcard(
         self, deep=True, enum=True, parse=True, **kwargs
     ) -> t.Dict["Node", t.Any]:
-        """execute a wildcard get.
+        """Execute a wildcard get.
 
         The get is performed as a deep get (for all devices except HF2)
         regardless of the ``deep`` flag. If the ``deep`` flag is not set the
@@ -604,7 +634,7 @@ class Node:
         return result
 
     def _get_deep(self, **kwargs) -> t.Tuple[int, t.Any]:
-        """get the node value from the device.
+        """Get the node value from the device.
 
         The kwargs will be forwarded to the maped ziPython function call.
 
@@ -632,7 +662,7 @@ class Node:
         return self._parse_get_entry(raw_value)
 
     def _get_cached(self, **kwargs) -> t.Any:
-        """get the cached node value from the data server.
+        """Get the cached node value from the data server.
 
         The kwargs will be forwarded to the maped ziPython function call.
 
@@ -673,7 +703,7 @@ class Node:
     def _set(
         self, value: t.Any, deep=False, enum=True, parse=True, **kwargs
     ) -> t.Optional[t.Any]:
-        """set the value to the node.
+        """Set the value to the node.
 
         The kwargs will be forwarded to the maped ziPython function call.
 
@@ -749,7 +779,7 @@ class Node:
                 self._root.raw_path_to_node(node_raw)(value, parse=parse, **kwargs)
 
     def _set_deep(self, value: t.Any, **kwargs) -> None:
-        """set the node value from device.
+        """Set the node value from device.
 
         The kwargs will be forwarded to the mapped ziPython function call.
 
@@ -1036,12 +1066,12 @@ class Node:
 
     @property
     def root(self) -> "NodeTree":
-        "Node tree to which this node belongs to."
+        """Node tree to which this node belongs to."""
         return self._root
 
 
 class NodeList(Sequence, Node):
-    """List of nodelike objects
+    """List of nodelike objects.
 
     List of preinitialized classes that inherit from the ``Node`` class would not
     support wildcards since they would be of type list.

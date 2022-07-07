@@ -10,7 +10,7 @@ class SHFQAChannelMode(Enum):
 
 
 class AveragingMode(IntEnum):
-    """Averaging modes
+    """Averaging modes.
 
     CYCLIC:
         All frequency points are measured once from start frequency to stop

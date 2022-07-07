@@ -1,5 +1,4 @@
-""" Dictionary
-"""
+"""Implements Connection wrapper around a native python dictionary."""
 import fnmatch
 import json
 import re
@@ -40,7 +39,7 @@ class ConnectionDict:
         return json.dumps(json_info)
 
     def get(self, path: str, *args, **kwargs) -> t.Any:
-        """mirrors the behavior of ziPython get command."""
+        """Mirrors the behavior of ziPython get command."""
         nodes_raw = fnmatch.filter(self._values.keys(), path)
         return_value = OrderedDict()
         for node in nodes_raw:
@@ -48,7 +47,7 @@ class ConnectionDict:
         return return_value
 
     def getInt(self, path: str) -> int:
-        """mirrors the behavior of ziPython getInt command."""
+        """Mirrors the behavior of ziPython getInt command."""
         try:
             return int(self._values[path])
         except TypeError:
@@ -57,14 +56,14 @@ class ConnectionDict:
             raise
 
     def getDouble(self, path: str) -> float:
-        """mirrors the behavior of ziPython getDouble command."""
+        """Mirrors the behavior of ziPython getDouble command."""
         return float(self._values[path])
 
     def getString(self, path: str) -> str:
-        """mirrors the behavior of ziPython getDouble command."""
+        """Mirrors the behavior of ziPython getDouble command."""
         return str(self._values[path])
 
-    def _parse_input_value(self, path: str, value: str):
+    def _parse_input_value(self, path: str, value: t.Any):
         if isinstance(value, str):
             option_map = {}
             for key, option in self.json_info[path].get("Options", {}).items():
@@ -79,7 +78,7 @@ class ConnectionDict:
         value: t.Any = None,
         **kwargs,
     ) -> None:
-        """mirrors the behavior of ziPython set command."""
+        """Mirrors the behavior of ziPython set command."""
         if isinstance(path, str):
             self._values[path] = self._parse_input_value(path, value)
         else:
@@ -87,13 +86,13 @@ class ConnectionDict:
                 self._values[node] = self._parse_input_value(node, node_value)
 
     def setVector(self, path: str, value: t.Any = None) -> None:
-        """mirrors the behavior of ziPython setVector command."""
+        """Mirrors the behavior of ziPython setVector command."""
         self.set(path, value)
 
     def subscribe(self, path: str) -> None:
-        """mirrors the behavior of ziPython subscribe command."""
+        """Mirrors the behavior of ziPython subscribe command."""
         raise RuntimeError("Can not subscribe within the SHFQA_Sweeper")
 
     def unsubscribe(self, path: str) -> None:
-        """mirrors the behavior of ziPython unsubscribe command."""
+        """Mirrors the behavior of ziPython unsubscribe command."""
         raise RuntimeError("Can not subscribe within the SHFQA_Sweeper")

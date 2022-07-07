@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class Spectroscopy(Node):
-    """Spectroscopy node
+    """Spectroscopy node.
 
     Implements basic functionality of the spectroscopy, e.g allowing the user to
     read the result logger data.

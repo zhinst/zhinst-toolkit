@@ -178,7 +178,7 @@ class HF2Devices(Devices):
 
 
 class ModuleHandler:
-    """LabOne modules
+    """Modules of LabOne.
 
     Handler for all additional so called modules by LabOne. A LabOne module is
     bound to a user session but creates a independent session to the Data Server.
@@ -812,7 +812,7 @@ class Session(Node):
         timeout: float = 0.5,
         flags: PollFlags = PollFlags.DEFAULT,
     ) -> t.Dict[Node, t.Dict[str, t.Any]]:
-        """Polls all subscribed data
+        """Polls all subscribed data from the data server.
 
         Poll the value changes in all subscribed nodes since either subscribing
         or the last poll (assuming no buffer overflow has occurred on the Data
@@ -885,12 +885,12 @@ class Session(Node):
 
     @property
     def modules(self) -> ModuleHandler:
-        """LabOne modules"""
+        """Modules of LabOne."""
         return self._modules
 
     @property
     def is_hf2_server(self) -> bool:
-        """Flag if the data server is a HF2 Data Server"""
+        """Flag if the data server is a HF2 Data Server."""
         return self._is_hf2_server
 
     @property
@@ -900,10 +900,10 @@ class Session(Node):
 
     @property
     def server_host(self) -> str:
-        """Server host"""
+        """Server host."""
         return self._server_host
 
     @property
     def server_port(self) -> int:
-        """Server port"""
+        """Server port."""
         return self._server_port
