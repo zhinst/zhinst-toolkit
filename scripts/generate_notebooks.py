@@ -17,8 +17,9 @@ EXCLUDED_FILES = ["README.md"]
 def download_example_file(filename: str) -> bytes:
     """Download example file.
 
-    Arguments:
+    Args:
         filename: notebook filename.
+
     Returns:
         Notebook contents
     """
@@ -43,7 +44,7 @@ def get_notebook_examples() -> None:
 def generate_and_sync_example_notebooks(src: t.List[Path]) -> None:
     """Generate and sync given source files to notebooks.
 
-    Arguments:
+    Args:
         src: Source files
     """
     str_path = [str(path) for path in src]
@@ -53,7 +54,7 @@ def generate_and_sync_example_notebooks(src: t.List[Path]) -> None:
 def generate_notebooks(args: argparse.Namespace) -> None:
     """Generate notebooks either from local or remote.
 
-    Arguments:
+    Args:
         args: Namespace arguments
     """
     if args.src == "local":

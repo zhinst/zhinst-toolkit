@@ -51,7 +51,7 @@ class Connection(Protocol):
 
 
 class Transaction:
-    """Transaction Manager
+    """Transaction Manager.
 
     Buffers commands (node, value pairs)
 

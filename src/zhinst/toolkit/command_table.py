@@ -143,6 +143,7 @@ class ParentEntry(ParentNode):
         Args:
             value: Info about to specific property. Otherwise
                 return info about the whole property.
+
         Returns:
             Info about the property.
         """
@@ -236,8 +237,10 @@ def _derefence_json(schema: t.Union[str, dict]) -> t.Any:
 
     Args:
         schema: JSON schema as a string or dictionary.
+
     Returns:
         Dereferenced schema.
+
     Raises:
         ValueError: Wrong `schema` type.
     """
@@ -260,7 +263,6 @@ class CommandTable:
         json_schema: JSON Schema of the command table.
 
     Example:
-
     .. code-block:: python
 
         from zhinst.toolkit import CommandTable

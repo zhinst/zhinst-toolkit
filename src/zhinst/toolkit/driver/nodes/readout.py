@@ -200,8 +200,8 @@ class Readout(Node):
                 nodes.append(self.integration.weights[slot].wave.node_info.path)
         else:
             nodes.append(self.integration.weights["*"].wave.node_info.path)
-        nodes = ",".join(nodes)
-        weights_raw = self._daq_server.get(nodes, settingsonly=False, flat=True)
+        nodes_str = ",".join(nodes)
+        weights_raw = self._daq_server.get(nodes_str, settingsonly=False, flat=True)
         weights = Waveforms()
         for slot, weight in enumerate(weights_raw.values()):
             weights[slot] = weight[0]["vector"]

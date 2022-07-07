@@ -82,7 +82,7 @@ class DAQModule(BaseModule):
             str: A raw string representation of Node
         """
         try:
-            node = signal.node_info.path
+            node = signal.node_info.path  # type: ignore
         except AttributeError:
             node = signal
         sample_pos = node.find("sample")

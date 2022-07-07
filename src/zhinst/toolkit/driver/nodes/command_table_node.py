@@ -1,4 +1,4 @@
-""" zhinst-toolkit Command Table Node adaptions."""
+"""Command Table Node adaptions."""
 import json
 import string
 import typing as t
@@ -89,7 +89,7 @@ class CommandTableNode(Node):
             zhinst.toolkit.exceptions.ValidationError: Incorrect schema.
         """
         try:
-            self.data(json.dumps(ct.as_dict()))
+            self.data(json.dumps(ct.as_dict()))  # type: ignore
         except AttributeError:
             if validate:
                 ct_new = CommandTable(self.load_validation_schema())

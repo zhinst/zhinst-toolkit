@@ -1,4 +1,4 @@
-"""Base Instrument Driver
+"""Base Instrument Driver.
 
 Natively works with all device types and provides the basic functionality like
 the device specific nodetree.
@@ -111,14 +111,14 @@ class BaseInstrument(Node):
             except ValueError:
                 if i < 3:  # ignore dev verisons
                     result[i] = 0
-        return tuple(result)
+        return result[0], result[1], result[2]
 
     @staticmethod
     def _check_python_versions(
         zi_python_version: t.Tuple[int, int, int],
         zi_utils_version: t.Tuple[int, int, int],
     ) -> None:
-        """Check if the minimum required zhinst packages are installed
+        """Check if the minimum required zhinst packages are installed.
 
         Checks if all zhinst packages that toolkit require have the minimum
         required version installed.
@@ -322,5 +322,5 @@ class BaseInstrument(Node):
 
     @property
     def device_type(self) -> str:
-        """Type of the instrument (e.g. MFLI)"""
+        """Type of the instrument (e.g. MFLI)."""
         return self._device_type

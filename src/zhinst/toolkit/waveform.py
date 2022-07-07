@@ -11,7 +11,7 @@ _Waveform = t.Tuple[np.ndarray, t.Optional[np.ndarray], t.Optional[np.ndarray]]
 
 
 class Waveforms(MutableMapping):
-    """Waveform dictionary
+    """Waveform dictionary.
 
     The key specifies the slot of the waveform on the device.
     The value is a the waveform itself, represented by a tuple
@@ -107,7 +107,7 @@ class Waveforms(MutableMapping):
             slot: slot number
             raw_waveform: native AWG waveform.
             channels: Number of channels present in the wave. (default = 1)
-            markers: Indicates if markers are interleaved in the wave.
+            markers_present: Indicates if markers are interleaved in the wave.
                 (default = False)
         """
         wave1, wave2, markers = parse_awg_waveform(

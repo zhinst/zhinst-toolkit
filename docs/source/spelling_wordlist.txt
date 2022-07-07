@@ -107,3 +107,5 @@ Waveforms
 superheterodyne
 customizations
 submodule
+Enum
+boolean

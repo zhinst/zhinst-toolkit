@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class Generator(Node):
-    """Generator node
+    """Generator node.
 
     Implements basic functionality of the generator allowing the user to write
     and upload their *'.seqC'* code.
@@ -167,8 +167,8 @@ class Generator(Node):
                 nodes.append(self.waveforms[slot].wave.node_info.path)
         else:
             nodes.append(self.waveforms["*"].wave.node_info.path)
-        nodes = ",".join(nodes)
-        waveforms_raw = self._daq_server.get(nodes, settingsonly=False, flat=True)
+        nodes_str = ",".join(nodes)
+        waveforms_raw = self._daq_server.get(nodes_str, settingsonly=False, flat=True)
         waveforms = Waveforms()
         for slot, waveform in enumerate(waveforms_raw.values()):
             waveforms[slot] = waveform[0]["vector"]
@@ -179,8 +179,7 @@ class Generator(Node):
     ) -> None:
         """Configure the sequencer triggering.
 
-        Arguments:
-
+        Args:
             aux_trigger: Alias for the trigger source used in the sequencer.
                 For the list of available values, use `available_aux_trigger_inputs`
             play_pulse_delay: Delay in seconds before the start of waveform playback.
