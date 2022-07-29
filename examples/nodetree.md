@@ -75,7 +75,7 @@ Making a call gets the value(s) for that node. Passing a value to the call
 operator will set that value to the node on the device.
 
 Calling a node that is not a leaf (wildcard or partial node) will return/set the
-value on every node that matches it (the return type will be a dictionary).
+value on every node that matches it (the return type will be a dictionary or a mapping).
 
 > Warning:
 >

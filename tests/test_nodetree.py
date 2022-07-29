@@ -4,6 +4,7 @@ from collections import OrderedDict
 from pathlib import Path
 from types import GeneratorType
 from unittest.mock import MagicMock, Mock
+from copy import deepcopy
 
 import pytest
 from numpy import array as nparray
@@ -904,3 +905,77 @@ def test_nodelist_is_node(connection, hdawg):
     bar = NodeList([hdawg], nt, ("foobar",))
     assert bar[0] == hdawg
     assert bar == Node(nt, ("foobar",))
+
+
+class TestWildCardResult:
+    @pytest.fixture()
+    def node_tree(self, connection):
+        tree = NodeTree(connection, "DEV1234")
+        connection.get.return_value = OrderedDict(
+            [
+                (
+                    "/dev1234/demods/0/rate",
+                    {
+                        "timestamp": array("q", [123]),
+                        "value": array("d", [2]),
+                    },
+                ),
+                (
+                    "/dev1234/demods/1/rate",
+                    {
+                        "timestamp": array("q", [1234]),
+                        "value": array("d", [3]),
+                    },
+                ),
+            ]
+        )
+        return tree
+
+    @pytest.fixture
+    def wildcard_call_no_deep(self, node_tree):
+        return node_tree.demods["*"].rate(deep=False)
+
+    def test_call_no_deep(self, wildcard_call_no_deep):
+        assert wildcard_call_no_deep == {
+            "/dev1234/demods/0/rate": 2,
+            "/dev1234/demods/1/rate": 3,
+        }
+
+    def test_repr(self, wildcard_call_no_deep):
+        assert repr(wildcard_call_no_deep) == str(
+            {"/dev1234/demods/0/rate": 2.0, "/dev1234/demods/1/rate": 3.0}
+        )  # repr() displays here as float, but in Notebooks and prints it is int
+
+    def test_getitem(self, wildcard_call_no_deep, node_tree):
+        assert wildcard_call_no_deep[node_tree.demods[1].rate] == 3
+
+    def test_assert_in(self, wildcard_call_no_deep, node_tree):
+        assert node_tree.demods[1].rate in wildcard_call_no_deep
+
+    def test_to_dict(self, wildcard_call_no_deep):
+        assert wildcard_call_no_deep.to_dict() == {
+            "/dev1234/demods/0/rate": 2,
+            "/dev1234/demods/1/rate": 3,
+        }
+
+    def test_len(self, wildcard_call_no_deep):
+        assert len(wildcard_call_no_deep) == 2
+
+    def test_iter(self, wildcard_call_no_deep):
+        assert list(iter(wildcard_call_no_deep)) == [
+            "/dev1234/demods/0/rate",
+            "/dev1234/demods/1/rate",
+        ]
+
+    def test_deepcopy(self, wildcard_call_no_deep):
+        assert deepcopy(wildcard_call_no_deep) == {
+            "/dev1234/demods/0/rate": 2,
+            "/dev1234/demods/1/rate": 3,
+        }
+
+    def test_deep_wildcard(self, node_tree):
+        data_wc = node_tree.demods["*"].rate(deep=True)
+        assert data_wc == {
+            "/dev1234/demods/0/rate": (123, 2),
+            "/dev1234/demods/1/rate": (1234, 3),
+        }

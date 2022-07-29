@@ -7,6 +7,7 @@
   The function is able to generated a sequence code snippet that defines and assigns
   the waveforms for this object. Additional meta information like an optional name 
   or the output configuration can be specified through a newly added `Wave` class from `zhinst.toolkit.Waveforms`.
+* Getting a value by calling a wildcard node now returns `zhinst.toolkit.nodetree.node.WildcardResult`
 
 
 ## Version 0.3.4
