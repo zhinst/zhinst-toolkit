@@ -42,7 +42,7 @@ class AWGCore(AWG):
                 `available_trigger_slopes`
         """
         utils.configure_marker_and_trigger(
-            self._session.daq_server,
+            self._daq_server,
             self._serial,
             self._index,
             trigger_in_source=trigger_in_source,
@@ -226,10 +226,10 @@ class SGChannel(Node):
         return AWGCore(
             self._root,
             self._tree + ("awg",),
-            self._session,
             self._device.serial,
             self._index,
             self._device.device_type,
+            self._device.device_options,
         )
 
 

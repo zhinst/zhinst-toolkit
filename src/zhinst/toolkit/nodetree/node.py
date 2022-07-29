@@ -819,7 +819,7 @@ class Node:
                 try:
                     self._root.connection.set(self.node_info.path, value, **kwargs)
                 except RuntimeError:
-                    # Commandtable does not support set command. (L1-744)
+                    # Some vector nodes do not support support set command.
                     if self.node_info.type == "ZIVectorData":
                         self._root.connection.setVector(
                             self.node_info.path, value, **kwargs

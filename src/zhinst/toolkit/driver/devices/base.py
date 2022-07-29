@@ -18,6 +18,7 @@ from zhinst.core import __version__ as zhinst_version_str
 from zhinst.toolkit._min_version import _MIN_DEVICE_UTILS_VERSION, _MIN_LABONE_VERSION
 from zhinst.toolkit.driver.parsers import node_parser
 from zhinst.toolkit.nodetree import Node, NodeTree
+from zhinst.toolkit.nodetree.helper import lazy_property
 
 logger = logging.getLogger(__name__)
 
@@ -324,3 +325,8 @@ class BaseInstrument(Node):
     def device_type(self) -> str:
         """Type of the instrument (e.g. MFLI)."""
         return self._device_type
+
+    @lazy_property
+    def device_options(self) -> str:
+        """Enabled options of the instrument."""
+        return self.features.options()

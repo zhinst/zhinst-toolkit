@@ -1,9 +1,9 @@
 """zhinst-toolkit AWG node adaptions."""
 import json
 import logging
-import time
 import typing as t
 
+from zhinst.core import compile_seqc
 from zhinst.toolkit.driver.nodes.command_table_node import CommandTableNode
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import (
@@ -14,9 +14,6 @@ from zhinst.toolkit.waveform import Waveforms
 from zhinst.toolkit.sequence import Sequence
 
 logger = logging.getLogger(__name__)
-
-if t.TYPE_CHECKING:
-    from zhinst.toolkit.session import Session
 
 
 class AWG(Node):
@@ -40,16 +37,17 @@ class AWG(Node):
         self,
         root: NodeTree,
         tree: tuple,
-        session: "Session",
         serial: str,
         index: int,
         device_type: str,
+        device_options: str,
     ):
         Node.__init__(self, root, tree)
-        self._session = session
+        self._daq_server = root.connection
         self._serial = serial
         self._index = index
         self._device_type = device_type
+        self._device_options = device_options
 
     def enable_sequencer(self, *, single: bool) -> None:
         """Starts the sequencer of a specific channel.
@@ -91,84 +89,108 @@ class AWG(Node):
                 f"within the specified timeout ({timeout}s)."
             ) from error
 
+    def compile_sequencer_program(
+        self,
+        sequencer_program: t.Union[str, Sequence],
+        **kwargs: t.Union[str, int],
+    ) -> t.Tuple[bytes, t.Dict[str, t.Any]]:
+        """Compiles a sequencer program for the sepcific device.
+
+        Args:
+            sequencer_program: The sequencer program to compile.
+
+        Keyword Args:
+            samplerate: Target sample rate of the sequencer. Only allowed/
+                necessary for HDAWG devices. Must correspond to the samplerate
+                used by the device (device.system.clocks.sampleclock.freq()).
+                If not specified the function will get the value itself from
+                the device. It is recommended passing the samplerate if more
+                than one sequencer code is uploaded in a row to speed up the
+                execution time.
+            wavepath: path to directory with waveforms. Defaults to path used
+                by LabOne UI or AWG Module.
+            waveforms: waveform CSV files separated by ';'
+            output: name of embedded ELF filename.
+
+        Returns:
+            elf: Binary ELF data for sequencer.
+            extra: Extra dictionary with compiler output.
+
+        Examples:
+            >>> elf, compile_info = device.awgs[0].compile_sequencer_program(seqc)
+            >>> device.awgs[0].elf.data(elf)
+            >>> device.awgs[0].ready.wait_for_state_change(1)
+            >>> device.awgs[0].enable(True)
+
+        Raises:
+            RuntimeError: `sequencer_program` is empty.
+            RuntimeError: If the compilation failed.
+
+        .. versionadded:: 0.3.6
+        """
+        if "SHFQC" in self._device_type:
+            kwargs["sequencer"] = "sg" if "sgchannels" in self._tree else "qa"
+        elif "HDAWG" in self._device_type and "samplerate" not in kwargs:
+            kwargs["samplerate"] = self.root.system.clocks.sampleclock.freq()
+
+        return compile_seqc(
+            str(sequencer_program),
+            self._device_type,
+            self._device_options,
+            **kwargs,
+        )
+
     def load_sequencer_program(
-        self, sequencer_program: t.Union[str, Sequence], *, timeout: float = 100.0
-    ) -> None:
+        self,
+        sequencer_program: t.Union[str, Sequence],
+        **kwargs: t.Union[str, int],
+    ) -> t.Dict[str, t.Any]:
         """Compiles the given sequencer program on the AWG Core.
+
+        Warning:
+            After uploading the sequencer program one needs to wait before for
+            the awg core to become ready before it can be enabled.
+            The awg core indicates the ready state through its `ready` node.
+            (device.awgs[0].ready() == True)
 
         Args:
             sequencer_program: Sequencer program to be uploaded.
-            timeout: Maximum time to wait for the compilation on the device in
-                seconds.
+
+        Keyword Args:
+            samplerate: Target sample rate of the sequencer. Only allowed/
+                necessary for HDAWG devices. Must correspond to the samplerate
+                used by the device (device.system.clocks.sampleclock.freq()).
+                If not specified the function will get the value itself from
+                the device. It is recommended passing the samplerate if more
+                than one sequencer code is uploaded in a row to speed up the
+                execution time.
+            wavepath: path to directory with waveforms. Defaults to path used
+                by LabOne UI or AWG Module.
+            waveforms: waveform CSV files separated by ';'
+            output: name of embedded ELF filename.
+
+        Examples:
+            >>> compile_info = device.awgs[0].load_sequencer_program(seqc)
+            >>> device.awgs[0].ready.wait_for_state_change(1)
+            >>> device.awgs[0].enable(True)
 
         Raises:
-            ValueError: `sequencer_program` is an empty string.
-            TimeoutError: If the upload or compilation times out.
+            RuntimeError: `sequencer_program` is empty.
             RuntimeError: If the upload or compilation failed.
 
         .. versionadded:: 0.3.4
 
             `sequencer_program` does not accept empty strings
 
+        .. versionadded:: 0.3.6
+
+            Use offline compiler instead of AWG module to compile the sequencer
+            program. This speeds of the compilation and also enables parallel
+            compilation/upload.
         """
-        if not sequencer_program:
-            raise ValueError("Empty sequencer program not allowed.")
-        awg = self._session.modules.create_awg_module()
-        raw_awg = awg.raw_module
-        awg.device(self._serial)
-        awg.index(self._index)
-        if "SHFQC" in self._device_type:
-            awg.sequencertype("sg")
-        raw_awg.execute()
-        logger.info(f"{repr(self)}: Compiling sequencer program")
-        awg.compiler.sourcestring(str(sequencer_program))
-        compiler_status = awg.compiler.status()
-        start = time.time()
-        while compiler_status == -1:
-            if time.time() - start >= timeout:
-                logger.critical(f"{repr(self)}: Program compilation timed out")
-                raise TimeoutError(f"{repr(self)}: Program compilation timed out")
-            time.sleep(0.1)
-            compiler_status = awg.compiler.status()
-
-        if compiler_status == 1:
-            logger.critical(
-                f"{repr(self)}: Error during sequencer compilation"
-                f"{awg.compiler.statusstring()}"
-            )
-            raise RuntimeError(
-                f"{repr(self)}: Error during sequencer compilation."
-                "Check the log for detailed information"
-            )
-        if compiler_status == 2:
-            logger.warning(
-                f"{repr(self)}: Warning during sequencer compilation"
-                f"{awg.compiler.statusstring()}"
-            )
-        if compiler_status == 0:
-            logger.info(f"{repr(self)}: Compilation successful")
-
-        progress = awg.progress()
-        logger.info(f"{repr(self)}: Uploading ELF file to device")
-        while progress < 1.0 or awg.elf.status() == 2 or self.ready() == 0:
-            if time.time() - start >= timeout:
-                logger.critical(f"{repr(self)}: Program upload timed out")
-                raise TimeoutError(f"{repr(self)}: Program upload timed out")
-            logger.info(f"{repr(self)}: {progress*100}%")
-            time.sleep(0.1)
-            progress = awg.progress()
-
-        if awg.elf.status() == 0 and self.ready():
-            logger.info(f"{repr(self)}: ELF file uploaded")
-        else:
-            logger.critical(
-                f"{repr(self)}: Error during upload of ELF file"
-                f"(with status {awg.elf.status()}"
-            )
-            raise RuntimeError(
-                f"{repr(self)}: Error during upload of ELF file."
-                "Check the log for detailed information"
-            )
+        elf, compiler_info = self.compile_sequencer_program(sequencer_program, **kwargs)
+        self.elf.data(elf)
+        return compiler_info
 
     def write_to_waveform_memory(
         self, waveforms: Waveforms, indexes: list = None, validate: bool = True
@@ -243,9 +265,7 @@ class AWG(Node):
         else:
             nodes.append(self.waveform.waves["*"].node_info.path)
         nodes_str = ",".join(nodes)
-        waveforms_raw = self._session.daq_server.get(
-            nodes_str, settingsonly=False, flat=True
-        )
+        waveforms_raw = self._daq_server.get(nodes_str, settingsonly=False, flat=True)
         waveform_info = json.loads(
             waveforms_raw.pop(self.waveform.descriptors.node_info.path)[0]["vector"]
         ).get("waveforms", [])

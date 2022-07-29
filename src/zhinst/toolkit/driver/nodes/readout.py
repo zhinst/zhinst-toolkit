@@ -4,7 +4,6 @@ import typing as t
 
 import numpy as np
 import zhinst.utils.shfqa as utils
-from zhinst.core import ziDAQServer
 
 from zhinst.toolkit.interface import AveragingMode
 from zhinst.toolkit.nodetree import Node, NodeTree
@@ -22,7 +21,6 @@ class Readout(Node):
     Args:
         root: Root of the nodetree
         tree: Tree (node path as tuple) of the current node
-        daq_server: Instance of the ziDAQServer
         serial: Serial of the device.
         index: Index of the corresponding awg channel
         max_qubits_per_channel: Max qubits per channel
@@ -32,13 +30,12 @@ class Readout(Node):
         self,
         root: NodeTree,
         tree: tuple,
-        daq_server: ziDAQServer,
         serial: str,
         index: int,
         max_qubits_per_channel: int,
     ):
         super().__init__(root, tree)
-        self._daq_server = daq_server
+        self._daq_server = root.connection
         self._serial = serial
         self._index = index
         self._max_qubits_per_channel = max_qubits_per_channel

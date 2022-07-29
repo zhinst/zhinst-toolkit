@@ -3,7 +3,6 @@ import logging
 
 import numpy as np
 import zhinst.utils.shfqa as utils
-from zhinst.core import ziDAQServer
 
 from zhinst.toolkit.interface import AveragingMode
 from zhinst.toolkit.nodetree import Node, NodeTree
@@ -20,7 +19,6 @@ class Spectroscopy(Node):
     Args:
         root: Root of the nodetree
         tree: Tree (node path as tuple) of the current node
-        daq_server: Instance of the ziDAQServer
         serial: Serial of the device.
         index: Index of the corresponding awg channel
     """
@@ -29,12 +27,11 @@ class Spectroscopy(Node):
         self,
         root: NodeTree,
         tree: tuple,
-        daq_server: ziDAQServer,
         serial: str,
         index: int,
     ):
         super().__init__(root, tree)
-        self._daq_server = daq_server
+        self._daq_server = root.connection
         self._serial = serial
         self._index = index
 
