@@ -111,3 +111,4 @@ Enum
 boolean
 Numpy
 ndarray
+fstrings

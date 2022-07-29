@@ -11,6 +11,7 @@ from zhinst.toolkit.nodetree.helper import (
     create_or_append_set_transaction,
 )
 from zhinst.toolkit.waveform import Waveforms
+from zhinst.toolkit.sequence import Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +92,7 @@ class AWG(Node):
             ) from error
 
     def load_sequencer_program(
-        self, sequencer_program: str, *, timeout: float = 100.0
+        self, sequencer_program: t.Union[str, Sequence], *, timeout: float = 100.0
     ) -> None:
         """Compiles the given sequencer program on the AWG Core.
 
@@ -120,7 +121,7 @@ class AWG(Node):
             awg.sequencertype("sg")
         raw_awg.execute()
         logger.info(f"{repr(self)}: Compiling sequencer program")
-        awg.compiler.sourcestring(sequencer_program)
+        awg.compiler.sourcestring(str(sequencer_program))
         compiler_status = awg.compiler.status()
         start = time.time()
         while compiler_status == -1:

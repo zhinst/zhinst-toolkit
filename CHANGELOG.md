@@ -1,5 +1,9 @@
 # zhinst-toolkit Changelog
 
+## Version 0.3.6
+* Add new class `zhinst.toolkit.Sequence` that allows a more flexible use of 
+  sequences in toolkit (`#141`).
+
 ## Version 0.3.5
 * Adapt AWG Waveform upload (`write_to_waveform_memory`) to append to existing transactions.
 * Make consistency validate during waveform upload optional (new flag `validate` in `write_to_waveform_memory`).

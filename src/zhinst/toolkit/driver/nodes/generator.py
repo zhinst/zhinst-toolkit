@@ -7,6 +7,7 @@ from zhinst.ziPython import ziDAQServer
 
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.waveform import Waveforms
+from zhinst.toolkit.sequence import Sequence
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +90,7 @@ class Generator(Node):
             ) from error
 
     def load_sequencer_program(
-        self, sequencer_program: str, *, timeout: float = 10
+        self, sequencer_program: t.Union[str, Sequence], *, timeout: float = 10
     ) -> None:
         """Compiles and loads a sequencer program.
 
@@ -114,7 +115,7 @@ class Generator(Node):
             self._daq_server,
             self._serial,
             self._index,
-            sequencer_program,
+            str(sequencer_program),
             timeout=timeout,
         )
 
