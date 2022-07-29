@@ -2400,6 +2400,13 @@
         "Type": "Integer (64 bit)",
         "Unit": "None"
     },
+    "/dev1234/qachannels/0/generator/clearwave": {
+        "Node": "/DEV1234/QACHANNELS/0/GENERATOR/CLEARWAVE",
+        "Description": "Clears all waveforms in each slot and resets their length to 0.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
     "/dev1234/qachannels/0/generator/waveforms/0/wave": {
         "Node": "/DEV1234/QACHANNELS/0/GENERATOR/WAVEFORMS/0/WAVE",
         "Description": "Contains the generators waveforms as a vector of complex samples",
