@@ -3,6 +3,7 @@ sphinx-issues
 nbsphinx
 nbsphinx_link
 m2r2
+docutils<0.19.0
 pydata_sphinx_theme
 sphinx_autodoc_typehints
 jupytext==1.13.7

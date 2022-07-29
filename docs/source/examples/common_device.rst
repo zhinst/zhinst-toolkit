@@ -27,17 +27,17 @@ access the node specific information.
 .. code-block:: python
 
     >>> list(device.child_nodes())
-    [/dev3036/oscs,
-     /dev3036/demods,
-     /dev3036/extrefs,
-     /dev3036/triggers,
-     /dev3036/status,
+    [/dev1234/oscs,
+     /dev1234/demods,
+     /dev1234/extrefs,
+     /dev1234/triggers,
+     /dev1234/status,
      ...]
     >>> list(device.demods[0].child_nodes(recursive=True))
-    [/dev3036/demods/0/adcselect,
-     /dev3036/demods/0/order,
-     /dev3036/demods/0/rate,
-     /dev3036/demods/0/oscselect,
+    [/dev1234/demods/0/adcselect,
+     /dev1234/demods/0/order,
+     /dev1234/demods/0/rate,
+     /dev1234/demods/0/oscselect,
      ...]
 
 The node tree is automatically generated during the initialization of the device
@@ -103,7 +103,7 @@ loads the default preset.
 .. code-block:: python
 
     >>> device.factory_reset()
-    "Factory preset is loaded to device DEV3036."
+    "Factory preset is loaded to device DEV1234."
 
 .. note::
 

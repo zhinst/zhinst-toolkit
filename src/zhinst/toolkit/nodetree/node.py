@@ -7,7 +7,7 @@ import re
 import time
 import typing as t
 from collections import namedtuple
-from collections.abc import Sequence
+from collections.abc import Sequence, Mapping
 from enum import IntEnum
 from functools import lru_cache
 
@@ -266,14 +266,20 @@ class Node:
     >>> nodetree.demods[0].freq(2000)
     >>> nodetree.demods[0].freq()
     2000
+
     >>> nodetree.demods["*"].freq(3000)
     >>> nodetree.demods["*"].freq()
     {
-        /dev1234/demods/0/freq: 3000
-        /dev3036/demods/1/freq: 3000
-        /dev3036/demods/2/freq: 3000
-        /dev3036/demods/3/freq: 3000
+        '/dev1234/demods/0/freq': 3000
+        '/dev1234/demods/1/freq': 3000
+        '/dev1234/demods/2/freq': 3000
+        '/dev1234/demods/3/freq': 3000
     }
+
+    .. versionchanged:: 0.3.5
+
+        Call operator returns :class:`WildcardResult` when wildcards are used in
+        getting values.
 
     The call operator supports the following flags:
 
@@ -426,6 +432,11 @@ class Node:
             acknowledged value from the device is returned (applies also for
             the set operation).
 
+            .. versionchanged:: 0.3.5
+
+                Returns :class:`WildcardResult` when wildcards are used in
+                getting values.
+
         Raises:
             AttributeError: If the connection does not support the necessary
                 function to get/set the value.
@@ -575,7 +586,7 @@ class Node:
 
     def _get_wildcard(
         self, deep=True, enum=True, parse=True, **kwargs
-    ) -> t.Dict["Node", t.Any]:
+    ) -> t.Union["WildcardResult", t.Dict[str, t.Any]]:
         """Execute a wildcard get.
 
         The get is performed as a deep get (for all devices except HF2)
@@ -595,7 +606,8 @@ class Node:
             parse: Flag if the GetParser, if present, should be applied or not.
 
         Returns:
-            Dictionary with the values of all subnodes.
+            ``WildcardResult`` if deep is `True`. Else a dictionary.
+            Dictionary or a Mapping with the values of all subnodes.
 
         Raises:
             KeyError: If the node does not resolve to at least one valid leaf
@@ -630,8 +642,8 @@ class Node:
             value = sub_node._parse_get_value(value, enum=enum, parse=parse)
             # although the operation is a deep get we hide the timestamp
             # to ensure consistency
-            result[sub_node] = (timestamp, value) if deep else value
-        return result
+            result[sub_node_raw] = (timestamp, value) if deep else value
+        return WildcardResult(result)
 
     def _get_deep(self, **kwargs) -> t.Tuple[int, t.Any]:
         """Get the node value from the device.
@@ -1108,3 +1120,47 @@ class NodeList(Sequence, Node):
 
     def __hash__(self):
         return Node.__hash__(self)
+
+
+class WildcardResult(Mapping):
+    """Mapping of results when a :class:`Node` is called with wildcards.
+
+    Args:
+        result: A dictionary of node/value pairs.
+
+    Example:
+        >>> result = device.demods["*"].enable()
+        >>> print(result)
+        {
+            '/dev1234/demods/0/enable': 0,
+            '/dev1234/demods/1/enable': 1,
+        }
+        >>> result[device.demods[0].enable]
+        0
+        >>> result["/dev1234/demods/0/enable"]
+        0
+
+    .. versionadded:: 0.3.5
+    """
+
+    def __init__(self, result: t.Dict[str, t.Any]):
+        self._result = result
+
+    def __repr__(self):
+        return repr(self._result)
+
+    def __getitem__(self, key: t.Union[str, Node]):
+        return self._result[str(key)]
+
+    def __iter__(self):
+        return iter(self._result)
+
+    def __len__(self):
+        return len(self._result)
+
+    def to_dict(self) -> t.Dict[str, t.Any]:
+        """Convert the WildcardResult to a dictionary.
+
+        After conversion, :class:`Node` objects cannot be used to get items.
+        """
+        return self._result
