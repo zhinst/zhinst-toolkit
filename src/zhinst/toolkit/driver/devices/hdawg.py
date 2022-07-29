@@ -47,10 +47,10 @@ class HDAWG(BaseInstrument):
                 AWG(
                     self.root,
                     self._tree + ("awgs", str(i)),
-                    self._session,
                     self.serial,
                     i,
                     self.device_type,
+                    self.device_options,
                 )
                 for i in range(len(self["awgs"]))
             ],

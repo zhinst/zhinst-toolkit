@@ -5,30 +5,9 @@ from itertools import cycle
 import numpy as np
 import pytest
 import zhinst.utils as zi_utils
+from zhinst.core import compile_seqc
 
 from zhinst.toolkit.driver.nodes.awg import CommandTableNode, Waveforms
-
-
-@pytest.fixture()
-def awg_module(shfsg, data_dir, mock_connection):
-    json_path = data_dir / "nodedoc_awg_test.json"
-    with json_path.open("r", encoding="UTF-8") as file:
-        nodes_json = file.read()
-    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
-        nodes_json
-    )
-    yield shfsg.sgchannels[0].awg
-
-
-@pytest.fixture()
-def awg_module_qc(shfqc, data_dir, mock_connection):
-    json_path = data_dir / "nodedoc_awg_test.json"
-    with json_path.open("r", encoding="UTF-8") as file:
-        nodes_json = file.read()
-    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
-        nodes_json
-    )
-    yield shfqc.sgchannels[0].awg
 
 
 @pytest.fixture()
@@ -38,8 +17,8 @@ def waveform_descriptors_json(data_dir):
         return file.read()
 
 
-def test_enable_sequencer(mock_connection, awg_module):
-    awg_module.enable_sequencer(single=True)
+def test_enable_sequencer(mock_connection, shfsg):
+    shfsg.sgchannels[0].awg.enable_sequencer(single=True)
     mock_connection.return_value.set.assert_called_with(
         "/dev1234/sgchannels/0/awg/single", 1
     )
@@ -47,7 +26,7 @@ def test_enable_sequencer(mock_connection, awg_module):
         "/dev1234/sgchannels/0/awg/enable", 1
     )
 
-    awg_module.enable_sequencer(single=False)
+    shfsg.sgchannels[0].awg.enable_sequencer(single=False)
     mock_connection.return_value.set.assert_called_with(
         "/dev1234/sgchannels/0/awg/single", 0
     )
@@ -56,7 +35,7 @@ def test_enable_sequencer(mock_connection, awg_module):
     )
 
 
-def test_wait_done(mock_connection, awg_module):
+def test_wait_done(mock_connection, shfsg):
     single = 0
     enable = iter([])
 
@@ -70,130 +49,81 @@ def test_wait_done(mock_connection, awg_module):
 
     # if not single mode this function throws a RuntimeError
     with pytest.raises(RuntimeError) as e_info:
-        awg_module.wait_done()
+        shfsg.sgchannels[0].awg.wait_done()
 
     # already finished
     single = 1
     enable = iter([0] * 2)
-    awg_module.wait_done()
+    shfsg.sgchannels[0].awg.wait_done()
     # finishes in time
     single = 1
     enable = iter([1] * 3 + [0] * 2)
-    awg_module.wait_done()
+    shfsg.sgchannels[0].awg.wait_done()
     # don't finish
     single = 1
     enable = cycle([1])
     with pytest.raises(TimeoutError) as e_info:
-        awg_module.wait_done(timeout=0.1)
+        shfsg.sgchannels[0].awg.wait_done(timeout=0.1)
 
 
-def test_load_sequencer_program(mock_connection, awg_module, caplog):
-    compiler_status = 0
-    upload_process = iter([0, 0.2, 1, 1])
-    ready = 1
-    elf_status = 0
-
-    def get_side_effect(node):
-        if node == "/compiler/status":
-            return compiler_status
-        if node == "/progress":
-            return next(upload_process)
-        if node == "/elf/status":
-            return elf_status
-        if node == "/DEV1234/SGCHANNELS/0/AWG/READY":
-            return ready
-        return RuntimeError("Undefined Node")
-
-    awg_mock = mock_connection.return_value.awgModule.return_value
-    awg_mock.getDouble.side_effect = get_side_effect
-    awg_mock.getInt.side_effect = get_side_effect
-    mock_connection.return_value.getInt.side_effect = get_side_effect
+def test_load_sequencer_program(mock_connection, shfsg):
 
     # everything ok
-    awg_module.load_sequencer_program("Hello")
-    awg_mock.set.assert_any_call("/device", "DEV1234")
-    awg_mock.set.assert_any_call("/index", 0)
-    assert len(awg_mock.set.call_args_list) == 3
-    awg_mock.set.assert_called_with("/compiler/sourcestring", "Hello")
-    awg_mock.execute.assert_called()
-
-    # Compiler timeout
-    compiler_status = -1
-    with pytest.raises(TimeoutError) as e_info:
-        awg_module.load_sequencer_program("Hello", timeout=0.5)
+    elf, info_original = compile_seqc("setTrigger(1);", "SHFSG8", [], 0)
+    info = shfsg.sgchannels[0].awg.load_sequencer_program("setTrigger(1);")
+    mock_connection.return_value.set.assert_called_once()
+    assert (
+        mock_connection.return_value.set.call_args[0][0]
+        == "/dev1234/sgchannels/0/awg/elf/data"
+    )
+    assert all(
+        mock_connection.return_value.set.call_args[0][1]
+        == np.frombuffer(elf, dtype="uint32")
+    )
+    assert info == info_original
 
     # Compiler error
-    compiler_status = 1
     with pytest.raises(RuntimeError) as e_info:
-        awg_module.load_sequencer_program("Hello")
-
-    # Compiler warning
-    compiler_status = 2
-    awg_module.load_sequencer_program("Hello")
-    assert "Warning during sequencer compilation" in caplog.messages[-1]
-    compiler_status = 0
-
-    # Upload timeout
-    elf_status = 2
-    ready = 0
-    upload_process = cycle([0])
-    with pytest.raises(TimeoutError) as e_info:
-        awg_module.load_sequencer_program("Hello", timeout=0.5)
-
-    # Upload error
-    upload_process = cycle([1])
-    elf_status = 1
-    ready = 1
-    with pytest.raises(RuntimeError) as e_info:
-        awg_module.load_sequencer_program("Hello", timeout=0.5)
+        shfsg.sgchannels[0].awg.load_sequencer_program("Hello")
 
     # Empty string sequencer program
-    with pytest.raises(ValueError):
-        awg_module.load_sequencer_program("")
-    with pytest.raises(ValueError):
-        awg_module.load_sequencer_program(None)
+    with pytest.raises(RuntimeError):
+        shfsg.sgchannels[0].awg.load_sequencer_program("")
+    with pytest.raises(RuntimeError):
+        shfsg.sgchannels[0].awg.load_sequencer_program(None)
+
+    # Upload error
+    mock_connection.return_value.set.side_effect = RuntimeError()
+    mock_connection.return_value.setVector.side_effect = RuntimeError()
+    with pytest.raises(RuntimeError):
+        elf, info_original = shfsg.sgchannels[0].awg.load_sequencer_program(
+            "setTrigger(1);"
+        )
 
 
-def test_load_sequencer_program_qc(mock_connection, awg_module_qc):
-    compiler_status = 0
-    upload_process = iter([0, 0.2, 1, 1])
-    ready = 1
-    elf_status = 0
-
-    def get_side_effect(node):
-        if node == "/compiler/status":
-            return compiler_status
-        if node == "/progress":
-            return next(upload_process)
-        if node == "/elf/status":
-            return elf_status
-        if node == "/DEV1234/SGCHANNELS/0/AWG/READY":
-            return ready
-        return RuntimeError("Undefined Node")
-
-    awg_mock = mock_connection.return_value.awgModule.return_value
-    awg_mock.getDouble.side_effect = get_side_effect
-    awg_mock.getInt.side_effect = get_side_effect
-    mock_connection.return_value.getInt.side_effect = get_side_effect
-
-    # everything ok
-    awg_module_qc.load_sequencer_program("Hello")
-    awg_mock.set.assert_any_call("/device", "DEV1234")
-    awg_mock.set.assert_any_call("/index", 0)
-    awg_mock.set.assert_any_call("/sequencertype", "sg")
-    assert len(awg_mock.set.call_args_list) == 4
-    awg_mock.set.assert_called_with("/compiler/sourcestring", "Hello")
-    awg_mock.execute.assert_called()
+def test_load_sequencer_program_qc(mock_connection, shfqc):
+    elf, info_original = compile_seqc("setTrigger(1);", "SHFQC", [], 0, sequencer="sg")
+    info = shfqc.sgchannels[0].awg.load_sequencer_program("setTrigger(1);")
+    mock_connection.return_value.set.assert_called_once()
+    assert (
+        mock_connection.return_value.set.call_args[0][0]
+        == "/dev1234/sgchannels/0/awg/elf/data"
+    )
+    assert all(
+        mock_connection.return_value.set.call_args[0][1]
+        == np.frombuffer(elf, dtype="uint32")
+    )
+    assert info == info_original
 
 
-def test_command_table(awg_module):
-    assert isinstance(awg_module.commandtable, CommandTableNode)
-    assert awg_module.commandtable.raw_tree == awg_module.raw_tree + ("commandtable",)
+def test_command_table(shfsg):
+    assert isinstance(shfsg.sgchannels[0].awg.commandtable, CommandTableNode)
+    assert shfsg.sgchannels[0].awg.commandtable.raw_tree == shfsg.sgchannels[
+        0
+    ].awg.raw_tree + ("commandtable",)
 
 
-def test_write_to_waveform_memory(
-    waveform_descriptors_json, mock_connection, awg_module
-):
+def test_write_to_waveform_memory(waveform_descriptors_json, mock_connection, shfsg):
     mock_connection.return_value.get.return_value = OrderedDict(
         [
             (
@@ -214,7 +144,7 @@ def test_write_to_waveform_memory(
     marker = np.zeros(1008)
     waveforms[0] = (wave1, wave2)
     waveforms[1] = (wave1, wave2, marker)
-    awg_module.write_to_waveform_memory(waveforms)
+    shfsg.sgchannels[0].awg.write_to_waveform_memory(waveforms)
     assert (
         mock_connection.return_value.set.call_args[0][0][0][0]
         == "/dev1234/sgchannels/0/awg/waveform/waves/0"
@@ -232,7 +162,7 @@ def test_write_to_waveform_memory(
         == waveforms.get_raw_vector(1)
     )
 
-    awg_module.write_to_waveform_memory(waveforms, [0])
+    shfsg.sgchannels[0].awg.write_to_waveform_memory(waveforms, [0])
     assert (
         mock_connection.return_value.set.call_args[0][0][0][0]
         == "/dev1234/sgchannels/0/awg/waveform/waves/0"
@@ -240,9 +170,9 @@ def test_write_to_waveform_memory(
     assert len(mock_connection.return_value.set.call_args[0][0]) == 1
 
     # existing transaction
-    with awg_module.root.set_transaction():
-        awg_module.dio.highbits(0)
-        awg_module.write_to_waveform_memory(waveforms)
+    with shfsg.sgchannels[0].awg.root.set_transaction():
+        shfsg.sgchannels[0].awg.dio.highbits(0)
+        shfsg.sgchannels[0].awg.write_to_waveform_memory(waveforms)
 
     mock_connection.return_value.set.call_args[0][0][0][
         0
@@ -252,8 +182,8 @@ def test_write_to_waveform_memory(
     # to big index
     waveforms[10] = (wave1, wave2)
     with pytest.raises(IndexError) as e_info:
-        awg_module.write_to_waveform_memory(waveforms)
-    awg_module.write_to_waveform_memory(waveforms, validate=False)
+        shfsg.sgchannels[0].awg.write_to_waveform_memory(waveforms)
+    shfsg.sgchannels[0].awg.write_to_waveform_memory(waveforms, validate=False)
     assert (
         mock_connection.return_value.set.call_args[0][0][2][0]
         == "/dev1234/sgchannels/0/awg/waveform/waves/10"
@@ -262,17 +192,15 @@ def test_write_to_waveform_memory(
     # assign to filler
     waveforms[2] = (wave1, wave2)
     with pytest.raises(RuntimeError) as e_info:
-        awg_module.write_to_waveform_memory(waveforms)
-    awg_module.write_to_waveform_memory(waveforms, validate=False)
+        shfsg.sgchannels[0].awg.write_to_waveform_memory(waveforms)
+    shfsg.sgchannels[0].awg.write_to_waveform_memory(waveforms, validate=False)
     assert (
         mock_connection.return_value.set.call_args[0][0][2][0]
         == "/dev1234/sgchannels/0/awg/waveform/waves/2"
     )
 
 
-def test_read_from_waveform_memory(
-    waveform_descriptors_json, mock_connection, awg_module
-):
+def test_read_from_waveform_memory(waveform_descriptors_json, mock_connection, shfsg):
     waveform_descriptiors = json.loads(waveform_descriptors_json)
 
     single_wave_result = []
@@ -354,7 +282,7 @@ def test_read_from_waveform_memory(
         raise RuntimeError()
 
     mock_connection.return_value.get.side_effect = get_side_effect
-    waveforms = awg_module.read_from_waveform_memory()
+    waveforms = shfsg.sgchannels[0].awg.read_from_waveform_memory()
     mock_connection.return_value.get.assert_called_with(
         "/dev1234/sgchannels/0/awg/waveform/descriptors,/dev1234/sgchannels/0/awg/waveform/waves/*",
         settingsonly=False,
@@ -371,7 +299,7 @@ def test_read_from_waveform_memory(
     single_wave_result = zi_utils.convert_awg_waveform(
         np.ones(1008), -np.ones(1008), np.ones(1008)
     )
-    waveforms = awg_module.read_from_waveform_memory([0])
+    waveforms = shfsg.sgchannels[0].awg.read_from_waveform_memory([0])
     mock_connection.return_value.get.assert_called_with(
         "/dev1234/sgchannels/0/awg/waveform/descriptors,/dev1234/sgchannels/0/awg/waveform/waves/0",
         settingsonly=False,
@@ -386,7 +314,7 @@ def test_read_from_waveform_memory(
         np.ones(1008), -np.ones(1008), None
     )
     waveform_descriptiors["waveforms"][1]["marker_bits"] = "0;0"
-    waveforms = awg_module.read_from_waveform_memory([1])
+    waveforms = shfsg.sgchannels[0].awg.read_from_waveform_memory([1])
     assert len(waveforms) == 1
     assert all(waveforms[1][0] == np.ones(1008))
     assert all(waveforms[1][1] == -np.ones(1008))
@@ -397,7 +325,7 @@ def test_read_from_waveform_memory(
     )
     waveform_descriptiors["waveforms"][1]["channels"] = "1"
     waveform_descriptiors["waveforms"][1]["marker_bits"] = "1;0"
-    waveforms = awg_module.read_from_waveform_memory([1])
+    waveforms = shfsg.sgchannels[0].awg.read_from_waveform_memory([1])
     assert len(waveforms) == 1
     assert all(waveforms[1][0] == np.ones(1008))
     assert waveforms[1][1] == None
@@ -406,7 +334,7 @@ def test_read_from_waveform_memory(
     single_wave_result = zi_utils.convert_awg_waveform(np.ones(1008), None, None)
     waveform_descriptiors["waveforms"][1]["channels"] = "1"
     waveform_descriptiors["waveforms"][1]["marker_bits"] = "0;0"
-    waveforms = awg_module.read_from_waveform_memory([1])
+    waveforms = shfsg.sgchannels[0].awg.read_from_waveform_memory([1])
     assert len(waveforms) == 1
     assert all(waveforms[1][0] == np.ones(1008))
     assert waveforms[1][1] == None

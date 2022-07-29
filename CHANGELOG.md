@@ -9,6 +9,10 @@
 * Bugfix: Values of enumerated nodes can now be pickled (`#129`).
 * Bugfix: `SHFScope` `run()`  and `stop()` shows specified timeout value when `TimeoutError` is raised.
 * Bugfix: Allow capital letters in node paths. (`#173`).
+* Adapt toolkit to use the offline awg compiler when uploading a sequencer code to
+  a awg node. Improves the performance a lot and also enables the uploading of
+  a sequencer code within a transaction (Works both for AWGs and Generators).
+* Add new function `compile_sequencer_code` to the awg node.
 
 ## Version 0.3.5
 * Adapt AWG Waveform upload (`write_to_waveform_memory`) to append to existing transactions.
