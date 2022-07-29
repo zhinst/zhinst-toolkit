@@ -72,6 +72,35 @@ awg_node.enable_sequencer(single=True)
 awg_node.wait_done()
 ```
 
+zhinst-toolkit also offers a class `Sequence` representing a LabOne Sequence.
+This class enables a compact representation of a sequence for a Zurich 
+Instruments device. Although a sequencer code can be represented by a
+simple string this class offers the following advantages:
+
+    * Define a constants dictionary. The constants will be added
+        automatically to the top of the resulting sequencer code and helps
+        to prevent the use of fstrings (which require the escaping of {})
+    * Link Waveforms to the sequence. This adds the waveform placeholder
+        definitions to the top of the resulting sequencer code.
+        (see the Waveform section below)
+
+> Note:
+>
+> This class is only for convenience. The same functionality can be 
+> achieved with a simple string.
+
+```python
+from zhinst.toolkit import Sequence
+seq = Sequence()
+seq.code = """\
+// Hello World
+repeat(5)
+...
+"""
+seq.constants["PULSE_WIDTH"] = 10e-9 #ns
+print(seq)
+```
+
 <!-- #region -->
 ## Waveform
 
@@ -112,8 +141,6 @@ as uint16) is handled by the ``Waveform`` class directly.
 ```python
 import numpy as np
 from zhinst.toolkit import Waveforms
-
-wave1 = np
 
 waveforms = Waveforms()
 # Waveform at index 0 with markers
@@ -174,6 +201,36 @@ waveforms[0] = (0.2 * np.ones(1008), -0.2 * np.ones(1008))
 waveforms[0][0].name = "test1"
 
 print(waveforms.get_sequence_snippet())
+```
+
+The `Waveforms` object can also be added to a `Sequence` object. This allows a 
+a more structured code and prevents uploading the wrong waveforms. It also allows
+an easy declaration of the waveforms in the sequencer code since the above
+explained code snippet is automatically added to the sequencer code (can be 
+disabled)
+
+```python
+seq =  Sequence("""\
+// Play wave 1
+playWave(1,w0_1,2,w0_2);
+waitWave();
+// Play wave 2
+playWave(1,w1_1,2,w1_2);
+waitWave();
+""")
+seq.waveforms = Waveforms()
+seq.waveforms[0] = (
+    Wave(0.5 * np.ones(1008), name= "w0_1", output= OutputType.OUT1 | OutputType.OUT2),
+    Wave(-0.5 * np.ones(1008), name= "w0_2", output= OutputType.OUT1 | OutputType.OUT2),
+    (1 << 0 | 1 << 1 | 1 << 2 | 1 << 3) * np.ones(1008),
+)
+seq.waveforms.assign_waveform(2,
+    Wave(np.ones(1008), name= "w1_1", output= OutputType.OUT1 | OutputType.OUT2),
+    Wave(-np.ones(1008), name= "w1_2", output= OutputType.OUT1 | OutputType.OUT2),
+    (1 << 1 | 1 << 3) * np.ones(1008),
+)
+
+print(seq)
 ```
 
 ## Command Table

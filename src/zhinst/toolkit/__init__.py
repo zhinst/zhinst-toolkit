@@ -17,6 +17,7 @@ from zhinst.toolkit.command_table import CommandTable
 from zhinst.toolkit.interface import AveragingMode, SHFQAChannelMode
 from zhinst.toolkit.session import PollFlags, Session
 from zhinst.toolkit.waveform import Waveforms
+from zhinst.toolkit.sequence import Sequence
 
 try:
     from zhinst.toolkit._version import version as __version__
