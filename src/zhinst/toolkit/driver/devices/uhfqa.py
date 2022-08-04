@@ -110,7 +110,7 @@ class QAS(Node):
                     m[r, c] = self.crosstalk.rows[r].cols[c]()
             return m
         else:
-            rows, cols = matrix.shape
+            rows, cols = matrix.shape  # type: ignore[attr-defined]
             if rows > 10 or cols > 10:
                 raise ValueError(
                     f"The shape of the given matrix is {rows} x {cols}. "
@@ -118,7 +118,7 @@ class QAS(Node):
                 )
             for r in range(rows):
                 for c in range(cols):
-                    self.crosstalk.rows[r].cols[c](matrix[r, c])
+                    self.crosstalk.rows[r].cols[c](matrix[r, c])  # type: ignore[index]
         return None
 
     def adjusted_delay(self, value: int = None) -> int:

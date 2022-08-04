@@ -43,7 +43,7 @@ class ParentNode:
     def __init__(self, schema: dict, path: t.Tuple[str, ...]):
         self._schema = schema
         self._path = path
-        self._childs = {}
+        self._childs: t.Dict[t.Union[str, int], t.Any] = {}
 
     def __repr__(self) -> str:
         return "/" + "/".join(self._path)
@@ -71,7 +71,7 @@ class ParentEntry(ParentNode):
         super().__init__(schema, path)
         self._attributes = {}
         self._child_props = {}
-        self._properties = {}
+        self._properties: t.Dict[str, t.Any] = {}
         # ParentEntry does not have json list entries at this moment.
         for name, property_ in schema["properties"].items():
             if "properties" in property_:
@@ -355,7 +355,7 @@ class CommandTable:
         def json_to_dict(json_: t.Union[str, t.Dict]) -> t.Dict:
             if isinstance(json_, str):
                 json_ = json.loads(json_)
-            return json_
+            return json_  # type: ignore[return-value]
 
         command_table = json_to_dict(copy.deepcopy(command_table))
         _validate_instance(command_table, self._ct_schema)
@@ -370,7 +370,9 @@ class CommandTable:
         def build_header_nodes(header: HeaderEntry, obj: dict):
             for k, v in obj.items():
                 if isinstance(k, dict):
-                    build_header_nodes(getattr(header, k), v)
+                    build_header_nodes(
+                        getattr(header, k), v  # type: ignore[call-overload]
+                    )
                 else:
                     setattr(header, k, v)
 

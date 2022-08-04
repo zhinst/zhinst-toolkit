@@ -112,3 +112,4 @@ boolean
 Numpy
 ndarray
 fstrings
+typename
