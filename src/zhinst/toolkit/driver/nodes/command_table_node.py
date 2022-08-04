@@ -33,7 +33,9 @@ class CommandTableNode(Node):
         device_type: Device type.
     """
 
-    def __init__(self, root: NodeTree, tree: t.Tuple[str], device_type: str) -> None:
+    def __init__(
+        self, root: NodeTree, tree: t.Tuple[str, ...], device_type: str
+    ) -> None:
         Node.__init__(self, root, tree)
         self._device_type = device_type
 

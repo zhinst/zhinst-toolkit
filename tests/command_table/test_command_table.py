@@ -9,25 +9,6 @@ from zhinst.toolkit.command_table import CommandTable, ParentNode, _derefence_js
 from zhinst.toolkit.exceptions import ValidationError
 
 
-@pytest.fixture(scope="module")
-def command_table_schema():
-    with open("tests/data/command_table_schema_v1.json") as f:
-        data = json.load(f)
-    yield data
-
-
-@pytest.fixture()
-def command_table_completed(scope="module"):
-    with open("tests/data/command_table_completed.json") as f:
-        data = json.load(f)
-    yield data
-
-
-@pytest.fixture()
-def command_table(command_table_schema):
-    yield CommandTable(command_table_schema)
-
-
 def test_ct_clear(command_table_schema):
     ct2 = CommandTable(command_table_schema)
     ct = CommandTable(command_table_schema)
@@ -42,10 +23,8 @@ def test_initialize_command_table_dict_json(command_table_schema):
     assert isinstance(obj._ct_schema, dict)
 
 
-def test_initialize_command_table_str_json():
-    with open("tests/data/command_table_schema_v1.json") as file:
-        data = file.read()
-    obj = CommandTable(data)
+def test_initialize_command_table_str_json(command_table_schema):
+    obj = CommandTable(json.dumps(command_table_schema))
     assert isinstance(obj._ct_schema, dict)
 
 
@@ -54,17 +33,24 @@ def test_parent_node_repr():
     assert str(foo) == "/table/0/bar/foo"
 
 
-def test_command_table_header_version(command_table, command_table_schema):
+def test_command_table_header_version_22_02(command_table_schema_22_02):
+    ct = CommandTable(command_table_schema_22_02)
     assert (
-        command_table.header.version
-        == command_table_schema["definitions"]["header"]["properties"]["version"][
+        ct.header.version
+        == command_table_schema_22_02["definitions"]["header"]["properties"]["version"][
             "enum"
-        ][-1]
+        ][0]
     )
 
 
-def test_properties_parent_entry(command_table, command_table_schema):
-    test_props = dir(command_table.table[0])
+def test_command_table_header_version_22_08(command_table_schema_22_08):
+    ct = CommandTable(command_table_schema_22_08)
+    assert ct.header.version == command_table_schema_22_08["version"]
+
+
+def test_properties_parent_entry(command_table_schema):
+    ct = CommandTable(command_table_schema)
+    test_props = dir(ct.table[0])
     json_props = list(command_table_schema["definitions"]["entry"]["properties"].keys())
     assert test_props.sort() == json_props.sort()
 
@@ -92,18 +78,20 @@ def test_parent_entry_contains(command_table):
     assert "canno" not in command_table.header
 
 
-def test_header_parent_entry(command_table, command_table_schema):
-    test_props = dir(command_table.header)
+def test_header_parent_entry(command_table_schema):
+    ct = CommandTable(command_table_schema)
+    test_props = dir(ct.header)
     json_props = list(
         command_table_schema["definitions"]["header"]["properties"].keys()
     )
     assert test_props.sort() == json_props.sort()
 
 
-def test_parent_entry_properties(command_table, command_table_schema):
+def test_parent_entry_properties(command_table_schema):
+    ct = CommandTable(command_table_schema)
     for property_ in command_table_schema["definitions"]["entry"]["properties"].keys():
         if property_ != "index":
-            assert hasattr(command_table.table[0], property_) is True
+            assert hasattr(ct.table[0], property_) is True
 
 
 def test_property_not_existing(command_table):
@@ -111,11 +99,12 @@ def test_property_not_existing(command_table):
         getattr(command_table.table[0], "this_property_cannot_exists")
 
 
-def test_parent_entry_header(command_table, command_table_schema):
+def test_parent_entry_header(command_table_schema):
+    ct = CommandTable(command_table_schema)
     r = jsonref.loads(json.dumps(command_table_schema))
     for property_ in r["definitions"]["header"]["properties"].keys():
         assert (
-            command_table.header.info(property_)
+            ct.header.info(property_)
             == r["definitions"]["header"]["properties"][property_]
         )
 
@@ -159,7 +148,7 @@ def test_assert_validate_called_parent_entry_attribute_set(
 
 def test_parent_entry_table_index(command_table):
     with pytest.raises(AttributeError):
-        command_table.table[0].index = 5
+        command_table.table[0].index = 5321
 
 
 def test_parent_entry_table_waveform(command_table):
@@ -170,15 +159,16 @@ def test_parent_entry_table_waveform(command_table):
 def test_build_json_no_items(command_table):
     assert command_table.as_dict() == {
         "$schema": "https://json-schema.org/draft-04/schema#",
-        "header": {"version": "1.1"},
+        "header": {"version": "1.1.0"},
         "table": [],
     }
 
 
-def test_build_json_items(command_table, command_table_schema):
+def test_build_json_items(command_table_schema):
+    command_table = CommandTable(command_table_schema)
     assert command_table.as_dict() == {
         "$schema": "https://json-schema.org/draft-04/schema#",
-        "header": {"version": "1.1"},
+        "header": {"version": "1.1.0"},
         "table": [],
     }
     command_table.table[0].amplitude00.value = 1
@@ -189,7 +179,7 @@ def test_build_json_items(command_table, command_table_schema):
     command_table.table[2].waveform.awgChannel0 = ["sigout1"]
     assert command_table.as_dict() == {
         "$schema": command_table_schema["$schema"],
-        "header": {"version": "1.1"},
+        "header": {"version": "1.1.0"},
         "table": [
             {"amplitude00": {"value": 1}, "index": 0, "waveform": {"index": 0}},
             {
@@ -201,7 +191,8 @@ def test_build_json_items(command_table, command_table_schema):
     }
 
 
-def test_table_index_value_error(command_table, command_table_schema):
+def test_table_index_value_error(command_table_schema):
+    command_table = CommandTable(command_table_schema)
     idx_min = command_table_schema["definitions"]["tableindex"]["minimum"]
     command_table_schema["definitions"]["tableindex"]["maximum"]
 
@@ -281,7 +272,7 @@ def test_json_non_existing_childs_ignored(command_table):
     command_table.header.userString
     assert command_table.as_dict() == {
         "$schema": "https://json-schema.org/draft-04/schema#",
-        "header": {"version": "1.1"},
+        "header": {"version": "1.1.0"},
         "table": [],
     }
 
@@ -323,4 +314,4 @@ def test_minimum_items_in_table(command_table):
 
 def test_table_property_validation_error(command_table):
     with pytest.raises(ValidationError):
-        command_table.table[0].amplitude00.value = 9999
+        command_table.table[0].amplitude00.value = 99999

@@ -220,11 +220,16 @@ class HeaderEntry(ParentEntry):
     Args:
         schema: JSON schema of the node.
         path: Path representation of the node.
+        version: JSON schema version
     """
 
-    def __init__(self, schema: dict, path: tuple):
+    def __init__(self, schema: dict, path: tuple, version: t.Optional[str] = None):
         super().__init__(schema, path)
-        self._childs["version"] = schema["properties"]["version"]["enum"][-1]
+        # L1 22.08 new schema format
+        if version:
+            self._childs["version"] = version
+        else:
+            self._childs["version"] = schema["properties"]["version"]["enum"][0]
 
     @property
     def version(self) -> str:
@@ -299,10 +304,14 @@ class CommandTable:
         """Table entry of the built command table."""
         return self._table
 
-    def _header_entry(self):
-        return HeaderEntry(self._ct_schema["definitions"]["header"], ("header",))
+    def _header_entry(self) -> HeaderEntry:
+        return HeaderEntry(
+            self._ct_schema["definitions"]["header"],
+            ("header",),
+            self._ct_schema.get("version", ""),
+        )
 
-    def _table_entry(self):
+    def _table_entry(self) -> ListEntry:
         return ListEntry(self._ct_schema["definitions"]["table"], ("table",))
 
     def clear(self) -> None:
