@@ -113,3 +113,6 @@ Numpy
 ndarray
 fstrings
 typename
+picklable
+informations
+Metaclass

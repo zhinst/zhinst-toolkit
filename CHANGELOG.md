@@ -4,6 +4,7 @@
 * Add new class `zhinst.toolkit.Sequence` that allows a more flexible use of 
   sequences in toolkit (`#141`).
 * Bugfix: Nodes with nameless options don't raise an exception when their enum attribute is called (`#165`).
+* Bugfix: Values of enumerated nodes can now be pickled (`#129`).
 
 ## Version 0.3.5
 * Adapt AWG Waveform upload (`write_to_waveform_memory`) to append to existing transactions.
