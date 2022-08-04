@@ -20,6 +20,67 @@ if t.TYPE_CHECKING:
     from zhinst.toolkit.nodetree import NodeTree
 
 
+class NodeEnumMeta:
+    """Custom Metaclass for NodeEnum.
+
+    Note: Required to enable pickling of a NodeEnum value.
+
+    It simply servers the purpose to recreate a NodeEnum for a given enum
+    value. Since the NodeEnums are created dynamically there is no way recreate
+    a NodeEnum value since python can not find the definition. This class
+    bypasses this problem by providing the functionality to recreate the
+    Enum on the fly.
+
+    Warning: Although the class of the resulting enum object looks and feels
+    the same as the original one it is not. Therefore comparing the `type` will
+    fail. This is however the only limitation.
+    (type(value_old) != type(value_new) but value_old == value_new)
+
+    Args:
+        value: Value of the NodeEnum object that should be created.
+        class_name: Name of the NodeEnum class.
+        names: Mapping of the enum names to their corresponding integer value.
+        module: Should be set to the module this class is being created in.
+    """
+
+    def __new__(  # noqa: D102
+        cls, value: int, class_name: str, names: t.Dict[str, int], module: str
+    ):
+        new_enum = NodeEnum(class_name, names, module=module)
+        return new_enum(value)
+
+
+class NodeEnum(IntEnum):
+    """Custom dynamically picklable IntEnum class.
+
+    The Enum values for a device are created dynamically in toolkit based on
+    the node informations. Since they are not predefined but rather created
+    dynamically, the are not picklable. This custom child class of IntEnum
+    overwrites the reduce function that returns all information required to
+    recreate the Enum class in `NodeEnumMeta`.
+
+    For more information on the reduce functionality and how it is used within
+    the pickle package see
+    [pep307](https://peps.python.org/pep-0307/#extended-reduce-api).
+    """
+
+    # Required for typing
+    def __init__(self, *args, **kwargs):
+        ...
+
+    # Required for typing
+    def __call__(self, *args, **kwargs):  # noqa: D102
+        ...
+
+    def __reduce_ex__(self, _):
+        return NodeEnumMeta, (
+            self._value_,
+            self.__class__.__name__,
+            {key: int(value) for key, value in self.__class__._member_map_.items()},
+            self.__class__.__module__,
+        )
+
+
 class NodeInfo:
     """Class that holds the additional information for a single node.
 
@@ -230,12 +291,12 @@ class NodeInfo:
         return option_map
 
     @lazy_property
-    def enum(self) -> t.Optional[IntEnum]:
+    def enum(self) -> t.Optional[NodeEnum]:
         """Enum of the node options."""
         try:
             options_reversed = {value.enum: key for key, value in self.options.items()}
             return (
-                IntEnum(self.path, options_reversed, module=__name__)
+                NodeEnum(self.path, options_reversed, module=__name__)
                 if options_reversed
                 else None
             )
@@ -496,12 +557,12 @@ class Node:
             Parsed value
         """
         if enum and isinstance(value, int):
-            enum_info = self.node_info.options.get(value, None)
-            value = (
-                getattr(self.node_info.enum, enum_info.enum)
-                if enum_info and enum_info.enum
-                else value
-            )
+            try:
+                value = self.node_info.enum(value) if self.node_info.enum else value
+            except ValueError:
+                # If the value is not in the enum LabOne does weird stuff but
+                # we should not raise an exception ...
+                pass
         if parse:
             value = self.node_info.get_parser(value)
         return value

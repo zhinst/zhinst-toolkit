@@ -5,6 +5,7 @@ from pathlib import Path
 from types import GeneratorType
 from unittest.mock import MagicMock, Mock
 from copy import deepcopy
+import pickle
 
 import pytest
 from numpy import array as nparray
@@ -990,3 +991,11 @@ class TestWildCardResult:
             "/dev1234/demods/0/rate": (123, 2),
             "/dev1234/demods/1/rate": (1234, 3),
         }
+
+    def test_pickle_enum(self, node_tree, connection):
+        connection.getInt.return_value = 0
+        enum_value = node_tree.demods[0].trigger()
+        new_enum_value = pickle.loads(pickle.dumps(enum_value))
+        assert new_enum_value == enum_value
+        for old, new in zip(type(enum_value), type(new_enum_value)):
+            assert old == new
