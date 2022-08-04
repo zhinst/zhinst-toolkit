@@ -216,7 +216,7 @@ class NodeInfo:
         """Unit of the node."""
         return self._info["Unit"]
 
-    _option_info = namedtuple("Info", ["enum", "description"])
+    _option_info = namedtuple("_option_info", ["enum", "description"])
 
     @lazy_property
     def options(self) -> t.Dict[int, _option_info]:
@@ -552,7 +552,7 @@ class Node:
         raise KeyError(self.node_info.path)
 
     @staticmethod
-    def _parse_get_entry(raw_value: t.Dict[str, t.Any]):
+    def _parse_get_entry(raw_value: t.Dict[t.Union[str, int], t.Any]):
         """Parser for the get function of zhinst.ziPython.
 
         The get function in ziPython support multiple values and returns the
@@ -765,7 +765,8 @@ class Node:
         if writable is None and (
             self.node_info.contains_wildcards or self.node_info.is_partial
         ):
-            return self._set_wildcard(value, parse=parse, **kwargs)
+            self._set_wildcard(value, parse=parse, **kwargs)
+            return None
         if writable is False:
             raise AttributeError(f"{self.node_info.path} is read-only.")
         raise KeyError(self.node_info.path)
@@ -790,7 +791,7 @@ class Node:
             for node_raw in nodes_raw:
                 self._root.raw_path_to_node(node_raw)(value, parse=parse, **kwargs)
 
-    def _set_deep(self, value: t.Any, **kwargs) -> None:
+    def _set_deep(self, value: t.Any, **kwargs) -> t.Any:
         """Set the node value from device.
 
         The kwargs will be forwarded to the mapped ziPython function call.
@@ -1072,7 +1073,7 @@ class Node:
         return NodeInfo(self)
 
     @property
-    def raw_tree(self) -> t.Tuple[str]:
+    def raw_tree(self) -> t.Tuple[str, ...]:
         """Internal representation of the node."""
         return self._tree
 
@@ -1107,7 +1108,15 @@ class NodeList(Sequence, Node):
         Node.__init__(self, root, tree)
         self._elements: t.Sequence[t.Any] = elements
 
-    def __getitem__(self, item: int) -> t.Union[t.Any, Node]:
+    @t.overload
+    def __getitem__(self, idx: t.Union[int, str]) -> t.Union[t.Any, Node]:
+        ...
+
+    @t.overload
+    def __getitem__(self, s: slice) -> t.Sequence[t.Union[t.Any, Node]]:
+        ...
+
+    def __getitem__(self, item):
         if isinstance(item, int):
             return self._elements[item]
         return Node(self._root, self._tree + (str(item),))

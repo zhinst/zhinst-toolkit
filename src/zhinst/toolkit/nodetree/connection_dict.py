@@ -7,6 +7,8 @@ from collections import OrderedDict
 
 from numpy import array
 
+from zhinst.toolkit.nodetree.helper import NodeDoc
+
 
 class ConnectionDict:
     """Connection wrapper around a dictionary.
@@ -21,9 +23,7 @@ class ConnectionDict:
         json_info: JSON information for each path (path: info)
     """
 
-    def __init__(
-        self, data: t.Dict[str, t.Any], json_info: t.Dict[str, t.Dict[str, str]]
-    ):
+    def __init__(self, data: t.Dict[str, t.Any], json_info: NodeDoc):
         super().__init__()
         self._values = data
         self.json_info = json_info

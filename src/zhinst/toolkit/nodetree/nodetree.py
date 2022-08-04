@@ -6,14 +6,13 @@ import typing as t
 import warnings
 from keyword import iskeyword as is_keyword
 
-try:
-    # Protocol is available in the typing module since 3.8
-    Protocol = t.Protocol
-except AttributeError:
-    from typing_extensions import Protocol
+# Protocol is available in the typing module since 3.8
+# Ift we only support 3.8 we should switch to t.Protocol
+from typing_extensions import Protocol
 
 from contextlib import contextmanager
 
+from zhinst.toolkit.nodetree.helper import NodeDoc
 from zhinst.toolkit.nodetree.node import Node
 
 
@@ -40,7 +39,15 @@ class Connection(Protocol):
     def getString(self, path: str) -> str:
         """Mirrors the behavior of ziPython ``getDouble`` command."""
 
-    def set(self, path: str, value: object, **kwargs) -> None:
+    @t.overload
+    def set(self, path: str, value: t.Any) -> None:
+        """Mirrors the behavior of ziPython ``set`` command."""
+
+    @t.overload
+    def set(self, path: t.Union[t.List[t.Tuple[str, t.Any]]]) -> None:
+        """Mirrors the behavior of ziPython ``set`` command."""
+
+    def set(self, path, value=None) -> None:
         """Mirrors the behavior of ziPython ``set`` command."""
 
     def subscribe(self, path: str) -> None:
@@ -60,7 +67,7 @@ class Transaction:
     """
 
     def __init__(self, nodetree: "NodeTree"):
-        self._queue = None
+        self._queue: t.Optional[t.List[t.Tuple[str, t.Any]]] = None
         self._root = nodetree
 
     def start(self) -> None:
@@ -93,7 +100,9 @@ class Transaction:
                 path and no prefix can be added.
         """
         try:
-            self._queue.append((self._root.to_raw_path(node), value))
+            self._queue.append(  # type: ignore[union-attr]
+                (self._root.to_raw_path(node), value)
+            )
         except AttributeError as exception:
             raise AttributeError("No set transaction is in progress.") from exception
 
@@ -101,7 +110,7 @@ class Transaction:
         """Flag if the transaction is in progress."""
         return self._queue is not None
 
-    def result(self) -> t.List[t.Tuple]:
+    def result(self) -> t.Optional[t.List[t.Tuple[str, t.Any]]]:
         """Resulting transaction list.
 
         Result:
@@ -157,18 +166,18 @@ class NodeTree:
     def __init__(
         self,
         connection: Connection,
-        prefix_hide: str = None,
-        list_nodes: list = None,
-        preloaded_json: dict = None,
+        prefix_hide: t.Optional[str] = None,
+        list_nodes: t.Optional[list] = None,
+        preloaded_json: t.Optional[NodeDoc] = None,
     ):
         self._prefix_hide = prefix_hide.lower() if prefix_hide else None
         self._connection = connection
         if not list_nodes:
             list_nodes = ["*"]
+        self._flat_dict: NodeDoc = {}
         if preloaded_json:
             self._flat_dict = preloaded_json
         else:
-            self._flat_dict = {}
             for element in list_nodes:
                 nodes_json = self.connection.listNodesJSON(element)
                 self._flat_dict = {**self._flat_dict, **json.loads(nodes_json)}
@@ -176,8 +185,8 @@ class NodeTree:
         self._transaction = Transaction(self)
         # First Layer must be generate during initialization to calculate the
         # prefixes to keep
-        self._first_layer = []
-        self._prefixes_keep = []
+        self._first_layer: t.List[str] = []
+        self._prefixes_keep: t.List[str] = []
         self._generate_first_layer()
 
     def __getattr__(self, name):
@@ -229,7 +238,9 @@ class NodeTree:
                     self._prefixes_keep.append(node_split[1])
         self._first_layer.extend(self._prefixes_keep)
 
-    def get_node_info(self, node: t.Union[Node, str]) -> t.Dict[Node, t.Dict]:
+    def get_node_info(
+        self, node: t.Union[Node, str]
+    ) -> t.Dict[Node, t.Optional[t.Dict]]:
         """Get the information/data for a node.
 
         Unix shell-style wildcards are supported.
@@ -400,7 +411,9 @@ class NodeTree:
             string_list = "/".join(node_list)
         else:
             try:
-                string_list = "/".join([self._prefix_hide] + node_list)
+                string_list = "/".join(
+                    [self._prefix_hide] + node_list  # type: ignore[arg-type]
+                )
             except TypeError:
                 string_list = "/".join(node_list)
         return "/" + string_list
@@ -426,7 +439,7 @@ class NodeTree:
         """
         if not node.startswith("/"):
             try:
-                return "/" + self._prefix_hide + "/" + node
+                return "/" + self._prefix_hide + "/" + node  # type: ignore[operator]
             except TypeError as error:
                 raise ValueError(
                     f"{node} is a relative path but should be a "
@@ -458,7 +471,7 @@ class NodeTree:
         self._transaction.start()
         try:
             yield
-            self.connection.set(self._transaction.result())
+            self.connection.set(self._transaction.result())  # type: ignore[arg-type]
         finally:
             self._transaction.stop()
 
@@ -473,7 +486,7 @@ class NodeTree:
         return self._connection
 
     @property
-    def prefix_hide(self) -> str:
+    def prefix_hide(self) -> t.Optional[str]:
         """Prefix (e.g device id), that is hidden in the nodetree.
 
         Hidden means that users do not need to specify it and it will be added

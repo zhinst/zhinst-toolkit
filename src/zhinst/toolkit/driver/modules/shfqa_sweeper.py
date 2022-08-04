@@ -18,6 +18,7 @@ from zhinst.ziPython import ziDAQServer
 from zhinst.toolkit.driver.parsers import Parse
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.connection_dict import ConnectionDict
+from zhinst.toolkit.nodetree.helper import NodeDoc
 
 if t.TYPE_CHECKING:
     from zhinst.toolkit.driver.devices import DeviceType
@@ -134,9 +135,9 @@ class SHFQASweeper(Node):
         """
         json_path = Path(__file__).parent / "../../resources/shfqa_sweeper_nodes.json"
         with json_path.open("r") as file:
-            raw_info = json.loads(file.read())
-        values = {}
-        info = {}
+            raw_info: NodeDoc = json.loads(file.read())
+        values: t.Dict[str, t.Any] = {}
+        info: NodeDoc = {}
         for config_class, parent_name in self._config_classes.items():
             for parameter, default_value in asdict(config_class()).items():
                 node = (

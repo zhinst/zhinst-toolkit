@@ -3,7 +3,24 @@ import typing as t
 from contextlib import contextmanager
 from functools import lru_cache
 
+# TypedDict is available in the typing module since 3.8
+# Ift we only support 3.8 we should switch to t.TypedDict
+from typing_extensions import TypedDict
+
 T = t.TypeVar("T")
+
+_NodeInfo = TypedDict(
+    "_NodeInfo",
+    {
+        "Node": str,
+        "Description": str,
+        "Properties": str,
+        "Type": str,
+        "Unit": str,
+        "Options": t.Dict[str, str],
+    },
+)
+NodeDoc = t.Dict[str, _NodeInfo]
 
 
 def lazy_property(property_function: t.Callable[..., T]) -> property:
