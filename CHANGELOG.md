@@ -3,6 +3,8 @@
 ## Version 0.3.6
 * Add new class `zhinst.toolkit.Sequence` that allows a more flexible use of 
   sequences in toolkit (`#141`).
+* Add support for session wide transactions that bundle set command from all 
+  devices connected to the data server. (`#134`)
 * Bugfix: Nodes with nameless options don't raise an exception when their enum attribute is called (`#165`).
 
 ## Version 0.3.5

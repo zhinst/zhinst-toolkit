@@ -69,12 +69,24 @@ class Transaction:
     def __init__(self, nodetree: "NodeTree"):
         self._queue: t.Optional[t.List[t.Tuple[str, t.Any]]] = None
         self._root = nodetree
+        self._add_callback: t.Optional[t.Callable[[str, t.Any], None]] = None
 
-    def start(self) -> None:
+    def start(
+        self, add_callback: t.Optional[t.Callable[[str, t.Any], None]] = None
+    ) -> None:
         """Start the transaction.
+
+        Args:
+            add_callback: Callback to be called when ever a node value pare has
+                been added to the queue. Only valid for the started
+                transaction.
 
         Raises:
             Runtime Error if the transaction is already in progress
+
+        .. versionchanged:: 0.3.6
+
+            add_callback added.
         """
         if self.in_progress():
             raise RuntimeError(
@@ -82,10 +94,12 @@ class Transaction:
                 "possible at a time."
             )
         self._queue = []
+        self._add_callback = add_callback
 
     def stop(self) -> None:
         """Stop the transaction."""
         self._queue = None
+        self._add_callback = None
 
     def add(self, node: t.Union[Node, str], value: t.Any) -> None:
         """Adds a single node set command to the set transaction.
@@ -103,6 +117,8 @@ class Transaction:
             self._queue.append(  # type: ignore[union-attr]
                 (self._root.to_raw_path(node), value)
             )
+            if self._add_callback:
+                self._add_callback(*self._queue[-1])  # type: ignore[index]
         except AttributeError as exception:
             raise AttributeError("No set transaction is in progress.") from exception
 
