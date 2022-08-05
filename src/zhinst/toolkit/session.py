@@ -4,12 +4,14 @@ import typing as t
 from collections.abc import MutableMapping
 from enum import IntFlag
 from pathlib import Path
+from contextlib import contextmanager
 
 import zhinst.toolkit.driver.devices as tk_devices
 import zhinst.toolkit.driver.modules as tk_modules
 from zhinst import ziPython
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import lazy_property
+from zhinst.toolkit.nodetree.nodetree import Transaction
 
 
 class Devices(MutableMapping):
@@ -34,6 +36,11 @@ class Devices(MutableMapping):
         if key in self.connected():
             if key not in self._devices:
                 self._devices[key] = self._create_device(key)
+                # start a transaction if the session has a ongoing one
+                if self._session.multi_transaction.in_progress():
+                    self._devices[key].root.transaction.start(
+                        self._session.multi_transaction.add
+                    )
             return self._devices[key]
         self._devices.pop(key, None)
         raise KeyError(key)
@@ -98,6 +105,18 @@ class Devices(MutableMapping):
         return (
             self._session.daq_server.getString("/zi/devices/visible").lower().split(",")
         )
+
+    def created_devices(self) -> t.ValuesView[tk_devices.DeviceType]:
+        """View on all created device.
+
+        The list contains all toolkit device objects that have been created for
+        the underlying session.
+
+        Warning: This is not equal to the devices connected to the data server!
+            Use the iterator of the `Devices` class directly to get all devices
+            connected to the data server.
+        """
+        return self._devices.values()
 
 
 class HF2Devices(Devices):
@@ -712,6 +731,7 @@ class Session(Node):
             else None,
         )
         super().__init__(nodetree, tuple())
+        self._multi_transaction = Transaction(self.root)
 
     def __repr__(self):
         return str(
@@ -877,6 +897,54 @@ class Session(Node):
                 f"Node belongs to a device({raw_path.split('/')[1]}) not connected to "
                 "the Data Server."
             ) from error
+
+    @contextmanager
+    def set_transaction(self) -> t.Generator[None, None, None]:
+        """Context manager for a transactional set.
+
+        Can be used as a context in a with statement and bundles all node set
+        commands into a single transaction. This reduces the network overhead
+        and often increases the speed.
+
+        In comparison to the device level transaction manager this manager
+        affects all devices that are connected to the Session and bundles all
+        set commands into a single transaction.
+
+        Within the with block a set commands to a node will be buffered
+        and bundled into a single command at the end automatically.
+        (All other operations, e.g. getting the value of a node, will not be
+        affected)
+
+        Warning:
+            The set is always performed as deep set if called on device nodes.
+
+        Examples:
+            >>> with session.set_transaction():
+                    device1.test[0].a(1)
+                    device2.test[0].a(2)
+
+        .. versionadded:: 0.3.6
+        """
+        self._multi_transaction.start()
+        for device in self.devices.created_devices():
+            device.root.transaction.start(self._multi_transaction.add)
+        self.root.transaction.start(self._multi_transaction.add)
+        try:
+            yield
+            self._daq_server.set(self._multi_transaction.result())
+        finally:
+            for device in self.devices.created_devices():
+                device.root.transaction.stop()
+            self.root.transaction.stop()
+            self._multi_transaction.stop()
+
+    @property
+    def multi_transaction(self) -> Transaction:
+        """Flag if a session wide transaction is in progress.
+
+        .. versionadded:: 0.3.6
+        """
+        return self._multi_transaction
 
     @property
     def devices(self) -> Devices:

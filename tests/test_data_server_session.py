@@ -404,3 +404,47 @@ def test_shfqa_sweeper(session):
     sweeper = session.modules.shfqa_sweeper
     assert sweeper == session.modules.shfqa_sweeper
     assert isinstance(sweeper, SHFQASweeper)
+
+
+def test_session_wide_transaction(
+    mock_connection, nodedoc_dev1234_json, session, shfqa, shfsg
+):
+
+    # Hack devices into the created once
+    session._devices._devices = {"dev1": shfqa, "dev2": shfsg}
+
+    with session.set_transaction():
+        session.mds.groups[0].keepalive(1)
+        shfqa.qachannels[0].centerfreq(100)
+        shfsg.sgchannels[1].awg.time(100)
+        session.mds.groups[0].keepalive(4)
+
+    mock_connection.return_value.set.assert_called_once_with(
+        [
+            ("/zi/mds/groups/0/keepalive", 1),
+            ("/dev1234/qachannels/0/centerfreq", 1000000000.0),  # lower bound ;)
+            ("/dev1234/sgchannels/1/awg/time", 100),
+            ("/zi/mds/groups/0/keepalive", 4),
+        ]
+    )
+
+    # impossible to create two transactions
+    with pytest.raises(RuntimeError) as e_info:
+        with session.set_transaction():
+            with session.set_transaction():
+                session.mds.groups[0].keepalive(1)
+
+    # add new device during transaction
+    mock_connection.return_value.getString.side_effect = ["dev1234", "MFLI", ""]
+    mock_connection.return_value.listNodesJSON.return_value = nodedoc_dev1234_json
+    with session.set_transaction():
+        session.mds.groups[0].keepalive(1)
+        shfqa.qachannels[0].centerfreq(100)
+        session.devices["dev1234"].demods[0].enable(1)
+    mock_connection.return_value.set.assert_called_with(
+        [
+            ("/zi/mds/groups/0/keepalive", 1),
+            ("/dev1234/qachannels/0/centerfreq", 1000000000.0),  # lower bound ;)
+            ("/dev1234/demods/0/enable", 1),
+        ]
+    )

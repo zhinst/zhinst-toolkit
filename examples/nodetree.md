@@ -199,6 +199,21 @@ with device.set_transaction():
 The transaction only effects the set operations, all other functionality of
 the nodetree is not affected by it.
 
+Apart form the above shown device level transaction toolkit also implements a 
+session wide transaction. This type of transaction bundles every set command 
+for all devices connected to this session. 
+
+> Note:
+>
+> The order of the set commands is maintained.
+
+```python
+with session.set_transaction():
+    device.demods["*"].enable(1)
+    device.demods[1].harmonic(3)
+    device.demods[0].harmonic(2)
+    device.demods[0].rate(2000)
+```
 
 ## Node Information
 
