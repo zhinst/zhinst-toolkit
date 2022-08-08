@@ -232,12 +232,16 @@ class NodeInfo:
     @lazy_property
     def enum(self) -> t.Optional[IntEnum]:
         """Enum of the node options."""
-        options_reversed = {value.enum: key for key, value in self.options.items()}
-        return (
-            IntEnum(self.path, options_reversed, module=__name__)
-            if options_reversed
-            else None
-        )
+        try:
+            options_reversed = {value.enum: key for key, value in self.options.items()}
+            return (
+                IntEnum(self.path, options_reversed, module=__name__)
+                if options_reversed
+                else None
+            )
+        except ValueError:
+            # Nameless options do not have a enum.
+            return None
 
 
 class Node:
