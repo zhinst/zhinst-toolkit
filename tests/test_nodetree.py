@@ -640,6 +640,17 @@ def test_options(connection):
     assert tree.demods[0].trigger() == 12345678
 
 
+def test_nameless_options(connection):
+    tree = NodeTree(connection, "DEV1234")
+
+    options = tree.demods[0].order.node_info.options
+    assert len(options) == 8
+    assert options[1].enum == ""
+    assert options[1].description == "1st order filter 6 dB/oct"
+
+    assert tree.demods[0].order.node_info.enum == None
+
+
 def test_parser(connection):
     tree = NodeTree(connection, "DEV1234")
 
