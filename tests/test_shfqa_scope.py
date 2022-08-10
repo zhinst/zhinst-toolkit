@@ -45,15 +45,13 @@ def test_wait_done(mock_connection, scope):
 
 
 def test_configure(mock_connection, scope):
-    with patch(
-        "zhinst.toolkit.driver.nodes.shfqa_scope.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.nodes.shfqa_scope.utils", autospec=True) as utils:
         scope.configure(
             input_select=scope.available_inputs[0],
             num_samples=10,
             trigger_input=scope.available_trigger_inputs[0],
         )
-        deviceutils.configure_scope.assert_called_with(
+        utils.configure_scope.assert_called_with(
             mock_connection.return_value,
             "DEV1234",
             input_select=scope.available_inputs[0],
@@ -71,7 +69,7 @@ def test_configure(mock_connection, scope):
             num_averages=10,
             trigger_delay=33,
         )
-        deviceutils.configure_scope.assert_called_with(
+        utils.configure_scope.assert_called_with(
             mock_connection.return_value,
             "DEV1234",
             input_select=scope.available_inputs[0],
@@ -84,16 +82,14 @@ def test_configure(mock_connection, scope):
 
 
 def test_read(mock_connection, scope):
-    with patch(
-        "zhinst.toolkit.driver.nodes.shfqa_scope.deviceutils", autospec=True
-    ) as deviceutils:
-        deviceutils.get_scope_data.return_value = (
+    with patch("zhinst.toolkit.driver.nodes.shfqa_scope.utils", autospec=True) as utils:
+        utils.get_scope_data.return_value = (
             ["data1", "data2"],
             ["range1", "range2"],
             ["time1", "time2"],
         )
         recorded_data, recorded_data_range, scope_time = scope.read()
-        deviceutils.get_scope_data.assert_called_with(
+        utils.get_scope_data.assert_called_with(
             mock_connection.return_value, "DEV1234", timeout=10
         )
         assert recorded_data == ["data1", "data2"]
@@ -102,6 +98,6 @@ def test_read(mock_connection, scope):
 
         # timout argument is forwarded
         scope.read(timeout=1)
-        deviceutils.get_scope_data.assert_called_with(
+        utils.get_scope_data.assert_called_with(
             mock_connection.return_value, "DEV1234", timeout=1
         )

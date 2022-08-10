@@ -2,8 +2,8 @@
 import logging
 import typing as t
 
-import zhinst.deviceutils.shfqa as deviceutils
-from zhinst.ziPython import ziDAQServer
+import zhinst.utils.shfqa as utils
+from zhinst.core import ziDAQServer
 
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.waveform import Waveforms
@@ -55,7 +55,7 @@ class Generator(Node):
             single: Flag if the sequencer should be disabled after finishing
             execution.
         """
-        deviceutils.enable_sequencer(
+        utils.enable_sequencer(
             self._daq_server,
             self._serial,
             self._index,
@@ -111,7 +111,7 @@ class Generator(Node):
         """
         if not sequencer_program:
             raise ValueError("Empty sequencer program not allowed.")
-        deviceutils.load_sequencer_program(
+        utils.load_sequencer_program(
             self._daq_server,
             self._serial,
             self._index,
@@ -144,7 +144,7 @@ class Generator(Node):
         else:
             waveform_dict = pulses
 
-        deviceutils.write_to_waveform_memory(
+        utils.write_to_waveform_memory(
             self._daq_server,
             self._serial,
             self._index,
@@ -186,7 +186,7 @@ class Generator(Node):
             play_pulse_delay: Delay in seconds before the start of waveform playback.
         """
         # Only Digital Trigger 1
-        deviceutils.configure_sequencer_triggering(
+        utils.configure_sequencer_triggering(
             self._daq_server,
             self._serial,
             self._index,

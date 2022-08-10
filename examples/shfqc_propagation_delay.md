@@ -60,7 +60,7 @@ device.qachannels[0].configure_channel(
 
 ```python
 from shfqc_helper import generate_flat_top_gaussian
-from zhinst.deviceutils.shfqa import SHFQA_SAMPLING_FREQUENCY
+from zhinst.utils.shfqa import SHFQA_SAMPLING_FREQUENCY
 
 envelope_duration = 1.0e-6
 envelope_rise_fall_time = 0.05e-6

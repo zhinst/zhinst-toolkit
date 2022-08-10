@@ -74,15 +74,13 @@ def test_awg_configure_marker_and_trigger(data_dir, mock_connection, shfsg):
         nodes_json
     )
 
-    with patch(
-        "zhinst.toolkit.driver.devices.shfsg.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.devices.shfsg.utils", autospec=True) as utils:
         shfsg.sgchannels[0].awg.configure_marker_and_trigger(
             trigger_in_source="test1",
             trigger_in_slope="test2",
             marker_out_source="test3",
         )
-        deviceutils.configure_marker_and_trigger.assert_called_once_with(
+        utils.configure_marker_and_trigger.assert_called_once_with(
             mock_connection.return_value,
             "DEV1234",
             0,
@@ -132,13 +130,11 @@ def test_awg_configure_marker_and_trigger(data_dir, mock_connection, shfsg):
 
 
 def test_configure_channel(mock_connection, shfsg):
-    with patch(
-        "zhinst.toolkit.driver.devices.shfsg.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.devices.shfsg.utils", autospec=True) as utils:
         shfsg.sgchannels[0].configure_channel(
             enable=True, output_range=111, center_frequency=20.4, rf_path=False
         )
-        deviceutils.configure_channel.assert_called_once_with(
+        utils.configure_channel.assert_called_once_with(
             mock_connection.return_value,
             "DEV1234",
             0,
@@ -150,9 +146,7 @@ def test_configure_channel(mock_connection, shfsg):
 
 
 def test_configure_pulse_modulation(mock_connection, shfsg):
-    with patch(
-        "zhinst.toolkit.driver.devices.shfsg.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.devices.shfsg.utils", autospec=True) as utils:
         shfsg.sgchannels[0].configure_pulse_modulation(
             enable=True,
             osc_index=5,
@@ -162,7 +156,7 @@ def test_configure_pulse_modulation(mock_connection, shfsg):
             gains=(3.0, -1.0, 5.0, 1.0),
             sine_generator_index=8,
         )
-        deviceutils.configure_pulse_modulation.assert_called_once_with(
+        utils.configure_pulse_modulation.assert_called_once_with(
             mock_connection.return_value,
             "DEV1234",
             0,
@@ -177,9 +171,7 @@ def test_configure_pulse_modulation(mock_connection, shfsg):
 
 
 def test_configure_sine_generation(mock_connection, shfsg):
-    with patch(
-        "zhinst.toolkit.driver.devices.shfsg.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.devices.shfsg.utils", autospec=True) as utils:
         shfsg.sgchannels[0].configure_sine_generation(
             enable=True,
             osc_index=5,
@@ -188,7 +180,7 @@ def test_configure_sine_generation(mock_connection, shfsg):
             gains=(3.0, -1.0, 5.0, 1.0),
             sine_generator_index=8,
         )
-        deviceutils.configure_sine_generation.assert_called_once_with(
+        utils.configure_sine_generation.assert_called_once_with(
             mock_connection.return_value,
             "DEV1234",
             0,

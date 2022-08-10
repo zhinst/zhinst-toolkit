@@ -1,4 +1,4 @@
-"""Module for managing a session to a Data Server through zhinst.ziPython."""
+"""Module for managing a session to a Data Server through zhinst.core."""
 import json
 import typing as t
 from collections.abc import MutableMapping
@@ -8,7 +8,7 @@ from contextlib import contextmanager
 
 import zhinst.toolkit.driver.devices as tk_devices
 import zhinst.toolkit.driver.modules as tk_modules
-from zhinst import ziPython
+from zhinst import core
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import lazy_property
 from zhinst.toolkit.nodetree.nodetree import Transaction
@@ -154,7 +154,7 @@ class HF2Devices(Devices):
             return super()._create_device(serial)
         except RuntimeError as error:
             if "ZIAPINotFoundException" in error.args[0]:
-                discovery = ziPython.ziDiscovery()
+                discovery = core.ziDiscovery()
                 discovery.find(serial)
                 dev_type = discovery.get(serial)["devicetype"]
                 raise RuntimeError(
@@ -177,7 +177,7 @@ class HF2Devices(Devices):
         Returns:
             List of all connected devices.
         """
-        return ziPython.ziDiscovery().findAll()
+        return core.ziDiscovery().findAll()
 
     def add_hf2_device(self, serial: str) -> None:
         """Add a new HF2 device.
@@ -233,7 +233,7 @@ class ModuleHandler:
         """Create an instance of the AwgModule.
 
         The resulting Module will have the nodetree accessible. The underlying
-        zhinst.ziPython Module can be accessed through the `raw_module`
+        zhinst.core Module can be accessed through the `raw_module`
         property.
 
         The new instance establishes a new session to the DataServer.
@@ -254,7 +254,7 @@ class ModuleHandler:
         """Create an instance of the DataAcquisitionModule.
 
         The resulting Module will have the nodetree accessible. The underlying
-        zhinst.ziPython Module can be accessed through the `raw_module`
+        zhinst.core Module can be accessed through the `raw_module`
         property.
 
         The new instance establishes a new session to the DataServer.
@@ -275,7 +275,7 @@ class ModuleHandler:
         """Create an instance of the DeviceSettingsModule.
 
         The resulting Module will have the nodetree accessible. The underlying
-        zhinst.ziPython Module can be accessed through the `raw_module`
+        zhinst.core Module can be accessed through the `raw_module`
         property.
 
         The new instance establishes a new session to the DataServer.
@@ -296,7 +296,7 @@ class ModuleHandler:
         """Create an instance of the ImpedanceModule.
 
         The resulting Module will have the nodetree accessible. The underlying
-        zhinst.ziPython Module can be accessed through the `raw_module`
+        zhinst.core Module can be accessed through the `raw_module`
         property.
 
         The new instance establishes a new session to the DataServer.
@@ -317,7 +317,7 @@ class ModuleHandler:
         """Create an instance of the MultiDeviceSyncModule.
 
         The resulting Module will have the nodetree accessible. The underlying
-        zhinst.ziPython Module can be accessed through the `raw_module`
+        zhinst.core Module can be accessed through the `raw_module`
         property.
 
         The new instance establishes a new session to the DataServer.
@@ -338,7 +338,7 @@ class ModuleHandler:
         """Create an instance of the PidAdvisorModule.
 
         The resulting Module will have the nodetree accessible. The underlying
-        zhinst.ziPython Module can be accessed through the `raw_module`
+        zhinst.core Module can be accessed through the `raw_module`
         property.
 
         The new instance establishes a new session to the DataServer.
@@ -360,7 +360,7 @@ class ModuleHandler:
     ) -> tk_modules.BaseModule:
         """Create an instance of the PrecompensationAdvisorModule.
 
-        In contrast to ziPython.ziDAQServer.precompensationAdvisor() a nodetree property
+        In contrast to core.ziDAQServer.precompensationAdvisor() a nodetree property
         is added.
 
         The new instance establishes a new session to the DataServer.
@@ -381,7 +381,7 @@ class ModuleHandler:
         """Create an instance of the QuantumAnalyzerModule.
 
         The resulting Module will have the nodetree accessible. The underlying
-        zhinst.ziPython Module can be accessed through the `raw_module`
+        zhinst.core Module can be accessed through the `raw_module`
         property.
 
         The new instance establishes a new session to the DataServer.
@@ -402,7 +402,7 @@ class ModuleHandler:
         """Create an instance of the ScopeModule.
 
         The resulting Module will have the nodetree accessible. The underlying
-        zhinst.ziPython Module can be accessed through the `raw_module`
+        zhinst.core Module can be accessed through the `raw_module`
         property.
 
         The new instance establishes a new session to the DataServer.
@@ -423,7 +423,7 @@ class ModuleHandler:
         """Create an instance of the SweeperModule.
 
         The resulting Module will have the nodetree accessible. The underlying
-        zhinst.ziPython Module can be accessed through the `raw_module`
+        zhinst.core Module can be accessed through the `raw_module`
         property.
 
         The new instance establishes a new session to the DataServer.
@@ -458,7 +458,7 @@ class ModuleHandler:
             Created object
         """
         return tk_modules.SHFQASweeper(
-            ziPython.ziDAQServer(
+            core.ziDAQServer(
                 self._server_host,
                 self._server_port,
                 6,
@@ -666,7 +666,7 @@ class Session(Node):
         server_port: int = None,
         *,
         hf2: bool = None,
-        connection: ziPython.ziDAQServer = None,
+        connection: core.ziDAQServer = None,
     ):
         self._is_hf2_server = bool(hf2)
         self._server_host = server_host
@@ -688,7 +688,7 @@ class Session(Node):
             if self._is_hf2_server and self._server_port == 8004:
                 self._server_port = 8005
             try:
-                self._daq_server = ziPython.ziDAQServer(
+                self._daq_server = core.ziDAQServer(
                     self._server_host,
                     self._server_port,
                     1 if self._is_hf2_server else 6,
@@ -698,7 +698,7 @@ class Session(Node):
                     raise
                 if hf2 is None:
                     self._is_hf2_server = True
-                    self._daq_server = ziPython.ziDAQServer(
+                    self._daq_server = core.ziDAQServer(
                         self._server_host,
                         self._server_port,
                         1,
@@ -962,8 +962,8 @@ class Session(Node):
         return self._is_hf2_server
 
     @property
-    def daq_server(self) -> ziPython.ziDAQServer:
-        """Managed instance of the ziPython.ziDAQServer."""
+    def daq_server(self) -> core.ziDAQServer:
+        """Managed instance of the core.ziDAQServer."""
         return self._daq_server
 
     @property

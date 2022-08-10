@@ -172,9 +172,7 @@ def test_connect_device_h2(
         hf2_session.devices.add_hf2_device("dev1234")
 
     # connect non HF2 device
-    with patch(
-        "zhinst.toolkit.session.ziPython.ziDiscovery", autospec=True
-    ) as discovery:
+    with patch("zhinst.toolkit.session.core.ziDiscovery", autospec=True) as discovery:
         discovery.return_value.get.return_value = {"devicetype": "Test234"}
         with pytest.raises(RuntimeError) as e_info:
             hf2_session.connect_device("dev5678")
@@ -191,9 +189,7 @@ def test_devices_visible(mock_connection, session, hf2_session):
             raise RuntimeError()
 
     mock_connection.return_value.getString.side_effect = get_string_side_effect
-    with patch(
-        "zhinst.toolkit.session.ziPython.ziDiscovery", autospec=True
-    ) as discovery:
+    with patch("zhinst.toolkit.session.core.ziDiscovery", autospec=True) as discovery:
         hf2_session.devices.visible()
         discovery.return_value.findAll.assert_called_once()
 

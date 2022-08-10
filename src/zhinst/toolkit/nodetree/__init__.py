@@ -1,4 +1,4 @@
-"""High-level generic lazy node tree for the ziPython package.
+"""High-level generic lazy node tree for the zhinst.core package.
 
 All interactions with an Zurich Instruments device or a LabOne
 module happens through manipulating nodes. The

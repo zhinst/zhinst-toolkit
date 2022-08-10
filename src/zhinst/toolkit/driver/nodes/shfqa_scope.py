@@ -2,8 +2,8 @@
 import logging
 import typing as t
 
-import zhinst.deviceutils.shfqa as deviceutils
-from zhinst.ziPython import ziDAQServer
+import zhinst.utils.shfqa as utils
+from zhinst.core import ziDAQServer
 
 from zhinst.toolkit.nodetree import Node, NodeTree
 
@@ -132,7 +132,7 @@ class SHFScope(Node):
             trigger_delay: delay in samples specifying the time between the
                 start of data acquisition and reception of a trigger.
         """
-        deviceutils.configure_scope(
+        utils.configure_scope(
             self._daq_server,
             self._serial,
             input_select=input_select,
@@ -161,9 +161,7 @@ class SHFScope(Node):
             TimeoutError: if the scope recording is not completed before
                 timeout.
         """
-        return deviceutils.get_scope_data(
-            self._daq_server, self._serial, timeout=timeout
-        )
+        return utils.get_scope_data(self._daq_server, self._serial, timeout=timeout)
 
     @property
     def available_trigger_inputs(self) -> t.List[str]:

@@ -4,7 +4,7 @@ import logging
 import typing as t
 import warnings
 
-import zhinst.deviceutils.shfqa as deviceutils
+import zhinst.utils.shfqa as utils
 
 from zhinst.toolkit.driver.devices.base import BaseInstrument
 from zhinst.toolkit.driver.nodes.generator import Generator
@@ -64,7 +64,7 @@ class QAChannel(Node):
             center_frequency: Center frequency of the analysis band [Hz]
             mode: Select between spectroscopy and readout mode.
         """
-        deviceutils.configure_channel(
+        utils.configure_channel(
             self._session.daq_server,
             self._serial,
             self._index,
@@ -139,7 +139,7 @@ class SHFQA(BaseInstrument):
             num_triggers: Number of triggers to be issued
             wait_time: Time between triggers in seconds
         """
-        deviceutils.start_continuous_sw_trigger(
+        utils.start_continuous_sw_trigger(
             self._session.daq_server,
             self.serial,
             num_triggers=num_triggers,
@@ -149,7 +149,7 @@ class SHFQA(BaseInstrument):
     @lazy_property
     def max_qubits_per_channel(self) -> int:
         """Maximum number of supported qubits per channel."""
-        return deviceutils.max_qubits_per_channel(self._session.daq_server, self.serial)
+        return utils.max_qubits_per_channel(self._session.daq_server, self.serial)
 
     @lazy_property
     def qachannels(self) -> t.Sequence[QAChannel]:

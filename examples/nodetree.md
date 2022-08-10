@@ -16,7 +16,7 @@ jupyter:
 # Zurich Instruments Toolkit Node Tree
 
 The core of toolkit is the node tree. It is also the main difference compared to the
-lower level ``zhinst.ziPython`` API.
+lower level ``zhinst.core`` API.
 
 ## Background
 
@@ -42,7 +42,7 @@ simpler to write.
 > although the zhinst.toolkit.nodetree can be used without a toolkit session, the
 > following examples are based on a toolkit session for demonstration purpose. But all
 > shown functionalities can be used without a toolkit session). In that case a instance
-> of the NodeTree class can be created with a zhinst.ziPython.ziDAQServer instance.
+> of the NodeTree class can be created with a zhinst.core.ziDAQServer instance.
 
 ```python
 from zhinst.toolkit import Session

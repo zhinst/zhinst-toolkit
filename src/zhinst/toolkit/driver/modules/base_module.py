@@ -7,7 +7,7 @@ import logging
 import time
 import typing as t
 
-from zhinst.ziPython import ModuleBase
+from zhinst.core import ModuleBase
 from zhinst.toolkit.nodetree import Node, NodeTree
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ class BaseModule(Node):
     in toolkit.
 
     Args:
-        raw_module: ziPython module.
+        raw_module: zhinst.core module.
         session: Session to the Data Server.
     """
 
@@ -165,5 +165,5 @@ class BaseModule(Node):
 
     @property
     def raw_module(self) -> ZIModule:
-        """Underlying ziPython module."""
+        """Underlying core module."""
         return self._raw_module

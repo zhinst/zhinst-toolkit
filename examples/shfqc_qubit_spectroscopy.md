@@ -96,7 +96,7 @@ min_max_frequencies=[[-150e6,0e6],[150e6,350e6],[-50e6,00e6],[200e6,400e6],[25e6
 ```python
 from shfqc_helper import generate_flat_top_gaussian
 import numpy as np
-from zhinst.deviceutils.shfqa import SHFQA_SAMPLING_FREQUENCY
+from zhinst.utils.shfqa import SHFQA_SAMPLING_FREQUENCY
 
 # generate readout pulses and weights
 readout_pulses = generate_flat_top_gaussian(
