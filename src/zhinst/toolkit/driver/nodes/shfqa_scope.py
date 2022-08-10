@@ -55,7 +55,8 @@ class SHFScope(Node):
             self.enable.wait_for_state_change(1, timeout=timeout, sleep_time=sleep_time)
         except TimeoutError as error:
             raise TimeoutError(
-                "Scope could not been started within the specified timeout({timeout})s."
+                "Scope could not been started within "
+                f"the specified timeout ({timeout})s"
             ) from error
 
     def stop(self, *, timeout: float = 10, sleep_time: float = 0.005) -> None:
@@ -76,7 +77,8 @@ class SHFScope(Node):
             self.enable.wait_for_state_change(0, timeout=timeout, sleep_time=sleep_time)
         except TimeoutError as error:
             raise TimeoutError(
-                "Scope could not been stopped within the specified timeout({timeout})s."
+                "Scope could not been stopped within "
+                f"the specified timeout ({timeout})s"
             ) from error
 
     def wait_done(self, *, timeout: float = 10, sleep_time: float = 0.005) -> None:
