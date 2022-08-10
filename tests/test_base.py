@@ -107,12 +107,12 @@ def test_check_python_versions():
 
     # matching version
     BaseInstrument._check_python_versions(labone, device_utils)
-    # ziPython heigher
+    # zhinst.core heigher
     BaseInstrument._check_python_versions(add(labone, (1, 0, 0)), device_utils)
-    # ziPython lower
+    # zhinst.core lower
     with pytest.raises(RuntimeError):
         BaseInstrument._check_python_versions(sub(labone, (1, 0, 0)), device_utils)
-    # deviceutils heigher
+    # utils heigher
     BaseInstrument._check_python_versions(
         labone,
         add(
@@ -120,7 +120,7 @@ def test_check_python_versions():
             (1, 0, 0),
         ),
     )
-    # deviceutils lower
+    # utils lower
     with pytest.raises(RuntimeError):
         BaseInstrument._check_python_versions(labone, sub(device_utils, (1, 0, 0)))
 
@@ -129,10 +129,10 @@ def test_check_labone_version():
 
     # matching version
     BaseInstrument._check_labone_version((21, 8, 0), (21, 8, 0))
-    # ziPython heigher
+    # zhinst.core heigher
     with pytest.raises(RuntimeError):
         BaseInstrument._check_labone_version((22, 2, 0), (21, 8, 0))
-    # ziPython lower
+    # zhinst.core lower
     with pytest.raises(RuntimeError):
         BaseInstrument._check_labone_version((21, 2, 0), (21, 8, 0))
     # patchversion missmatch

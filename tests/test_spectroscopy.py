@@ -9,16 +9,16 @@ def spectroscopy(shfqa):
 
 
 @pytest.fixture()
-def m_deviceutils():
+def m_utils():
     with patch(
-        "zhinst.toolkit.driver.nodes.spectroscopy.deviceutils", autospec=True
-    ) as deviceutils:
-        yield deviceutils
+        "zhinst.toolkit.driver.nodes.spectroscopy.utils", autospec=True
+    ) as utils:
+        yield utils
 
 
-def test_configure_result_logger(mock_connection, spectroscopy, m_deviceutils):
+def test_configure_result_logger(mock_connection, spectroscopy, m_utils):
     spectroscopy.configure_result_logger(result_length=10)
-    m_deviceutils.configure_result_logger_for_spectroscopy.assert_called_with(
+    m_utils.configure_result_logger_for_spectroscopy.assert_called_with(
         mock_connection.return_value,
         "DEV1234",
         0,
@@ -29,7 +29,7 @@ def test_configure_result_logger(mock_connection, spectroscopy, m_deviceutils):
     spectroscopy.configure_result_logger(
         result_length=0, num_averages=2, averaging_mode=1
     )
-    m_deviceutils.configure_result_logger_for_spectroscopy.assert_called_with(
+    m_utils.configure_result_logger_for_spectroscopy.assert_called_with(
         mock_connection.return_value,
         "DEV1234",
         0,
@@ -39,9 +39,9 @@ def test_configure_result_logger(mock_connection, spectroscopy, m_deviceutils):
     )
 
 
-def test_run(mock_connection, spectroscopy, m_deviceutils):
+def test_run(mock_connection, spectroscopy, m_utils):
     spectroscopy.run()
-    m_deviceutils.enable_result_logger.assert_called_with(
+    m_utils.enable_result_logger.assert_called_with(
         mock_connection.return_value,
         "DEV1234",
         0,
@@ -72,12 +72,12 @@ def test_wait_done(mock_connection, spectroscopy):
         spectroscopy.wait_done(timeout=0.5)
 
 
-def test_read(mock_connection, spectroscopy, m_deviceutils):
+def test_read(mock_connection, spectroscopy, m_utils):
     spectroscopy.read()
-    m_deviceutils.get_result_logger_data.assert_called_with(
+    m_utils.get_result_logger_data.assert_called_with(
         mock_connection.return_value, "DEV1234", 0, mode="spectroscopy", timeout=10
     )
     spectroscopy.read(timeout=1)
-    m_deviceutils.get_result_logger_data.assert_called_with(
+    m_utils.get_result_logger_data.assert_called_with(
         mock_connection.return_value, "DEV1234", 0, mode="spectroscopy", timeout=1
     )

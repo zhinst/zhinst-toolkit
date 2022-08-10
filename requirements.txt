@@ -1,6 +1,6 @@
 # Package
-zhinst
-zhinst-deviceutils
+zhinst-core
+zhinst-utils
 numpy
 jsonschema
 jsonref

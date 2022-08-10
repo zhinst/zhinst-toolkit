@@ -3,7 +3,7 @@
 import logging
 import typing as t
 
-from zhinst.ziPython import SweeperModule as ZISweeperModule
+from zhinst.core import SweeperModule as ZISweeperModule
 
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 from zhinst.toolkit.nodetree import Node
@@ -27,7 +27,7 @@ class SweeperModule(BaseModule):
     https://docs.zhinst.com/labone_programming_manual/sweeper_module.html
 
     Args:
-        sweeper_module: Instance of the ziPython Sweeper Module.
+        sweeper_module: Instance of the core Sweeper Module.
         session: Session to the Data Server.
     """
 

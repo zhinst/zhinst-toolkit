@@ -1,4 +1,4 @@
-"""High-level generic lazy node tree for the ziPython package."""
+"""High-level generic lazy node tree for the zhinst.core package."""
 
 import fnmatch
 import json
@@ -28,33 +28,33 @@ class Connection(Protocol):
         """Returns a list of nodes with description found at the specified path."""
 
     def get(self, path: str, *args, **kwargs) -> object:
-        """Mirrors the behavior of ziPython ``get`` command."""
+        """Mirrors the behavior of zhinst.core ``get`` command."""
 
     def getInt(self, path: str) -> int:
-        """Mirrors the behavior of ziPython ``getInt`` command."""
+        """Mirrors the behavior of zhinst.core ``getInt`` command."""
 
     def getDouble(self, path: str) -> float:
-        """Mirrors the behavior of ziPython ``getDouble`` command."""
+        """Mirrors the behavior of zhinst.core ``getDouble`` command."""
 
     def getString(self, path: str) -> str:
-        """Mirrors the behavior of ziPython ``getDouble`` command."""
+        """Mirrors the behavior of zhinst.core ``getDouble`` command."""
 
     @t.overload
     def set(self, path: str, value: t.Any) -> None:
-        """Mirrors the behavior of ziPython ``set`` command."""
+        """Mirrors the behavior of zhinst.core ``set`` command."""
 
     @t.overload
     def set(self, path: t.Union[t.List[t.Tuple[str, t.Any]]]) -> None:
-        """Mirrors the behavior of ziPython ``set`` command."""
+        """Mirrors the behavior of zhinst.core ``set`` command."""
 
     def set(self, path, value=None) -> None:
-        """Mirrors the behavior of ziPython ``set`` command."""
+        """Mirrors the behavior of zhinst.core ``set`` command."""
 
     def subscribe(self, path: str) -> None:
-        """Mirrors the behavior of ziPython ``subscribe`` command."""
+        """Mirrors the behavior of zhinst.core ``subscribe`` command."""
 
     def unsubscribe(self, path: str) -> None:
-        """Mirrors the behavior of ziPython ``unsubscribe`` command."""
+        """Mirrors the behavior of zhinst.core ``unsubscribe`` command."""
 
 
 class Transaction:

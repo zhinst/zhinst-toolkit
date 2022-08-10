@@ -13,7 +13,7 @@ import numpy as np
 from zhinst.utils.shf_sweeper import AvgConfig, EnvelopeConfig, RfConfig
 from zhinst.utils.shf_sweeper import ShfSweeper as CoreSweeper
 from zhinst.utils.shf_sweeper import SweepConfig, TriggerConfig
-from zhinst.ziPython import ziDAQServer
+from zhinst.core import ziDAQServer
 
 from zhinst.toolkit.driver.parsers import Parse
 from zhinst.toolkit.nodetree import Node, NodeTree

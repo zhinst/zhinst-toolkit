@@ -5,7 +5,7 @@ import typing as t
 from collections import namedtuple
 
 import numpy as np
-from zhinst.ziPython import DataAcquisitionModule as ZIDAQModule
+from zhinst.core import DataAcquisitionModule as ZIDAQModule
 
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 from zhinst.toolkit.nodetree import Node
@@ -31,7 +31,7 @@ class DAQModule(BaseModule):
     https://docs.zhinst.com/labone_programming_manual/data_acquisition_module.html
 
     Args:
-        daq_module: Instance of the ziPython DAQ module.
+        daq_module: Instance of the core DAQ module.
         session: Session to the Data Server.
     """
 

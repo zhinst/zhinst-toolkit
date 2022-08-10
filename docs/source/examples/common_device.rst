@@ -55,8 +55,8 @@ To ensure that all versions match each device exposes a function called
 
 The following criteria are checked:
 
-* minimum required zhinst-deviceutils package is installed
-* minimum required zhinst-ziPython package is installed
+* minimum required zhinst-utils package is installed
+* minimum required zhinst-core package is installed
 * zhinst package matches the LabOne Data Server version
 * firmware revision matches the LabOne Data Server version¨
 

@@ -4,7 +4,7 @@ import logging
 import typing as t
 import warnings
 
-import zhinst.deviceutils.shfsg as deviceutils
+import zhinst.utils.shfsg as utils
 
 from zhinst.toolkit.driver.devices.base import BaseInstrument
 from zhinst.toolkit.driver.nodes.awg import AWG
@@ -41,7 +41,7 @@ class AWGCore(AWG):
                 the sequencer. For a list of available values use
                 `available_trigger_slopes`
         """
-        deviceutils.configure_marker_and_trigger(
+        utils.configure_marker_and_trigger(
             self._session.daq_server,
             self._serial,
             self._index,
@@ -118,7 +118,7 @@ class SGChannel(Node):
             rf_path: Flag if the RF(True) or LF(False) path should be
                 configured.
         """
-        deviceutils.configure_channel(
+        utils.configure_channel(
             self._session.daq_server,
             self._device.serial,
             self._index,
@@ -157,7 +157,7 @@ class SGChannel(Node):
             sine_generator_index: Selects which sine generator to use on a
                 given channel.
         """
-        deviceutils.configure_pulse_modulation(
+        utils.configure_pulse_modulation(
             self._session.daq_server,
             self._device.serial,
             self._index,
@@ -199,7 +199,7 @@ class SGChannel(Node):
             sine_generator_index: Selects which sine generator to use on a given
                 channel
         """
-        deviceutils.configure_sine_generation(
+        utils.configure_sine_generation(
             self._session.daq_server,
             self._device.serial,
             self._index,

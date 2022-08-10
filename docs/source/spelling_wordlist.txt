@@ -33,7 +33,6 @@ docstring
 qa
 qas
 qcodes
-deviceutils
 ziPython
 streamingnodes
 nodetree

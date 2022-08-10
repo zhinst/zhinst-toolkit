@@ -10,13 +10,13 @@
 The Zurich Instruments Toolkit (zhinst-toolkit) is a high level driver package
 that allows communication with Zurich Instruments devices from the Python
 programming language. It is based on top of the native
-[Python API](https://pypi.org/project/zhinst/) (``zhinst.ziPython``) of LabOne®,
+[Python API](https://pypi.org/project/zhinst-core/) (``zhinst.core``) of LabOne®,
 the Zurich Instruments control software. It comes in the form of a package
 compatible with Python 3.7+.
 
 The central goal of zhinst-toolkit is to provide a pythonic approach to interact
 with any Zurich Instruments device and is intended as a full replacement for the
-low level ``zhinst.ziPython`` package.
+low level ``zhinst.core`` package.
 
 ## Status
 The zhinst-toolkit is well tested and considered stable enough for general usage.

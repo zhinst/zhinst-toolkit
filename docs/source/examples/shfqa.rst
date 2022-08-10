@@ -14,7 +14,7 @@ like structure called the node tree. zhinst-toolkit provides a pythonic way of
 interacting with this node tree. For more information about all functionalities
 and usage of the node tree in toolkit refer to the dedicated :doc:`section <../first_steps/nodetree>`.
 
-The package ``zhinst-deviceutils`` provided by Zurich Instruments offers a
+The package ``zhinst-utils`` provided by Zurich Instruments offers a
 collection of helper functions to ease the use of the SHFQA among other devices.
 Toolkit embeds these functions inside the nodetree. The following table shows
 the equivalent functions in zhinst-toolkit.
@@ -24,7 +24,7 @@ the equivalent functions in zhinst-toolkit.
    :widths: 25 25 50
    :header-rows: 1
 
-   * - zhinst-deviceutils
+   * - zhinst-utils
      - zhinst-toolkit
      - info
    * - start_continuous_sw_trigger()
