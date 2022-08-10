@@ -3,8 +3,8 @@ import logging
 import typing as t
 
 import numpy as np
-import zhinst.deviceutils.shfqa as deviceutils
-from zhinst.ziPython import ziDAQServer
+import zhinst.utils.shfqa as utils
+from zhinst.core import ziDAQServer
 
 from zhinst.toolkit.interface import AveragingMode
 from zhinst.toolkit.nodetree import Node, NodeTree
@@ -61,7 +61,7 @@ class Readout(Node):
             averaging_mode: Select the averaging order of the result, with
                 0 = cyclic and 1 = sequential.
         """
-        deviceutils.configure_result_logger_for_readout(
+        utils.configure_result_logger_for_readout(
             self._daq_server,
             self._serial,
             self._index,
@@ -73,7 +73,7 @@ class Readout(Node):
 
     def run(self) -> None:
         """Reset and enable the result logger."""
-        deviceutils.enable_result_logger(
+        utils.enable_result_logger(
             self._daq_server,
             self._serial,
             self._index,
@@ -138,7 +138,7 @@ class Readout(Node):
         Returns:
             Result logger data.
         """
-        return deviceutils.get_result_logger_data(
+        return utils.get_result_logger_data(
             self._daq_server, self._serial, self._index, mode="readout", timeout=timeout
         )
 
@@ -175,7 +175,7 @@ class Readout(Node):
         else:
             waveform_dict = weights
 
-        deviceutils.configure_weighted_integration(
+        utils.configure_weighted_integration(
             self._daq_server,
             self._serial,
             self._index,

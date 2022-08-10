@@ -572,7 +572,7 @@ class Node:
     ) -> t.Any:
         """Get the value from the node.
 
-        The kwargs will be forwarded to the mapped ziPython function call.
+        The kwargs will be forwarded to the mapped zhinst.core function call.
 
         Args:
             deep: Flag if the get operation should return the cached value
@@ -618,14 +618,14 @@ class Node:
 
     @staticmethod
     def _parse_get_entry(raw_value: t.Dict[t.Union[str, int], t.Any]):
-        """Parser for the get function of zhinst.ziPython.
+        """Parser for the get function of zhinst.core.
 
-        The get function in ziPython support multiple values and returns the
+        The get function in zhinst.core support multiple values and returns the
         results as a OrderdDict. This functions parses the value entry of that
         dictionary into a (timestamp, value) pair.
 
         Args:
-            raw_value: OrderdDict from the ziPython get command.
+            raw_value: OrderdDict from the zhinst.core get command.
 
         Returns:
             (timestamp, value) pair.
@@ -658,7 +658,7 @@ class Node:
         regardless of the ``deep`` flag. If the ``deep`` flag is not set the
         timestamp is removed to ensure concistency.
 
-        The kwargs will be forwarded to the maped ziPython function call.
+        The kwargs will be forwarded to the maped zhinst.core function call.
 
         Args:
             deep: Flag if the get operation should return the cached value
@@ -713,7 +713,7 @@ class Node:
     def _get_deep(self, **kwargs) -> t.Tuple[int, t.Any]:
         """Get the node value from the device.
 
-        The kwargs will be forwarded to the maped ziPython function call.
+        The kwargs will be forwarded to the maped zhinst.core function call.
 
         Note: The HF2 does not support the timestamp option and will therfore
         return None for the timestamp.
@@ -727,7 +727,7 @@ class Node:
         """
         kwargs.setdefault("settingsonly", False)
         # Flat must be set to True (if customers want the flat option they need
-        # to call ziPython directly)
+        # to call zhinst.core directly)
         kwargs["flat"] = True
         raw_dict = self._root.connection.get(self.node_info.path, **kwargs)
         if not raw_dict or len(raw_dict) == 0:
@@ -741,7 +741,7 @@ class Node:
     def _get_cached(self, **kwargs) -> t.Any:
         """Get the cached node value from the data server.
 
-        The kwargs will be forwarded to the maped ziPython function call.
+        The kwargs will be forwarded to the maped zhinst.core function call.
 
         Returns:
             Cached node value from the data server.
@@ -782,7 +782,7 @@ class Node:
     ) -> t.Optional[t.Any]:
         """Set the value to the node.
 
-        The kwargs will be forwarded to the maped ziPython function call.
+        The kwargs will be forwarded to the maped zhinst.core function call.
 
         Args:
             value: value
@@ -839,7 +839,7 @@ class Node:
     def _set_wildcard(self, value: t.Any, parse: bool = True, **kwargs) -> None:
         """Performs a transactional set on all nodes that match the wildcard.
 
-        The kwargs will be forwarded to the mapped ziPython function call.
+        The kwargs will be forwarded to the mapped zhinst.core function call.
 
         Args:
             value: value
@@ -859,7 +859,7 @@ class Node:
     def _set_deep(self, value: t.Any, **kwargs) -> t.Any:
         """Set the node value from device.
 
-        The kwargs will be forwarded to the mapped ziPython function call.
+        The kwargs will be forwarded to the mapped zhinst.core function call.
 
         Args:
             value: value

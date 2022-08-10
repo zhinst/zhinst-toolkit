@@ -19,7 +19,7 @@ These distributions will be installed automatically when installing zhinst-toolk
   Schema specification for Python.
 * `zhinst <https://pypi.org/project/zhinst/>`_ is the low level python API for Zurich
   Instruments devices.
-* `zhinst-deviceutils <https://pypi.org/project/zhinst-deviceutils/>`_ is a collection
+* `zhinst-utils <https://pypi.org/project/zhinst-utils/>`_ is a collection
   of helper functions for the LabOne® python API.
 
 Install zhinst-toolkit

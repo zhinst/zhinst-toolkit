@@ -12,11 +12,9 @@ def readout(shfqa):
 
 
 def test_configure_result_logger(mock_connection, readout):
-    with patch(
-        "zhinst.toolkit.driver.nodes.readout.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.nodes.readout.utils", autospec=True) as utils:
         readout.configure_result_logger(result_source="test", result_length=10)
-        deviceutils.configure_result_logger_for_readout.assert_called_with(
+        utils.configure_result_logger_for_readout.assert_called_with(
             mock_connection.return_value,
             "DEV1234",
             0,
@@ -28,7 +26,7 @@ def test_configure_result_logger(mock_connection, readout):
         readout.configure_result_logger(
             result_source="test2", result_length=0, num_averages=2, averaging_mode=1
         )
-        deviceutils.configure_result_logger_for_readout.assert_called_with(
+        utils.configure_result_logger_for_readout.assert_called_with(
             mock_connection.return_value,
             "DEV1234",
             0,
@@ -40,11 +38,9 @@ def test_configure_result_logger(mock_connection, readout):
 
 
 def test_run(mock_connection, readout):
-    with patch(
-        "zhinst.toolkit.driver.nodes.readout.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.nodes.readout.utils", autospec=True) as utils:
         readout.run()
-        deviceutils.enable_result_logger.assert_called_with(
+        utils.enable_result_logger.assert_called_with(
             mock_connection.return_value,
             "DEV1234",
             0,
@@ -76,15 +72,13 @@ def test_wait_done(mock_connection, readout):
 
 
 def test_read(mock_connection, readout):
-    with patch(
-        "zhinst.toolkit.driver.nodes.readout.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.nodes.readout.utils", autospec=True) as utils:
         readout.read()
-        deviceutils.get_result_logger_data.assert_called_with(
+        utils.get_result_logger_data.assert_called_with(
             mock_connection.return_value, "DEV1234", 0, mode="readout", timeout=10
         )
         readout.read(timeout=1)
-        deviceutils.get_result_logger_data.assert_called_with(
+        utils.get_result_logger_data.assert_called_with(
             mock_connection.return_value, "DEV1234", 0, mode="readout", timeout=1
         )
 
@@ -97,51 +91,47 @@ def test_write_integration_weights(mock_connection, readout):
 
     waveforms_long = Waveforms()
     waveforms_long[1000] = np.zeros(1000)
-    with patch(
-        "zhinst.toolkit.driver.nodes.readout.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.nodes.readout.utils", autospec=True) as utils:
         readout.write_integration_weights(waveforms)
         complex_wave = np.empty(1000, dtype=np.complex128)
         complex_wave.real = np.ones(1000)
         complex_wave.imag = np.ones(1000)
         assert (
-            deviceutils.configure_weighted_integration.call_args[0][0]
+            utils.configure_weighted_integration.call_args[0][0]
             == mock_connection.return_value
         )
-        assert deviceutils.configure_weighted_integration.call_args[0][1] == "DEV1234"
-        assert deviceutils.configure_weighted_integration.call_args[0][2] == 0
+        assert utils.configure_weighted_integration.call_args[0][1] == "DEV1234"
+        assert utils.configure_weighted_integration.call_args[0][2] == 0
         assert np.allclose(
-            deviceutils.configure_weighted_integration.call_args[1]["weights"][1],
+            utils.configure_weighted_integration.call_args[1]["weights"][1],
             np.ones(1000, dtype=np.complex128),
         )
         assert np.allclose(
-            deviceutils.configure_weighted_integration.call_args[1]["weights"][2],
+            utils.configure_weighted_integration.call_args[1]["weights"][2],
             complex_wave,
         )
         assert (
-            deviceutils.configure_weighted_integration.call_args[1]["integration_delay"]
+            utils.configure_weighted_integration.call_args[1]["integration_delay"]
             == 0.0
         )
         assert (
-            deviceutils.configure_weighted_integration.call_args[1]["clear_existing"]
-            == True
+            utils.configure_weighted_integration.call_args[1]["clear_existing"] == True
         )
 
         readout.write_integration_weights(waveforms, integration_delay=0.5)
         assert (
-            deviceutils.configure_weighted_integration.call_args[1]["integration_delay"]
+            utils.configure_weighted_integration.call_args[1]["integration_delay"]
             == 0.5
         )
 
         readout.write_integration_weights(waveforms, clear_existing=False)
         assert (
-            deviceutils.configure_weighted_integration.call_args[1]["clear_existing"]
-            == False
+            utils.configure_weighted_integration.call_args[1]["clear_existing"] == False
         )
 
         readout.write_integration_weights({0: np.ones(1000)}, clear_existing=True)
         assert all(
-            deviceutils.configure_weighted_integration.call_args[1]["weights"][0]
+            utils.configure_weighted_integration.call_args[1]["weights"][0]
             == np.ones(1000)
         )
 

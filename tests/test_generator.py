@@ -21,18 +21,16 @@ def generator(data_dir, mock_connection, shfqa):
 
 
 def test_enable_sequencer(generator, mock_connection):
-    with patch(
-        "zhinst.toolkit.driver.nodes.generator.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.nodes.generator.utils", autospec=True) as utils:
         generator.enable_sequencer(single=True)
-        deviceutils.enable_sequencer.assert_called_once_with(
+        utils.enable_sequencer.assert_called_once_with(
             mock_connection.return_value,
             "DEV1234",
             0,
             single=1,
         )
         generator.enable_sequencer(single=False)
-        deviceutils.enable_sequencer.assert_called_with(
+        utils.enable_sequencer.assert_called_with(
             mock_connection.return_value,
             "DEV1234",
             0,
@@ -79,11 +77,9 @@ def test_wait_done(mock_connection, generator):
 
 
 def test_load_sequencer_program(session, generator, mock_connection):
-    with patch(
-        "zhinst.toolkit.driver.nodes.generator.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.nodes.generator.utils", autospec=True) as utils:
         generator.load_sequencer_program("Test")
-        deviceutils.load_sequencer_program.assert_called_once_with(
+        utils.load_sequencer_program.assert_called_once_with(
             mock_connection.return_value,
             "DEV1234",
             0,
@@ -92,7 +88,7 @@ def test_load_sequencer_program(session, generator, mock_connection):
         )
 
         generator.load_sequencer_program("Test", timeout=1)
-        deviceutils.load_sequencer_program.assert_called_with(
+        utils.load_sequencer_program.assert_called_with(
             mock_connection.return_value,
             "DEV1234",
             0,
@@ -110,40 +106,32 @@ def test_write_to_waveform_memory(generator, mock_connection):
 
     waveforms_long = Waveforms()
     waveforms_long[1000] = np.zeros(1000)
-    with patch(
-        "zhinst.toolkit.driver.nodes.generator.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.nodes.generator.utils", autospec=True) as utils:
         generator.write_to_waveform_memory(waveforms)
         complex_wave = np.empty(1000, dtype=np.complex128)
         complex_wave.real = np.ones(1000)
         complex_wave.imag = np.ones(1000)
         complex_wave = complex_wave
         assert (
-            deviceutils.write_to_waveform_memory.call_args[0][0]
+            utils.write_to_waveform_memory.call_args[0][0]
             == mock_connection.return_value
         )
-        assert deviceutils.write_to_waveform_memory.call_args[0][1] == "DEV1234"
-        assert deviceutils.write_to_waveform_memory.call_args[0][2] == 0
+        assert utils.write_to_waveform_memory.call_args[0][1] == "DEV1234"
+        assert utils.write_to_waveform_memory.call_args[0][2] == 0
         assert np.allclose(
-            deviceutils.write_to_waveform_memory.call_args[0][3][1],
+            utils.write_to_waveform_memory.call_args[0][3][1],
             np.ones(1000, dtype=np.complex128),
         )
         assert np.allclose(
-            deviceutils.write_to_waveform_memory.call_args[0][3][2], complex_wave
+            utils.write_to_waveform_memory.call_args[0][3][2], complex_wave
         )
-        assert (
-            deviceutils.write_to_waveform_memory.call_args[1]["clear_existing"] == True
-        )
+        assert utils.write_to_waveform_memory.call_args[1]["clear_existing"] == True
 
         generator.write_to_waveform_memory(waveforms, clear_existing=False)
-        assert (
-            deviceutils.write_to_waveform_memory.call_args[1]["clear_existing"] == False
-        )
+        assert utils.write_to_waveform_memory.call_args[1]["clear_existing"] == False
 
         generator.write_to_waveform_memory({0: np.ones(1000)}, clear_existing=True)
-        assert all(
-            deviceutils.write_to_waveform_memory.call_args[0][3][0] == np.ones(1000)
-        )
+        assert all(utils.write_to_waveform_memory.call_args[0][3][0] == np.ones(1000))
 
     with pytest.raises(RuntimeError) as e_info:
         generator.write_to_waveform_memory(waveforms_long)
@@ -183,13 +171,11 @@ def test_read_from_waveform_memory(generator, mock_connection):
 
 
 def test_configure_sequencer_triggering(generator, mock_connection):
-    with patch(
-        "zhinst.toolkit.driver.nodes.generator.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.nodes.generator.utils", autospec=True) as utils:
         generator.configure_sequencer_triggering(
             aux_trigger="fobarob", play_pulse_delay=0.0001
         )
-        deviceutils.configure_sequencer_triggering.assert_called_with(
+        utils.configure_sequencer_triggering.assert_called_with(
             mock_connection.return_value,
             "DEV1234",
             0,

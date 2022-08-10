@@ -17,23 +17,19 @@ def test_factory_reset(shfqa):
 
 
 def test_start_continuous_sw_trigger(mock_connection, shfqa):
-    with patch(
-        "zhinst.toolkit.driver.devices.shfqa.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.devices.shfqa.utils", autospec=True) as utils:
         shfqa.start_continuous_sw_trigger(num_triggers=10, wait_time=20.0)
-        deviceutils.start_continuous_sw_trigger.assert_called_once_with(
+        utils.start_continuous_sw_trigger.assert_called_once_with(
             mock_connection.return_value, "DEV1234", num_triggers=10, wait_time=20.0
         )
 
 
 def test_max_qubits_per_channel(shfqa):
-    with patch(
-        "zhinst.toolkit.driver.devices.shfqa.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.devices.shfqa.utils", autospec=True) as utils:
         shfqa.max_qubits_per_channel
         # cached property -> second call should not call device_utils
         shfqa.max_qubits_per_channel
-        deviceutils.max_qubits_per_channel.assert_called_once()
+        utils.max_qubits_per_channel.assert_called_once()
 
 
 def test_qachannels(shfqa):
@@ -47,16 +43,14 @@ def test_scopes(shfqa):
 
 
 def test_qa_configure_channel(mock_connection, shfqa):
-    with patch(
-        "zhinst.toolkit.driver.devices.shfqa.deviceutils", autospec=True
-    ) as deviceutils:
+    with patch("zhinst.toolkit.driver.devices.shfqa.utils", autospec=True) as utils:
         shfqa.qachannels[0].configure_channel(
             input_range=10,
             output_range=20,
             center_frequency=30.0,
             mode=SHFQAChannelMode.READOUT,
         )
-        deviceutils.configure_channel.assert_called_once_with(
+        utils.configure_channel.assert_called_once_with(
             mock_connection.return_value,
             "DEV1234",
             0,

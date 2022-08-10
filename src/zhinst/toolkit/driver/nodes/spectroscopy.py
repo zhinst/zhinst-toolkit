@@ -2,8 +2,8 @@
 import logging
 
 import numpy as np
-import zhinst.deviceutils.shfqa as deviceutils
-from zhinst.ziPython import ziDAQServer
+import zhinst.utils.shfqa as utils
+from zhinst.core import ziDAQServer
 
 from zhinst.toolkit.interface import AveragingMode
 from zhinst.toolkit.nodetree import Node, NodeTree
@@ -52,7 +52,7 @@ class Spectroscopy(Node):
             num_averages: Number of averages, will be rounded to 2^n.
             averaging_mode: Averaging order of the result.
         """
-        deviceutils.configure_result_logger_for_spectroscopy(
+        utils.configure_result_logger_for_spectroscopy(
             self._daq_server,
             self._serial,
             self._index,
@@ -63,7 +63,7 @@ class Spectroscopy(Node):
 
     def run(self) -> None:
         """Resets and enables the spectroscopy result logger."""
-        deviceutils.enable_result_logger(
+        utils.enable_result_logger(
             self._daq_server,
             self._serial,
             self._index,
@@ -132,7 +132,7 @@ class Spectroscopy(Node):
             An array containing the result logger data.
 
         """
-        return deviceutils.get_result_logger_data(
+        return utils.get_result_logger_data(
             self._daq_server,
             self._serial,
             self._index,

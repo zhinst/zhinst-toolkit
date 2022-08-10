@@ -16,9 +16,7 @@ def data_dir(request):
 
 @pytest.fixture()
 def mock_connection():
-    with patch(
-        "zhinst.toolkit.session.ziPython.ziDAQServer", autospec=True
-    ) as connection:
+    with patch("zhinst.toolkit.session.core.ziDAQServer", autospec=True) as connection:
         yield connection
 
 
@@ -51,7 +49,7 @@ def shfqa(data_dir, mock_connection, session):
 
     mock_connection.return_value.getString.return_value = ""
     with patch(
-        "zhinst.toolkit.driver.devices.shfqa.deviceutils.max_qubits_per_channel",
+        "zhinst.toolkit.driver.devices.shfqa.utils.max_qubits_per_channel",
         autospec=True,
     ) as max_qubits:
         max_qubits.return_value = 16

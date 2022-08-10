@@ -12,8 +12,8 @@ import warnings
 from functools import lru_cache
 from pathlib import Path
 
-from zhinst.deviceutils._version import version as deviceutils_version_str
-from zhinst.ziPython import __version__ as zhinst_version_str
+from zhinst.utils._version import version as utils_version_str
+from zhinst.core import __version__ as zhinst_version_str
 
 from zhinst.toolkit._min_version import _MIN_DEVICE_UTILS_VERSION, _MIN_LABONE_VERSION
 from zhinst.toolkit.driver.parsers import node_parser
@@ -124,20 +124,20 @@ class BaseInstrument(Node):
         required version installed.
 
         Args:
-            zi_python_version: zhinst.ziPython package version
-            zi_utils_version: zhinst.deviceutils package version
+            zi_python_version: zhinst.core package version
+            zi_utils_version: zhinst.utils package version
 
         Raises:
-            RuntimeError: If the zhinst.ziPython version does not match the
+            RuntimeError: If the zhinst.core version does not match the
                 minimum requirements for zhinst.toolkit
-            RuntimeError: If the zhinst.deviceutils version does not match the
+            RuntimeError: If the zhinst.utils version does not match the
                 minimum requirements for zhinst.toolkit
         """
         if zi_python_version < BaseInstrument._version_string_to_tuple(
             _MIN_LABONE_VERSION
         ):
             raise RuntimeError(
-                "zhinst.ziPython version does not match the minimum required version "
+                "zhinst.core version does not match the minimum required version "
                 f"for zhinst.toolkit {zi_python_version} < {_MIN_LABONE_VERSION}. "
                 "Use `pip install --upgrade zhinst` to get the latest version."
             )
@@ -145,10 +145,10 @@ class BaseInstrument(Node):
             _MIN_DEVICE_UTILS_VERSION
         ):
             raise RuntimeError(
-                "zhinst.deviceutils version does not match the minimum required "
+                "zhinst.utils version does not match the minimum required "
                 f"version for zhinst.toolkit {zi_utils_version} < "
                 f"{_MIN_DEVICE_UTILS_VERSION}. Use `pip install "
-                "--upgrade zhinst.deviceutils` to get the latest version."
+                "--upgrade zhinst.utils` to get the latest version."
             )
 
     @staticmethod
@@ -159,29 +159,29 @@ class BaseInstrument(Node):
         """Check that the LabOne version matches the zhinst version.
 
         Args:
-            zi_python_version: zhinst.ziPython package version
+            zi_python_version: zhinst.core package version
             labone_version: LabOne DataServer version
 
         Raises:
-            RuntimeError: If the zhinst.ziPython version does not match the
+            RuntimeError: If the zhinst.core version does not match the
                 version of the connected LabOne DataServer.
         """
         if labone_version[:2] < zi_python_version[:2]:
             raise RuntimeError(
-                "The LabOne version is smaller than the zhinst.ziPython version. "
+                "The LabOne version is smaller than the zhinst.core version. "
                 f"{labone_version} < {zi_python_version}. "
                 "Please install the latest/matching LabOne version from "
                 "https://www.zhinst.com/support/download-center."
             )
         if labone_version[:2] > zi_python_version[:2]:
             raise RuntimeError(
-                "the zhinst.ziPython version is smaller than the LabOne version "
+                "the zhinst.core version is smaller than the LabOne version "
                 f"{zi_python_version} < {labone_version}. "
                 "Please install the latest/matching version from pypi.org."
             )
         if labone_version[-1] != zi_python_version[-1]:
             warnings.warn(
-                "The patch version of zhinst.ziPython and the LabOne DataServer "
+                "The patch version of zhinst.core and the LabOne DataServer "
                 f"mismatch {labone_version[-1]} ! {zi_python_version[-1]}.",
                 RuntimeWarning,
                 stacklevel=2,
@@ -222,8 +222,8 @@ class BaseInstrument(Node):
         Only if all versions and revisions of the software stack match stability
         can be ensured. The following criteria are checked:
 
-            * minimum required zhinst-deviceutils package is installed
-            * minimum required zhinst-ziPython package is installed
+            * minimum required zhinst-utils package is installed
+            * minimum required zhinst-core package is installed
             * zhinst package matches the LabOne Data Server version
             * firmware revision matches the LabOne Data Server version
 
@@ -234,7 +234,7 @@ class BaseInstrument(Node):
         """
         self._check_python_versions(
             self._version_string_to_tuple(zhinst_version_str),
-            self._version_string_to_tuple(deviceutils_version_str),
+            self._version_string_to_tuple(utils_version_str),
         )
         labone_version_str = self._session.about.version()
         labone_revision_str = str(self._session.about.revision())[4:]

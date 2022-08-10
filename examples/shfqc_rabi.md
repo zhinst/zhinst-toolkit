@@ -99,7 +99,7 @@ propagation_delay=226e-9
 
 ```python
 from shfqc_helper import generate_flat_top_gaussian
-from zhinst.deviceutils.shfqa import SHFQA_SAMPLING_FREQUENCY
+from zhinst.utils.shfqa import SHFQA_SAMPLING_FREQUENCY
 import numpy as np
 
 # generate readout pulses and weights
