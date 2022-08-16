@@ -5,6 +5,7 @@
   sequences in toolkit (`#141`).
 * Add support for session wide transactions that bundle set command from all 
   devices connected to the data server. (`#134`)
+* Add `from_existing_connection()` to `zhinst.toolkit.Session` to help reusing the existing DataServer connection.
 * Bugfix: Nodes with nameless options don't raise an exception when their enum attribute is called (`#165`).
 * Bugfix: Values of enumerated nodes can now be pickled (`#129`).
 
