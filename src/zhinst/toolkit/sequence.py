@@ -30,7 +30,7 @@ class Sequence:
     Example:
         >>> waveforms = Waveforms()
         >>> waveforms[0] = (0.5*np.ones(1008), -0.2*np.ones(1008), np.ones(1008))
-        >>> sequencer = SequencerCode()
+        >>> sequencer = Sequence()
         >>> sequencer.constants["PULSE_WIDTH"] = 10e-9 #ns
         >>> sequencer.waveforms = waveforms
         >>> sequencer.code = \"\"\"\
