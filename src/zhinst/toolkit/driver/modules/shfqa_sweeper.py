@@ -71,8 +71,8 @@ class SHFQASweeper(Node):
         }
         super().__init__(self._create_nodetree(), tuple())
         self._daq_server = ziDAQServer(
-            session._daq_server.host,
-            session._daq_server.port,
+            session.daq_server.host,
+            session.daq_server.port,
             6,
         )
         self._raw_module = CoreSweeper(self._daq_server, "")
