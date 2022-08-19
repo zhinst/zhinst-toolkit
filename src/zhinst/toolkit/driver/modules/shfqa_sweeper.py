@@ -56,7 +56,7 @@ class SHFQASweeper(Node):
         session: Session to the Data Server.
     """
 
-    def __init__(self, daq_server: ziDAQServer, session: "Session"):
+    def __init__(self, session: "Session"):
         self._config_classes = {
             SweepConfig: ("sweep", "sweep_config"),
             RfConfig: ("rf", "rf_config"),
@@ -70,8 +70,12 @@ class SHFQASweeper(Node):
             "force_sw_trigger": "sw_trigger_mode",
         }
         super().__init__(self._create_nodetree(), tuple())
-        self._daq_server = daq_server
-        self._raw_module = CoreSweeper(daq_server, "")
+        self._daq_server = ziDAQServer(
+            session.daq_server.host,
+            session.daq_server.port,
+            6,
+        )
+        self._raw_module = CoreSweeper(self._daq_server, "")
         self._session = session
         self.root.update_nodes(
             {

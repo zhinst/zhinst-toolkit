@@ -1,5 +1,5 @@
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import patch, PropertyMock
 
 import pytest
 
@@ -17,6 +17,9 @@ def data_dir(request):
 @pytest.fixture()
 def mock_connection():
     with patch("zhinst.toolkit.session.core.ziDAQServer", autospec=True) as connection:
+        type(connection.return_value).port = PropertyMock(return_value=8004)
+        type(connection.return_value).host = PropertyMock(return_value="localhost")
+        type(connection.return_value).api_level = PropertyMock(return_value=6)
         yield connection
 
 
@@ -36,6 +39,7 @@ def session(nodedoc_zi_json, mock_connection):
 @pytest.fixture()
 def hf2_session(data_dir, mock_connection):
     mock_connection.return_value.getString.return_value = "HF2DataServer"
+    type(mock_connection.return_value).port = PropertyMock(return_value=8005)
     yield Session("localhost", hf2=True)
 
 
@@ -92,3 +96,11 @@ def nodedoc_dev1234_json(data_dir):
     json_path = data_dir / "nodedoc_dev1234.json"
     with json_path.open("r", encoding="UTF-8") as file:
         return file.read()
+
+
+@pytest.fixture()
+def mock_sweeper_daq():
+    with patch(
+        "zhinst.toolkit.driver.modules.shfqa_sweeper.ziDAQServer", autospec=True
+    ) as connection:
+        yield connection

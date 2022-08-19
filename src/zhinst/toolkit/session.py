@@ -221,13 +221,11 @@ class ModuleHandler:
         server_port: Port of the session
     """
 
-    def __init__(self, session: "Session", server_host: str, server_port: int):
+    def __init__(self, session: "Session"):
         self._session = session
-        self._server_host = server_host
-        self._server_port = server_port
 
     def __repr__(self):
-        return f"LabOneModules({self._server_host}:{self._server_port})"
+        return f"LabOneModules({self._session.daq_server.host}:{self._session.daq_server.port})"
 
     def create_awg_module(self) -> tk_modules.BaseModule:
         """Create an instance of the AwgModule.
@@ -457,14 +455,7 @@ class ModuleHandler:
         Returns:
             Created object
         """
-        return tk_modules.SHFQASweeper(
-            core.ziDAQServer(
-                self._server_host,
-                self._server_port,
-                6,
-            ),
-            self._session,
-        )
+        return tk_modules.SHFQASweeper(self._session)
 
     @lazy_property
     def awg(self) -> tk_modules.BaseModule:
@@ -663,34 +654,33 @@ class Session(Node):
     def __init__(
         self,
         server_host: str,
-        server_port: int = None,
+        server_port: t.Optional[int] = None,
         *,
-        hf2: bool = None,
-        connection: core.ziDAQServer = None,
+        hf2: t.Optional[bool] = None,
+        connection: t.Optional[core.ziDAQServer] = None,
     ):
         self._is_hf2_server = bool(hf2)
-        self._server_host = server_host
-        self._server_port = server_port if server_port else 8004
         if connection is not None:
             self._is_hf2_server = "HF2" in connection.getString("/zi/about/dataserver")
             if hf2 and not self._is_hf2_server:
                 raise RuntimeError(
-                    "hf2_server Flag was set but the passed "
-                    "DAQServer instance is no HF2 data server."
+                    "hf2 flag was set but the passed "
+                    "DAQServer instance is not a HF2 data server."
                 )
             if hf2 is False and self._is_hf2_server:
                 raise RuntimeError(
-                    "hf2_server Flag was reset but the passed "
+                    "hf2 flag was set but the passed "
                     "DAQServer instance is a HF2 data server."
                 )
             self._daq_server = connection
         else:
-            if self._is_hf2_server and self._server_port == 8004:
-                self._server_port = 8005
+            server_port = server_port if server_port else 8004
+            if self._is_hf2_server and server_port == 8004:
+                server_port = 8005
             try:
                 self._daq_server = core.ziDAQServer(
-                    self._server_host,
-                    self._server_port,
+                    server_host,
+                    server_port,
                     1 if self._is_hf2_server else 6,
                 )
             except RuntimeError as error:
@@ -699,14 +689,14 @@ class Session(Node):
                 if hf2 is None:
                     self._is_hf2_server = True
                     self._daq_server = core.ziDAQServer(
-                        self._server_host,
-                        self._server_port,
+                        server_host,
+                        server_port,
                         1,
                     )
                 elif not hf2:
                     raise RuntimeError(
-                        "hf2_server Flag was reset but the specified "
-                        f"server at {self._server_host}:{self._server_port} is a "
+                        "hf2 Flag was reset but the specified "
+                        f"server at {server_host}:{server_port} is a "
                         "HF2 data server."
                     ) from error
 
@@ -714,16 +704,16 @@ class Session(Node):
             "/zi/about/dataserver"
         ):
             raise RuntimeError(
-                "hf2_server Flag was set but the specified "
-                f"server at {self._server_host}:{self._server_port} is not a "
+                "hf2 Flag was set but the specified "
+                f"server at {server_host}:{server_port} is not a "
                 "HF2 data server."
             )
         self._devices = HF2Devices(self) if self._is_hf2_server else Devices(self)
-        self._modules = ModuleHandler(self, self._server_host, self._server_port)
+        self._modules = ModuleHandler(self)
 
         hf2_node_doc = Path(__file__).parent / "resources/nodedoc_hf2_data_server.json"
         nodetree = NodeTree(
-            self.daq_server,
+            self._daq_server,
             prefix_hide="zi",
             list_nodes=["/zi/*"],
             preloaded_json=json.loads(hf2_node_doc.open("r").read())
@@ -736,7 +726,24 @@ class Session(Node):
     def __repr__(self):
         return str(
             f"{'HF2' if self._is_hf2_server else ''}DataServerSession("
-            f"{self._server_host}:{self._server_port})"
+            f"{self._daq_server.host}:{self._daq_server.port})"
+        )
+
+    @classmethod
+    def from_existing_connection(cls, connection: core.ziDAQServer) -> "Session":
+        """Initialize Session from an existing connection.
+
+        Args:
+            connection: Existing connection.
+
+        .. versionadded:: 0.3.6
+        """
+        is_hf2_server = "HF2" in connection.getString("/zi/about/dataserver")
+        return cls(
+            server_host=connection.host,
+            server_port=connection.port,
+            hf2=is_hf2_server,
+            connection=connection,
         )
 
     def connect_device(
@@ -969,9 +976,9 @@ class Session(Node):
     @property
     def server_host(self) -> str:
         """Server host."""
-        return self._server_host
+        return self._daq_server.host
 
     @property
     def server_port(self) -> int:
         """Server port."""
-        return self._server_port
+        return self._daq_server.port

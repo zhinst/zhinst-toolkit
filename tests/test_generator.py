@@ -78,10 +78,7 @@ def test_load_sequencer_program(shfqa, generator, mock_connection):
         mock_connection.return_value.set.call_args[0][0]
         == "/dev1234/qachannels/0/generator/elf/data"
     )
-    assert all(
-        mock_connection.return_value.set.call_args[0][1]
-        == np.frombuffer(elf, dtype="uint32")
-    )
+    assert mock_connection.return_value.set.call_args[0][1] == elf
     assert info == info_original
 
 def test_write_to_waveform_memory(shfqa, generator, mock_connection):

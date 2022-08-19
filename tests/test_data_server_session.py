@@ -396,7 +396,7 @@ def test_sweeper_module(data_dir, mock_connection, session):
     assert isinstance(sweeper_module.device, Node)
 
 
-def test_shfqa_sweeper(session):
+def test_shfqa_sweeper(session, mock_sweeper_daq):
     sweeper = session.modules.shfqa_sweeper
     assert sweeper == session.modules.shfqa_sweeper
     assert isinstance(sweeper, SHFQASweeper)

@@ -76,10 +76,7 @@ def test_load_sequencer_program(mock_connection, shfsg):
         mock_connection.return_value.set.call_args[0][0]
         == "/dev1234/sgchannels/0/awg/elf/data"
     )
-    assert all(
-        mock_connection.return_value.set.call_args[0][1]
-        == np.frombuffer(elf, dtype="uint32")
-    )
+    assert mock_connection.return_value.set.call_args[0][1] == elf
     assert info == info_original
 
     # Compiler error
@@ -109,10 +106,7 @@ def test_load_sequencer_program_qc(mock_connection, shfqc):
         mock_connection.return_value.set.call_args[0][0]
         == "/dev1234/sgchannels/0/awg/elf/data"
     )
-    assert all(
-        mock_connection.return_value.set.call_args[0][1]
-        == np.frombuffer(elf, dtype="uint32")
-    )
+    assert mock_connection.return_value.set.call_args[0][1] == elf
     assert info == info_original
 
 
