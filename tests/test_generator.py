@@ -7,6 +7,7 @@ import pytest
 from zhinst.toolkit import Waveforms
 from zhinst.core import compile_seqc
 
+
 @pytest.fixture()
 def generator(data_dir, mock_connection, shfqa):
 
@@ -18,6 +19,7 @@ def generator(data_dir, mock_connection, shfqa):
     )
 
     yield shfqa.qachannels[0].generator
+
 
 def test_enable_sequencer(shfqa, mock_connection):
     shfqa.qachannels[0].generator.enable_sequencer(single=True)
@@ -38,7 +40,7 @@ def test_load_sequencer_program_empty_string_none(generator):
         generator.load_sequencer_program(None)
 
 
-def test_wait_done(mock_connection,shfqa, generator):
+def test_wait_done(mock_connection, shfqa, generator):
     single = 0
     enable = iter([])
 
@@ -81,6 +83,7 @@ def test_load_sequencer_program(shfqa, generator, mock_connection):
     assert mock_connection.return_value.set.call_args[0][1] == elf
     assert info == info_original
 
+
 def test_write_to_waveform_memory(shfqa, generator, mock_connection):
 
     waveforms = Waveforms()
@@ -97,31 +100,72 @@ def test_write_to_waveform_memory(shfqa, generator, mock_connection):
     complex_wave.imag = np.ones(1000)
     complex_wave = complex_wave
 
-    assert mock_connection.return_value.set.call_args[0][0][0] == ('/dev1234/qachannels/0/generator/clearwave', 1)
-    assert mock_connection.return_value.set.call_args[0][0][1][0] == '/dev1234/qachannels/0/generator/waveforms/0/wave'
-    assert all (mock_connection.return_value.set.call_args[0][0][1][1] == np.ones(1000, dtype=np.complex128))
-    assert mock_connection.return_value.set.call_args[0][0][2][0] == '/dev1234/qachannels/0/generator/waveforms/1/wave'
-    assert all (mock_connection.return_value.set.call_args[0][0][2][1] == np.ones(1000, dtype=np.complex128))
-    assert mock_connection.return_value.set.call_args[0][0][3][0] == '/dev1234/qachannels/0/generator/waveforms/2/wave'
-    assert all (mock_connection.return_value.set.call_args[0][0][3][1] == complex_wave)
+    assert mock_connection.return_value.set.call_args[0][0][0] == (
+        "/dev1234/qachannels/0/generator/clearwave",
+        1,
+    )
+    assert (
+        mock_connection.return_value.set.call_args[0][0][1][0]
+        == "/dev1234/qachannels/0/generator/waveforms/0/wave"
+    )
+    assert all(
+        mock_connection.return_value.set.call_args[0][0][1][1]
+        == np.ones(1000, dtype=np.complex128)
+    )
+    assert (
+        mock_connection.return_value.set.call_args[0][0][2][0]
+        == "/dev1234/qachannels/0/generator/waveforms/1/wave"
+    )
+    assert all(
+        mock_connection.return_value.set.call_args[0][0][2][1]
+        == np.ones(1000, dtype=np.complex128)
+    )
+    assert (
+        mock_connection.return_value.set.call_args[0][0][3][0]
+        == "/dev1234/qachannels/0/generator/waveforms/2/wave"
+    )
+    assert all(mock_connection.return_value.set.call_args[0][0][3][1] == complex_wave)
 
     shfqa.qachannels[0].generator.write_to_waveform_memory(
         waveforms, clear_existing=False
     )
-    assert mock_connection.return_value.set.call_args[0][0][0][0] == '/dev1234/qachannels/0/generator/waveforms/0/wave'
-    assert all (mock_connection.return_value.set.call_args[0][0][0][1] == np.ones(1000, dtype=np.complex128))
-    assert mock_connection.return_value.set.call_args[0][0][1][0] == '/dev1234/qachannels/0/generator/waveforms/1/wave'
-    assert all (mock_connection.return_value.set.call_args[0][0][1][1] == np.ones(1000, dtype=np.complex128))
-    assert mock_connection.return_value.set.call_args[0][0][2][0] == '/dev1234/qachannels/0/generator/waveforms/2/wave'
-    assert all (mock_connection.return_value.set.call_args[0][0][2][1] == complex_wave)
+    assert (
+        mock_connection.return_value.set.call_args[0][0][0][0]
+        == "/dev1234/qachannels/0/generator/waveforms/0/wave"
+    )
+    assert all(
+        mock_connection.return_value.set.call_args[0][0][0][1]
+        == np.ones(1000, dtype=np.complex128)
+    )
+    assert (
+        mock_connection.return_value.set.call_args[0][0][1][0]
+        == "/dev1234/qachannels/0/generator/waveforms/1/wave"
+    )
+    assert all(
+        mock_connection.return_value.set.call_args[0][0][1][1]
+        == np.ones(1000, dtype=np.complex128)
+    )
+    assert (
+        mock_connection.return_value.set.call_args[0][0][2][0]
+        == "/dev1234/qachannels/0/generator/waveforms/2/wave"
+    )
+    assert all(mock_connection.return_value.set.call_args[0][0][2][1] == complex_wave)
 
     shfqa.qachannels[0].generator.write_to_waveform_memory(
         {0: np.ones(1000)}, clear_existing=True
     )
-    assert mock_connection.return_value.set.call_args[0][0][0] == ('/dev1234/qachannels/0/generator/clearwave', 1)
-    assert mock_connection.return_value.set.call_args[0][0][1][0] == '/dev1234/qachannels/0/generator/waveforms/0/wave'
-    assert all (mock_connection.return_value.set.call_args[0][0][1][1] == np.ones(1000, dtype=np.complex128))
-
+    assert mock_connection.return_value.set.call_args[0][0][0] == (
+        "/dev1234/qachannels/0/generator/clearwave",
+        1,
+    )
+    assert (
+        mock_connection.return_value.set.call_args[0][0][1][0]
+        == "/dev1234/qachannels/0/generator/waveforms/0/wave"
+    )
+    assert all(
+        mock_connection.return_value.set.call_args[0][0][1][1]
+        == np.ones(1000, dtype=np.complex128)
+    )
 
     with pytest.raises(RuntimeError) as e_info:
         shfqa.qachannels[0].generator.write_to_waveform_memory(waveforms_long)

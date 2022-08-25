@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.13.7
+      jupytext_version: 1.14.1
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -28,8 +28,7 @@ Requirements:
 
 * LabOne Version >= 22.02
 * Instruments:
-    1 x MF or UHF Instrument with DIG Option (HF2 does not support
-        multi-channel recording).
+    1 x MF or UHF Instrument with DIG Option (HF2 does not support multi-channel recording).
 
 ```python
 from zhinst.toolkit import Session
@@ -268,6 +267,8 @@ _, (ax1, ax2) = plt.subplots(2)
 # Plot the scope data with triggering disabled.
 plot_time_domain(ax1, data_no_trig, SCOPE_CHANNEL)
 ax1.set_title(f"{len(data_no_trig)} Scope records from {device} (triggering disabled)")
+
+plt.subplots_adjust(hspace = 1)
 
 # Plot the scope data with triggering enabled.
 plot_time_domain(ax2, data_with_trig, SCOPE_CHANNEL)
