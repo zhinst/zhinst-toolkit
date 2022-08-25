@@ -421,13 +421,13 @@ class Node:
 
     def __init__(self, root: "NodeTree", tree: tuple):
         self._root = root
-        self._tree = tree
+        self._tree = tuple(map(lambda element: element.lower(), tree))
 
     def __getattr__(self, name) -> "Node":
         return Node(self._root, self._tree + (name,))
 
     def __getitem__(self, name) -> "Node":
-        name = str(name).lower()
+        name = str(name)
         if "/" in name:
             name_list = name.split("/")
             if name_list[0]:

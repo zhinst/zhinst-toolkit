@@ -455,13 +455,13 @@ class NodeTree:
         """
         if not node.startswith("/"):
             try:
-                return "/" + self._prefix_hide + "/" + node  # type: ignore[operator]
+                return "/" + self._prefix_hide + "/" + node.lower()  # type: ignore
             except TypeError as error:
                 raise ValueError(
                     f"{node} is a relative path but should be a "
                     "absolute path (leading slash)"
                 ) from error
-        return node
+        return node.lower()
 
     @contextmanager
     def set_transaction(self) -> t.Generator[None, None, None]:

@@ -88,6 +88,13 @@ def test_to_raw_path(connection):
     assert tree.to_raw_path(Node(tree, tuple())) == "/dev1234"
 
 
+def test_to_raw_path_capital(connection):
+    tree = NodeTree(connection)
+    assert tree.to_raw_path("/dev1234/demods/0/enable") == "/dev1234/demods/0/enable"
+    assert tree.to_raw_path("/DEV1234/demods/0/enable") == "/dev1234/demods/0/enable"
+    assert tree.to_raw_path("/dev1234/Demods/0/Enable") == "/dev1234/demods/0/enable"
+
+
 def test_root_node(connection):
     tree = NodeTree(connection, "DEV1234")
 
@@ -145,6 +152,12 @@ def test_node_access(connection):
     with pytest.raises(KeyError) as e_info:
         tree.no.real.element()
     assert e_info.value.args[0] == str(tree.no.real.element)
+
+
+def test_node_access_capital(connection):
+    tree = NodeTree(connection, "DEV1234")
+    assert tree.demods[0].enable == tree.Demods[0].Enable
+    assert tree.demods[0].enable == tree["Demods/0/Enable"]
 
 
 def test_node(connection):
