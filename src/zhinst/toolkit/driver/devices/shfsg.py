@@ -68,7 +68,7 @@ class AWGCore(AWG):
 
     @property
     def available_marker_outputs(self) -> t.List[str]:
-        """List the available trigger slopes for the sequencer."""
+        """List the available trigger marker outputs for the sequencer."""
         return [
             option.enum
             for option in self.root.sgchannels[

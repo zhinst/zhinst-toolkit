@@ -225,7 +225,10 @@ class ModuleHandler:
         self._session = session
 
     def __repr__(self):
-        return f"LabOneModules({self._session.daq_server.host}:{self._session.daq_server.port})"
+        return str(
+            "LabOneModules("
+            f"{self._session.daq_server.host}:{self._session.daq_server.port})"
+        )
 
     def create_awg_module(self) -> tk_modules.BaseModule:
         """Create an instance of the AwgModule.

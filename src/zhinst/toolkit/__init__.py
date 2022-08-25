@@ -31,4 +31,5 @@ __all__ = [
     "PollFlags",
     "Session",
     "Waveforms",
+    "Sequence",
 ]
