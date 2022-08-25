@@ -8,6 +8,7 @@
 * Bugfix: Nodes with nameless options don't raise an exception when their enum attribute is called (`#165`).
 * Bugfix: Values of enumerated nodes can now be pickled (`#129`).
 * Bugfix: `SHFScope` `run()`  and `stop()` shows specified timeout value when `TimeoutError` is raised.
+* Bugfix: Allow capital letters in node paths. (`#173`).
 
 ## Version 0.3.5
 * Adapt AWG Waveform upload (`write_to_waveform_memory`) to append to existing transactions.
