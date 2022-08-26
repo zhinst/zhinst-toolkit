@@ -156,7 +156,7 @@ def test_node_access(connection):
 
 def test_node_access_capital(connection):
     tree = NodeTree(connection, "DEV1234")
-    assert tree.demods[0].enable == tree.Demods[0].Enable
+    assert tree.demods[0].enable != tree.Demods[0].Enable
     assert tree.demods[0].enable == tree["Demods/0/Enable"]
 
 

@@ -106,6 +106,9 @@ class NodeInfo:
         else:
             try:
                 self._info = next(iter(node.root.get_node_info(node).values()))
+                self._info["Node"] = self._info.get(
+                    "Node", node.root.node_to_raw_path(node)
+                ).lower()
             except KeyError as error:
                 self._info = {"Node": error.args[0]}
                 if self._check_partial(node):
@@ -260,7 +263,7 @@ class NodeInfo:
     @property
     def path(self) -> str:
         """Path (LabOne representation) of the node."""
-        return self._info["Node"].lower()
+        return self._info["Node"]
 
     @property
     def description(self) -> str:
@@ -421,13 +424,13 @@ class Node:
 
     def __init__(self, root: "NodeTree", tree: tuple):
         self._root = root
-        self._tree = tuple(map(lambda element: element.lower(), tree))
+        self._tree = tree
 
     def __getattr__(self, name) -> "Node":
         return Node(self._root, self._tree + (name,))
 
     def __getitem__(self, name) -> "Node":
-        name = str(name)
+        name = str(name).lower()
         if "/" in name:
             name_list = name.split("/")
             if name_list[0]:
