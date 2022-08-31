@@ -94,7 +94,7 @@ class AWG(Node):
         sequencer_program: t.Union[str, Sequence],
         **kwargs: t.Union[str, int],
     ) -> t.Tuple[bytes, t.Dict[str, t.Any]]:
-        """Compiles a sequencer program for the sepcific device.
+        """Compiles a sequencer program for the specific device.
 
         Args:
             sequencer_program: The sequencer program to compile.

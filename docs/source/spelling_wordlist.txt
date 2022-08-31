@@ -115,3 +115,5 @@ typename
 picklable
 informations
 Metaclass
+samplerate
+sampleclock
