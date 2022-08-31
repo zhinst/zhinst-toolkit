@@ -126,7 +126,7 @@ class AWG(Node):
             RuntimeError: `sequencer_program` is empty.
             RuntimeError: If the compilation failed.
 
-        .. versionadded:: 0.3.6
+        .. versionadded:: 0.4.0
         """
         if "SHFQC" in self._device_type:
             kwargs["sequencer"] = "sg" if "sgchannels" in self._tree else "qa"
@@ -182,7 +182,7 @@ class AWG(Node):
 
             `sequencer_program` does not accept empty strings
 
-        .. versionadded:: 0.3.6
+        .. versionadded:: 0.4.0
 
             Use offline compiler instead of AWG module to compile the sequencer
             program. This speeds of the compilation and also enables parallel

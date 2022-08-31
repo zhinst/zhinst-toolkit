@@ -1,6 +1,6 @@
 # zhinst-toolkit Changelog
 
-## Version 0.3.6
+## Version 0.4.0
 * Add new class `zhinst.toolkit.Sequence` that allows a more flexible use of 
   sequences in toolkit (`#141`).
 * Add support for session wide transactions that bundle set command from all 

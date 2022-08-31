@@ -84,7 +84,7 @@ class Transaction:
         Raises:
             Runtime Error if the transaction is already in progress
 
-        .. versionchanged:: 0.3.6
+        .. versionchanged:: 0.4.0
 
             add_callback added.
         """

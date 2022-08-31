@@ -17,7 +17,7 @@ These distributions will be installed automatically when installing zhinst-toolk
   functions to operate on these arrays.
 * `jsonschema <https://pypi.org/project/jsonschema/>`_ is an implementation of the JSON
   Schema specification for Python.
-* `zhinst <https://pypi.org/project/zhinst/>`_ is the low level python API for Zurich
+* `zhinst-core <https://pypi.org/project/zhinst-core/>`_ is the low level python API for Zurich
   Instruments devices.
 * `zhinst-utils <https://pypi.org/project/zhinst-utils/>`_ is a collection
   of helper functions for the LabOne® python API.

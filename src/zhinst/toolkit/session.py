@@ -739,7 +739,7 @@ class Session(Node):
         Args:
             connection: Existing connection.
 
-        .. versionadded:: 0.3.6
+        .. versionadded:: 0.4.0
         """
         is_hf2_server = "HF2" in connection.getString("/zi/about/dataserver")
         return cls(
@@ -933,7 +933,7 @@ class Session(Node):
                     device1.test[0].a(1)
                     device2.test[0].a(2)
 
-        .. versionadded:: 0.3.6
+        .. versionadded:: 0.4.0
         """
         self._multi_transaction.start()
         for device in self.devices.created_devices():
@@ -952,7 +952,7 @@ class Session(Node):
     def multi_transaction(self) -> Transaction:
         """Flag if a session wide transaction is in progress.
 
-        .. versionadded:: 0.3.6
+        .. versionadded:: 0.4.0
         """
         return self._multi_transaction
 

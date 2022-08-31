@@ -8,6 +8,7 @@ zhinst-toolkit exposes the following classes:
    :recursive:
 
    ~zhinst.toolkit.session.Session
+   ~zhinst.toolkit.sequence.Sequence
    ~zhinst.toolkit.waveform.Waveforms
    ~zhinst.toolkit.command_table.CommandTable
    ~zhinst.toolkit.session.PollFlags

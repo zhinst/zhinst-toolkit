@@ -8,7 +8,7 @@ jupyter:
       format_version: '1.3'
       jupytext_version: 1.14.1
   kernelspec:
-    display_name: Python 3 (ipykernel)
+    display_name: Python 3.10.6 64-bit ('toolkit')
     language: python
     name: python3
 ---
@@ -34,7 +34,7 @@ device = session.connect_device("DEVXXXX")
 ### Base configuration
 
 ```python
-OUT_CHANNEL = 0
+OUT_CHANNEL = 0 
 AWG_CHANNEL = 0
 
 device.system.awg.channelgrouping(0)
@@ -106,4 +106,8 @@ with device.set_transaction():
     device.awgs[0].write_to_waveform_memory(waveforms)
     device.awgs[0].single(True)
     device.awgs[0].enable(True)
+```
+
+```python
+
 ```
