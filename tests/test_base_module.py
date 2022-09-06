@@ -81,3 +81,9 @@ def test_unsubscribe(base_module, mock_connection):
     module_mock = mock_connection.return_value.awgModule.return_value
     base_module.unsubscribe(base_module.test)
     module_mock.unsubscribe.assert_called_with("/test")
+
+
+def test_execute(base_module, mock_connection):
+    module_mock = mock_connection.return_value.awgModule.return_value
+    base_module.execute()
+    module_mock.execute.assert_called_once()

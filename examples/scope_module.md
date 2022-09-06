@@ -154,7 +154,7 @@ def check_scope_record_flags(scope_records, num_records):
 
 def get_scope_records(scope_module, num_records: int):
     """Obtain scope records from the device using an instance of the Scope Module."""
-    scope_module.raw_module.execute()
+    scope_module.execute()
     device.scopes[0].enable(True)
     session.sync()
 
