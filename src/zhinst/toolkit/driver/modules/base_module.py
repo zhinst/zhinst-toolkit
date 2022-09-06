@@ -163,6 +163,16 @@ class BaseModule(Node):
         """
         self._raw_module.unsubscribe(signal.node_info.path)
 
+    def execute(self) -> None:
+        """Start the module execution.
+
+        Subscription or unsubscription is not possible until the execution is
+        finished.
+
+        .. versionadded:: 0.4.1
+        """
+        self._raw_module.execute()
+
     @property
     def raw_module(self) -> ZIModule:
         """Underlying core module."""

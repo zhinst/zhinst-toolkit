@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 0.4.1
+* For all LabOne modules forward the `execute` function from the zhinst-core in zhinst-toolkit
+
 ## Version 0.4.0
 * Add new class `zhinst.toolkit.Sequence` that allows a more flexible use of 
   sequences in toolkit (`#141`).

@@ -177,7 +177,7 @@ pid_advisor.pid.i(0)
 pid_advisor.pid.d(0)
 
 # Start the module thread
-pid_advisor.raw_module.execute()
+pid_advisor.execute()
 pid_advisor.calculate(1)
 pid_advisor.wait_done(timeout=1000)
 
