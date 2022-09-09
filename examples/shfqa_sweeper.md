@@ -69,8 +69,8 @@ sweeper.sweep.stop_freq(300e6)
 sweeper.sweep.num_points(501)
 sweeper.sweep.oscillator_gain(0.8)
 # The sequencer is used by default but can be disabled manually
-# (sequencer-based sweep (True) or the slower host-driven sweep (False))
-sweeper.sweep.use_sequencer=True
+# sweeper.sweep.mode("host-driven")
+sweeper.sweep.mode("sequencer-based")
 
 sweeper.average.integration_time(100e-6)
 sweeper.average.num_averages(200)
