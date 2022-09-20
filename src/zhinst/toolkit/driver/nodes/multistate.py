@@ -94,7 +94,7 @@ class MultiState(Node):
         Returns:
             A dictionary with the qudit index keys and result vector values.
         """
-        utils.get_qudits_results(
+        return utils.get_qudits_results(
             self._daq_server,
             self._serial,
             self._index,
