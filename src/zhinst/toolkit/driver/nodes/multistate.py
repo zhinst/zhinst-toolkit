@@ -48,7 +48,7 @@ class Qudit(Node):
             enable: Whether to enable the qudit. (default: True)
 
         """
-        settings = utils.get_settings_transactions(
+        settings = utils.get_settings_transaction(
             self._serial,
             self._readout_channel,
             int(self._tree[-1]),
