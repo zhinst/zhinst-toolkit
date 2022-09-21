@@ -27,7 +27,11 @@ Requirements:
 * Loopback configuration between input and output of channel 0
 
 ```python
+import typing as t
+import numpy as np
+import matplotlib.pyplot as plt
 from zhinst.toolkit import Session, SHFQAChannelMode, Waveforms
+from zhinst.utils.shfqa.multistate import QuditSettings
 
 session = Session("localhost")
 device = session.connect_device("DEVXXXX")
@@ -54,7 +58,7 @@ device.qachannels[CHANNEL_INDEX].output.on(1)
 
 ```python
 # trigger the scope using the sequencer
-SCOPE_IDX = 0  # there is currently only one scope on the dvice
+SCOPE_IDX = 0  # there is currently only one scope on the device
 SCOPE_TRIGGER_CHANNEL = f"chan{CHANNEL_INDEX}seqmon0"
 device.scopes[SCOPE_IDX].trigger.channel(SCOPE_TRIGGER_CHANNEL)
 
@@ -97,8 +101,6 @@ assert total_num_states <= device.max_qubits_per_channel, (
 ```
 
 ```python
-import numpy as np
-
 # load simulated reference traces exported using ../model/multi_state_discrimination.ipynb
 signals_simulated = np.loadtxt(
     "resources/example_multistate_signals.csv", dtype="complex128"
@@ -148,10 +150,6 @@ for qudit_idx, num_states in QUDITS_NUM_STATES.items():
 Next, we plot the signals before uploading them to the device
 
 ```python
-import matplotlib.pyplot as plt
-import typing as t
-
-
 def plot_complex_signals(
     signals: t.List[np.ndarray],
     signals_time: np.ndarray,
@@ -384,8 +382,6 @@ for qudit_idx, ref_traces in qudits_ref_traces.items():
 The multistate utilities are used to infer the qudit settings from the list of reference traces.
 
 ```python
-from zhinst.utils.shfqa.multistate import QuditSettings
-
 all_qudit_settings = {}
 
 for qudit_idx, ref_traces in qudits_ref_traces.items():
