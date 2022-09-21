@@ -25,20 +25,20 @@ def test_configure_qudit(mock_connection, multistate):
     with patch("zhinst.toolkit.driver.nodes.multistate.utils", autospec=True) as utils:
         ref_trace = np.zeros(400, dtype=np.float)
         settings = QuditSettings([ref_trace, ref_trace, ref_trace, ref_trace])
-        utils.get_settings_transactions.return_value = [
+        utils.get_settings_transaction.return_value = [
             ("/dev1234/qachannels/0/centerfreq", 1),
             ("/dev1234/qachannels/1/centerfreq", 1),
         ]
         multistate.qudits[0].configure(settings)
-        utils.get_settings_transactions.assert_called_with(
+        utils.get_settings_transaction.assert_called_with(
             "DEV1234", 0, 0, settings, enable=True
         )
         mock_connection.return_value.set.assert_called_with(
-            utils.get_settings_transactions.return_value
+            utils.get_settings_transaction.return_value
         )
         # Enable = False
         multistate.qudits[0].configure(settings, enable=False)
-        utils.get_settings_transactions.assert_called_with(
+        utils.get_settings_transaction.assert_called_with(
             "DEV1234", 0, 0, settings, enable=False
         )
 
@@ -47,17 +47,17 @@ def test_configure_qudit_existing_transaction(mock_connection, shfqa, multistate
     with patch("zhinst.toolkit.driver.nodes.multistate.utils", autospec=True) as utils:
         ref_trace = np.zeros(400, dtype=np.float)
         settings = QuditSettings([ref_trace, ref_trace, ref_trace, ref_trace])
-        utils.get_settings_transactions.return_value = [
+        utils.get_settings_transaction.return_value = [
             ("/dev1234/qachannels/0/centerfreq", 1),
             ("/dev1234/qachannels/1/centerfreq", 1),
         ]
         with shfqa.set_transaction():
             shfqa.qachannels[3].centerfreq(1, parse=False)
             multistate.qudits[0].configure(settings)
-        utils.get_settings_transactions.assert_called_with(
+        utils.get_settings_transaction.assert_called_with(
             "DEV1234", 0, 0, settings, enable=True
         )
         mock_connection.return_value.set.assert_called_with(
             [("/dev1234/qachannels/3/centerfreq", 1)]
-            + utils.get_settings_transactions.return_value
+            + utils.get_settings_transaction.return_value
         )

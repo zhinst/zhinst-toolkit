@@ -41,7 +41,7 @@ class Qudit(Node):
         self,
         qudit_settings: utils.QuditSettings,
         enable: bool = True,
-    ) -> t.List[str]:
+    ) -> None:
         """Compiles a list of transactions to apply the qudit settings to the device.
 
         Args:
