@@ -117,3 +117,9 @@ informations
 Metaclass
 samplerate
 sampleclock
+multistate
+Qudit
+Qudits
+qudit
+qudits
+integrators
