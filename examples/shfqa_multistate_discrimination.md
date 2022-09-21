@@ -434,6 +434,12 @@ After defining the qudit settings, we can configure them to the device.
 # Clear the qudit settings on the device
 device.qachannels[CHANNEL_INDEX].readout.multistate.clear(1)
 
+# Make sure all qudits are disabled prior to configuring them
+# Note: this is needed with LabOne 22.08 as the LabOne data server does not
+# get informed about the the disabling of the qudits by the clearing above.
+# This firmware issue will get fixed in the next (patch) release.
+device.qachannels[CHANNEL_INDEX].readout.multistate.qudits["*"].enable(0)
+
 # Configure the new qudit settings on the device
 for qudit_idx, qudit_settings in all_qudit_settings.items():
     device.qachannels[CHANNEL_INDEX].readout.multistate.qudits[qudit_idx].configure(
@@ -800,9 +806,5 @@ def plot_matrix(matrix, title=None):
 
 for qudit_idx, fidelity_matrix in qudits_fidelity_matrix.items():
     plot_matrix(fidelity_matrix, title=f"Qudit {qudit_idx}")
-
-```
-
-```python
 
 ```
