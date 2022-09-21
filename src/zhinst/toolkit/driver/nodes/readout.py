@@ -208,7 +208,7 @@ class Readout(Node):
 
     @lazy_property
     def multistate(self) -> MultiState:
-        """MultiState"""
+        """Multistate discrimination node tree branch."""
         return MultiState(
             self._root, self._tree + ("multistate",), self._serial, self._index
         )

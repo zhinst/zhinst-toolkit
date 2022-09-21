@@ -11,9 +11,10 @@ from zhinst.toolkit.nodetree.helper import (
     create_or_append_set_transaction,
 )
 
+
 class Qudit(Node):
     """Single Qudit node.
-    
+
     Implements basic functionality of a single qudit node, e.g applying the
     basic configuration.
 
