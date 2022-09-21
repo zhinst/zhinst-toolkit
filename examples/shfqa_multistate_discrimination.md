@@ -781,7 +781,7 @@ for qudit_idx, result_vector in qudits_results.items():
 ```
 
 ```python
-def plot_matrix(matrix, title=None):
+def plot_fidelity_matrix(matrix, title=None):
     fig, ax = plt.subplots()
     min_val, max_val = 0, 5
 
@@ -792,6 +792,9 @@ def plot_matrix(matrix, title=None):
         color = "black" if value < 0.5 else "white"
         ax.text(ix, iy, f"{value:0.3f}", va="center", ha="center", color=color)
 
+    plt.xlabel("Measured state")
+    plt.ylabel("Expected state")
+
     if title:
         plt.title(title)
 
@@ -799,6 +802,6 @@ def plot_matrix(matrix, title=None):
 
 
 for qudit_idx, fidelity_matrix in qudits_fidelity_matrix.items():
-    plot_matrix(fidelity_matrix, title=f"Qudit {qudit_idx}")
+    plot_fidelity_matrix(fidelity_matrix, title=f"Qudit {qudit_idx}")
 
 ```
