@@ -472,8 +472,7 @@ Now, we reshape the integration results to  using the when playing back the simu
 
 ```python
 def reshape_integration_results(results, num_repetitions) -> t.List[np.ndarray]:
-    """Helper function, which for each qudit extracts the relevant reference measurements from the entire set readout integration results"""
-    # reshape each integration result according to the number of states and number of repetitions
+    """Reshape integration results according to the waveform index mapping."""
     qudits_extracted_results = []
 
     for qudit_idx, result in results.items():
