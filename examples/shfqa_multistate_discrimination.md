@@ -86,7 +86,10 @@ In an actual multistate discrimination measurement, the same readout pulse must 
 
 ```python
 # dictionary mapping the qudit index to the number of states
-QUDITS_NUM_STATES = {0: 2, 1: 4, 2: 3, 3: 2, 4: 4}
+if device.max_qubits_per_channel >= 16:
+    QUDITS_NUM_STATES = {0: 3, 1: 4, 2: 3, 3: 2, 4: 4}
+else:
+    QUDITS_NUM_STATES = {0: 3, 1: 4}
 
 # Note: Since we only have 16 (8 on the SHFQA2 without 16W option) waveform generator units,
 # we have to restrict the total number of states, summed over all qudits, to less than 16
@@ -390,7 +393,12 @@ for qudit_idx, ref_traces in qudits_ref_traces.items():
 
 ```
 
-Plot the integration weights vectors
+### Plot the integration weights vectors
+
+Note: there are d * (d - 1) / 2 weight vectors for each qudit:
+* d = 2 (qubit): 1 weight vector
+* d = 3 (qutrit): 3 weight vectors
+* d = 4 (ququad): 6 weight vectors
 
 ```python
 def plot_integration_weights(
@@ -468,12 +476,15 @@ qudit_int_results = device.qachannels[
 Now, we reshape the integration results to  using the when playing back the simulated waveforms.
 
 ```python
-def reshape_integration_results(results, num_repetitions) -> t.List[np.ndarray]:
+def reshape_integration_results(
+    results, qudits_num_states, wvfm_idx_mapping, num_repetitions
+) -> t.List[np.ndarray]:
     """Reshape integration results according to the waveform index mapping."""
     qudits_extracted_results = []
+    total_num_states = sum(qudits_num_states.values())
 
     for qudit_idx, result in results.items():
-        num_states = QUDITS_NUM_STATES[qudit_idx]
+        num_states = qudits_num_states[qudit_idx]
         # we expect the number of integrators to be the number of states minus one:
         num_integrators = num_states - 1
         assert len(result) == num_integrators
@@ -489,7 +500,7 @@ def reshape_integration_results(results, num_repetitions) -> t.List[np.ndarray]:
 
             # extract the results corresponding to the specific qudit states
             for state_idx in range(num_states):
-                trace_idx = WAVEFORM_IDX_MAPPING[(qudit_idx, state_idx)]
+                trace_idx = wvfm_idx_mapping[(qudit_idx, state_idx)]
                 # the reference trace is expected to be repeated with periodicity given by "total_num_states"
                 extracted_results[integ_idx, :, state_idx] = result[
                     trace_idx::total_num_states
@@ -502,7 +513,10 @@ def reshape_integration_results(results, num_repetitions) -> t.List[np.ndarray]:
 
 
 qudits_ref_results = reshape_integration_results(
-    qudit_int_results, num_repetitions=NUM_REPETITONS
+    qudit_int_results,
+    qudits_num_states=QUDITS_NUM_STATES,
+    wvfm_idx_mapping=WAVEFORM_IDX_MAPPING,
+    num_repetitions=NUM_REPETITONS,
 )
 
 ```
@@ -639,10 +653,9 @@ def plot_threshold_histograms(
 
 
 for qudit_idx, results in enumerate(readout_results_1vs1):
-    qudit_settings = all_qudit_settings[qudit_idx]
     plot_threshold_histograms(
         results,
-        qudit_settings,
+        all_qudit_settings[qudit_idx],
         title=f"Histograms of integration results for qudit {qudit_idx} ({QUDITS_NUM_STATES[qudit_idx]} states)",
     )
 
