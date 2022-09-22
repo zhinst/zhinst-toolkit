@@ -143,7 +143,7 @@ for qudit_idx, num_states in QUDITS_NUM_STATES.items():
     for signal_idx, signal in enumerate(signals_simulated[:num_states]):
         states_signals.append(
             signal
-            * np.exp(1j * QUDITS_FREQUENCIES[qudit_idx] * signals_time)
+            * np.exp(2j * np.pi * QUDITS_FREQUENCIES[qudit_idx] * signals_time)
             / len(QUDITS_NUM_STATES)
         )
     qudits_signals[qudit_idx] = states_signals
