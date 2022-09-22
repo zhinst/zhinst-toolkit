@@ -77,6 +77,7 @@ print(awg_program)
 
 ```python
 elf_file, info = device.awgs[0].compile_sequencer_program(awg_program)
+device.awgs[0].elf.data(elf_file)
 info
 ```
 
@@ -102,7 +103,6 @@ This can be done in a single transaction which reduces the network communication
 
 ```python
 with device.set_transaction():
-    device.awgs[0].elf.data(elf_file)
     device.awgs[0].write_to_waveform_memory(waveforms)
     device.awgs[0].single(True)
     device.awgs[0].enable(True)
