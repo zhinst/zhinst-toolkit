@@ -7,7 +7,9 @@ import zhinst.utils.shfqa as utils
 
 from zhinst.toolkit.interface import AveragingMode
 from zhinst.toolkit.nodetree import Node, NodeTree
+from zhinst.toolkit.nodetree.helper import lazy_property
 from zhinst.toolkit.waveform import Waveforms
+from zhinst.toolkit.driver.nodes.multistate import MultiState
 
 logger = logging.getLogger(__name__)
 
@@ -203,3 +205,10 @@ class Readout(Node):
         for slot, weight in enumerate(weights_raw.values()):
             weights[slot] = weight[0]["vector"]
         return weights
+
+    @lazy_property
+    def multistate(self) -> MultiState:
+        """Multistate discrimination node tree branch."""
+        return MultiState(
+            self._root, self._tree + ("multistate",), self._serial, self._index
+        )

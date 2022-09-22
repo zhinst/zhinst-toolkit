@@ -131,4 +131,5 @@ zhinst-toolkit.
    shfqa_qubit_readout_measurement
    shfqa_qubit_readout_weights
    shfqa_sweeper
+   shfqa_multistate_discrimination
 
