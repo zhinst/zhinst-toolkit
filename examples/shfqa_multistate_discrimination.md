@@ -593,7 +593,7 @@ def plot_threshold_histograms(
     NUM_OF_FIGURES_PER_ROW = 3
     fig_height = 10 if len(qudit_settings.thresholds) > NUM_OF_FIGURES_PER_ROW else 5
     fig_width = 5 * min(len(qudit_settings.thresholds), NUM_OF_FIGURES_PER_ROW)
-    figsize = (16, fig_height)
+    figsize = (fig_width, fig_height)
     plt.figure(figsize=figsize)
 
     # Number of subplots
