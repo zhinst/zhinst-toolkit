@@ -8,7 +8,7 @@ from pathlib import Path
 import requests
 from jupytext import cli as jupytext_cli
 
-BASE_EXAMPLE_URL = "https://docs.zhinst.com/zhinst-toolkit/en/latest/examples"
+BASE_EXAMPLE_URL = "https://docs.zhinst.com/zhinst-toolkit/notebooks"
 EXAMPLES_DIR = Path(__file__).parent.parent / "examples"
 EXAMPLES_ONLY_SYNC = ["nodetree.md"]
 EXCLUDED_FILES = ["README.md"]
