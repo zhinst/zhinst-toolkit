@@ -473,7 +473,7 @@ qudit_int_results = device.qachannels[
 
 ```
 
-Now, we reshape the integration results to  using the when playing back the simulated waveforms.
+Now, we reshape the integration results according to the order of the played simulated waveforms.
 
 ```python
 def reshape_integration_results(
