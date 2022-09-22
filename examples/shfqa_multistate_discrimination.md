@@ -129,7 +129,7 @@ Here, we define different modulation frequencies for each qudit and modulate the
 
 ```python
 # dictionary mapping the qudit index to the modulation frequency
-QUDITS_FREQUENCIES = {0: -100e6, 1: -50e6, 2: 0e6, 3: 50e6, 4: 100e6}
+QUDITS_FREQUENCIES = {0: -10e6, 1: -5e6, 2: 0e6, 3: 5e6, 4: 10e6}
 
 
 qudits_signals = {}
