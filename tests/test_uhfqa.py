@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from unittest.mock import patch
 
 from zhinst.toolkit import Waveforms
 from zhinst.toolkit.driver.devices.uhfqa import QAS, UHFQA, Integration
@@ -134,19 +135,22 @@ def test_qas_crosstalk_matrix(uhfqa, mock_connection):
         uhfqa.qas[0].crosstalk_matrix(matrix2)
 
 
-def test_awg(data_dir, mock_connection, uhfqa):
-    json_path = data_dir / "nodedoc_awg_test.json"
-    with json_path.open("r", encoding="UTF-8") as file:
-        nodes_json = file.read()
-    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
-        nodes_json
-    )
+def test_awg(mock_connection, uhfqa):
     mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
     assert len(uhfqa.awgs) == 1
     assert isinstance(uhfqa.awgs[0], AWG)
     # Wildcards nodes will be converted into normal Nodes
     assert not isinstance(uhfqa.awgs["*"], AWG)
     assert isinstance(uhfqa.awgs["*"], Node)
+
+
+def test_awg_compiler(mock_connection, uhfqa):
+    mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
+    with patch(
+        "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
+    ) as compile_seqc:
+        uhfqa.awgs[0].compile_sequencer_program("test")
+        compile_seqc.assert_called_once_with("test", "UHFQA", "AWG,FOOBAR")
 
 
 class TestWriteIntegrationWeights:

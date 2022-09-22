@@ -10,14 +10,6 @@ from zhinst.core import compile_seqc
 
 @pytest.fixture()
 def generator(data_dir, mock_connection, shfqa):
-
-    json_path = data_dir / "nodedoc_awg_test.json"
-    with json_path.open("r", encoding="UTF-8") as file:
-        nodes_json = file.read()
-    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
-        nodes_json
-    )
-
     yield shfqa.qachannels[0].generator
 
 

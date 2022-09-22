@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import patch
 
 from zhinst.toolkit.driver.devices.hdawg import AWG, HDAWG
 from zhinst.toolkit.nodetree import Node
@@ -66,15 +67,21 @@ def test_enable_qccs_mode(mock_connection, hdawg):
     )
 
 
-def test_awg(data_dir, mock_connection, hdawg):
-    json_path = data_dir / "nodedoc_awg_test.json"
-    with json_path.open("r", encoding="UTF-8") as file:
-        nodes_json = file.read()
-    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
-        nodes_json
-    )
+def test_awg(hdawg):
     assert len(hdawg.awgs) == 4
     assert isinstance(hdawg.awgs[0], AWG)
     # Wildcards nodes will be converted into normal Nodes
     assert not isinstance(hdawg.awgs["*"], AWG)
     assert isinstance(hdawg.awgs["*"], Node)
+
+
+def test_awg_compiler(mock_connection, hdawg):
+    mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
+    mock_connection.return_value.getDouble.return_value = 10000
+    with patch(
+        "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
+    ) as compile_seqc:
+        hdawg.awgs[0].compile_sequencer_program("test")
+        compile_seqc.assert_called_once_with(
+            "test", "HDAWG4", "AWG,FOOBAR", samplerate=10000
+        )

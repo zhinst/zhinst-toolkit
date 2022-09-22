@@ -24,13 +24,7 @@ def test_sgchannels(shfsg, mock_connection):
     assert isinstance(shfsg.sgchannels["*"], Node)
 
 
-def test_sg_awg(shfsg, data_dir, mock_connection):
-    json_path = data_dir / "nodedoc_awg_test.json"
-    with json_path.open("r", encoding="UTF-8") as file:
-        nodes_json = file.read()
-    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
-        nodes_json
-    )
+def test_sg_awg(shfsg):
     assert isinstance(shfsg.sgchannels[0].awg, AWG)
     assert shfsg.sgchannels[0].awg.root == shfsg.root
     assert shfsg.sgchannels[0].awg.raw_tree == shfsg.raw_tree + (
@@ -40,14 +34,16 @@ def test_sg_awg(shfsg, data_dir, mock_connection):
     )
 
 
-def test_sg_awg_modulation_freq(mock_connection, shfsg, data_dir):
-    json_path = data_dir / "nodedoc_awg_test.json"
-    with json_path.open("r", encoding="UTF-8") as file:
-        nodes_json = file.read()
-    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
-        nodes_json
-    )
+def test_sg_awg_compiler(mock_connection, shfsg):
+    mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
+    with patch(
+        "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
+    ) as compile_seqc:
+        shfsg.sgchannels[0].awg.compile_sequencer_program("test")
+        compile_seqc.assert_called_once_with("test", "SHFSG8", "AWG,FOOBAR")
 
+
+def test_sg_awg_modulation_freq(mock_connection, shfsg, data_dir):
     mock_connection.return_value.getInt.return_value = 0
     shfsg.sgchannels[0].awg_modulation_freq()
     mock_connection.return_value.getInt.assert_called_with(
@@ -67,13 +63,6 @@ def test_sg_awg_modulation_freq(mock_connection, shfsg, data_dir):
 
 
 def test_awg_configure_marker_and_trigger(data_dir, mock_connection, shfsg):
-    json_path = data_dir / "nodedoc_awg_test.json"
-    with json_path.open("r", encoding="UTF-8") as file:
-        nodes_json = file.read()
-    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
-        nodes_json
-    )
-
     with patch("zhinst.toolkit.driver.devices.shfsg.utils", autospec=True) as utils:
         shfsg.sgchannels[0].awg.configure_marker_and_trigger(
             trigger_in_source="test1",

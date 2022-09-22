@@ -63,12 +63,6 @@ def test_qa_configure_channel(mock_connection, shfqc):
 
 
 def test_qa_generator(shfqc, data_dir, mock_connection):
-    json_path = data_dir / "nodedoc_awg_test.json"
-    with json_path.open("r", encoding="UTF-8") as file:
-        nodes_json = file.read()
-    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
-        nodes_json
-    )
     assert isinstance(shfqc.qachannels[0].generator, Generator)
     assert shfqc.qachannels[0].generator.root == shfqc.root
     assert shfqc.qachannels[0].generator.raw_tree == shfqc.raw_tree + (
@@ -88,7 +82,7 @@ def test_qa_readout(shfqc):
     )
 
 
-def test_sgchannels(shfqc, mock_connection):
+def test_sgchannels(shfqc):
     assert len(shfqc.sgchannels) == 6
     assert isinstance(shfqc.sgchannels[0], SGChannel)
     # Wildcards nodes will be converted into normal Nodes
@@ -96,13 +90,7 @@ def test_sgchannels(shfqc, mock_connection):
     assert isinstance(shfqc.sgchannels["*"], Node)
 
 
-def test_sg_awg(shfqc, data_dir, mock_connection):
-    json_path = data_dir / "nodedoc_awg_test.json"
-    with json_path.open("r", encoding="UTF-8") as file:
-        nodes_json = file.read()
-    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
-        nodes_json
-    )
+def test_sg_awg(shfqc):
     assert isinstance(shfqc.sgchannels[0].awg, AWG)
     assert shfqc.sgchannels[0].awg.root == shfqc.root
     assert shfqc.sgchannels[0].awg.raw_tree == shfqc.raw_tree + (
@@ -112,14 +100,29 @@ def test_sg_awg(shfqc, data_dir, mock_connection):
     )
 
 
-def test_sg_awg_modulation_freq(mock_connection, shfqc, data_dir):
-    json_path = data_dir / "nodedoc_awg_test.json"
-    with json_path.open("r", encoding="UTF-8") as file:
-        nodes_json = file.read()
-    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
-        nodes_json
-    )
+def test_sg_awg_compiler(mock_connection, shfqc):
+    mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
+    with patch(
+        "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
+    ) as compile_seqc:
+        shfqc.sgchannels[0].awg.compile_sequencer_program("test")
+        compile_seqc.assert_called_once_with(
+            "test", "SHFQC", "AWG,FOOBAR", sequencer="sg"
+        )
 
+
+def test_qa_awg_compiler(mock_connection, shfqc):
+    mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
+    with patch(
+        "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
+    ) as compile_seqc:
+        shfqc.qachannels[0].generator.compile_sequencer_program("test")
+        compile_seqc.assert_called_once_with(
+            "test", "SHFQC", "AWG,FOOBAR", sequencer="qa"
+        )
+
+
+def test_sg_awg_modulation_freq(mock_connection, shfqc):
     mock_connection.return_value.getInt.return_value = 0
     shfqc.sgchannels[0].awg_modulation_freq()
     mock_connection.return_value.getInt.assert_called_with(
@@ -139,13 +142,6 @@ def test_sg_awg_modulation_freq(mock_connection, shfqc, data_dir):
 
 
 def test_awg_configure_marker_and_trigger(data_dir, mock_connection, shfqc):
-    json_path = data_dir / "nodedoc_awg_test.json"
-    with json_path.open("r", encoding="UTF-8") as file:
-        nodes_json = file.read()
-    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
-        nodes_json
-    )
-
     with patch("zhinst.toolkit.driver.devices.shfsg.utils", autospec=True) as utils:
         shfqc.sgchannels[0].awg.configure_marker_and_trigger(
             trigger_in_source="test1",
