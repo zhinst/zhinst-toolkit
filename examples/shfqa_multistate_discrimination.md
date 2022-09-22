@@ -447,7 +447,7 @@ device.qachannels[CHANNEL_INDEX].readout.multistate.enable(1)
 
 ### Measure the integration results
 
-Here, we measure the integration results and plot histograms. This intermediate is useful for debugging but can be skipped by directly going to the next section, where we measure the results from the discrimination.
+Here, we measure the integration results and plot histograms. This intermediate step is useful for debugging. It is possible to skip this section and directly execute the next section, where we measure the results from the discrimination unit.
 
 ```python
 result_length = NUM_REPETITONS * total_num_states
@@ -590,12 +590,15 @@ def plot_threshold_histograms(
 ):
 
     # Figure size
-    figsize = (16, 10)
+    NUM_OF_FIGURES_PER_ROW = 3
+    fig_height = 10 if len(qudit_settings.thresholds) > NUM_OF_FIGURES_PER_ROW else 5
+    fig_width = 5 * min(len(qudit_settings.thresholds), NUM_OF_FIGURES_PER_ROW)
+    figsize = (16, fig_height)
     plt.figure(figsize=figsize)
 
     # Number of subplots
-    subplots_rows = 2 if len(qudit_settings.thresholds) > 3 else 1
-    subplots_cols = min(len(qudit_settings.thresholds), 3)
+    subplots_rows = 2 if len(qudit_settings.thresholds) > NUM_OF_FIGURES_PER_ROW else 1
+    subplots_cols = min(len(qudit_settings.thresholds), NUM_OF_FIGURES_PER_ROW)
 
     for threshold_idx, threshold in enumerate(qudit_settings.thresholds):
         plt.subplot(subplots_rows, subplots_cols, threshold_idx + 1)
@@ -798,7 +801,7 @@ def plot_fidelity_matrix(matrix, title=None):
     if title:
         plt.title(title)
 
-    plt.show
+    plt.show()
 
 
 for qudit_idx, fidelity_matrix in qudits_fidelity_matrix.items():
