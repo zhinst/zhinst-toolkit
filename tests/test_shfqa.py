@@ -61,13 +61,7 @@ def test_qa_configure_channel(mock_connection, shfqa):
         )
 
 
-def test_qa_generator(shfqa, data_dir, mock_connection):
-    json_path = data_dir / "nodedoc_awg_test.json"
-    with json_path.open("r", encoding="UTF-8") as file:
-        nodes_json = file.read()
-    mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
-        nodes_json
-    )
+def test_qa_generator(shfqa):
     assert isinstance(shfqa.qachannels[0].generator, Generator)
     assert shfqa.qachannels[0].generator.root == shfqa.root
     assert shfqa.qachannels[0].generator.raw_tree == shfqa.raw_tree + (
@@ -75,6 +69,15 @@ def test_qa_generator(shfqa, data_dir, mock_connection):
         "0",
         "generator",
     )
+
+
+def test_qa_generator_compiler(mock_connection, shfqa):
+    mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
+    with patch(
+        "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
+    ) as compile_seqc:
+        shfqa.qachannels[0].generator.compile_sequencer_program("test")
+        compile_seqc.assert_called_once_with("test", "SHFQA4", "AWG,FOOBAR")
 
 
 def test_qa_readout(shfqa):

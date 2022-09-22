@@ -5,6 +5,8 @@
   * shfqa.qachannels[n].readout.multistate.qudits[m].configure(settings)
   * shfqa.qachannels[n].readout.multistate.get_qudits_results()
 * Added new example for the multistate discrimination (shfqa_multistate_discrimination) for the SHFQA
+* Fixed issue `#181` (Wrong _device_type of awg node of UHFQA/UHFLI) which prevented 
+  the compilation of sequences.
 
 ## Version 0.4.1
 * For all LabOne modules forward the `execute` function from the zhinst-core in zhinst-toolkit
