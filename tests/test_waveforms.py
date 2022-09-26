@@ -1,7 +1,11 @@
 import numpy as np
 import pytest
+import json
+
+from zhinst.core import compile_seqc
 
 from zhinst.toolkit.waveform import Waveforms, Wave, OutputType
+from zhinst.toolkit.exceptions import ValidationError
 
 
 def test_dict_behavior():
@@ -117,12 +121,6 @@ def test_get_raw_vector():
     with pytest.warns(RuntimeWarning):
         result3 = waveform.get_raw_vector(3, complex_output=True)
     assert all(result3 == np.ones(1008, dtype=np.complex128))
-
-    # invalid length
-    with pytest.raises(ValueError):
-        waveform.get_raw_vector(0, target_length=1000)
-    with pytest.raises(ValueError):
-        waveform.get_raw_vector(0, target_length=2000)
 
 
 def test_assign():
@@ -240,3 +238,141 @@ wave test2 = placeholder(1008, false, false);
 assignWaveIndex(2, test1, 1, test2, 4);
 assignWaveIndex(placeholder(1008, false, false), placeholder(1008, false, false), 5);"""
     )
+
+
+def test_validate_ok():
+    waveform = Waveforms()
+    waveform[1] = (np.ones(512), np.ones(512), 15 * np.ones(512))
+    waveform[5] = (np.ones(256),)
+    seq, _ = compile_seqc(waveform.get_sequence_snippet(), "HDAWG8", "", samplerate=0.0)
+    waveform.validate(seq)
+
+
+def test_validate_str():
+    waveform = Waveforms()
+    waveform[1] = (np.ones(512), np.ones(512), 15 * np.ones(512))
+    waveform[5] = (np.ones(256),)
+
+    info = """\
+{"waveforms":[{"name":"__filler_2_4","filename":"","function":"","channels":"1","marker\
+_bits":"0","length":"32","timestamp":"0000000000000000","play_config":"0"},{"name":"__p\
+layWave_1_2","filename":"","function":"","channels":"2","marker_bits":"2;2","length":"5\
+12","timestamp":"0000000000000000","play_config":"256884611"},{"name":"__filler_2_5\
+","filename":"","function":"","channels":"1","marker_bits":"0","length":"32","timestamp\
+":"0000000000000000","play_config":"0"},{"name":"__filler_2_6","filename":"","function"\
+:"","channels":"1","marker_bits":"0","length":"32","timestamp":"0000000000000000","play\
+_config":"0"},{"name":"__filler_2_7","filename":"","function":"","channels":"1","marker\
+_bits":"0","length":"32","timestamp":"0000000000000000","play_config":"0"},{"name":"__p\
+laceholder_2_3","filename":"","function":"placeholder(256, false, false)","channels":"1\
+","marker_bits":"0","length":"256","timestamp":"0000000000000000","play_config":"524275\
+3"}]}
+"""
+    waveform.validate(info)
+
+
+def test_validate_dict():
+    waveform = Waveforms()
+    waveform[0] = (np.ones(512), np.ones(512), 15 * np.ones(512))
+    waveform[2] = (np.ones(256),)
+
+    info = {
+        "waveforms": [
+            {
+                "name": "__playWave_1_2",
+                "filename": "",
+                "function": "",
+                "channels": "2",
+                "marker_bits": "2;2",
+                "length": "512",
+                "timestamp": "0000000000000000",
+                "play_config": "256884611",
+            },
+            {
+                "name": "__filler_2_5",
+                "filename": "",
+                "function": "",
+                "channels": "1",
+                "marker_bits": "0",
+                "length": "32",
+                "timestamp": "0000000000000000",
+                "play_config": "0",
+            },
+            {
+                "name": "__placeholder_2_3",
+                "filename": "",
+                "function": "placeholder(256, false, false)",
+                "channels": "1",
+                "marker_bits": "0",
+                "length": "256",
+                "timestamp": "0000000000000000",
+                "play_config": "5242753",
+            },
+        ]
+    }
+    waveform.validate(info)
+
+
+def test_validate_wrong_input():
+    waveform = Waveforms()
+    with pytest.raises(TypeError):
+        waveform.validate(None)
+    with pytest.raises(TypeError):
+        waveform.validate(1)
+    with pytest.raises(TypeError):
+        waveform.validate(("test",))
+    with pytest.raises(json.decoder.JSONDecodeError):
+        waveform.validate("")
+
+
+def test_validate_to_many():
+    waveform = Waveforms()
+    waveform[1] = (np.ones(512), np.ones(512), 15 * np.ones(512))
+    waveform[5] = (np.ones(256),)
+    seq, _ = compile_seqc(waveform.get_sequence_snippet(), "HDAWG8", "", samplerate=0.0)
+    waveform[7] = (np.ones(256),)
+    with pytest.raises(IndexError):
+        waveform.validate(seq)
+
+
+def test_validate_filler():
+    waveform = Waveforms()
+    waveform[1] = (np.ones(512), np.ones(512), 15 * np.ones(512))
+    waveform[5] = (np.ones(256),)
+    seq, _ = compile_seqc(waveform.get_sequence_snippet(), "HDAWG8", "", samplerate=0.0)
+    waveform[4] = (np.ones(256),)
+    with pytest.raises(ValidationError):
+        waveform.validate(seq)
+
+
+def test_validate_wrong_type():
+    waveform = Waveforms()
+    waveform[0] = (np.ones(512), np.ones(512), 15 * np.ones(512))
+    seqc_str = """\
+    wave w_gauss  = gauss(8000, 4000, 1000);
+    assignWaveIndex(w_gauss, 0);
+    """
+    seq, _ = compile_seqc(seqc_str, "HDAWG8", "", samplerate=0.0)
+    with pytest.raises(ValidationError):
+        waveform.validate(seq)
+
+
+def test_validate_to_short():
+    waveform = Waveforms()
+    waveform[1] = (np.ones(500), np.ones(500), 15 * np.ones(500))
+    seq, _ = compile_seqc(waveform.get_sequence_snippet(), "HDAWG8", "", samplerate=0.0)
+    with pytest.raises(ValidationError):
+        waveform.validate(seq)
+
+
+def test_validate_missing():
+    waveform = Waveforms()
+    waveform[1] = (np.ones(512), np.ones(512), 15 * np.ones(512))
+    waveform[4] = (np.ones(512), np.ones(512), 15 * np.ones(512))
+    waveform[5] = (np.ones(512), np.ones(512), 15 * np.ones(512))
+    seq, _ = compile_seqc(waveform.get_sequence_snippet(), "HDAWG8", "", samplerate=0.0)
+    del waveform[4]
+    # No error by default
+    waveform.validate(seq)
+    # Error when enabled
+    with pytest.raises(ValidationError):
+        waveform.validate(seq, allow_missing=False)

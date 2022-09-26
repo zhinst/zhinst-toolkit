@@ -4,6 +4,8 @@ zhinst-utils
 numpy
 jsonschema
 jsonref
+pyelftools
+
 # Tests
 pytest
 

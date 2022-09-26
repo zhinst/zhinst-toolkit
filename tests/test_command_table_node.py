@@ -67,7 +67,6 @@ def test_correct_ct_node_schema_loaded(shfsg_no_ct_schema):
     [
         (
             {
-                "$schema": "https://json-schema.org/draft-04/schema#",
                 "header": {"version": "1.1", "userString": "Test string"},
                 "table": [],
             },
@@ -75,7 +74,6 @@ def test_correct_ct_node_schema_loaded(shfsg_no_ct_schema):
         ),
         (
             {
-                "$schema": "https://json-schema.org/draft-04/schema#",
                 "header": {"version": "1.1", "userString": "Test string"},
                 "table": [],
             },
@@ -84,7 +82,6 @@ def test_correct_ct_node_schema_loaded(shfsg_no_ct_schema):
         (
             json.dumps(
                 {
-                    "$schema": "https://json-schema.org/draft-04/schema#",
                     "header": {"version": "1.1", "userString": "Test string"},
                     "table": [],
                 }
@@ -97,15 +94,25 @@ def test_ct_node_upload_to_device(
     payload, validate, mock_connection, command_table_node
 ):
     mock_connection.return_value.set = mock.Mock(side_effect=RuntimeError)
-    command_table_node.check_status = mock.Mock(return_value="")
+    command_table_node.check_status = mock.Mock(return_value=True)
     command_table_node.upload_to_device(payload, validate=validate)
     mock_connection.return_value.setVector.assert_called_with(
         "/dev1234/sgchannels/0/awg/commandtable/data",
-        (
-            '{"$schema": "https://json-schema.org/draft-04/schema#", '
-            '"header": {"version": "1.1", "userString": "Test string"}, "table": []}'
-        ),
+        ('{"header": {"version": "1.1", "userString": "Test string"}, "table": []}'),
     )
+
+
+def test_ct_upload_failed(mock_connection, command_table_node):
+    mock_connection.return_value.set = mock.Mock(side_effect=RuntimeError)
+    command_table_node.check_status = mock.Mock(return_value=False)
+    ct = (
+        {
+            "header": {"version": "1.1", "userString": "Test string"},
+            "table": [],
+        },
+    )
+    with pytest.raises(RuntimeError):
+        command_table_node.upload_to_device(ct, validate=False)
 
 
 @pytest.fixture
@@ -136,7 +143,6 @@ def shfsg_ct_node(mock_connection, shfsg_no_ct_schema):
 def test_ct_node_load_from_device_correct_data(shfsg_ct_node, mock_connection):
     ct = shfsg_ct_node.load_from_device()
     assert ct.as_dict() == {
-        "$schema": "https://json-schema.org/draft-04/schema#",
         "header": {"version": "1.1", "userString": "Test string"},
         "table": [],
     }

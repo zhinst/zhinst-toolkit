@@ -77,7 +77,6 @@ print(awg_program)
 
 ```python
 elf_file, info = device.awgs[0].compile_sequencer_program(awg_program)
-device.awgs[0].elf.data(elf_file)
 info
 ```
 
@@ -97,17 +96,22 @@ waveforms.assign_waveform(
 )
 ```
 
+Validate waveforms against the binary elf file of the sequencer code.
+
+(This step is not mandatory but helps debugging and playing around with the waveforms.)
+
+```python
+waveforms.validate(elf_file)
+```
+
 ### Upload and Run the program
 
 This can be done in a single transaction which reduces the network communication overhead to a minimum
 
 ```python
 with device.set_transaction():
+    device.awgs[0].elf.data(elf_file)
     device.awgs[0].write_to_waveform_memory(waveforms)
     device.awgs[0].single(True)
     device.awgs[0].enable(True)
-```
-
-```python
-
 ```

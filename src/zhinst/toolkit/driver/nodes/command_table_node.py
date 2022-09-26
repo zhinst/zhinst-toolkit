@@ -71,7 +71,11 @@ class CommandTableNode(Node):
                 return json.load(file_)
 
     def upload_to_device(
-        self, ct: t.Union[CommandTable, str, dict], *, validate: bool = True
+        self,
+        ct: t.Union[CommandTable, str, dict],
+        *,
+        validate: bool = False,
+        check_upload: bool = True,
     ) -> None:
         """Upload command table into the device.
 
@@ -85,10 +89,20 @@ class CommandTableNode(Node):
             validate: Flag if the command table should be validated. (Only
                 applies if the command table is passed as a raw json string or
                 json dict)
+            check_upload: Flag if the upload should be validated by calling
+                `check_status`. This is not mandatory bat strongly recommended
+                since the device does not raise an error when it rejects the
+                command table. This Flag is ignored when called from within a
+                transaction.
 
         Raises:
             RuntimeError: If the command table upload into the device failed.
             zhinst.toolkit.exceptions.ValidationError: Incorrect schema.
+
+        .. versionchanged:: 0.4.2
+
+            New Flag `check_upload` that makes the upload check optional.
+            `check_status` is only called when not in a ongoing transaction.
         """
         try:
             self.data(json.dumps(ct.as_dict()))  # type: ignore
@@ -101,7 +115,14 @@ class CommandTableNode(Node):
                 self.data(ct)
             else:
                 self.data(json.dumps(ct))
-        self.check_status()
+        if (
+            check_upload
+            and not self._root.transaction.in_progress()
+            and not self.check_status()
+        ):
+            raise RuntimeError(
+                "No valid command table reported by the device after upload."
+            )
 
     def load_from_device(self) -> CommandTable:
         """Load command table from the device.
