@@ -72,6 +72,83 @@ awg_node.enable_sequencer(single=True)
 awg_node.wait_done()
 ```
 
+### Offline compilation
+
+When uploading the sequencer code with `load_sequencer_program` as a string,
+`zhinst-toolkit` first compiles the the code into a binary elf format. After 
+that it uploads the byte code to the device. One can also use the offline 
+compiler directly or `zhinst-toolkit` to compile the sequence without an 
+active device connection. 
+
+```python
+# Using the buildin command provided by zhinst-toolkit
+elf, info = awg_node.compile_sequencer_program(SEQUENCER_CODE)
+info
+```
+
+```python
+# Using the zhinst.core offline compiler directly
+from zhinst.core import compile_seqc
+
+device_type = device.device_type
+device_options = device.device_options
+samplerate = device.system.clocks.sampleclock.freq()
+
+elf, info = compile_seqc(
+    SEQUENCER_CODE, device_type, device_options, samplerate=samplerate
+)
+info
+
+```
+
+```python
+# Uploading the binary elf to the device
+awg_node.elf.data(elf)
+```
+
+**Warning**
+
+`zhinst-toolkit` uses by default the offline compiler provided by `zhinst-core`.
+If a feature or setting is not supported by the offline compiler (e.g. channel
+grouping) the best way is to fallback to the awg module from Labone for now.
+
+```python
+import time
+awg = session.modules.awg
+awg.device(device.serial)
+awg.index(0)
+awg.execute()
+awg.compiler.sourcestring(SEQUENCER_CODE)
+
+# The following lines are not mandatory but only to ensure that everything was compiled and uploaded correctly. 
+timeout = 100.0  # seconds
+compiler_status = awg.compiler.status()
+start = time.time()
+while compiler_status == -1:
+    if time.time() - start >= timeout:
+        raise TimeoutError("Program compilation timed out")
+    time.sleep(0.1)
+    compiler_status = awg.compiler.status()
+if compiler_status == 1:
+    raise RuntimeError(
+        "Error during sequencer compilation. Check the log for detailed information"
+    )
+if compiler_status == 2:
+    print(f"Warning during sequencer compilation {awg.compiler.statusstring()}")
+# Check and wait until the elf upload to the device was successful
+progress = awg.progress()
+while progress < 1.0 or awg.elf.status() == 2 or device.awgs[0].ready() == 0:
+    if time.time() - start >= timeout:
+        raise TimeoutError(f"Program upload timed out")
+    time.sleep(0.1)
+    progress = awg.progress()
+if awg.elf.status() or not device.awgs[0].ready():
+    raise RuntimeError(
+        "Error during upload of ELF file. Check the log for detailed information"
+    )
+```
+
+### Sequencer Class
 zhinst-toolkit also offers a class `Sequence` representing a LabOne Sequence.
 This class enables a compact representation of a sequence for a Zurich 
 Instruments device. Although a sequencer code can be represented by a
@@ -233,6 +310,25 @@ seq.waveforms.assign_waveform(2,
 print(seq)
 ```
 
+### Waveform validation
+The waveform definitions must match the assignment in the sequencer code. To 
+validate if a waveform matches a sequencer code the waveform class has a validation
+function. 
+
+Please note that it is not mandatory to call the validation function before 
+uploading. But especially when debugging or playing around with the waveforms
+it can be helpfull.
+
+The validation either takes the compiled elf file or the waveform informations
+from the device (only if the sequencer code is already uploaded).
+
+```python
+waveforms = awg_node.read_from_waveform_memory()
+
+waveforms.validate(elf)
+waveforms.validate(awg_node.waveform.descriptors())
+```
+
 ## Command Table
 
 The command table allows the sequencer to group waveform playback instructions
@@ -327,4 +423,71 @@ ct.table[1].amplitude1.value = -0.007
 ct.table[1].amplitude1.increment = True
 
 awg_node.commandtable.upload_to_device(ct)
+```
+
+## Performance optimzation
+Often the limiting factor for an experiment is the delay of the device communication.
+If this is the case it is best trying to reduce the number of uploads. 
+For the AWG core this means uploading everything in a single transaction.
+
+> **Warning**:
+> The order is to some extend crutial. Meaning the sequencer code needs to be at the
+> beginning and the enable call at the end.
+
+> **Note**:
+> The bundling of the upload is not limited to a single awg core but can combine
+> multiple cores.
+
+> **Note**:
+> It is also possible to do the transaction on a session level so that it applies for
+> multiple instruments.
+
+```python
+from zhinst.toolkit import Waveforms
+import numpy as np
+
+SEQUENCER_CODE = """\
+// Define placeholder with 1024 samples:
+wave p = placeholder(1024);
+
+// Assign placeholder to waveform index 10
+assignWaveIndex(p, p, 10);
+
+while(true) {
+    executeTableEntry(0);
+}
+"""
+
+waveforms = Waveforms()
+waveforms[10] = (np.zeros(1024), np.ones(1024))
+
+ct = awg_node.commandtable.load_from_device()
+ct.clear()
+ct.table[0].waveform.index = 10
+ct.table[0].amplitude0.value = 1.0
+
+ct.table[0].amplitude1.value = 1.0
+
+with device.set_transaction():
+    awg_node.load_sequencer_program(SEQUENCER_CODE)
+    awg_node.write_to_waveform_memory(waveforms)
+    awg_node.commandtable.upload_to_device(ct)
+    awg_node.enable(True)
+
+# Please note that commandtable.upload_to_device does not
+# validate the upload when calles within a transaction so
+# it is recommended to do yourself.
+assert awg_node.commandtable.check_status()
+```
+
+```python
+elf,_ = awg_node.compile_sequencer_program(SEQUENCER_CODE)
+with device.set_transaction():
+    awg_node.elf.data(elf)
+    awg_node.write_to_waveform_memory(waveforms)
+    awg_node.commandtable.upload_to_device(ct)
+    awg_node.enable(True)
+
+assert awg_node.commandtable.check_status()
+
 ```

@@ -158,7 +158,6 @@ def test_parent_entry_table_waveform(command_table):
 
 def test_build_json_no_items(command_table):
     assert command_table.as_dict() == {
-        "$schema": "https://json-schema.org/draft-04/schema#",
         "header": {"version": "1.1.0"},
         "table": [],
     }
@@ -167,7 +166,6 @@ def test_build_json_no_items(command_table):
 def test_build_json_items(command_table_schema):
     command_table = CommandTable(command_table_schema)
     assert command_table.as_dict() == {
-        "$schema": "https://json-schema.org/draft-04/schema#",
         "header": {"version": "1.1.0"},
         "table": [],
     }
@@ -178,7 +176,6 @@ def test_build_json_items(command_table_schema):
     command_table.table[2].waveform.index = 3
     command_table.table[2].waveform.awgChannel0 = ["sigout1"]
     assert command_table.as_dict() == {
-        "$schema": command_table_schema["$schema"],
         "header": {"version": "1.1.0"},
         "table": [
             {"amplitude00": {"value": 1}, "index": 0, "waveform": {"index": 0}},
@@ -271,7 +268,6 @@ def test_json_non_existing_childs_ignored(command_table):
     command_table.header
     command_table.header.userString
     assert command_table.as_dict() == {
-        "$schema": "https://json-schema.org/draft-04/schema#",
         "header": {"version": "1.1.0"},
         "table": [],
     }

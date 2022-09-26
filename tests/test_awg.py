@@ -173,26 +173,6 @@ def test_write_to_waveform_memory(waveform_descriptors_json, mock_connection, sh
     ] == "/dev1234/sgchannels/0/awg/dio/highbits"
     assert len(mock_connection.return_value.set.call_args[0][0]) == 3
 
-    # to big index
-    waveforms[10] = (wave1, wave2)
-    with pytest.raises(IndexError) as e_info:
-        shfsg.sgchannels[0].awg.write_to_waveform_memory(waveforms)
-    shfsg.sgchannels[0].awg.write_to_waveform_memory(waveforms, validate=False)
-    assert (
-        mock_connection.return_value.set.call_args[0][0][2][0]
-        == "/dev1234/sgchannels/0/awg/waveform/waves/10"
-    )
-    del waveforms[10]
-    # assign to filler
-    waveforms[2] = (wave1, wave2)
-    with pytest.raises(RuntimeError) as e_info:
-        shfsg.sgchannels[0].awg.write_to_waveform_memory(waveforms)
-    shfsg.sgchannels[0].awg.write_to_waveform_memory(waveforms, validate=False)
-    assert (
-        mock_connection.return_value.set.call_args[0][0][2][0]
-        == "/dev1234/sgchannels/0/awg/waveform/waves/2"
-    )
-
 
 def test_read_from_waveform_memory(waveform_descriptors_json, mock_connection, shfsg):
     waveform_descriptiors = json.loads(waveform_descriptors_json)

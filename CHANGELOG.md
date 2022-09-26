@@ -7,6 +7,12 @@
 * Added new example for the multistate discrimination (shfqa_multistate_discrimination) for the SHFQA
 * Fixed issue `#181` (Wrong _device_type of awg node of UHFQA/UHFLI) which prevented 
   the compilation of sequences.
+* Waveform validation moved from the `write_to_waveform_memory` into `Waveforms.validate`
+* Command Table `$schema` key removed from the output of `CommandTable.as_dict` function
+* Command Table validation changed to disabled by default
+* Command Table upload check disabled when called within a transaction.
+* New dependency `pyelftools` for extracting waveform information from a complied
+  sequencer code.
 
 ## Version 0.4.1
 * For all LabOne modules forward the `execute` function from the zhinst-core in zhinst-toolkit

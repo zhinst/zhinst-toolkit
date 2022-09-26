@@ -1,5 +1,4 @@
 {
-    "$schema": "https://json-schema.org/draft-04/schema#",
     "title": "AWG Command Table Schema",
     "description": "Schema for ZI SHFSG AWG Command Table",
     "version": "1.1.0",

@@ -1,11 +1,17 @@
 """Dictionary like waveform representation."""
+import json
 import typing as t
 import warnings
 from collections.abc import MutableMapping
 from enum import IntFlag
+from io import BytesIO
 
 import numpy as np
+from elftools.elf.elffile import ELFFile
+from elftools.common.exceptions import ELFError
 from zhinst.utils import convert_awg_waveform, parse_awg_waveform
+
+from zhinst.toolkit.exceptions import ValidationError
 
 _Waveform = t.Tuple[np.ndarray, t.Optional[np.ndarray], t.Optional[np.ndarray]]
 
@@ -242,7 +248,6 @@ class Waveforms(MutableMapping):
         self,
         slot: int,
         *,
-        target_length: t.Optional[int] = None,
         complex_output: bool = False,
     ) -> np.ndarray:
         """Get the raw vector for a slot required by the device.
@@ -254,10 +259,6 @@ class Waveforms(MutableMapping):
 
         Args:
             slot: slot number of the waveform
-            target_length: target length of the output waveform. If
-                specified the waves and markers will have the specified length
-                (e.g. wave1, wave2 and markers are specified the resulting
-                waveform will have the length 3*target_length). (default = None)
             complex_output: Flag if the output should be a complex waveform for a
                 generator node, instead of of the native AWG format that can
                 only be uploaded to an AWG node. (default = False)
@@ -267,23 +268,16 @@ class Waveforms(MutableMapping):
 
         Raises:
             ValueError: The length of the waves does not match the target length.
+
+        .. versionchanged:: 0.4.2
+
+            Removed `target_length` flag and functionality. The length check is
+            now done in the `validate` function.
         """
         waves = self._waveforms[slot]
         wave1 = np.zeros(1) if len(waves[0]) == 0 else waves[0]
         wave2 = np.zeros(1) if waves[1] is not None and len(waves[1]) == 0 else waves[1]
         marker = waves[2]
-
-        if target_length and len(wave1) > target_length:
-            raise ValueError(
-                f"Waveforms are larger than the target length "
-                f"{len(wave1)} > {target_length}."
-            )
-        if target_length and len(wave1) < target_length:
-            raise ValueError(
-                f"Waveforms are smaller than the target length "
-                f"{len(wave1)} < {target_length}."
-            )
-
         if complex_output and np.iscomplexobj(wave1):
             if wave2 is not None or marker is not None:
                 warnings.warn("Complex values do not support markers", RuntimeWarning)
@@ -422,3 +416,86 @@ class Waveforms(MutableMapping):
                 for slot in sorted(self._waveforms.keys())
             ]
         )
+
+    def validate(self, meta_info: t.Union[bytes, str], *, allow_missing=True) -> None:
+        """Validates the waveforms against the ones defined in a sequencer program.
+
+        The information about the sequencer code can either be passed in form
+        of a compiled elf file or a the waveform descriptor provided by the
+        device once a valid sequencer code was uploaded to the device.
+        The waveform descriptor can be read from the device through the node
+        `<path to awg core>.waveform.descriptors`
+        (`e.g hdawg.awgs[0].waveform.descriptors()`).
+
+        Args:
+            meta_info: Compiled sequencer code or the waveform descriptor.
+            allow_missing: Flag if this function allows placeholder waveforms
+                to be defined in the sequencer code that are not used in this
+                object. This is disabled by default since uploading/replacing
+                only a fraction of the defined waveforms is a valid use case.
+
+        Raises:
+            TypeError: If the meta_info are not a compiled elf file, string or
+                dictionary.
+            ValidationError: If the Validation fails.
+
+        .. versionadded:: 0.4.2
+        """
+        waveform_info = {}
+        try:
+            elf_info = ELFFile(BytesIO(meta_info))  # type: ignore[arg-type]
+            raw_data = elf_info.get_section_by_name(".waveforms").data().decode("utf-8")
+            waveform_info = json.loads(raw_data)["waveforms"]
+        except (TypeError, ELFError) as e:
+            if isinstance(meta_info, str):
+                waveform_info = json.loads(meta_info)["waveforms"]
+            elif isinstance(meta_info, dict):
+                waveform_info = (
+                    meta_info["waveforms"] if "waveforms" in meta_info else meta_info
+                )
+            else:
+                raise TypeError(
+                    "meta_info needs to be an elf file or the waveform descriptor from "
+                    "the device (e.g. device.awgs[0].waveform.descriptor(). The passed "
+                    f"meta_info are of type {type(meta_info)} ({str(meta_info)})."
+                ) from e
+        defined_wave_lengths = {
+            index: wave["length"]
+            for index, wave in enumerate(waveform_info)
+            if wave["name"].startswith("__placeholder")
+            or wave["name"].startswith("__playWave")
+        }
+        for index, waves in self._waveforms.items():
+            if index >= len(waveform_info):
+                raise IndexError(
+                    f"There are {len(waveform_info)} waveforms defined on the device "
+                    f"but the passed waveforms specified one with index {index}."
+                )
+            try:
+                target_length = int(defined_wave_lengths[index])
+            except KeyError as e:
+                if "__filler" in waveform_info[index]["name"]:
+                    raise ValidationError(
+                        f"The waveform at index {index} is only "
+                        "a filler and can not be overwritten."
+                    ) from e
+                raise ValidationError(
+                    f"The waveform at index {index} is not a placeholder but of "
+                    f"type {waveform_info[index]['name'].lstrip('__')[:-4]}"
+                ) from e
+            wave_length = max(len(waves[0]), 1)
+            if wave_length != target_length:
+                # Waveforms can only be to short since the compiler always rounds
+                # up the length to next valid value.
+                raise ValidationError(
+                    f"Waveforms at index {index} are smaller than the target length "
+                    f"{wave_length} < {target_length}."
+                )
+        if not allow_missing and len(defined_wave_lengths) > len(self._waveforms):
+            missing_indexes = [
+                i for i in defined_wave_lengths.keys() if i not in self._waveforms
+            ]
+            raise ValidationError(
+                "The the sequencer code defines placeholder waveforms for the "
+                f"following indexes that are missing in this object: {missing_indexes}"
+            )

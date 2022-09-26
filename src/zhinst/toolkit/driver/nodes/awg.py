@@ -193,7 +193,7 @@ class AWG(Node):
         return compiler_info
 
     def write_to_waveform_memory(
-        self, waveforms: Waveforms, indexes: list = None, validate: bool = True
+        self, waveforms: Waveforms, indexes: list = None
     ) -> None:
         """Writes waveforms to the waveform memory.
 
@@ -204,48 +204,19 @@ class AWG(Node):
             indexes: Specify a list of indexes that should be uploaded. If
                 nothing is specified all available indexes in waveforms will
                 be uploaded. (default = None)
-            validate: Enable sanity check preformed by toolkit, based on the
-                waveform descriptors on the device. Can be disabled for e.g.
-                speed optimizations. Does not affect the checks happen in LabOne
-                and or the firmware. (default = True)
 
-        Raises:
-            IndexError: The index of a waveform exceeds the one on the device
-                and `validate` is True.
-            RuntimeError: One of the waveforms index points to a
-                filler(placeholder) and `validate` is True.
+        .. versionchanged:: 0.4.2
+
+            Removed `validate` flag and functionality. The validation check is
+            now done in the `Waveforms.validate` function.
         """
-        waveform_info = None
-        num_waveforms = None
-        if validate:
-            waveform_info = json.loads(self.waveform.descriptors()).get("waveforms", [])
-            num_waveforms = len(waveform_info)
         with create_or_append_set_transaction(self._root):
             for waveform_index in waveforms.keys():
                 if indexes and waveform_index not in indexes:
                     continue
-                if num_waveforms is not None and waveform_index >= num_waveforms:
-                    raise IndexError(
-                        f"There are {num_waveforms} waveforms defined on the device "
-                        "but the passed waveforms specified one with index "
-                        f"{waveform_index}."
-                    )
-                if (
-                    waveform_info
-                    and "__filler" in waveform_info[waveform_index]["name"]
-                ):
-                    raise RuntimeError(
-                        f"The waveform at index {waveform_index} is only "
-                        "a filler and can not be overwritten"
-                    )
                 self.root.transaction.add(
                     self.waveform.waves[waveform_index],
-                    waveforms.get_raw_vector(
-                        waveform_index,
-                        target_length=int(waveform_info[waveform_index]["length"])
-                        if waveform_info
-                        else None,
-                    ),
+                    waveforms.get_raw_vector(waveform_index),
                 )
 
     def read_from_waveform_memory(self, indexes: t.List[int] = None) -> Waveforms:

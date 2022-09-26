@@ -333,9 +333,12 @@ class CommandTable:
         Raises:
             :class:`~zhinst.toolkit.exceptions.ValidateError`: The command table
                 does not correspond to the given JSON schema.
+
+        .. versionchanged:: 0.4.2
+
+            Removed `$schema` key from resulting dictionary.
         """
         result = {
-            "$schema": self._ct_schema["$schema"],
             "header": self._header.as_dict(),
             "table": self._table.as_list(),
         }
