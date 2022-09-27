@@ -13,6 +13,7 @@
 * Command Table upload check disabled when called within a transaction.
 * New dependency `pyelftools` for extracting waveform information from a complied
   sequencer code.
+* Interface auto detection adapted to support `none`, which was introduced with LabOne 22.08
 
 ## Version 0.4.1
 * For all LabOne modules forward the `execute` function from the zhinst-core in zhinst-toolkit

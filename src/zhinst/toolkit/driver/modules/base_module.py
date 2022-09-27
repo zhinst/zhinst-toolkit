@@ -174,6 +174,6 @@ class BaseModule(Node):
         self._raw_module.execute()
 
     @property
-    def raw_module(self) -> ZIModule:
+    def raw_module(self) -> ZIModule:  # type: ignore [type-var]
         """Underlying core module."""
         return self._raw_module
