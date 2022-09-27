@@ -131,6 +131,81 @@ def test_connect_device(
     session.disconnect_device("dev1234")
 
 
+def test_connect_device_autodetection(
+    zi_devices_json, mock_connection, session, nodedoc_dev1234_json
+):
+
+    connected_devices = ""
+    selected_interface = ""
+
+    def get_string_side_effect(arg):
+        if arg == "/zi/devices":
+            return zi_devices_json
+        if arg == "/zi/devices/connected":
+            return connected_devices
+        if arg == "/dev1234/features/devtype":
+            return "Test"
+        raise RuntimeError("ZIAPINotFoundException")
+
+    mock_connection.return_value.getString.side_effect = get_string_side_effect
+
+    def connect_device_side_effect(serial, interface):
+        nonlocal connected_devices, selected_interface
+        devices = [key for key in json.loads(zi_devices_json).keys()]
+        if serial.upper() not in devices:
+            raise RuntimeError("device not visible to server")
+        if serial not in connected_devices:
+            if not connected_devices:
+                connected_devices = serial
+            else:
+                connected_devices = connected_devices + "," + serial
+        selected_interface = interface
+
+    mock_connection.return_value.connectDevice.side_effect = connect_device_side_effect
+    mock_connection.return_value.listNodesJSON.return_value = nodedoc_dev1234_json
+
+    session.connect_device("dev1234")
+    assert selected_interface == "1GbE"
+    connected_devices = ""
+    selected_interface = ""
+
+    zi_devices = json.loads(zi_devices_json)
+    zi_devices["DEV1234"]["INTERFACE"] = "none"
+    zi_devices_json = json.dumps(zi_devices)
+
+    session.connect_device("dev1234")
+    assert selected_interface == "1GbE"
+    connected_devices = ""
+    selected_interface = ""
+
+    zi_devices = json.loads(zi_devices_json)
+    zi_devices["DEV1234"]["INTERFACES"] = "1GbE,USB"
+    zi_devices_json = json.dumps(zi_devices)
+
+    session.connect_device("dev1234")
+    assert selected_interface == "1GbE"
+    connected_devices = ""
+    selected_interface = ""
+
+    zi_devices = json.loads(zi_devices_json)
+    zi_devices["DEV1234"]["INTERFACES"] = "USB"
+    zi_devices_json = json.dumps(zi_devices)
+
+    session.connect_device("dev1234")
+    assert selected_interface == "USB"
+    connected_devices = ""
+    selected_interface = ""
+
+    zi_devices = json.loads(zi_devices_json)
+    zi_devices["DEV1234"]["INTERFACES"] = "PCIE"
+    zi_devices_json = json.dumps(zi_devices)
+
+    session.connect_device("dev1234")
+    assert selected_interface == "PCIE"
+    connected_devices = ""
+    selected_interface = ""
+
+
 def test_connect_device_h2(
     data_dir, mock_connection, hf2_session, nodedoc_dev1234_json
 ):

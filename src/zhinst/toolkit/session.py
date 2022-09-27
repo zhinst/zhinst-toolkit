@@ -759,6 +759,10 @@ class Session(Node):
             In that case the function simply returns the device object of the
             device.
 
+        If the interface is not specified the interface will be auto detected.
+        Meaning one of the available interfaces will be selected, prioritizing
+        1GbE over USB.
+
         Args:
             serial: Serial number of the device, e.g. *'dev12000'*.
                 The serial number can be found on the back panel of the
@@ -780,20 +784,17 @@ class Session(Node):
                     interface = "USB"
                 else:
                     # Take interface from the discovery
-                    interface = json.loads(self.daq_server.getString("/zi/devices"))[
+                    dev_info = json.loads(self.daq_server.getString("/zi/devices"))[
                         serial.upper()
-                    ]["INTERFACE"]
-            try:
-                self._daq_server.connectDevice(serial, interface)
-            except RuntimeError as error:
-                if (
-                    interface == "PCIe"
-                    and "Device does not support the specified interface"
-                    in error.args[0]
-                ):
-                    self._daq_server.connectDevice(serial, "1GbE")
-                else:
-                    raise
+                    ]
+                    interface = dev_info["INTERFACE"]
+                    if interface == "none":
+                        interface = (
+                            "1GbE"
+                            if "1GbE" in dev_info["INTERFACES"]
+                            else dev_info["INTERFACES"].split(",")[0]
+                        )
+            self._daq_server.connectDevice(serial, interface)
             if isinstance(self._devices, HF2Devices):
                 self._devices.add_hf2_device(serial)
         return self._devices[serial]
