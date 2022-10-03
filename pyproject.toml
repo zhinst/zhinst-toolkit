@@ -2,6 +2,7 @@
 line-length = 88
 target-version = ['py37']
 include = '\.pyi?$'
+required-version = "22.8.0"
 extend-exclude = '''
 /(
   | .mypy-cache
