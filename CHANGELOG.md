@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 0.4.3
+* Fix issue that prevented correct compilation of sequences for AWG cores other than the first one.
+
 ## Version 0.4.2
 * Embed multistate utils for the SHFQA into the node tree
   * shfqa.qachannels[n].readout.multistate.qudits[m].configure(settings)

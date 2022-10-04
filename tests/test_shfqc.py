@@ -107,7 +107,7 @@ def test_sg_awg_compiler(mock_connection, shfqc):
     ) as compile_seqc:
         shfqc.sgchannels[0].awg.compile_sequencer_program("test")
         compile_seqc.assert_called_once_with(
-            "test", "SHFQC", "AWG,FOOBAR", sequencer="sg"
+            "test", "SHFQC", "AWG,FOOBAR", 0, sequencer="sg"
         )
 
 
@@ -118,7 +118,7 @@ def test_qa_awg_compiler(mock_connection, shfqc):
     ) as compile_seqc:
         shfqc.qachannels[0].generator.compile_sequencer_program("test")
         compile_seqc.assert_called_once_with(
-            "test", "SHFQC", "AWG,FOOBAR", sequencer="qa"
+            "test", "SHFQC", "AWG,FOOBAR", 0, sequencer="qa"
         )
 
 

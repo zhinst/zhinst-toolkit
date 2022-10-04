@@ -40,7 +40,7 @@ def test_sg_awg_compiler(mock_connection, shfsg):
         "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
     ) as compile_seqc:
         shfsg.sgchannels[0].awg.compile_sequencer_program("test")
-        compile_seqc.assert_called_once_with("test", "SHFSG8", "AWG,FOOBAR")
+        compile_seqc.assert_called_once_with("test", "SHFSG8", "AWG,FOOBAR", 0)
 
 
 def test_sg_awg_modulation_freq(mock_connection, shfsg, data_dir):

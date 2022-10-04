@@ -83,5 +83,10 @@ def test_awg_compiler(mock_connection, hdawg):
     ) as compile_seqc:
         hdawg.awgs[0].compile_sequencer_program("test")
         compile_seqc.assert_called_once_with(
-            "test", "HDAWG4", "AWG,FOOBAR", samplerate=10000
+            "test", "HDAWG4", "AWG,FOOBAR", 0, samplerate=10000
+        )
+        compile_seqc.reset_mock()
+        hdawg.awgs[1].compile_sequencer_program("test")
+        compile_seqc.assert_called_once_with(
+            "test", "HDAWG4", "AWG,FOOBAR", 1, samplerate=10000
         )

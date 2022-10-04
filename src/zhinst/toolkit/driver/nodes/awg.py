@@ -137,6 +137,7 @@ class AWG(Node):
             str(sequencer_program),
             self._device_type,
             self._device_options,
+            self._index,
             **kwargs,
         )
 
