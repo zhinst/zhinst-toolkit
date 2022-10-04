@@ -77,7 +77,7 @@ def test_qa_generator_compiler(mock_connection, shfqa):
         "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
     ) as compile_seqc:
         shfqa.qachannels[0].generator.compile_sequencer_program("test")
-        compile_seqc.assert_called_once_with("test", "SHFQA4", "AWG,FOOBAR")
+        compile_seqc.assert_called_once_with("test", "SHFQA4", "AWG,FOOBAR", 0)
 
 
 def test_qa_readout(shfqa):

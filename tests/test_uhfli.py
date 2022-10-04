@@ -40,7 +40,7 @@ def test_awg_compiler(mock_connection, uhfli):
         "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
     ) as compile_seqc:
         uhfli.awgs[0].compile_sequencer_program("test")
-        compile_seqc.assert_called_once_with("test", "UHFLI", "AWG,FOOBAR")
+        compile_seqc.assert_called_once_with("test", "UHFLI", "AWG,FOOBAR", 0)
 
 
 def test_awg_option_not_found(data_dir, mock_connection, uhfli):

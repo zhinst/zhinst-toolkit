@@ -150,7 +150,7 @@ def test_awg_compiler(mock_connection, uhfqa):
         "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
     ) as compile_seqc:
         uhfqa.awgs[0].compile_sequencer_program("test")
-        compile_seqc.assert_called_once_with("test", "UHFQA", "AWG,FOOBAR")
+        compile_seqc.assert_called_once_with("test", "UHFQA", "AWG,FOOBAR", 0)
 
 
 class TestWriteIntegrationWeights:
