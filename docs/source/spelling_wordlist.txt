@@ -123,3 +123,6 @@ Qudits
 qudit
 qudits
 integrators
+programmatically
+averager
+historylength

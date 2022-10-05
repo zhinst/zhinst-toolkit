@@ -1,0 +1,168 @@
+{
+    "/averager/resamplingmode": {
+        "Node": "/averager/resamplingmode",
+        "Description": "Specifies the resampling mode. When averaging scope data recorded at a low sampling rate that is aligned by a high resolution trigger, scope data must be resampled to keep the corresponding samples between averaged recordings aligned correctly in time relative to the trigger time.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"linear\": Linear interpolation",
+            "1": "\"pchip\": PCHIP interpolation"
+        }
+    },
+    "/averager/restart": {
+        "Node": "/averager/restart",
+        "Description": "Set to 1 to reset the averager. The module sets averager/restart back to 0 automatically.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/averager/weight": {
+        "Node": "/averager/weight",
+        "Description": "Specify the averaging behaviour. weight=0: Averaging disabled. weight>1: Moving average, updating last history entry.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/clearhistory": {
+        "Node": "/clearhistory",
+        "Description": "Remove all records from the history list.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/error": {
+        "Node": "/error",
+        "Description": "Indicates whether an error occurred whilst processing the current scope record; set to non-zero when a scope flag indicates an error. The value indicates the accumulated error for all the processed segments in the current record and is reset for every new incoming scope record. It corresponds to the status LED in the LabOne User Interface's Scope tab - API users are recommended to use the flags structure member in ZIScopeWaveEx instead of this output parameter.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/externalscaling": {
+        "Node": "/externalscaling",
+        "Description": "Scaling to apply to the scope data transferred over API level 1 connection. Only relevant for HF2 Instruments.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/fft/power": {
+        "Node": "/fft/power",
+        "Description": "Enable calculation of the power value.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/fft/spectraldensity": {
+        "Node": "/fft/spectraldensity",
+        "Description": "Enable calculation of the spectral density value.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/fft/window": {
+        "Node": "/fft/window",
+        "Description": "FFT Window",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"rectangular\": Rectangular",
+            "1": "\"hann\": Hann (default)",
+            "2": "\"hamming\": Hamming",
+            "3": "\"blackman_harris\": Blackman Harris",
+            "16": "\"exponential\": Exponential (ring-down)",
+            "17": "\"cos\": Cosine (ring-down)",
+            "18": "\"cos_squared\": Cosine squared (ring-down)"
+        }
+    },
+    "/historylength": {
+        "Node": "/historylength",
+        "Description": "Maximum number of entries stored in the measurement history.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/lastreplace": {
+        "Node": "/lastreplace",
+        "Description": "Reserved for LabOne User Interface use.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/mode": {
+        "Node": "/mode",
+        "Description": "The Scope Module's data processing mode.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"passthrough\": Passthrough: scope segments assembled and returned unprocessed, non-interleaved.",
+            "1": "\"exp_moving_average\": Moving average: entire scope recording assembled, scaling applied, averager if enabled (see averager/weight), data returned in float non-interleaved format.",
+            "2": "Reserved for future use (average n segments).",
+            "3": "\"fft\": FFT, same as mode 1, except an FFT is applied to every segment of the scope recording before averaging. See the fft/* parameters for FFT parameters."
+        }
+    },
+    "/records": {
+        "Node": "/records",
+        "Description": "The number of scope records that have been processed by the Scope Module since execute() was called or a critical scope setting has been modified (see manual for a list of scope settings that trigger a reset).",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/save/csvlocale": {
+        "Node": "/save/csvlocale",
+        "Description": "The locale to use for the decimal point character and digit grouping character for numerical values in CSV files: \"C\": Dot for the decimal point and no digit grouping (default); \"\" (empty string): Use the symbols set in the language and region settings of the computer.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/save/csvseparator": {
+        "Node": "/save/csvseparator",
+        "Description": "The character to use as CSV separator when saving files in this format.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/save/directory": {
+        "Node": "/save/directory",
+        "Description": "The base directory where files are saved.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/save/fileformat": {
+        "Node": "/save/fileformat",
+        "Description": "The format of the file for saving data.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"mat\": MATLAB",
+            "1": "\"csv\": CSV",
+            "2": "\"zview\": ZView (Impedance data only)",
+            "3": "\"sxm\": SXM (Image format)",
+            "4": "\"hdf5\": HDF5"
+        }
+    },
+    "/save/filename": {
+        "Node": "/save/filename",
+        "Description": "Defines the sub-directory where files are saved. The actual sub-directory has this name with a sequence count (per save) appended, e.g. daq_000.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/save/save": {
+        "Node": "/save/save",
+        "Description": "Initiate the saving of data to file. The saving is done in the background. When the save has finished, the module resets this parameter to 0.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/save/saveonread": {
+        "Node": "/save/saveonread",
+        "Description": "Automatically save the data to file immediately before reading out the data from the module using the read() command. Set this parameter to 1 if you want to save data to file when running the module continuously and performing intermediate reads.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    }
+}

@@ -1,5 +1,9 @@
 # zhinst-toolkit Changelog
 
+## Version 0.4.4
+* Added full support for the LabOne Scope module (no need to fallback to zhinst.core)
+* Renamed `zhinst.toolkit.nodetree.nodes.WildcardResult` to `zhinst.toolkit.nodetree.helpers.NodeDict`
+
 ## Version 0.4.3
 * Fix issue that prevented correct compilation of sequences for AWG cores other than the first one.
 

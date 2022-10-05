@@ -38,30 +38,27 @@ device = session.connect_device("DEVXXXX")
 ```
 
 ```python
-OSC_INDEX = 0
 SCOPE_CHANNEL = 0
-FREQUENCY = 400e3  # UHFLI: 10.0e6
 SIGNAL_INPUT = 0
 SIGNAL_OUTPUT = 0
-OUTPUT_RANGE = 1.5
-# UHFLI: 3, HF2LI: 6, MFLI: 1
-OUT_MIXER_CHANNEL = 1
-AMPLITUDE = 0.5
 ```
 
 ### Instrument configuration
 
 ```python
+# UHFLI: 3, HF2LI: 6, MFLI: 1
+OUT_MIXER_CHANNEL = 1
 with device.set_transaction():
     device.sigouts[SIGNAL_OUTPUT].on(True)
-    device.sigouts[SIGNAL_OUTPUT].range(OUTPUT_RANGE)
-    device.sigouts[SIGNAL_OUTPUT].amplitudes[OUT_MIXER_CHANNEL](AMPLITUDE)
+    device.sigouts[SIGNAL_OUTPUT].range(1.5)
+    device.sigouts[SIGNAL_OUTPUT].amplitudes[OUT_MIXER_CHANNEL](0.5)
     device.sigouts[SIGNAL_OUTPUT].enables[OUT_MIXER_CHANNEL](True)
 
     device.sigins[SIGNAL_INPUT].imp50(1)
     device.sigins[SIGNAL_INPUT].ac(0)
 
-    device.oscs[OSC_INDEX].freq(FREQUENCY)
+    OSC_INDEX = 0
+    device.oscs[OSC_INDEX].freq(400e3) # UHFLI: 10.0e6
     device.demods[OUT_MIXER_CHANNEL].oscselect(OSC_INDEX)
 ```
 
@@ -70,44 +67,39 @@ with device.set_transaction():
 Execute autorange and wait for the correct state change
 
 ```python
-device.sigins[SIGNAL_INPUT].autorange(1)
-# The auto ranging takes some time. We do not want to continue before the
-# best range is found. Therefore, we wait for state to change to 0.
-# These nodes maintain value 1 until autoranging has finished.
-device.sigins[SIGNAL_INPUT].autorange.wait_for_state_change(0, timeout=20)
+if device.sigins[SIGNAL_INPUT].autorange(1, deep=True) != 0:
+    # The auto ranging takes some time. We do not want to continue before the
+    # best range is found. Therefore, we wait for state to change to 0.
+    # These nodes maintain value 1 until autoranging has finished.
+    device.sigins[SIGNAL_INPUT].autorange.wait_for_state_change(0, timeout=20)
 ```
 
 ### Configuring the scope
 
 ```python
-SCOPE_LENGTH = 2 ** 12
-SCOPE_IN_CHANNEL = 0
 SCOPE_TIME = 0
-TRIGGER_HOLDOFF = 0.050
 
 with device.set_transaction():
-    device.scopes[0].length(SCOPE_LENGTH)
+    device.scopes[0].length(2 ** 12)
     device.scopes[0].channel(1)
-    device.scopes[0].channels[SCOPE_IN_CHANNEL].bwlimit(1)
-    device.scopes[0].channels[SCOPE_IN_CHANNEL].inputselect(SIGNAL_INPUT)
+    device.scopes[0].channels[0].bwlimit(1)
+    device.scopes[0].channels[0].inputselect(SIGNAL_INPUT)
     device.scopes[0].time(SCOPE_TIME)
     device.scopes[0].single(False)
     device.scopes[0].trigenable(False)
-    device.scopes[0].trigholdoff(TRIGGER_HOLDOFF)
+    device.scopes[0].trigholdoff(0.050)
     device.scopes[0].segments.enable(False)
 ```
 
 ### Initializing the scope module
 
 ```python
-AVERAGER_WEIGHT = 1
-HISTORY_LENGTH = 20
 MIN_NUMBER_OF_RECORDS = 20
 
 scope_module = session.modules.scope
 scope_module.mode(1)
-scope_module.averager.weight(AVERAGER_WEIGHT)
-scope_module.historylength(HISTORY_LENGTH)
+scope_module.averager.weight(1)
+scope_module.historylength(20)
 scope_module.fft.window(0)
 ```
 
@@ -124,7 +116,6 @@ Helper functions for getting the scope records.
 
 ```python
 import time
-
 
 def check_scope_record_flags(scope_records, num_records):
     """
@@ -167,7 +158,7 @@ def get_scope_records(scope_module, num_records: int):
     while (records < num_records) or (progress < 1.0):
         time.sleep(0.5)
         records = scope_module.records()
-        progress = scope_module.raw_module.progress()[0]
+        progress = scope_module.progress()
         print(
             f"Scope module has acquired {records} records (requested {num_records}). "
             f"Progress of current segment {100.0 * progress}%.",
@@ -184,9 +175,9 @@ def get_scope_records(scope_module, num_records: int):
 
     device.scopes[0].enable(False)
     # Read out the scope data from the module.
-    data = scope_module.raw_module.read(True)[wave_node.node_info.path]
+    data = scope_module.read()[wave_node]
     # Stop the module; to use it again we need to call execute().
-    scope_module.raw_module.finish()
+    scope_module.finish()
     check_scope_record_flags(data, num_records)
     return data
 ```
@@ -209,7 +200,7 @@ with device.set_transaction():
     device.scopes[0].trighysteresis.mode(1)
     device.scopes[0].trighysteresis.relative(0.1)
     device.scopes[0].trigholdoffmode(0)
-    device.scopes[0].trigholdoff(TRIGGER_HOLDOFF)
+    device.scopes[0].trigholdoff(0.050)
     device.scopes[0].trigreference(0.25)
     device.scopes[0].trigdelay(0.0)
     device.scopes[0].triggate.enable(0)

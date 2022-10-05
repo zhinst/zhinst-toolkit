@@ -7,13 +7,14 @@ import re
 import time
 import typing as t
 from collections import namedtuple
-from collections.abc import Sequence, Mapping
+from collections.abc import Sequence
 from enum import IntEnum
 from functools import lru_cache
 
 from zhinst.toolkit.nodetree.helper import (
     create_or_append_set_transaction,
     lazy_property,
+    NodeDict,
 )
 
 if t.TYPE_CHECKING:
@@ -346,8 +347,10 @@ class Node:
 
     .. versionchanged:: 0.3.5
 
-        Call operator returns :class:`WildcardResult` when wildcards are used in
+        Call operator returns `WildcardResult` when wildcards are used in
         getting values.
+
+    .. versionchanged:: 0.4.4 Returns NodeDict instead of WildcardResult
 
     The call operator supports the following flags:
 
@@ -502,8 +505,10 @@ class Node:
 
             .. versionchanged:: 0.3.5
 
-                Returns :class:`WildcardResult` when wildcards are used in
+                Returns `WildcardResult` when wildcards are used in
                 getting values.
+
+            .. versionchanged:: 0.4.4 Returns NodeDict instead of WildcardResult
 
         Raises:
             AttributeError: If the connection does not support the necessary
@@ -654,7 +659,7 @@ class Node:
 
     def _get_wildcard(
         self, deep=True, enum=True, parse=True, **kwargs
-    ) -> t.Union["WildcardResult", t.Dict[str, t.Any]]:
+    ) -> t.Union[NodeDict, t.Dict[str, t.Any]]:
         """Execute a wildcard get.
 
         The get is performed as a deep get (for all devices except HF2)
@@ -674,7 +679,7 @@ class Node:
             parse: Flag if the GetParser, if present, should be applied or not.
 
         Returns:
-            ``WildcardResult`` if deep is `True`. Else a dictionary.
+            ``NodeDict`` if deep is `True`. Else a dictionary.
             Dictionary or a Mapping with the values of all subnodes.
 
         Raises:
@@ -711,7 +716,7 @@ class Node:
             # although the operation is a deep get we hide the timestamp
             # to ensure consistency
             result[sub_node_raw] = (timestamp, value) if deep else value
-        return WildcardResult(result)
+        return NodeDict(result)
 
     def _get_deep(self, **kwargs) -> t.Tuple[int, t.Any]:
         """Get the node value from the device.
@@ -1197,47 +1202,3 @@ class NodeList(Sequence, Node):
 
     def __hash__(self):
         return Node.__hash__(self)
-
-
-class WildcardResult(Mapping):
-    """Mapping of results when a :class:`Node` is called with wildcards.
-
-    Args:
-        result: A dictionary of node/value pairs.
-
-    Example:
-        >>> result = device.demods["*"].enable()
-        >>> print(result)
-        {
-            '/dev1234/demods/0/enable': 0,
-            '/dev1234/demods/1/enable': 1,
-        }
-        >>> result[device.demods[0].enable]
-        0
-        >>> result["/dev1234/demods/0/enable"]
-        0
-
-    .. versionadded:: 0.3.5
-    """
-
-    def __init__(self, result: t.Dict[str, t.Any]):
-        self._result = result
-
-    def __repr__(self):
-        return repr(self._result)
-
-    def __getitem__(self, key: t.Union[str, Node]):
-        return self._result[str(key)]
-
-    def __iter__(self):
-        return iter(self._result)
-
-    def __len__(self):
-        return len(self._result)
-
-    def to_dict(self) -> t.Dict[str, t.Any]:
-        """Convert the WildcardResult to a dictionary.
-
-        After conversion, :class:`Node` objects cannot be used to get items.
-        """
-        return self._result
