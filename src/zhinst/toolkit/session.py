@@ -10,7 +10,7 @@ import zhinst.toolkit.driver.devices as tk_devices
 import zhinst.toolkit.driver.modules as tk_modules
 from zhinst import core
 from zhinst.toolkit.nodetree import Node, NodeTree
-from zhinst.toolkit.nodetree.helper import lazy_property
+from zhinst.toolkit.nodetree.helper import lazy_property, NodeDict
 from zhinst.toolkit.nodetree.nodetree import Transaction
 
 
@@ -399,7 +399,7 @@ class ModuleHandler:
             self._session.daq_server.quantumAnalyzerModule(), self._session
         )
 
-    def create_scope_module(self) -> tk_modules.BaseModule:
+    def create_scope_module(self) -> tk_modules.ScopeModule:
         """Create an instance of the ScopeModule.
 
         The resulting Module will have the nodetree accessible. The underlying
@@ -416,7 +416,7 @@ class ModuleHandler:
         Returns:
             Created module
         """
-        return tk_modules.BaseModule(
+        return tk_modules.ScopeModule(
             self._session.daq_server.scopeModule(), self._session
         )
 
@@ -552,7 +552,7 @@ class ModuleHandler:
         return self.create_qa_module()
 
     @lazy_property
-    def scope(self) -> tk_modules.BaseModule:
+    def scope(self) -> tk_modules.ScopeModule:
         """Managed instance of the scope module.
 
         Managed means that only one instance is created
@@ -864,10 +864,11 @@ class Session(Node):
             Polled data in a dictionary. The key is a `Node` object and the
             value is a dictionary with the raw data from the device
         """
-        data_raw = self.daq_server.poll(
-            recording_time, int(timeout * 1000), flags=flags.value, flat=True
+        return NodeDict(
+            self.daq_server.poll(
+                recording_time, int(timeout * 1000), flags=flags.value, flat=True
+            )
         )
-        return {self.raw_path_to_node(node): data for node, data in data_raw.items()}
 
     def raw_path_to_node(
         self, raw_path: str, *, module: tk_modules.ModuleType = None

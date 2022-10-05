@@ -143,25 +143,35 @@ class BaseModule(Node):
         if not self._raw_module.finished() and self._raw_module.progress() != 1:
             raise TimeoutError(f"{self._raw_module.__class__.__name__} timed out.")
 
-    def subscribe(self, signal: Node) -> None:
+    def subscribe(self, signal: t.Union[Node, str]) -> None:
         """Subscribe to a node.
 
         The node can either be a node of this module or of a connected device.
 
         Args:
             signal: Node that should be subscribed to.
-        """
-        self._raw_module.subscribe(signal.node_info.path)
 
-    def unsubscribe(self, signal: Node) -> None:
+        .. versionchanged 0.4.4 Add support for raw string signals
+        """
+        try:
+            self._raw_module.subscribe(signal.node_info.path)  # type: ignore
+        except AttributeError:
+            self._raw_module.subscribe(signal)
+
+    def unsubscribe(self, signal: t.Union[Node, str]) -> None:
         """Unsubscribe from a node.
 
         The node can either be a node of this module or of a connected device.
 
         Args:
             signal: Node that should be unsubscribed from.
+
+        .. versionchanged 0.4.4 Add support for raw string signals
         """
-        self._raw_module.unsubscribe(signal.node_info.path)
+        try:
+            self._raw_module.unsubscribe(signal.node_info.path)  # type: ignore
+        except AttributeError:
+            self._raw_module.unsubscribe(signal)
 
     def execute(self) -> None:
         """Start the module execution.
