@@ -1,0 +1,63 @@
+awg:
+  device_type: "HDAWG"
+
+daq_module:
+  device_type: ["MFLI", "UHFLI"]
+
+hdawg_awg:
+  device_type: "HDAWG"
+
+hdawg_precomp_curve_fit:
+  device_type: "HDAWG"
+
+hf2:
+  device_type: "HF2LI"
+
+nodetree:
+  device_type: ["MFLI", "UHFLI"]
+
+scope_module:
+  device_type: ["MFLI", "UHFLI"]
+
+shfqa_multistate_discrimination:
+  device_type: "SHFQA2"
+
+shfqa_qubit_readout_measurement:
+  device_type: "SHFQA2"
+
+shfqa_qubit_readout_weights:
+  device_type: "SHFQA2"
+
+shfqa_sweeper:
+  device_type: "SHFQA2"
+
+shfqc_propagation_delay:
+  device_type: "SHFQC"
+
+shfqc_qubit_spectroscopy:
+  device_type: "SHFQC"
+
+shfqc_rabi:
+  device_type: "SHFQC"
+
+shfqc_resonator_spectroscopy_cw_power:
+  device_type: "SHFQC"
+
+shfqc_resonator_spectroscopy_cw:
+  device_type: "SHFQC"
+
+shfsg_rabi:
+  device_type: "SHFSG4"
+
+shfsg_sine:
+  device_type: "SHFSG4"
+
+sweeper_module:
+  device_type: ["MFLI", "UHFLI"]
+
+uhf_boxcar:
+  device_type: "UHFLI"
+
+uhfqa_result_unit:
+  device_type: "UHFQA"
+
