@@ -125,6 +125,53 @@ def test_assert_validate_called_table_index(command_table):
         )
 
 
+@pytest.mark.parametrize("value", [True, False])
+def test_command_table_active_validation(command_table_schema, value):
+    ct = CommandTable(command_table_schema, active_validation=value)
+    assert ct.active_validation is value
+    ct.active_validation = not value
+    assert ct.active_validation is not value
+
+
+@pytest.mark.parametrize("value", [True, False])
+def test_command_table_active_validation_change_header_table_true(
+    command_table_schema, value
+):
+    ct = CommandTable(command_table_schema)
+    ct.active_validation = value
+    assert ct.header._active_validation is value
+    assert ct.table._active_validation is value
+
+
+def test_command_table_active_validation_table(command_table_schema):
+    ct = CommandTable(command_table_schema, active_validation=True)
+    ct.table[0]
+    with pytest.raises(ValidationError):
+        ct.table[999999]
+    ct = CommandTable(command_table_schema, active_validation=False)
+    ct.table[999999].amplitude00.value = 1
+    with pytest.raises(ValidationError):
+        ct.as_dict()
+
+
+def test_command_table_active_validation_parent_entry(command_table_schema):
+    ct = CommandTable(command_table_schema, active_validation=True)
+    ct.table[0]
+    with pytest.raises(ValidationError):
+        ct.table[0].amplitude00.value = "abc"
+    ct = CommandTable(command_table_schema, active_validation=False)
+    ct.table[0].amplitude00.value = "abc"
+
+
+def test_command_table_active_validation_header(command_table_schema):
+    ct = CommandTable(command_table_schema, active_validation=True)
+    ct.table[0]
+    with pytest.raises(ValidationError):
+        ct.header.userString = 213
+    ct = CommandTable(command_table_schema, active_validation=False)
+    ct.header.userString = 213
+
+
 @pytest.mark.parametrize("input_, output", [(1, 1), (40, 40), ("foo", "foo"), (-2, -2)])
 def test_assert_validate_called_parent_entry_attribute_set(
     input_, output, command_table

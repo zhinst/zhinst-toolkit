@@ -425,6 +425,46 @@ ct.table[1].amplitude1.increment = True
 awg_node.commandtable.upload_to_device(ct)
 ```
 
+### Command table ctive validation
+Command table validates the given arguments by default. The feature has overhead and can
+be turned off to improve production code runtimes. Disabling it is good especially when creating a large
+command table with multiple table indexes. The next example shows the effect on active
+validation during a large command table creation (maximum number of table entries in the device).
+
+```python
+from time import perf_counter_ns
+
+ct.clear()
+start = perf_counter_ns()
+ct.active_validation = True
+for i in range(ct.table.range[0], ct.table.range[-1]):
+    ct.table[i].waveform.index = 0
+    ct.table[i].amplitude0.value = 0.0
+    ct.table[i].amplitude0.increment = False
+    ct.table[i].amplitude1.value = -0.0
+    ct.table[i].amplitude1.increment = False
+stop = perf_counter_ns()
+active_validation_on_duration = stop - start
+
+ct.clear()
+ct.active_validation = False
+start = perf_counter_ns()
+for i in range(ct.table.range[0], ct.table.range[-1]):
+    ct.table[i].waveform.index = 0
+    ct.table[i].amplitude0.value = 0.0
+    ct.table[i].amplitude0.increment = False
+    ct.table[i].amplitude1.value = -0.0
+    ct.table[i].amplitude1.increment = False
+stop = perf_counter_ns()
+active_validation_off_duration = stop - start
+
+def diff_percentage(current, previous):
+    return (abs(current - previous) / previous) * 100.0
+
+difference_in_runtime = diff_percentage(active_validation_on_duration, active_validation_off_duration)
+print(f"Speed improvement without active validation: {difference_in_runtime} %")
+```
+
 ## Performance optimzation
 Often the limiting factor for an experiment is the delay of the device communication.
 If this is the case it is best trying to reduce the number of uploads. 
