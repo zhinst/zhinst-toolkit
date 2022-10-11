@@ -130,6 +130,6 @@ class CommandTableNode(Node):
         Returns:
             command table.
         """
-        ct = CommandTable(self.load_validation_schema())
+        ct = CommandTable(self.load_validation_schema(), active_validation=True)
         ct.update(self.data())
         return ct
