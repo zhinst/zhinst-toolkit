@@ -86,6 +86,11 @@ def test_read(sweeper_module, mock_connection, session):
     assert np.allclose(result[0][0]["testsignal"], np.array([[9, 9, 9, 9, 9]]))
 
 
-def test_execute(sweeper_module):
-    sweeper_module.execute()
-    sweeper_module.raw_module.execute.assert_called_once()
+def test_finish(sweeper_module):
+    sweeper_module.finish()
+    sweeper_module.raw_module.finish.assert_called_once()
+
+
+def test_progress(sweeper_module):
+    sweeper_module.progress()
+    sweeper_module.raw_module.progress.assert_called_once()
