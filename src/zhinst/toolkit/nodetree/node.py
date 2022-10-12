@@ -95,6 +95,14 @@ class NodeInfo:
 
     Args:
         node: A node the information belong to.
+
+    .. versionchanged:: 0.4.4
+
+        Add support for signals in sample nodes. The daq module of LabOne
+        supports subscribing to signals of samples nodes directly. They can be
+        specified by appending them with a dot to the node path
+        (e.g. /dev1234/demods/0/sample.x). The change now support these signals
+        natively in the nodetree.
     """
 
     def __init__(self, node: "Node"):
@@ -112,6 +120,9 @@ class NodeInfo:
                 ).lower()
             except KeyError as error:
                 self._info = {"Node": error.args[0]}
+                if "sample" in node.raw_tree and "sample" != node.raw_tree[-1]:
+                    path, signal = self._info["Node"].split("/sample/")
+                    self._info["Node"] = path + "/sample." + ".".join(signal.split("/"))
                 if self._check_partial(node):
                     self._is_partial = True
                 if self._check_dynamic(node):

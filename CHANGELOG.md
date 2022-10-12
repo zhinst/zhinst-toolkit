@@ -4,6 +4,7 @@
 * Added full support for the following LabOne modules (no need to fallback to zhinst.core):
   * Scope Module
   * Sweeper Module
+  * DAQ Module
 * Renamed `zhinst.toolkit.nodetree.nodes.WildcardResult` to `zhinst.toolkit.nodetree.helpers.NodeDict`
 
 ## Version 0.4.3
