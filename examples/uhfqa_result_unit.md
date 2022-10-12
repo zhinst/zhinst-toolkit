@@ -189,6 +189,7 @@ Poll the data until the selected number of samples is captured.
 
 ```python
 import time
+import copy
 
 timeout = 15
 start_time = time.time()
@@ -200,7 +201,7 @@ while not capture_done:
     if start_time + timeout < time.time():
         raise TimeoutError('Timeout before all samples collected.')
     dataset = session.poll(recording_time=1, timeout=5)
-    for k, v in dataset.copy().items():
+    for k, v in copy.copy(dataset).items():
         if k in captured_data.keys():
             n_records = sum(len(x) for x in captured_data[k])
             if n_records != RESULT_LENGTH:

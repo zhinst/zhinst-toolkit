@@ -22,8 +22,6 @@ def test_enable_sequencer(shfqa, mock_connection):
         "/dev1234/qachannels/0/generator/enable", 1
     )
 
-    yield shfqa.qachannels[0].generator
-
 
 def test_load_sequencer_program_empty_string_none(generator):
     with pytest.raises(RuntimeError):

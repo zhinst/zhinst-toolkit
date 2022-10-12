@@ -31,12 +31,12 @@ def test_existing_connection(nodedoc_zi_json, mock_connection):
     mock_connection.listNodesJSON.return_value = nodedoc_zi_json
     mock_connection.getString.return_value = "DataServer"
 
-    Session("localhost", connection=mock_connection)
+    Session.from_existing_connection(mock_connection)
     mock_connection.assert_not_called()
-    mock_connection.getString.assert_called_once_with("/zi/about/dataserver")
+    mock_connection.getString.assert_called_with("/zi/about/dataserver")
     mock_connection.listNodesJSON.assert_called_once_with("/zi/*")
 
-    Session("localhost", connection=mock_connection, hf2=False)
+    Session.from_existing_connection(mock_connection)
     with pytest.raises(RuntimeError) as e_info:
         Session("localhost", connection=mock_connection, hf2=True)
 

@@ -290,7 +290,7 @@ class BaseInstrument(Node):
                 json_element["Node"] = node.upper()
                 preloaded_json[node.lower()] = json_element
             elif not node.startswith("/zi/"):
-                print(f"unkown node {node}")
+                logger.warning(f"unkown node {node}")
 
         return preloaded_json
 

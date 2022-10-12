@@ -138,10 +138,11 @@ class BaseModule(Node):
             and not self._raw_module.finished()
             and self._raw_module.progress() != 1
         ):
-            print(f"Progress: {(self._raw_module.progress()[0] * 100):.1f}%", end="\r")
+            logger.info(f"Progress: {(self._raw_module.progress()[0] * 100):.1f}%")
             time.sleep(sleep_time)
         if not self._raw_module.finished() and self._raw_module.progress() != 1:
             raise TimeoutError(f"{self._raw_module.__class__.__name__} timed out.")
+        logger.info(f"Progress: {(self._raw_module.progress()[0] * 100):.1f}%")
 
     def subscribe(self, signal: t.Union[Node, str]) -> None:
         """Subscribe to a node.

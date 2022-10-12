@@ -63,6 +63,7 @@ def test_device(zi_devices_json, base_module, mock_connection):
 def test_wait_done(base_module, mock_connection):
     module_mock = mock_connection.return_value.awgModule.return_value
     module_mock.finished.return_value = 1
+    module_mock.progress.return_value = np.array([1])
     base_module.wait_done()
 
     module_mock.finished.return_value = 0
