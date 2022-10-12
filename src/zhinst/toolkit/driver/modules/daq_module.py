@@ -9,6 +9,7 @@ from zhinst.core import DataAcquisitionModule as ZIDAQModule
 
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 from zhinst.toolkit.nodetree import Node
+from zhinst.toolkit.nodetree.helper import NodeDict
 
 if t.TYPE_CHECKING:  # pragma: no cover
     from zhinst.toolkit.session import Session
@@ -82,47 +83,104 @@ class DAQModule(BaseModule):
             str: A raw string representation of Node
         """
         try:
-            node = signal.node_info.path  # type: ignore
+            return signal.node_info.path  # type: ignore
         except AttributeError:
-            node = signal
-        sample_pos = node.find("sample")
-        if sample_pos != -1:
-            node = node[:sample_pos] + node[sample_pos:].replace("/", ".")
-        return node
+            return signal
 
-    def execute(self) -> None:
-        """Start the data acquisition.
-
-        After that command any trigger will start the measurement.
-
-        Subscription or unsubscription is not possible until the
-        acquisition is finished.
-        """
-        self._raw_module.execute()
-
-    def subscribe(self, signal: Node) -> None:
-        """Subscribe to a node.
-
-        The node can either be a node of this module or of a connected device.
-
-        Support the signal subscription options of the daq module.
-        For more information on the signal options see:
-        https://docs.zhinst.com/labone_programming_manual/data_acquisition_module.html
+    @staticmethod
+    def _process_burst(
+        node: str, burst: t.Dict[str, t.Any], clk_rate: float
+    ) -> DAQResult:
+        """Process a single burst into a formatted DAQResult object.
 
         Args:
-            signal: A node that should be subscribed to.
+            node: Name of the node of the burst.
+            burst: raw burst data.
+            clk_rate: Clock rate [Hz] for converting the timestamps. Only
+                applies if the raw flag is reset.
+
+        Returns:
+                Processed and formatted burst data.
         """
-        self._raw_module.subscribe(self._set_node(signal))
+        if "fft" in node:
+            bin_count = len(burst["value"][0])
+            bin_resolution = burst["header"]["gridcoldelta"]
+            frequency = np.arange(bin_count)
+            bandwidth = bin_resolution * len(frequency)
+            frequency = frequency * bin_resolution
+            if "xiy" in node:
+                frequency = frequency - bandwidth / 2.0 + bin_resolution / 2.0
+            return DAQResult(
+                burst.get("header", {}),
+                burst["value"],
+                None,
+                frequency,
+                burst["value"].shape,
+            )
+        timestamp = burst["timestamp"]
+        return DAQResult(
+            burst.get("header", {}),
+            burst["value"],
+            (timestamp[0] - timestamp[0][0]) / clk_rate,
+            None,
+            burst["value"].shape,
+        )
 
-    def unsubscribe(self, signal: Node) -> None:
-        """Unsubscribe from a node.
+    @staticmethod
+    def _process_node_data(
+        node: str, data: t.List[t.Dict[str, t.Any]], clk_rate: float
+    ) -> t.List[t.Union[t.Dict[str, t.Any], DAQResult]]:
+        """Process the data of a node.
 
-        The node can either be a node of this module or of a connected device.
+        Only subscribed sample nodes are processed. Other nodes (module native nodes)
+        are returned in the original format.
 
         Args:
-            signal: A node that should be unsubscribed from.
+            node: Name of the node of the burst.
+            data: raw data for the node.
+            clk_rate: Clock rate [Hz] for converting the timestamps. Only
+                applies if the raw flag is reset.
+
+        Returns:
+                Processed and formatted node data.
         """
-        self._raw_module.unsubscribe(self._set_node(signal))
+        if isinstance(data[0], dict):
+            return [DAQModule._process_burst(node, burst, clk_rate) for burst in data]
+        return data
+
+    def finish(self) -> None:
+        """Stop the module.
+
+        .. versionadded:: 0.4.4
+        """
+        self._raw_module.finish()
+
+    def finished(self) -> bool:
+        """Check if the acquisition has finished.
+
+        Returns:
+            Flag if the acquisition has finished.
+
+        .. versionadded:: 0.4.4
+        """
+        return self._raw_module.finished()
+
+    def progress(self) -> float:
+        """Progress of the execution.
+
+        Returns:
+            Progress of the execution with a number between 0 and 1
+
+        .. versionadded:: 0.4.4
+        """
+        return self._raw_module.progress()[0]
+
+    def trigger(self) -> None:
+        """Execute a manual trigger.
+
+        .. versionadded:: 0.4.4
+        """
+        self._raw_module.trigger()
 
     def read(
         self, *, raw: bool = False, clk_rate: float = 60e6
@@ -142,41 +200,11 @@ class DAQModule(BaseModule):
             Result of the burst grouped by the signals.
         """
         raw_result = self._raw_module.read(flat=True)
-        results = {}
-        for node, node_results_raw in raw_result.items():
-            if not raw and isinstance(node_results_raw[0], dict):
-                node_results = []
-                for result_dict in node_results_raw:
-                    if "fft" in node:
-                        bin_count = len(result_dict.get("value")[0])
-                        bin_resolution = result_dict.get("header")["gridcoldelta"]
-                        frequency = np.arange(bin_count)
-                        bandwidth = bin_resolution * len(frequency)
-                        frequency = frequency * bin_resolution
-                        if "xiy" in node:
-                            frequency = (
-                                frequency - bandwidth / 2.0 + bin_resolution / 2.0
-                            )
-                        node_results.append(
-                            DAQResult(
-                                result_dict.get("header", {}),
-                                result_dict.get("value"),
-                                None,
-                                frequency,
-                                result_dict.get("value").shape,
-                            )
-                        )
-                    else:
-                        timestamp = result_dict.get("timestamp")
-                        node_results.append(
-                            DAQResult(
-                                result_dict.get("header", {}),
-                                result_dict.get("value"),
-                                (timestamp[0] - timestamp[0][0]) / clk_rate,
-                                None,
-                                result_dict.get("value").shape,
-                            )
-                        )
-                node_results_raw = node_results
-            results[self._get_node(node)] = node_results_raw
-        return results
+        if raw:
+            return NodeDict(raw_result)
+        return NodeDict(
+            {
+                node: self._process_node_data(node, data, clk_rate)
+                for node, data in raw_result.items()
+            }
+        )

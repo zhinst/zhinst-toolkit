@@ -4,6 +4,7 @@
 * Added full support for the following LabOne modules (no need to fallback to zhinst.core):
   * Scope Module
   * Sweeper Module
+  * DAQ Module
 * Renamed `zhinst.toolkit.nodetree.nodes.WildcardResult` to `zhinst.toolkit.nodetree.helpers.NodeDict`
 * Added `active_validation` argument to `CommandTable`. By disabling it, `CommandTable` does not actively 
   validate the inputs and therefore it improves the speed for command table creation.

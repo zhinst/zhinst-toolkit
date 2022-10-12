@@ -160,3 +160,27 @@ def test_execute(daq_module, mock_connection):
     module_mock = mock_connection.return_value.dataAcquisitionModule.return_value
     daq_module.execute()
     module_mock.execute.assert_called_with()
+
+
+def test_finish(daq_module, mock_connection):
+    module_mock = mock_connection.return_value.dataAcquisitionModule.return_value
+    daq_module.finish()
+    module_mock.finish.assert_called_with()
+
+
+def test_finished(daq_module, mock_connection):
+    module_mock = mock_connection.return_value.dataAcquisitionModule.return_value
+    daq_module.finished()
+    module_mock.finished.assert_called_with()
+
+
+def test_progress(daq_module, mock_connection):
+    module_mock = mock_connection.return_value.dataAcquisitionModule.return_value
+    daq_module.progress()
+    module_mock.progress.assert_called_with()
+
+
+def test_trigger(daq_module, mock_connection):
+    module_mock = mock_connection.return_value.dataAcquisitionModule.return_value
+    daq_module.trigger()
+    module_mock.trigger.assert_called_with()
