@@ -6,7 +6,7 @@ import typing as t
 from zhinst.core import SweeperModule as ZISweeperModule
 
 from zhinst.toolkit.driver.modules.base_module import BaseModule
-from zhinst.toolkit.nodetree import Node
+from zhinst.toolkit.nodetree.helper import NodeDict
 
 if t.TYPE_CHECKING:
     from zhinst.toolkit.session import Session
@@ -43,23 +43,31 @@ class SweeperModule(BaseModule):
             raise_for_invalid_node=False,
         )
 
-    def execute(self) -> None:
-        """Start the sweeper.
+    def finish(self) -> None:
+        """Stop the module.
 
-        Subscribe or unsubscribe is not possible until the sweep is finished.
+        .. versionadded:: 0.4.4
         """
-        self._raw_module.execute()
+        self._raw_module.finish()
 
-    def read(self) -> t.Dict[Node, t.List]:
-        """Read the acquired data from the module.
-
-        The data is split into bursts.
+    def progress(self) -> float:
+        """Progress of the execution.
 
         Returns:
-            Result of the burst grouped by the signals.
+            Progress of the execution with a number between 0 and 1
+
+        .. versionadded:: 0.4.4
         """
-        raw_result = self._raw_module.read(flat=True)
-        results = {}
-        for node, node_results_raw in raw_result.items():
-            results[self._get_node(node)] = node_results_raw
-        return results
+        return self._raw_module.progress()[0]
+
+    def read(self) -> NodeDict:
+        """Read sweeper data.
+
+        If the recording is still ongoing only a subset of data is returned.
+
+        Returns:
+            Sweeper data.
+
+        .. versionchanged:: 0.4.4 return NodeDict instead of raw dict.
+        """
+        return NodeDict(self._raw_module.read(flat=True))
