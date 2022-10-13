@@ -1,0 +1,230 @@
+{
+    "/calibrate": {
+        "Node": "/calibrate",
+        "Description": "If set to true will execute a compensation for the specified compensation condition.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/comment": {
+        "Node": "/comment",
+        "Description": "Comment string that will be saved together with the compensation data.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/device": {
+        "Node": "/device",
+        "Description": "Device string defining the device on which the compensation is performed.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/directory": {
+        "Node": "/directory",
+        "Description": "The directory where files are saved.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/expectedstatus": {
+        "Node": "/expectedstatus",
+        "Description": "Bit field of the load condition that the corresponds a full compensation. If status is equal the expected status the compensation is complete.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/filename": {
+        "Node": "/filename",
+        "Description": "The name of the file to use for user compensation.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/freq/samplecount": {
+        "Node": "/freq/samplecount",
+        "Description": "Number of samples of a compensation trace.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/freq/start": {
+        "Node": "/freq/start",
+        "Description": "Start frequency of compensation traces.",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/freq/stop": {
+        "Node": "/freq/stop",
+        "Description": "Stop frequency of compensation traces.",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/highimpedanceload": {
+        "Node": "/highimpedanceload",
+        "Description": "Enable a second high impedance load compensation for the low current ranges.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/load": {
+        "Node": "/load",
+        "Description": "Load the impedance user compensation data from the file specified by filename.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/loads/0/c": {
+        "Node": "/loads/0/c",
+        "Description": "Parallel capacitance of the first compensation load (SHORT).",
+        "Properties": "Read, Write",
+        "Unit": "F",
+        "Type": "Double"
+    },
+    "/loads/0/r": {
+        "Node": "/loads/0/r",
+        "Description": "Resistance value of first compensation load (SHORT).",
+        "Properties": "Read, Write",
+        "Unit": "Ohm",
+        "Type": "Double"
+    },
+    "/loads/1/c": {
+        "Node": "/loads/1/c",
+        "Description": "Parallel capacitance of the first compensation load (SHORT).",
+        "Properties": "Read, Write",
+        "Unit": "F",
+        "Type": "Double"
+    },
+    "/loads/1/r": {
+        "Node": "/loads/1/r",
+        "Description": "Resistance value of first compensation load (SHORT).",
+        "Properties": "Read, Write",
+        "Unit": "Ohm",
+        "Type": "Double"
+    },
+    "/loads/2/c": {
+        "Node": "/loads/2/c",
+        "Description": "Parallel capacitance of the first compensation load (SHORT).",
+        "Properties": "Read, Write",
+        "Unit": "F",
+        "Type": "Double"
+    },
+    "/loads/2/r": {
+        "Node": "/loads/2/r",
+        "Description": "Resistance value of first compensation load (SHORT).",
+        "Properties": "Read, Write",
+        "Unit": "Ohm",
+        "Type": "Double"
+    },
+    "/loads/3/c": {
+        "Node": "/loads/3/c",
+        "Description": "Parallel capacitance of the first compensation load (SHORT).",
+        "Properties": "Read, Write",
+        "Unit": "F",
+        "Type": "Double"
+    },
+    "/loads/3/r": {
+        "Node": "/loads/3/r",
+        "Description": "Resistance value of first compensation load (SHORT).",
+        "Properties": "Read, Write",
+        "Unit": "Ohm",
+        "Type": "Double"
+    },
+    "/message": {
+        "Node": "/message",
+        "Description": "Message string containing information, warnings or error messages during compensation.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/mode": {
+        "Node": "/mode",
+        "Description": "Compensation mode to be used. Defines which load steps need to be compensated.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "3": "\"short_open\": SO (Short-Open)",
+            "4": "\"load\": L (Load)",
+            "5": "\"short_load\": SL (Short-Load)",
+            "6": "\"open_load\": OL (Open-Load)",
+            "7": "\"short_open_load\": SOL (Short-Open-Load)",
+            "8": "\"load_load_load\": LLL (Load-Load-Load)"
+        }
+    },
+    "/openstep": {
+        "Node": "/openstep",
+        "Description": "Perform an additional open compensation step.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/path": {
+        "Node": "/path",
+        "Description": "The path of the directory where the user compensation file is located.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/precision": {
+        "Node": "/precision",
+        "Description": "Precision of the compensation. Will affect time of a compensation and reduces the noise on compensation traces.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"standard\": Standard speed",
+            "1": "\"high\": Low speed / high precision"
+        }
+    },
+    "/progress": {
+        "Node": "/progress",
+        "Description": "Progress of a compensation condition.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/save": {
+        "Node": "/save",
+        "Description": "Save the current impedance user compensation data to the file specified by filename.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/status": {
+        "Node": "/status",
+        "Description": "Bit coded field of the already compensated load conditions (bit 0 = first compensation step, bit 1 = second compensation step, ...).",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/step": {
+        "Node": "/step",
+        "Description": "Compensation step to be performed when calibrate indicator is set to true.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"first_load\": First load",
+            "1": "\"second_load\": Second load",
+            "2": "\"third_load\": Third load",
+            "3": "\"fourth_load\": Fourth load"
+        }
+    },
+    "/todevice": {
+        "Node": "/todevice",
+        "Description": "If enabled will automatically transfer compensation data to the persistent flash memory in case of a valid compensation.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/validation": {
+        "Node": "/validation",
+        "Description": "Enable the validation of compensation data. If enabled the compensation is checked for too big deviation from specified load.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    }
+}

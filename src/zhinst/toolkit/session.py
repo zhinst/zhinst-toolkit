@@ -293,7 +293,7 @@ class ModuleHandler:
             self._session.daq_server.deviceSettings(), self._session
         )
 
-    def create_impedance_module(self) -> tk_modules.BaseModule:
+    def create_impedance_module(self) -> tk_modules.ImpedanceModule:
         """Create an instance of the ImpedanceModule.
 
         The resulting Module will have the nodetree accessible. The underlying
@@ -310,7 +310,7 @@ class ModuleHandler:
         Returns:
             Created module
         """
-        return tk_modules.BaseModule(
+        return tk_modules.ImpedanceModule(
             self._session.daq_server.impedanceModule(), self._session
         )
 
@@ -495,7 +495,7 @@ class ModuleHandler:
         return self.create_device_settings_module()
 
     @lazy_property
-    def impedance(self) -> tk_modules.BaseModule:
+    def impedance(self) -> tk_modules.ImpedanceModule:
         """Managed instance of the impedance module.
 
         Managed means that only one instance is created

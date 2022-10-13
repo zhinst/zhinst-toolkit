@@ -1,5 +1,9 @@
 # zhinst-toolkit Changelog
 
+## Version 0.5.1
+* Added full support for the following LabOne modules (no need to fallback to zhinst.core):
+  * Impedance Module
+
 ## Version 0.5.0
 * Added full support for the following LabOne modules (no need to fallback to zhinst.core):
   * Scope Module

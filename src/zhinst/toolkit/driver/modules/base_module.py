@@ -6,6 +6,7 @@ the module specific nodetree.
 import logging
 import time
 import typing as t
+from os import PathLike, fspath
 
 from zhinst.core import ModuleBase
 from zhinst.toolkit.nodetree import Node, NodeTree
@@ -37,16 +38,21 @@ class BaseModule(Node):
         self._raw_module = raw_module
         self._session = session
         super().__init__(NodeTree(raw_module), tuple())
-        if "device" in self.root:
-            self.root.update_nodes(
-                {
-                    "/device": {
-                        "GetParser": self._get_device,
-                        "SetParser": self._set_device,
-                    }
+        self.root.update_nodes(
+            {
+                "/device": {
+                    "GetParser": self._get_device,
+                    "SetParser": self._set_device,
                 },
-                raise_for_invalid_node=False,
-            )
+                "/directory": {
+                    "SetParser": self._set_path,
+                },
+                "/save/directory": {
+                    "SetParser": self._set_path,
+                },
+            },
+            raise_for_invalid_node=False,
+        )
 
     def __repr__(self):
         return str(f"{self._raw_module.__class__.__name__}({repr(self._session)})")
@@ -117,6 +123,28 @@ class BaseModule(Node):
         except AttributeError:
             node = signal
         return node
+
+    @staticmethod
+    def _set_path(path: t.Union[str, PathLike]) -> str:
+        """Convert a Pathlike object into a string for LabOne.
+
+        LabOne only accepts strings for the path node. This function converts
+        any Pathlike object into a string so that is processed by LabOne
+        correctly.
+
+        If the object implements the `absolute` method (e.g. pathlib.Path)
+        it is used to use the absolute path. This is important since LabOne
+        operates in a different directory.
+
+        Args:
+            path (str): Path to send to the device.
+
+        Returns:
+            String representation of the path like object.
+        """
+        if hasattr(path, "absolute"):
+            path = path.absolute()  # type: ignore[union-attr]
+        return fspath(path)
 
     def wait_done(self, *, timeout: float = 20.0, sleep_time: float = 0.5) -> None:
         """Waits until the module is finished.

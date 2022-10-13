@@ -13,6 +13,9 @@ hdawg_precomp_curve_fit:
 hf2:
   device_type: "HF2LI"
 
+impedance_module:
+  device_type: "MFIA"
+
 nodetree:
   device_type: ["MFLI", "UHFLI"]
 

@@ -1,6 +1,8 @@
 import numpy as np
 import pytest
 
+from pathlib import Path
+
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 
 
@@ -100,3 +102,11 @@ def test_execute(base_module, mock_connection):
     module_mock = mock_connection.return_value.awgModule.return_value
     base_module.execute()
     module_mock.execute.assert_called_once()
+
+
+def test_set_path(base_module, mock_connection):
+    module_mock = mock_connection.return_value.awgModule.return_value
+    base_module.directory(Path("test"))
+    module_mock.set.assert_called_with("/directory", str(Path("test").resolve()))
+    base_module.directory("test")
+    module_mock.set.assert_called_with("/directory", "test")
