@@ -499,6 +499,17 @@ def test_runtimerror_set_set_vector(connection):
     )
 
 
+def test_runtimerror_set(connection):
+    tree = NodeTree(connection, "DEV1234")
+
+    tree.demods[0].rate(22.0)
+    connection.set.assert_called_with(tree.demods[0].rate.node_info.path, 22.0)
+
+    connection.set = Mock(side_effect=RuntimeError)
+    with pytest.raises(RuntimeError):
+        tree.demods[0].rate(22.0)
+
+
 def test_transactional_set(connection):
     tree = NodeTree(connection, "DEV1234")
     with tree.set_transaction():
@@ -626,11 +637,12 @@ def test_update_nodes(connection):
     assert tree.test.is_valid() is True
 
     # Test for not raising any errors
-    tree.update_nodes(
-        {"312/123": {"Unit": "test5"}, "testNOtexists": {"Node": "test5"}},
-        add=False,
-        raise_for_invalid_node=False,
-    )
+    with pytest.warns(Warning):
+        tree.update_nodes(
+            {"312/123": {"Unit": "test5"}, "testNOtexists": {"Node": "test5"}},
+            add=False,
+            raise_for_invalid_node=False,
+        )
     assert tree.testNOtexists.is_valid() is False
 
 
@@ -905,6 +917,16 @@ def test_connection_dict(data_dir):
     connection.setVector("/car/seat", 5)
     assert tree.car.seat() == 5
 
+    # Invalid initial values
+    data = {"/car/seat": {2}, "/car/color": {"blue"}, "/street/length": {110.4}}
+    connection = ConnectionDict(data, nodes_json)
+    tree = NodeTree(connection)
+    with pytest.raises(TypeError):
+        tree.car.seat()
+    assert tree.car.color() == "{'blue'}"
+    with pytest.raises(TypeError):
+        tree.street.length()
+
 
 @pytest.fixture()
 def hdawg(data_dir, mock_connection, session):
@@ -930,6 +952,12 @@ def test_nodelist_is_node(connection, hdawg):
     bar = NodeList([hdawg], nt, ("foobar",))
     assert bar[0] == hdawg
     assert bar == Node(nt, ("foobar",))
+
+
+def test_nodelist_hash(connection, hdawg):
+    nt = NodeTree(connection, "DEV1234")
+    bar = NodeList([hdawg], nt, ("foobar",))
+    hash(bar) == hash(Node(nt, ("foobar",)))
 
 
 class TestWildCardResult:

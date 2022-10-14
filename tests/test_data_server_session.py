@@ -71,6 +71,12 @@ def test_wrong_port(mock_connection):
         Session("localhost", 8005, hf2=False)
 
 
+def test_unkown_init_error(mock_connection):
+    mock_connection.side_effect = RuntimeError("Unkown")
+    with pytest.raises(RuntimeError) as e_info:
+        Session("localhost", 8005, hf2=False)
+
+
 def test_connect_device(
     zi_devices_json, mock_connection, session, nodedoc_dev1234_json
 ):
@@ -253,6 +259,12 @@ def test_connect_device_h2(
             hf2_session.connect_device("dev5678")
     assert "dev5678" in e_info.value.args[0].lower()
     assert "test234" in e_info.value.args[0].lower()
+
+    # unknown connection error
+    mock_connection.return_value.getString.side_effect = RuntimeError("Unkown")
+    with pytest.raises(RuntimeError) as e_info:
+        hf2_session.connect_device("dev5555")
+    assert "Unkown" == e_info.value.args[0]
 
 
 def test_devices_visible(mock_connection, session, hf2_session):

@@ -41,3 +41,5 @@ class TestParsers:
         assert len(caplog.records) == 2
         assert Parse.multiple_of(12, 6, "down") == 12
         assert len(caplog.records) == 2
+        with pytest.raises(RuntimeError):
+            Parse.multiple_of(100, 6, "up")

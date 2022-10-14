@@ -37,7 +37,7 @@ def session(nodedoc_zi_json, mock_connection):
 
 
 @pytest.fixture()
-def hf2_session(data_dir, mock_connection):
+def hf2_session(mock_connection):
     mock_connection.return_value.getString.return_value = "HF2DataServer"
     type(mock_connection.return_value).port = PropertyMock(return_value=8005)
     yield Session("localhost", hf2=True)

@@ -21,6 +21,7 @@ src_paths = ["src", "tests"]
 [tool.pytest.ini_options]
 testpaths = ["tests", "scripts/tests"]
 addopts = "-l"
+filterwarnings = ["ignore::DeprecationWarning"]
 
 [build-system]
 requires = [
