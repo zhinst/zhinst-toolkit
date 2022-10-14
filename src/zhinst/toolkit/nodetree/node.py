@@ -17,7 +17,7 @@ from zhinst.toolkit.nodetree.helper import (
     NodeDict,
 )
 
-if t.TYPE_CHECKING:
+if t.TYPE_CHECKING:  # pragma: no cover
     from zhinst.toolkit.nodetree import NodeTree
 
 
@@ -70,7 +70,7 @@ class NodeEnum(IntEnum):
         ...
 
     # Required for typing
-    def __call__(self, *args, **kwargs):  # noqa: D102
+    def __call__(self, *args, **kwargs):  # noqa: D102 # pragma: no cover
         ...
 
     def __reduce_ex__(self, _):
@@ -1182,11 +1182,15 @@ class NodeList(Sequence, Node):
         self._elements: t.Sequence[t.Any] = elements
 
     @t.overload
-    def __getitem__(self, idx: t.Union[int, str]) -> t.Union[t.Any, Node]:
+    def __getitem__(
+        self, idx: t.Union[int, str]
+    ) -> t.Union[t.Any, Node]:  # pragma: no cover
         ...
 
     @t.overload
-    def __getitem__(self, s: slice) -> t.Sequence[t.Union[t.Any, Node]]:
+    def __getitem__(
+        self, s: slice
+    ) -> t.Sequence[t.Union[t.Any, Node]]:  # pragma: no cover
         ...
 
     def __getitem__(self, item):

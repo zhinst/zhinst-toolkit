@@ -12,7 +12,7 @@ from zhinst.toolkit.nodetree import Node, NodeTree
 
 logger = logging.getLogger(__name__)
 
-if t.TYPE_CHECKING:
+if t.TYPE_CHECKING:  # pragma: no cover
     from zhinst.toolkit.driver.devices import DeviceType
     from zhinst.toolkit.session import Session
 

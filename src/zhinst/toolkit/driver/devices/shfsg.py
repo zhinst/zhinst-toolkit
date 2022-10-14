@@ -14,7 +14,7 @@ from zhinst.toolkit.nodetree.node import NodeList
 
 logger = logging.getLogger(__name__)
 
-if t.TYPE_CHECKING:
+if t.TYPE_CHECKING:  # pragma: no cover
     from zhinst.toolkit.session import Session
 
 

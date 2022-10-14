@@ -21,7 +21,7 @@ from zhinst.toolkit.sequence import Sequence
 
 try:
     from zhinst.toolkit._version import version as __version__
-except ModuleNotFoundError:
+except ModuleNotFoundError:  # pragma: no cover
     pass
 
 __all__ = [
