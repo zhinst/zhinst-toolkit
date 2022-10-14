@@ -8,7 +8,7 @@ from collections.abc import Mapping
 # Ift we only support 3.8 we should switch to t.TypedDict
 from typing_extensions import TypedDict
 
-if t.TYPE_CHECKING:
+if t.TYPE_CHECKING:  # pragma: no cover
     from zhinst.toolkit.nodetree.node import Node
 
 T = t.TypeVar("T")

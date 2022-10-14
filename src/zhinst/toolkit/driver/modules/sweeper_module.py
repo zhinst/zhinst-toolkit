@@ -8,7 +8,7 @@ from zhinst.core import SweeperModule as ZISweeperModule
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 from zhinst.toolkit.nodetree.helper import NodeDict
 
-if t.TYPE_CHECKING:
+if t.TYPE_CHECKING:  # pragma: no cover
     from zhinst.toolkit.session import Session
 
 logger = logging.getLogger(__name__)

@@ -10,7 +10,7 @@ from zhinst.core import DataAcquisitionModule as ZIDAQModule
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 from zhinst.toolkit.nodetree import Node
 
-if t.TYPE_CHECKING:
+if t.TYPE_CHECKING:  # pragma: no cover
     from zhinst.toolkit.session import Session
 
 logger = logging.getLogger(__name__)
