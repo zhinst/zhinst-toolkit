@@ -372,12 +372,7 @@ class CommandTable:
 
         def build_header_nodes(header: HeaderEntry, obj: dict):
             for k, v in obj.items():
-                if isinstance(k, dict):
-                    build_header_nodes(
-                        getattr(header, k), v  # type: ignore[call-overload]
-                    )
-                else:
-                    setattr(header, k, v)
+                setattr(header, k, v)
 
         build_header_nodes(self._header, command_table["header"])
 

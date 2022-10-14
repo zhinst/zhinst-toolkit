@@ -703,14 +703,6 @@ class Session(Node):
                         "HF2 data server."
                     ) from error
 
-        if self._is_hf2_server and "HF2" not in self._daq_server.getString(
-            "/zi/about/dataserver"
-        ):
-            raise RuntimeError(
-                "hf2 Flag was set but the specified "
-                f"server at {server_host}:{server_port} is not a "
-                "HF2 data server."
-            )
         self._devices = HF2Devices(self) if self._is_hf2_server else Devices(self)
         self._modules = ModuleHandler(self)
 

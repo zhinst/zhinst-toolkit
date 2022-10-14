@@ -23,8 +23,14 @@ def test_get_qudits_results(mock_connection, multistate):
 
 def test_configure_qudit(mock_connection, multistate):
     with patch("zhinst.toolkit.driver.nodes.multistate.utils", autospec=True) as utils:
-        ref_trace = np.zeros(400, dtype=np.float)
-        settings = QuditSettings([ref_trace, ref_trace, ref_trace, ref_trace])
+        settings = QuditSettings(
+            [
+                np.random.rand(400),
+                np.random.rand(400),
+                np.random.rand(400),
+                np.random.rand(400),
+            ]
+        )
         utils.get_settings_transaction.return_value = [
             ("/dev1234/qachannels/0/centerfreq", 1),
             ("/dev1234/qachannels/1/centerfreq", 1),
@@ -45,8 +51,14 @@ def test_configure_qudit(mock_connection, multistate):
 
 def test_configure_qudit_existing_transaction(mock_connection, shfqa, multistate):
     with patch("zhinst.toolkit.driver.nodes.multistate.utils", autospec=True) as utils:
-        ref_trace = np.zeros(400, dtype=np.float)
-        settings = QuditSettings([ref_trace, ref_trace, ref_trace, ref_trace])
+        settings = QuditSettings(
+            [
+                np.random.rand(400),
+                np.random.rand(400),
+                np.random.rand(400),
+                np.random.rand(400),
+            ]
+        )
         utils.get_settings_transaction.return_value = [
             ("/dev1234/qachannels/0/centerfreq", 1),
             ("/dev1234/qachannels/1/centerfreq", 1),
