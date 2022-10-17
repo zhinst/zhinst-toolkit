@@ -26,7 +26,7 @@ Create a toolkit session to the data server and connect the device:
 ```python
 from zhinst.toolkit import Session
 
-session = Session('localhost')
+session = Session("localhost")
 device = session.connect_device("DEVXXXX")
 sweeper = session.modules.shfqa_sweeper
 CHANNEL = 0
