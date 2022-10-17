@@ -393,7 +393,11 @@ ct.table[0].amplitude0.value
 ```
 
 ```python
-ct.table[0].amplitude0.value = 2
+from zhinst.toolkit.exceptions import ValidationError
+try:
+    ct.table[0].amplitude0.value = 2
+except ValidationError as err:
+    print(err)
 ```
 
 Each change to the command table will be validated on the fly. In addition

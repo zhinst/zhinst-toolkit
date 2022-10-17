@@ -33,7 +33,7 @@ Requirements:
 ```python
 from zhinst.toolkit import Session
 
-session = Session('localhost')
+session = Session("localhost")
 device = session.connect_device("DEVXXXX")
 ```
 

@@ -27,7 +27,7 @@ Requirements:
 from zhinst.toolkit import Session
 import numpy as np
 
-session = Session('localhost')
+session = Session("localhost")
 device = session.connect_device("DEVXXXX")
 ```
 

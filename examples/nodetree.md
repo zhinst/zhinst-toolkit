@@ -301,13 +301,10 @@ value (or the timeout has exceeded).
 ```python
 device.extrefs[0].enable(0, deep=True)
 device.extrefs[0].enable(1)
-device.extrefs[0].locked.wait_for_state_change(1, timeout=0.1)
-```
-
-```python
-device.extrefs[0].enable(0, deep=True)
-device.extrefs[0].enable(1)
-device.extrefs[0].locked.wait_for_state_change(1, timeout=10)
+try:
+    device.extrefs[0].locked.wait_for_state_change(1, timeout=0.1)
+except TimeoutError:
+    print("Could not lock to the external reference. Please make sure an external reference is supplied.")
 ```
 
 It is also possible to wait until the node has any value except the one specified.
@@ -315,7 +312,10 @@ It is also possible to wait until the node has any value except the one specifie
 ```python
 device.extrefs[0].enable(0, deep=True)
 device.extrefs[0].enable(1)
-device.extrefs[0].locked.wait_for_state_change(0, invert=True)
+try:
+    device.extrefs[0].locked.wait_for_state_change(0, invert=True)
+except TimeoutError:
+    print("Could not lock to the external reference. Please make sure an external reference is supplied.")
 ```
 
 ### Filter nodes
