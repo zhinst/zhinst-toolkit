@@ -37,7 +37,7 @@ Connect devices and access the ``/awg`` node.
 ```python
 from zhinst.toolkit import Session
 
-session = Session('localhost')
+session = Session("localhost")
 device = session.connect_device("DEVXXXX")
 awg_node = device.awgs[0]
 ```
