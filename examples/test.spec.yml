@@ -4,6 +4,9 @@ awg:
 daq_module:
   device_type: ["MFLI", "UHFLI"]
 
+device_settings_module:
+  device_type: ["MFLI", "UHFLI", "UHFQA", "HDAWG8", "SHFQA2", "SHFSG4"]
+
 hdawg_awg:
   device_type: "HDAWG8"
 

@@ -272,7 +272,7 @@ class ModuleHandler:
             self._session.daq_server.dataAcquisitionModule(), self._session
         )
 
-    def create_device_settings_module(self) -> tk_modules.BaseModule:
+    def create_device_settings_module(self) -> tk_modules.DeviceSettingsModule:
         """Create an instance of the DeviceSettingsModule.
 
         The resulting Module will have the nodetree accessible. The underlying
@@ -289,7 +289,7 @@ class ModuleHandler:
         Returns:
             Created module
         """
-        return tk_modules.BaseModule(
+        return tk_modules.DeviceSettingsModule(
             self._session.daq_server.deviceSettings(), self._session
         )
 
@@ -483,7 +483,7 @@ class ModuleHandler:
         return self.create_daq_module()
 
     @lazy_property
-    def device_settings(self) -> tk_modules.BaseModule:
+    def device_settings(self) -> tk_modules.DeviceSettingsModule:
         """Managed instance of the device settings module.
 
         Managed means that only one instance is created

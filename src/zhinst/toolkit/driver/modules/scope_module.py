@@ -66,14 +66,6 @@ class ScopeModule(BaseModule):
         """Stop the module."""
         self._raw_module.finish()
 
-    def progress(self) -> float:
-        """Progress of the execution.
-
-        Returns:
-            Progress of the execution with a number between 0 and 1
-        """
-        return self._raw_module.progress()[0]
-
     def read(self) -> NodeDict:
         """Read scope data.
 

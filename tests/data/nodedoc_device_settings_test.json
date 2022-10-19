@@ -1,0 +1,51 @@
+{
+    "/command": {
+        "Node": "/command",
+        "Description": "The command to execute: 'save' = Read device settings and save to file; 'load' = Load settings from file an write to device; 'read' = Read device settings only (no save).",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/device": {
+        "Node": "/device",
+        "Description": "Comma separated list of devices that should be used for loading/saving device settings, e.g. 'dev99,dev100'.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/errortext": {
+        "Node": "/errortext",
+        "Description": "The error text used in error messages.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/filename": {
+        "Node": "/filename",
+        "Description": "Name of settings file to use.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/finished": {
+        "Node": "/finished",
+        "Description": "The status of the command.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/path": {
+        "Node": "/path",
+        "Description": "Directory where settings files should be located. If not set, the default settings location of the LabOne software is used.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/throwonerror": {
+        "Node": "/throwonerror",
+        "Description": "Throw an exception is there was error executing the command.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    }
+}
