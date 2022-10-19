@@ -405,8 +405,11 @@ the moment it gets converted the complete structure is validated.
 
 ```python
 ct.clear()
-ct.table[0].amplitude0.increment = True
-ct.as_dict()
+try:
+    ct.table[0].amplitude0.increment = True
+    ct.as_dict()
+except ValidationError as err:
+    print(err)
 ```
 
 Once the command table is finished the upload to the device is taken care of
