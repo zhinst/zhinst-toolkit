@@ -236,7 +236,7 @@ class AWG(Node):
                 )
 
     def read_from_waveform_memory(self, indexes: t.List[int] = None) -> Waveforms:
-        """Read waveforms to the waveform memory.
+        """Read waveforms from the waveform memory.
 
         Args:
             indexes: List of waveform indexes to read from the device. If not
@@ -245,17 +245,14 @@ class AWG(Node):
         Returns:
             Waveform object with the downloaded waveforms.
         """
-        nodes = [self.waveform.descriptors.node_info.path]
-        if indexes is not None:
-            for index in indexes:
-                nodes.append(self.waveform.node_info.path + f"/waves/{index}")
-        else:
-            nodes.append(self.waveform.waves["*"].node_info.path)
+        waveform_info = json.loads(self.waveform.descriptors()).get("waveforms", [])
+        nodes = [
+            self.waveform.node_info.path + f"/waves/{index}"
+            for index in range(len(waveform_info))
+            if indexes is None or index in indexes
+        ]
         nodes_str = ",".join(nodes)
         waveforms_raw = self._daq_server.get(nodes_str, settingsonly=False, flat=True)
-        waveform_info = json.loads(
-            waveforms_raw.pop(self.waveform.descriptors.node_info.path)[0]["vector"]
-        ).get("waveforms", [])
         waveforms = Waveforms()
         for node, waveform in waveforms_raw.items():
             slot = int(node[-1])

@@ -189,85 +189,84 @@ def test_read_from_waveform_memory(waveform_descriptors_json, mock_connection, s
     single_wave_result = []
 
     def get_side_effect(nodes, **kwargs):
+        if "/dev1234/sgchannels/0/awg/waveform/descriptors" in nodes.lower():
+            return OrderedDict(
+                [
+                    (
+                        "/dev1234/sgchannels/0/awg/waveform/descriptors",
+                        [
+                            {
+                                "timestamp": 1158178198389432,
+                                "flags": 0,
+                                "vector": json.dumps(waveform_descriptiors),
+                            }
+                        ],
+                    ),
+                ]
+            )
         if "/dev1234/sgchannels/0/awg/waveform/waves/" in nodes.lower():
-            if nodes[-1] == "*":
-                return OrderedDict(
-                    [
-                        (
-                            "/dev1234/sgchannels/0/awg/waveform/descriptors",
-                            [
-                                {
-                                    "timestamp": 1158178198389432,
-                                    "flags": 0,
-                                    "vector": json.dumps(waveform_descriptiors),
-                                }
-                            ],
-                        ),
-                        (
-                            "/dev1234/sgchannels/0/awg/waveform/waves/0",
-                            [
-                                {
-                                    "timestamp": 338544371667920,
-                                    "flags": 0,
-                                    "vector": zi_utils.convert_awg_waveform(
-                                        np.ones(1008), -np.ones(1008), np.ones(1008)
-                                    ),
-                                }
-                            ],
-                        ),
-                        (
-                            "/dev1234/sgchannels/0/awg/waveform/waves/1",
-                            [
-                                {
-                                    "timestamp": 338544371667920,
-                                    "flags": 0,
-                                    "vector": [],
-                                }
-                            ],
-                        ),
-                        (
-                            "/dev1234/sgchannels/0/awg/waveform/waves/2",
-                            [
-                                {
-                                    "timestamp": 338544371667920,
-                                    "flags": 0,
-                                    "vector": [],
-                                }
-                            ],
-                        ),
-                    ]
+            return_value = []
+            if "waves/0" in nodes:
+                return_value.append(
+                    (
+                        "/dev1234/sgchannels/0/awg/waveform/waves/0",
+                        [
+                            {
+                                "timestamp": 338544371667920,
+                                "flags": 0,
+                                "vector": zi_utils.convert_awg_waveform(
+                                    np.ones(1008), -np.ones(1008), np.ones(1008)
+                                ),
+                            }
+                        ],
+                    )
                 )
-            else:
-                return OrderedDict(
-                    [
-                        (
-                            "/dev1234/sgchannels/0/awg/waveform/descriptors",
-                            [
-                                {
-                                    "timestamp": 1158178198389432,
-                                    "flags": 0,
-                                    "vector": json.dumps(waveform_descriptiors),
-                                }
-                            ],
-                        ),
-                        (
-                            f"/dev1234/sgchannels/0/awg/waveform/waves/{nodes[-1]}",
-                            [
-                                {
-                                    "timestamp": 338544371667920,
-                                    "flags": 0,
-                                    "vector": single_wave_result,
-                                }
-                            ],
-                        ),
-                    ]
+            if "waves/1" in nodes:
+                return_value.append(
+                    (
+                        "/dev1234/sgchannels/0/awg/waveform/waves/1",
+                        [
+                            {
+                                "timestamp": 338544371667920,
+                                "flags": 0,
+                                "vector": single_wave_result,
+                            }
+                        ],
+                    )
                 )
+            if "waves/2" in nodes:
+                return_value.append(
+                    (
+                        "/dev1234/sgchannels/0/awg/waveform/waves/2",
+                        [
+                            {
+                                "timestamp": 338544371667920,
+                                "flags": 0,
+                                "vector": single_wave_result,
+                            }
+                        ],
+                    )
+                )
+            if "waves/2" in nodes:
+                return_value.append(
+                    (
+                        f"/dev1234/sgchannels/0/awg/waveform/waves/{nodes[-1]}",
+                        [
+                            {
+                                "timestamp": 338544371667920,
+                                "flags": 0,
+                                "vector": single_wave_result,
+                            }
+                        ],
+                    )
+                )
+            return OrderedDict(return_value)
         raise RuntimeError()
 
     mock_connection.return_value.get.side_effect = get_side_effect
     waveforms = shfsg.sgchannels[0].awg.read_from_waveform_memory()
     mock_connection.return_value.get.assert_called_with(
-        "/dev1234/sgchannels/0/awg/waveform/descriptors,/dev1234/sgchannels/0/awg/waveform/waves/*",
+        "/dev1234/sgchannels/0/awg/waveform/waves/0,/dev1234/sgchannels/0/awg/waveform/waves/1,/dev1234/sgchannels/0/awg/waveform/waves/2,/dev1234/sgchannels/0/awg/waveform/waves/3",
         settingsonly=False,
         flat=True,
     )
@@ -284,7 +283,7 @@ def test_read_from_waveform_memory(waveform_descriptors_json, mock_connection, s
     )
     waveforms = shfsg.sgchannels[0].awg.read_from_waveform_memory([0])
     mock_connection.return_value.get.assert_called_with(
-        "/dev1234/sgchannels/0/awg/waveform/descriptors,/dev1234/sgchannels/0/awg/waveform/waves/0",
+        "/dev1234/sgchannels/0/awg/waveform/waves/0",
         settingsonly=False,
         flat=True,
     )
