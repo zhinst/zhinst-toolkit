@@ -35,6 +35,15 @@ def test_enable_sequencer(mock_connection, shfsg):
     )
 
 
+def test_enable_sequencer_error(mock_connection, shfsg):
+    mock_connection.return_value.syncSetInt.return_value = 0
+    with pytest.raises(RuntimeError):
+        shfsg.sgchannels[0].awg.enable_sequencer(single=True)
+
+    with pytest.raises(RuntimeError):
+        shfsg.sgchannels[0].awg.enable_sequencer(single=False)
+
+
 def test_wait_done(mock_connection, shfsg):
     single = 0
     enable = iter([])

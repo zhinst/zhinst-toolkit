@@ -52,15 +52,30 @@ class AWG(Node):
     def enable_sequencer(self, *, single: bool) -> None:
         """Starts the sequencer of a specific channel.
 
-        Waits until the sequencer is enabled.
+        Warning:
+            This function is synchronous and blocks until the sequencer is enabled.
+            When working with multiple instruments this function is the wrong
+            approach and the sequencer should be enabled asynchronously.
+            (For more information please take a look at the awg example in the
+            toolkit documentation.)
 
         Args:
             single: Flag if the sequencer should be disabled after finishing
             execution.
+
+        Raises:
+            RuntimeError: If the sequencer could not be enabled.
+
+        .. versionchanged:: 0.4.4
+
+            Check the acknowledged value instead of using `wait_for_state_change`.
         """
         self.single(single)
-        self.enable(1, deep=True)
-        self.enable.wait_for_state_change(1)
+        if not self.enable(1, deep=True):
+            raise RuntimeError(
+                "The sequencer could not be enabled. Please ensure that the "
+                "sequencer program is loaded and configured correctly."
+            )
 
     def wait_done(self, *, timeout: float = 10, sleep_time: float = 0.005) -> None:
         """Wait until the AWG is finished.
