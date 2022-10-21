@@ -168,12 +168,14 @@ with device.set_transaction():
 ### Subscribing to nodes
 
 ```python
-result_wave_nodes = []
+# In order to keep track of which nodes we want to capture
+# we create a dictionary
+wave_data_captured = {}
 
 for ch in CHANNELS:
     node = device.qas[0].result.data[ch].wave
     node.subscribe()
-    result_wave_nodes.append(node)
+    wave_data_captured[str(node)] = False
 ```
 
 Arm the device
@@ -190,29 +192,23 @@ Poll the data until the selected number of samples is captured.
 ```python
 import time
 import copy
+from zhinst.toolkit.nodetree.helper import NodeDict
 
-timeout = 15
+timeout = RESULT_LENGTH / 150  # Rough estimate to prevent endless loop
 start_time = time.time()
 
-captured_data = {path: [] for path in result_wave_nodes}
-capture_done = False
+captured_data = {}
 
-while not capture_done:
+while not all(wave_data_captured.values()):
     if start_time + timeout < time.time():
         raise TimeoutError('Timeout before all samples collected.')
-    dataset = session.poll(recording_time=1, timeout=5)
-    for k, v in copy.copy(dataset).items():
-        if k in captured_data.keys():
-            n_records = sum(len(x) for x in captured_data[k])
-            if n_records != RESULT_LENGTH:
-                captured_data[k].append(v[0]['vector'])
-            else:
-                dataset.pop(k)
-    if not dataset:
-        capture_done = True
-        break
-
-captured_data = {p: np.concatenate(v) for p, v in captured_data.items()}
+    for node, value in session.poll().items():
+        if node not in captured_data:
+            captured_data[node] = value[0]['vector']
+        else:
+            captured_data[node].append(value[0]['vector'])
+        if len(captured_data[node]) >= RESULT_LENGTH:
+            wave_data_captured[node] = True
 ```
 
 Stop the result unit
