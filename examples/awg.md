@@ -432,7 +432,7 @@ ct.table[1].amplitude1.increment = True
 awg_node.commandtable.upload_to_device(ct)
 ```
 
-### Command table ctive validation
+### Command table active validation
 Command table validates the given arguments by default. The feature has overhead and can
 be turned off to improve production code runtimes. Disabling it is good especially when creating a large
 command table with multiple table indexes. The next example shows the effect on active
