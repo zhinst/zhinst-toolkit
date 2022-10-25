@@ -37,8 +37,6 @@ device = session.connect_device("DEVXXXX")
 qachannel_center_frequency = 7.1e9
 qachannel_power_in = 5
 qachannel_power_out = 0
-
-max_amplitude_readout = 1
 ```
 
 ## Device configuration
