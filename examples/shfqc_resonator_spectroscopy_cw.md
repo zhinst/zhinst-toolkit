@@ -66,7 +66,7 @@ sweeper.sweep.start_freq(-700e6)
 sweeper.sweep.stop_freq(700e6)
 sweeper.sweep.num_points(1001)
 sweeper.sweep.mapping("linear")
-sweeper.sweep.oscillator_gain(max_amplitude_readout)
+sweeper.sweep.oscillator_gain(0.7)
 sweeper.sweep.mode(True)
 
 sweeper.average.integration_time(10000e-6)
