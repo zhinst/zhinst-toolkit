@@ -933,6 +933,28 @@ def test_connection_dict(data_dir):
         tree.street.length()
 
 
+def test_connection_dict_callable_nodes(data_dir):
+    global seat
+    seat = 6
+
+    def update_seat(value=None):
+        global seat
+        if value is None:
+            return seat + 1
+        seat = value + 1
+
+    data = {"/car/seat": update_seat, "/car/color": "blue", "/street/length": 110.4}
+    json_path = data_dir / "nodedoc_fake.json"
+    with json_path.open("r", encoding="UTF-8") as file:
+        nodes_json = json.loads(file.read())
+    connection = ConnectionDict(data, nodes_json)
+    tree = NodeTree(connection)
+    assert tree.car.seat() == seat + 1
+
+    tree.car.seat(10)
+    assert seat == 11
+
+
 @pytest.fixture()
 def hdawg(data_dir, mock_connection, session):
 
