@@ -52,6 +52,13 @@
         "Unit": "s",
         "Type": "Double"
     },
+    "/sweep/wait_after_integration": {
+        "Node": "/sweep/wait_after_integration",
+        "Description": "Time to wait after the integration finished until the next frequency is set",
+        "Properties": "Read, Write",
+        "Unit": "s",
+        "Type": "Double"
+    },
     "/sweep/mode": {
         "Node": "/sweep/mode",
         "Description": "Specify whether to use the fast sequencer-based sweep (1) or the slower host-driven sweep (0)",
@@ -193,6 +200,27 @@
         "Node": "/envelope/delay",
         "Description": "Time delay the waveform is generated after the trigger",
         "Properties": "Read, Write",
+        "Unit": "s",
+        "Type": "Double"
+    },
+    "/actual_settling_time": {
+        "Node": "/actual_settling_time",
+        "Description": "Actual wait time between setting new frequency and triggering of integration",
+        "Properties": "Read",
+        "Unit": "s",
+        "Type": "Double"
+    },
+    "/actual_hold_off_time": {
+        "Node": "/actual_hold_off_time",
+        "Description": "Actual wait time after triggering the integration unit until the next cycle",
+        "Properties": "Read",
+        "Unit": "s",
+        "Type": "Double"
+    },
+    "/predicted_cycle_time": {
+        "Node": "/predicted_cycle_time",
+        "Description": "Predicted duration of each cycle of the spectroscopy loop",
+        "Properties": "Read",
         "Unit": "s",
         "Type": "Double"
     }

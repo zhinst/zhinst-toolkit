@@ -290,27 +290,27 @@ class SHFQASweeper(Node):
         self._update_settings()
         return self._raw_module.get_offset_freq_vector()
 
-    @property
     def actual_settling_time(self) -> float:
-        """Wait time between setting new frequency and triggering of integration.
+        """Actual wait time between setting new frequency and triggering of integration.
 
-        Note: the granularity of this time is 16 samples (8 ns).
+        This a read-only property that reports the settling time after rounding
+        it to the device-specific granularity.
         """
         return self._raw_module.actual_settling_time
 
-    @property
     def actual_hold_off_time(self) -> float:
-        """Wait time after triggering the integration unit until the next cycle.
+        """Actual wait time after triggering the integration unit until the next cycle.
 
-        Note: the granularity of this time is 16 samples (8 ns).
+        This a read-only property that reports the hold-off time after rounding
+        it to the device-specific granularity.
         """
         return self._raw_module.actual_hold_off_time
 
-    @property
     def predicted_cycle_time(self) -> float:
         """Predicted duration of each cycle of the spectroscopy loop.
 
-        Note: this property only applies in self-triggered mode, which is active
-        when `trigger.source` is set to None and `sweep.use_sequencer` is True.
+        Note: this read-only property only applies in self-triggered mode, which
+        is active when `trigger.source` is set to None and `sweep.use_sequencer`
+        is True.
         """
         return self._raw_module.predicted_cycle_time
