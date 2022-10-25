@@ -145,7 +145,12 @@ sweeper.sweep.use_sequencer=False
 sweeper.average.integration_time(envelope_duration)
 sweeper.average.num_averages(2)
 sweeper.average.mode("sequential")
-sweeper.average.integration_delay(0.0)
+
+# Note: the default integration delay amounts to 272 ns to compensate the device-
+# internal delay from output to input.
+# You can set a different integration delay, for example to compensate additional
+# delays in the device under test by using the following line:
+# sweeper.average.integration_delay(272.0e-9)
 
 sweeper.rf.channel(CHANNEL)
 sweeper.rf.input_range(0)
