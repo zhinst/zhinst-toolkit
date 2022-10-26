@@ -67,7 +67,7 @@ sweeper.device(device)
 sweeper.sweep.start_freq(200e6)
 sweeper.sweep.stop_freq(300e6)
 sweeper.sweep.num_points(501)
-sweeper.sweep.oscillator_gain(0.8)
+sweeper.sweep.oscillator_gain(0.7)
 # The sequencer is used by default but can be disabled manually
 # sweeper.sweep.mode("host-driven")
 sweeper.sweep.mode("sequencer-based")
