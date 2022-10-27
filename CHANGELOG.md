@@ -10,6 +10,7 @@
   validate the inputs and therefore it improves the speed for command table creation.
 * Adapt `awg.enable_sequencer` to check the acknowledged value instead of using `wait_for_state_change`. This makes it much more stable when used with short sequences.
 * Fix issue with downloading waveforms from the device. This issue prevented reading waveforms from any other than the base channel.
+* Normalize the `zhinst-core` dependency version.
 
 ## Version 0.4.3
 * Fix issue that prevented correct compilation of sequences for AWG cores other than the first one.
