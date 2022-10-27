@@ -17,6 +17,8 @@ from zhinst.toolkit.nodetree.helper import (
     NodeDict,
 )
 
+from zhinst.core.errors import CoreError
+
 if t.TYPE_CHECKING:  # pragma: no cover
     from zhinst.toolkit.nodetree import NodeTree
 
@@ -1102,8 +1104,8 @@ class Node:
             )
             for node_raw in raw_result:
                 yield self._root.raw_path_to_node(node_raw)
-        except RuntimeError as error:
-            if "Path format invalid" not in error.args[0]:
+        except CoreError as error:
+            if error.code != 32768:  # Replace with correct error in 23.02
                 raise
             if not full_wildcard:
                 raise RuntimeError(

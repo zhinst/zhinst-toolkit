@@ -15,6 +15,8 @@ from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.connection_dict import ConnectionDict
 from zhinst.toolkit.nodetree.node import NodeList
 
+from zhinst.core.errors import CoreError
+
 
 @pytest.fixture()
 def data_dir(request):
@@ -786,7 +788,7 @@ def test_child_nodes(connection):
     with pytest.raises(RuntimeError) as e_info:
         result = list(tree.demods["*"].child_nodes())
     assert e_info.value.args[0] == "Weird fail"
-    connection.listNodes.side_effect = RuntimeError("Path format invalid")
+    connection.listNodes.side_effect = CoreError("Path format invalid", 32768)
     with pytest.raises(RuntimeError) as e_info:
         result = list(tree.demods["[0,1]"].child_nodes())
     assert "full_wildcard" in e_info.value.args[0]
