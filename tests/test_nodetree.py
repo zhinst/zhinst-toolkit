@@ -638,13 +638,11 @@ def test_update_nodes(connection):
     assert tree.test.node_info.path == "test4"
     assert tree.test.is_valid() is True
 
-    # Test for not raising any errors
-    with pytest.warns(Warning):
-        tree.update_nodes(
-            {"312/123": {"Unit": "test5"}, "testNOtexists": {"Node": "test5"}},
-            add=False,
-            raise_for_invalid_node=False,
-        )
+    tree.update_nodes(
+        {"312/123": {"Unit": "test5"}, "testNOtexists": {"Node": "test5"}},
+        add=False,
+        raise_for_invalid_node=False,
+    )
     assert tree.testNOtexists.is_valid() is False
 
 
@@ -788,6 +786,11 @@ def test_child_nodes(connection):
     with pytest.raises(RuntimeError) as e_info:
         result = list(tree.demods["*"].child_nodes())
     assert e_info.value.args[0] == "Weird fail"
+    connection.listNodes.side_effect = CoreError("Unrelated Error", 1111)
+    with pytest.raises(CoreError) as e_info:
+        result = list(tree.demods["*"].child_nodes())
+    assert e_info.value.args[0] == "Unrelated Error"
+
     connection.listNodes.side_effect = CoreError("Path format invalid", 32768)
     with pytest.raises(RuntimeError) as e_info:
         result = list(tree.demods["[0,1]"].child_nodes())

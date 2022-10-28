@@ -103,11 +103,9 @@ sweeper.save.fileformat.node_info.options
 ```
 
 Set the filename stem for saving the data to file. The data are saved in a separate
-numerically incrementing sub-directory prefixed with the /save/filename value each
+numerically incrementing sub-directory prefixed with the `/save/filename` value each
 time a save command is issued. The base directory is specified with the
-save/directory parameter. The default is
-C:\Users\<user>\Documents\Zurich Instruments\LabOne\WebServer on Windows.
-On linux $HOME/Zurich Instruments/LabOne/WebServer.
+`save/directory` parameter. 
 
 ```python
 sweeper.save.filename('sweep_with_save')

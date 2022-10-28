@@ -8,7 +8,6 @@ import numpy as np
 from zhinst.core import DataAcquisitionModule as ZIDAQModule
 
 from zhinst.toolkit.driver.modules.base_module import BaseModule
-from zhinst.toolkit.nodetree import Node
 from zhinst.toolkit.nodetree.helper import NodeDict
 
 if t.TYPE_CHECKING:  # pragma: no cover
@@ -47,45 +46,6 @@ class DAQModule(BaseModule):
             },
             raise_for_invalid_node=False,
         )
-
-    def _get_node(self, node: str) -> t.Union[Node, str]:
-        """Convert a raw node string into a toolkit node.
-
-        Overwrites the base_module._get_node function and adds the support for
-        the signal subscription options.
-
-        Args:
-            node (str): Raw node string
-
-        Returns:
-            Node: Toolkit node. (if the node can not be converted the raw node
-                string is returned)
-        """
-        try:
-            return self._session.raw_path_to_node(node.replace(".", "/"), module=self)
-        except (KeyError, RuntimeError):
-            logger.error(
-                f"Could not resolve {node} into a node of the sweeper module or "
-                " a connected device."
-            )
-            return node
-
-    @staticmethod
-    def _set_node(signal: t.Union[Node, str]) -> str:
-        """Convert a toolkit node into a raw node string.
-
-        Support the signal subscription options.
-
-        Args:
-            signal: A node
-
-        Returns:
-            str: A raw string representation of Node
-        """
-        try:
-            return signal.node_info.path  # type: ignore
-        except AttributeError:
-            return signal
 
     @staticmethod
     def _process_burst(
@@ -182,9 +142,7 @@ class DAQModule(BaseModule):
         """
         self._raw_module.trigger()
 
-    def read(
-        self, *, raw: bool = False, clk_rate: float = 60e6
-    ) -> t.Dict[t.Union[Node, str], t.Union[t.List[DAQResult], t.Any]]:
+    def read(self, *, raw: bool = False, clk_rate: float = 60e6) -> NodeDict:
         """Read the acquired data from the module.
 
         The data is split into bursts.

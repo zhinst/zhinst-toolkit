@@ -93,11 +93,12 @@ class BaseModule(Node):
                 string is returned)
         """
         try:
-            return self._session.raw_path_to_node(node, module=self)
+            return self._session.raw_path_to_node(node.replace(".", "/"), module=self)
         except (KeyError, RuntimeError):
             logger.error(
-                f"Could not resolve {node} into a node of the sweeper module or "
-                " a connected device."
+                f"Could not resolve {node} into a node of the "
+                f"{self._raw_module.__class__.__name__} or "
+                "a connected device."
             )
             return node
 

@@ -1,9 +1,7 @@
 """High-level generic lazy node tree for the zhinst.core package."""
-
 import fnmatch
 import json
 import typing as t
-import warnings
 from keyword import iskeyword as is_keyword
 
 # Protocol is available in the typing module since 3.8
@@ -12,7 +10,7 @@ from typing_extensions import Protocol
 
 from contextlib import contextmanager
 
-from zhinst.toolkit.nodetree.helper import NodeDoc
+from zhinst.toolkit.nodetree.helper import NodeDoc, _NodeInfo
 from zhinst.toolkit.nodetree.node import Node
 
 
@@ -225,7 +223,7 @@ class NodeTree:
     def __dir__(self):
         return self._first_layer
 
-    def __iter__(self):
+    def __iter__(self) -> t.Iterator[t.Tuple[Node, _NodeInfo]]:
         for node_raw, info in self._flat_dict.items():
             yield self.raw_path_to_node(node_raw), info
 
@@ -355,10 +353,9 @@ class NodeTree:
         for node, updates in update_dict.items():
             try:
                 self.update_node(node, updates, add=add)
-            except KeyError as error:
+            except KeyError:
                 if raise_for_invalid_node:
                     raise
-                warnings.warn(f"Tried to add nonexistent node: {error.args[0]}.")
 
     def raw_path_to_node(self, raw_path: str) -> Node:
         """Converts a raw node path string into a Node object.
