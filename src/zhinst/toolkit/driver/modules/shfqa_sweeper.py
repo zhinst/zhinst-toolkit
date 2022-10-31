@@ -180,6 +180,13 @@ class SHFQASweeper(Node):
         info["/envelope/enable"] = raw_info["/envelope/enable"]
         values["/envelope/enable"] = 0
 
+        info["/actual_settling_time"] = raw_info["/actual_settling_time"]
+        values["/actual_settling_time"] = lambda: self._raw_module.actual_settling_time
+        info["/actual_hold_off_time"] = raw_info["/actual_hold_off_time"]
+        values["/actual_hold_off_time"] = lambda: self._raw_module.actual_hold_off_time
+        info["/predicted_cycle_time"] = raw_info["/predicted_cycle_time"]
+        values["/predicted_cycle_time"] = lambda: self._raw_module.predicted_cycle_time
+
         return NodeTree(ConnectionDict(values, info))
 
     def _update_settings(self) -> None:

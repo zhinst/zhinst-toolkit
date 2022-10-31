@@ -186,3 +186,55 @@ def test_get_offset_freq_vector(sweeper_module, mock_shf_sweeper):
     sweeper_module.get_offset_freq_vector()
     mock_shf_sweeper.return_value.configure.assert_called_once()
     mock_shf_sweeper.return_value.get_offset_freq_vector.assert_called_once()
+
+
+def test_actual_settling_time(sweeper_module, mock_shf_sweeper):
+    sweeper_module.device("dev1234")
+    expected_value = 88.0e-9  # arbitrarily chosen floating-point value
+    mock_shf_sweeper.return_value.actual_settling_time = expected_value
+    assert sweeper_module.actual_settling_time() == expected_value
+
+    with pytest.raises(AttributeError):
+        sweeper_module.actual_settling_time(1)
+
+
+def test_actual_hold_off_time(sweeper_module, mock_shf_sweeper):
+    sweeper_module.device("dev1234")
+    expected_value = 88.0e-9  # arbitrarily chosen floating-point value
+    mock_shf_sweeper.return_value.actual_hold_off_time = expected_value
+    assert sweeper_module.actual_hold_off_time() == expected_value
+
+    with pytest.raises(AttributeError):
+        sweeper_module.actual_hold_off_time(1)
+
+
+def test_predicted_cycle_time(sweeper_module, mock_shf_sweeper):
+    sweeper_module.device("dev1234")
+    expected_value = 88.0e-9  # arbitrarily chosen floating-point value
+    mock_shf_sweeper.return_value.predicted_cycle_time = expected_value
+    assert sweeper_module.predicted_cycle_time() == expected_value
+
+    with pytest.raises(AttributeError):
+        sweeper_module.predicted_cycle_time(1)
+
+
+def test_wildcard_get(sweeper_module, mock_shf_sweeper):
+    expected_value = 88.0e-9
+    mock_shf_sweeper.return_value.actual_settling_time = expected_value
+    mock_shf_sweeper.return_value.actual_hold_off_time = expected_value
+    mock_shf_sweeper.return_value.predicted_cycle_time = expected_value
+    result = sweeper_module()
+
+    assert (
+        result[sweeper_module.actual_settling_time]
+        == mock_shf_sweeper.return_value.actual_settling_time
+    )
+    assert (
+        result[sweeper_module.actual_hold_off_time]
+        == mock_shf_sweeper.return_value.actual_hold_off_time
+    )
+    assert (
+        result[sweeper_module.predicted_cycle_time]
+        == mock_shf_sweeper.return_value.predicted_cycle_time
+    )
+    assert result[sweeper_module.device] == ""

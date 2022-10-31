@@ -67,7 +67,7 @@ sweeper.device(device)
 sweeper.sweep.start_freq(200e6)
 sweeper.sweep.stop_freq(300e6)
 sweeper.sweep.num_points(501)
-sweeper.sweep.oscillator_gain(0.8)
+sweeper.sweep.oscillator_gain(0.7)
 # The sequencer is used by default but can be disabled manually
 # sweeper.sweep.mode("host-driven")
 sweeper.sweep.mode("sequencer-based")
@@ -139,13 +139,18 @@ sweeper.device(device)
 sweeper.sweep.start_freq(-200e6)
 sweeper.sweep.stop_freq(300e6)
 sweeper.sweep.num_points(51)
-sweeper.sweep.oscillator_gain(0.8)
-sweeper.sweep.use_sequencer=False
+sweeper.sweep.oscillator_gain(0.7)
+sweeper.sweep.use_sequencer=True
 
 sweeper.average.integration_time(envelope_duration)
 sweeper.average.num_averages(2)
 sweeper.average.mode("sequential")
-sweeper.average.integration_delay(0.0)
+
+# Note: the default integration delay amounts to 272 ns to compensate the device-
+# internal delay from output to input.
+# You can set a different integration delay, for example to compensate additional
+# delays in the device under test by using the following line:
+# sweeper.average.integration_delay(272.0e-9)
 
 sweeper.rf.channel(CHANNEL)
 sweeper.rf.input_range(0)

@@ -28,6 +28,35 @@ class ConnectionDict:
         self._values = data
         self.json_info = json_info
 
+    def _get_value(self, path: str) -> t.Any:
+        """Return the value for a given path.
+
+        If the value is callable it is called.
+
+        Args:
+            path: Key in the internal values dictionary.
+
+        Returns:
+            The value of the given path.
+        """
+        value = self._values[path]
+        if callable(value):
+            return value()
+        return value
+
+    def _set_value(self, path: str, value: t.Any) -> None:
+        """Set the value for a given path.
+
+        If the value is callable it is called with the new value.
+
+        Args:
+            path: Key in the internal values dictionary.
+            value: New value of the path.
+        """
+        if callable(self._values[path]):
+            return self._values[path](value)
+        self._values[path] = value
+
     def listNodesJSON(self, path: str, *args, **kwargs) -> str:
         """Returns a list of nodes with description found at the specified path."""
         if path == "*":
@@ -41,27 +70,29 @@ class ConnectionDict:
     def get(self, path: str, *args, **kwargs) -> t.Any:
         """Mirrors the behavior of zhinst.core get command."""
         nodes_raw = fnmatch.filter(self._values.keys(), path)
+        if not nodes_raw:
+            nodes_raw = fnmatch.filter(self._values.keys(), path + "*")
         return_value = OrderedDict()
         for node in nodes_raw:
-            return_value[node] = array([self._values[node]])
+            return_value[node] = array([self._get_value(node)])
         return return_value
 
     def getInt(self, path: str) -> int:
         """Mirrors the behavior of zhinst.core getInt command."""
         try:
-            return int(self._values[path])
+            return int(self._get_value(path))
         except TypeError:
-            if self._values[path] is None:
+            if self._get_value(path) is None:
                 return 0
             raise
 
     def getDouble(self, path: str) -> float:
         """Mirrors the behavior of zhinst.core getDouble command."""
-        return float(self._values[path])
+        return float(self._get_value(path))
 
     def getString(self, path: str) -> str:
         """Mirrors the behavior of zhinst.core getDouble command."""
-        return str(self._values[path])
+        return str(self._get_value(path))
 
     def _parse_input_value(self, path: str, value: t.Any):
         if isinstance(value, str):
@@ -80,10 +111,10 @@ class ConnectionDict:
     ) -> None:
         """Mirrors the behavior of zhinst.core set command."""
         if isinstance(path, str):
-            self._values[path] = self._parse_input_value(path, value)
+            self._set_value(path, self._parse_input_value(path, value))
         else:
             for node, node_value in path:
-                self._values[node] = self._parse_input_value(node, node_value)
+                self._set_value(node, self._parse_input_value(node, node_value))
 
     def setVector(self, path: str, value: t.Any = None) -> None:
         """Mirrors the behavior of zhinst.core setVector command."""
