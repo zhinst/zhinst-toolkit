@@ -27,6 +27,9 @@ jobs:
         - name: py310
           python: "3.10"
           tox: py310
+        - name: py311
+          python: "3.11"
+          tox: py311
 
     steps:
       - uses: "actions/checkout@v2"
