@@ -140,7 +140,7 @@ sweeper.sweep.start_freq(-200e6)
 sweeper.sweep.stop_freq(300e6)
 sweeper.sweep.num_points(51)
 sweeper.sweep.oscillator_gain(0.7)
-sweeper.sweep.use_sequencer=False
+sweeper.sweep.use_sequencer=True
 
 sweeper.average.integration_time(envelope_duration)
 sweeper.average.num_averages(2)
