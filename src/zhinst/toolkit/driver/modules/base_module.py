@@ -153,7 +153,7 @@ class BaseModule(Node):
         Args:
             signal: Node that should be subscribed to.
 
-        .. versionchanged 0.4.4 Add support for raw string signals
+        .. versionchanged 0.5.0 Add support for raw string signals
         """
         try:
             self._raw_module.subscribe(signal.node_info.path)  # type: ignore
@@ -168,7 +168,7 @@ class BaseModule(Node):
         Args:
             signal: Node that should be unsubscribed from.
 
-        .. versionchanged 0.4.4 Add support for raw string signals
+        .. versionchanged 0.5.0 Add support for raw string signals
         """
         try:
             self._raw_module.unsubscribe(signal.node_info.path)  # type: ignore

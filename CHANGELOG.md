@@ -1,6 +1,6 @@
 # zhinst-toolkit Changelog
 
-## Version 0.4.4
+## Version 0.5.0
 * Added full support for the following LabOne modules (no need to fallback to zhinst.core):
   * Scope Module
   * Sweeper Module
@@ -11,6 +11,8 @@
 * Adapt `awg.enable_sequencer` to check the acknowledged value instead of using `wait_for_state_change`. This makes it much more stable when used with short sequences.
 * Fix issue with downloading waveforms from the device. This issue prevented reading waveforms from any other than the base channel.
 * Normalize the `zhinst-core` dependency version.
+* Update SHFQA Sweeper to expose new properties through nodes (`predicted_cycle_time`, `actual_hold_off_time`, `actual_settling_time`)
+* Tested against Python 3.11
 
 ## Version 0.4.3
 * Fix issue that prevented correct compilation of sequences for AWG cores other than the first one.

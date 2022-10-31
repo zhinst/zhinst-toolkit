@@ -111,7 +111,7 @@ class DAQModule(BaseModule):
     def finish(self) -> None:
         """Stop the module.
 
-        .. versionadded:: 0.4.4
+        .. versionadded:: 0.5.0
         """
         self._raw_module.finish()
 
@@ -121,7 +121,7 @@ class DAQModule(BaseModule):
         Returns:
             Flag if the acquisition has finished.
 
-        .. versionadded:: 0.4.4
+        .. versionadded:: 0.5.0
         """
         return self._raw_module.finished()
 
@@ -131,14 +131,14 @@ class DAQModule(BaseModule):
         Returns:
             Progress of the execution with a number between 0 and 1
 
-        .. versionadded:: 0.4.4
+        .. versionadded:: 0.5.0
         """
         return self._raw_module.progress()[0]
 
     def trigger(self) -> None:
         """Execute a manual trigger.
 
-        .. versionadded:: 0.4.4
+        .. versionadded:: 0.5.0
         """
         self._raw_module.trigger()
 

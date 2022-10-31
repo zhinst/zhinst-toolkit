@@ -98,7 +98,7 @@ class NodeInfo:
     Args:
         node: A node the information belong to.
 
-    .. versionchanged:: 0.4.4
+    .. versionchanged:: 0.5.0
 
         Add support for signals in sample nodes. The daq module of LabOne
         supports subscribing to signals of samples nodes directly. They can be
@@ -363,7 +363,7 @@ class Node:
         Call operator returns `WildcardResult` when wildcards are used in
         getting values.
 
-    .. versionchanged:: 0.4.4 Returns NodeDict instead of WildcardResult
+    .. versionchanged:: 0.5.0 Returns NodeDict instead of WildcardResult
 
     The call operator supports the following flags:
 
@@ -521,7 +521,7 @@ class Node:
                 Returns `WildcardResult` when wildcards are used in
                 getting values.
 
-            .. versionchanged:: 0.4.4 Returns NodeDict instead of WildcardResult
+            .. versionchanged:: 0.5.0 Returns NodeDict instead of WildcardResult
 
         Raises:
             AttributeError: If the connection does not support the necessary

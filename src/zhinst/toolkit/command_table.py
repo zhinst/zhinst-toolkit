@@ -331,7 +331,7 @@ class CommandTable:
             No validation happens during command table entry modifications, thus
             making the creation of the command table faster.
 
-    .. versionadded:: 0.4.4
+    .. versionadded:: 0.5.0
        The ``active_validation`` parameter was added.
 
     Example:
@@ -399,7 +399,7 @@ class CommandTable:
         Returns:
             True if active validation is enabled.
 
-        .. versionadded:: 0.4.4
+        .. versionadded:: 0.5.0
         """
         return self._active_validation
 
@@ -410,7 +410,7 @@ class CommandTable:
         Args:
             value: The state of active validation.
 
-        .. versionadded:: 0.4.4
+        .. versionadded:: 0.5.0
         """
         self._active_validation = value
         _change_active_validation(self._table, value)

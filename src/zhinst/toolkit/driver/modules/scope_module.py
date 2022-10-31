@@ -56,7 +56,7 @@ class ScopeModule(BaseModule):
         scope_module: Instance of the core scope module.
         session: Session to the Data Server.
 
-    .. versionadded:: 0.4.4
+    .. versionadded:: 0.5.0
     """
 
     def __init__(self, scope_module: ZIScopeModule, session: "Session"):
