@@ -269,9 +269,8 @@ returns a dictionary of nodes and their corresponding data.
 ```python
 import time
 device.demods[0].sample.subscribe()
-time.sleep(0.01)
-device.demods[0].sample.unsubscribe()
 data = session.poll()
+device.demods[0].sample.unsubscribe()
 data[device.demods[0].sample]
 ```
 
