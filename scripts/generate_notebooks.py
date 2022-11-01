@@ -57,13 +57,10 @@ def generate_notebooks(args: argparse.Namespace) -> None:
     Args:
         args: Namespace arguments
     """
-    if args.src == "local":
-        generate_and_sync_example_notebooks([EXAMPLES_DIR / "*.md"])
-    else:
+
+    generate_and_sync_example_notebooks([EXAMPLES_DIR / "*.md"])
+    if args.src != "local":
         get_notebook_examples()
-        generate_and_sync_example_notebooks(
-            [EXAMPLES_DIR / file for file in EXAMPLES_ONLY_SYNC]
-        )
 
 
 if __name__ == "__main__":
