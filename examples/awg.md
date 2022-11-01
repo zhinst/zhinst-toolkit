@@ -38,15 +38,10 @@ Connect devices and access the ``awg`` node.
 # Load the LabOne API and other necessary packages
 from zhinst.toolkit import Session
 
-DEVICE_ID = "DEVXXXX"
-SERVER_HOST = "localhost"
+session = Session("localhost")
+device = session.connect_device("DEVXXXX")
+
 AWG_CORE = 0
-
-## connect to data server
-session = Session(SERVER_HOST)
-
-## connect to device
-device = session.connect_device(DEVICE_ID)
 ```
 
 ```python
