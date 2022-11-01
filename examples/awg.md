@@ -30,16 +30,30 @@ device. In zhinst-toolkit this module is also available. In addition the devices
 with AWG support also have helper function directly implemented in the node tree.
 
 The functionality explained in the following example are valid for all devices
-and are available behind the ``/awg`` node.
+and are available behind the ``awg`` node.
 
-Connect devices and access the ``/awg`` node.
+Connect devices and access the ``awg`` node.
 
 ```python
+# Load the LabOne API and other necessary packages
 from zhinst.toolkit import Session
 
-session = Session("localhost")
-device = session.connect_device("DEVXXXX")
-awg_node = device.awgs[0]
+DEVICE_ID = 'DEVXXXXX'
+SERVER_HOST = 'localhost'
+AWG_CORE = 0
+
+## connect to data server
+session = Session(SERVER_HOST)
+
+## connect to device
+device = session.connect_device(DEVICE_ID)
+```
+
+```python
+if device.device_type.startswith('HDAWG'):
+    awg_node = device.awgs[AWG_CORE]
+elif device.device_type.startswith('SHFSG') or device.device_type.startswith('SHFQC'):
+    awg_node = device.sgchannels[AWG_CORE].awg
 ```
 
 ## Compile and Upload Sequencer Program
@@ -48,20 +62,26 @@ The Sequencer program can be uploaded as string.
 
 ```python
 SEQUENCER_CODE = """\
+// Waveform paramaters
+const WFM_LEN = 1008;
+const GAUSS_CENTER = WFM_LEN/2;
+const SIGMA = WFM_LEN/8;
+
 // Define waveforms
-wave w0_1 = placeholder(1008, true);
-wave w0_2 = placeholder(1008, true);
-wave w1_1 = placeholder(1008);
-wave w1_2 = placeholder(1008);
+wave w0_1 = gauss(WFM_LEN, 1.0, GAUSS_CENTER, SIGMA) + marker(128, 1);
+wave w0_2 = drag(WFM_LEN, 1.0, GAUSS_CENTER, SIGMA);
+wave w1_1 = gauss(WFM_LEN, 0.5, GAUSS_CENTER, SIGMA) + marker(128, 1);
+wave w1_2 = drag(WFM_LEN, 0.5, GAUSS_CENTER, SIGMA);
+
 // Assign waveforms to an index in the waveform memory
-assignWaveIndex(1,2,w0_1,1,2,w0_2,0);
-assignWaveIndex(1,2,w1_1,1,2,w1_2,2);
+assignWaveIndex(1,2, w0_1, 1,2, w0_2, 0);
+assignWaveIndex(1,2, w1_1, 1,2, w1_2, 1);
+
 // Play wave 1
-playWave(1,w0_1,2,w0_2);
-waitWave();
+playWave(1,2, w0_1, 1,2, w0_2);
 // Play wave 2
-playWave(1,w1_1,2,w1_2);
-waitWave();
+playWave(1,2, w1_1, 1,2, w1_2);
+
 """
 
 awg_node.load_sequencer_program(SEQUENCER_CODE)
@@ -90,12 +110,15 @@ info
 # Using the zhinst.core offline compiler directly
 from zhinst.core import compile_seqc
 
+# Fetch device properties
 device_type = device.device_type
 device_options = device.device_options
-samplerate = device.system.clocks.sampleclock.freq()
+samplerate = device.system.clocks.sampleclock.freq() if device_type.startswith('HDAWG') else None
+sequencer_type = 'SG' if device.device_type.startswith('SHFSG') or device.device_type.startswith('SHFQC') else 'auto'
 
+# Offline compilation
 elf, info = compile_seqc(
-    SEQUENCER_CODE, device_type, device_options, samplerate=samplerate
+    SEQUENCER_CODE, device_type, device_options, index=AWG_CORE, samplerate=samplerate, sequencer=sequencer_type
 )
 info
 
@@ -110,13 +133,14 @@ awg_node.elf.data(elf)
 
 `zhinst-toolkit` uses by default the offline compiler provided by `zhinst-core`.
 If a feature or setting is not supported by the offline compiler (e.g. channel
-grouping) the best way is to fallback to the awg module from Labone for now.
+grouping on the HDAWG) the best way is to fallback to the awg module from Labone.
 
 ```python
 import time
 awg = session.modules.awg
 awg.device(device.serial)
-awg.index(0)
+awg.index(AWG_CORE)
+awg.sequencertype('sg' if device.device_type.startswith('SHFSG') or device.device_type.startswith('SHFQC') else 'auto-detect')
 awg.execute()
 awg.compiler.sourcestring(SEQUENCER_CODE)
 
@@ -137,12 +161,12 @@ if compiler_status == 2:
     print(f"Warning during sequencer compilation {awg.compiler.statusstring()}")
 # Check and wait until the elf upload to the device was successful
 progress = awg.progress()
-while progress < 1.0 or awg.elf.status() == 2 or device.awgs[0].ready() == 0:
+while progress < 1.0 or awg.elf.status() == 2 or awg_node.ready() == 0:
     if time.time() - start >= timeout:
         raise TimeoutError(f"Program upload timed out")
     time.sleep(0.1)
     progress = awg.progress()
-if awg.elf.status() or not device.awgs[0].ready():
+if awg.elf.status() or not awg_node.ready():
     raise RuntimeError(
         "Error during upload of ELF file. Check the log for detailed information"
     )
@@ -168,6 +192,7 @@ simple string this class offers the following advantages:
 
 ```python
 from zhinst.toolkit import Sequence
+
 seq = Sequence()
 seq.code = """\
 // Hello World
@@ -289,12 +314,11 @@ disabled)
 ```python
 seq =  Sequence("""\
 // Play wave 1
-playWave(1,w0_1,2,w0_2);
-waitWave();
+playWave(1,2, w0_1, 1,2, w0_2);
 // Play wave 2
-playWave(1,w1_1,2,w1_2);
-waitWave();
+playWave(1,2, w1_1, 1,2, w1_2);
 """)
+
 seq.waveforms = Waveforms()
 seq.waveforms[0] = (
     Wave(0.5 * np.ones(1008), name= "w0_1", output= OutputType.OUT1 | OutputType.OUT2),
@@ -317,7 +341,7 @@ function.
 
 Please note that it is not mandatory to call the validation function before 
 uploading. But especially when debugging or playing around with the waveforms
-it can be helpfull.
+it can be helpful.
 
 The validation either takes the compiled elf file or the waveform informations
 from the device (only if the sequencer code is already uploaded).
@@ -358,15 +382,16 @@ for the command table usage called ``CommandTable``.
 > it can be accessed in zhinst-toolkit through the function ``load_validation_schema``
 
 ```python
-# Load the existing command table from the device
-ct = awg_node.commandtable.load_from_device()
-
-# Another way to create a CommandTable instance is by using the schema
+# Create a CommandTable instance  by using the schema
 from zhinst.toolkit import CommandTable
+
 ct_schema = awg_node.commandtable.load_validation_schema()
 ct = CommandTable(ct_schema)
+```
 
-ct.as_dict()
+```python
+# Alternately, load the existing command table from the device
+ct = awg_node.commandtable.load_from_device()
 ```
 
 The ``CommandTable`` class creates a pythonic approach of creating a command table
@@ -380,22 +405,22 @@ dir(ct.table[0])
 ```
 
 ```python
-ct.table[0].amplitude0.info()
+ct.table[0].waveform.info()
 ```
 
 ```python
-ct.table[0].amplitude0.info("value")
+ct.table[0].waveform.info("index")
 ```
 
 ```python
-ct.table[0].amplitude0.value = 0.5
-ct.table[0].amplitude0.value
+ct.table[0].waveform.index = 0
+ct.table[0].waveform.index
 ```
 
 ```python
 from zhinst.toolkit.exceptions import ValidationError
 try:
-    ct.table[0].amplitude0.value = 2
+    ct.table[0].waveform.index = -1
 except ValidationError as err:
     print(err)
 ```
@@ -406,7 +431,7 @@ the moment it gets converted the complete structure is validated.
 ```python
 ct.clear()
 try:
-    ct.table[0].amplitude0.increment = True
+    ct.table[0].waveform.index = 2
     ct.as_dict()
 except ValidationError as err:
     print(err)
@@ -417,60 +442,55 @@ by zhinst-toolkit
 
 ```python
 ct.clear()
-ct.table[0].waveform.index = 0
-ct.table[0].amplitude0.value = 0.0
-ct.table[0].amplitude0.increment = False
-ct.table[0].amplitude1.value = -0.0
-ct.table[0].amplitude1.increment = False
 
-ct.table[1].waveform.index = 0
-ct.table[1].amplitude0.value = 0.007
-ct.table[1].amplitude0.increment = True
-ct.table[1].amplitude1.value = -0.007
-ct.table[1].amplitude1.increment = True
+if device.device_type.startswith('HDAWG'):
+    ct.table[0].waveform.index = 0
+    ct.table[0].amplitude0.value = 0.0
+    ct.table[0].amplitude0.increment = False
+    ct.table[0].amplitude1.value = 0.0
+    ct.table[0].amplitude1.increment = False
+
+    ct.table[1].waveform.index = 0
+    ct.table[1].amplitude0.value = 0.007
+    ct.table[1].amplitude0.increment = True
+    ct.table[1].amplitude1.value = -0.007
+    ct.table[1].amplitude1.increment = True
+
+elif device.device_type.startswith('SHFSG') or device.device_type.startswith('SHFQC'):
+    ct.table[0].waveform.index = 0
+    ct.table[0].amplitude00.value = 0.0
+    ct.table[0].amplitude01.value = 0.0
+    ct.table[0].amplitude10.value = 0.0
+    ct.table[0].amplitude11.value = 0.0
+    ct.table[0].amplitude00.increment = False
+    ct.table[0].amplitude01.increment = False
+    ct.table[0].amplitude10.increment = False
+    ct.table[0].amplitude11.increment = False
+
+    ct.table[1].waveform.index = 0
+    ct.table[1].amplitude00.value = 0.07
+    ct.table[1].amplitude01.value = -0.07
+    ct.table[1].amplitude10.value = 0.07
+    ct.table[1].amplitude11.value = 0.07
+    ct.table[1].amplitude00.increment = True
+    ct.table[1].amplitude01.increment = True
+    ct.table[1].amplitude10.increment = True
+    ct.table[1].amplitude11.increment = True
 
 awg_node.commandtable.upload_to_device(ct)
 ```
 
+<!-- #region -->
 ### Command table active validation
-Command table validates the given arguments by default. The feature has overhead and can
+Command table validates the given arguments on the fly by default. The feature has overhead and can
 be turned off to improve production code runtimes. Disabling it is good especially when creating a large
-command table with multiple table indexes. The next example shows the effect on active
-validation during a large command table creation (maximum number of table entries in the device).
+command table with multiple table indexes. In any case, the command table is always validated upon upload and the instruments itself checks again errors.
 
+On the fly validation can be disabled by:
 ```python
-from time import perf_counter_ns
-
-ct.clear()
-start = perf_counter_ns()
-ct.active_validation = True
-for i in range(ct.table.range[0], ct.table.range[-1]):
-    ct.table[i].waveform.index = 0
-    ct.table[i].amplitude0.value = 0.0
-    ct.table[i].amplitude0.increment = False
-    ct.table[i].amplitude1.value = -0.0
-    ct.table[i].amplitude1.increment = False
-stop = perf_counter_ns()
-active_validation_on_duration = stop - start
-
-ct.clear()
 ct.active_validation = False
-start = perf_counter_ns()
-for i in range(ct.table.range[0], ct.table.range[-1]):
-    ct.table[i].waveform.index = 0
-    ct.table[i].amplitude0.value = 0.0
-    ct.table[i].amplitude0.increment = False
-    ct.table[i].amplitude1.value = -0.0
-    ct.table[i].amplitude1.increment = False
-stop = perf_counter_ns()
-active_validation_off_duration = stop - start
-
-def diff_percentage(current, previous):
-    return (abs(current - previous) / previous) * 100.0
-
-difference_in_runtime = diff_percentage(active_validation_on_duration, active_validation_off_duration)
-print(f"Speed improvement without active validation: {difference_in_runtime} %")
 ```
+<!-- #endregion -->
 
 ## Performance optimzation
 Often the limiting factor for an experiment is the delay of the device communication.
@@ -490,51 +510,172 @@ For the AWG core this means uploading everything in a single transaction.
 > multiple instruments.
 
 ```python
-from zhinst.toolkit import Waveforms
-import numpy as np
-
-SEQUENCER_CODE = """\
-// Define placeholder with 1024 samples:
-wave p = placeholder(1024);
-
-// Assign placeholder to waveform index 10
-assignWaveIndex(p, p, 10);
-
+seq = Sequence()
+seq.code = """\
+// Simple playback loop
 while(true) {
     executeTableEntry(0);
 }
 """
 
-waveforms = Waveforms()
-waveforms[10] = (np.zeros(1024), np.ones(1024))
+seq.waveforms = Waveforms()
+seq.waveforms[10] = (np.zeros(1024), np.ones(1024))
 
-ct = awg_node.commandtable.load_from_device()
-ct.clear()
+ct = CommandTable(ct_schema)
+ct.active_validation = False
+
 ct.table[0].waveform.index = 10
-ct.table[0].amplitude0.value = 1.0
-
-ct.table[0].amplitude1.value = 1.0
 
 with device.set_transaction():
-    awg_node.load_sequencer_program(SEQUENCER_CODE)
-    awg_node.write_to_waveform_memory(waveforms)
+    awg_node.load_sequencer_program(seq)
+    awg_node.write_to_waveform_memory(seq.waveforms)
     awg_node.commandtable.upload_to_device(ct)
     awg_node.enable(True)
+```
 
-# Please note that commandtable.upload_to_device does not
-# validate the upload when calles within a transaction so
-# it is recommended to do yourself.
-assert awg_node.commandtable.check_status()
+Optionally, the sequence can be compiled and the resulting ELF uploaded manually
+
+```python
+elf,_ = awg_node.compile_sequencer_program(seq)
+with device.set_transaction():
+    awg_node.elf.data(elf)
+    awg_node.write_to_waveform_memory(seq.waveforms)
+    awg_node.commandtable.upload_to_device(ct)
+    awg_node.enable(True)
+```
+
+## Multi-core programming
+
+So far, all the example referred to a single sequencer, but the signal generators have multiple output channels. To control all of them we must program all the relative sequencers.
+
+This could be done just by sequentially loading the relative sequences:
+
+```python
+# Get a list of all the AWG cores on a device
+
+if device.device_type.startswith('HDAWG'):
+    awg_nodes = list(device.awgs)
+elif device.device_type.startswith('SHFSG') or device.device_type.startswith('SHFQC'):
+    awg_nodes = [sgchannel.awg for sgchannel in device.sgchannels]
 ```
 
 ```python
-elf,_ = awg_node.compile_sequencer_program(SEQUENCER_CODE)
-with device.set_transaction():
-    awg_node.elf.data(elf)
-    awg_node.write_to_waveform_memory(waveforms)
-    awg_node.commandtable.upload_to_device(ct)
-    awg_node.enable(True)
+# Generate a list of test sequences
 
-assert awg_node.commandtable.check_status()
+from textwrap import dedent
+num_cores = len(awg_nodes)
+sequences = [
+    dedent(f"""\
+    // Core {i:d} sequence
+    waitDigTrigger(1);  //Wait for a trigger to syncronize all the cores
+    playWave(ramp(1024, 0, {(i+1)/num_cores:f}));
+    """)
+    for i in range(num_cores)
+]
+```
 
+```python
+# Sequentially compile and upload all the sequences
+
+from zhinst.core.errors import CoreError
+with session.set_transaction():
+    for index, (awg_node, sequence) in enumerate(zip(awg_nodes, sequences)):
+        try:
+            _ = awg_node.load_sequencer_program(sequence)
+        except CoreError as e:
+            print("Compilation error on core", index, e)
+            break
+```
+
+If the sequences are particularly long, it worth to compile them in parallel. The `ThreadPollExecutor` will use a number of threads depending on the CPU core count. Differently from generic Python code, the seqc compiler can use multiple cores at the same time, if used correctly.
+
+Please note that in such case the `set_transaction` is mandatory. The LabOne API is not thread safe, and the transaction ensures that the sequences are sequentially uploaded to the device(s).
+
+```python
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+with session.set_transaction(), ThreadPoolExecutor() as executor:
+    #Compile and upload all the sequences
+    # Get and store a future to verify the compilation once is done
+    futures = {}
+    for index, (awg_node, sequence) in enumerate(zip(awg_nodes, sequences)):
+        future = executor.submit(awg_node.load_sequencer_program, sequence)
+        futures[future] = index
+
+    #Checks the errors
+    # Iterate over all futures to verify the compilation
+    for future in as_completed(futures):
+        index = futures[future]
+        try:
+            _ = future.result()
+        except CoreError as e:
+            print("Compilation error on core", index, e)
+```
+
+Here a more complex example, with "heavy" sequences and associated waveforms and command tables.
+
+As in the regular case, it's important to respect the order of upload of sequence, waveforms and command table. This can be done by doing that after the compilations futures are done
+
+```python
+# Generate a more complex example, where every sequence has associated waveforms and command table
+
+from numpy.random import default_rng
+rng = default_rng()
+
+WFM_NUM = 24        #Number of waveforms
+CT_NUM = 15000      #Number of calls to `executeTableEntry`
+
+sequences = []
+command_tables = []
+
+for i in range(num_cores):
+    #Generate a sequence of random `executeTableEntry`
+    seq = Sequence()
+    seq.code = dedent(f"""\
+    // Core {i:d} sequence
+    waitDigTrigger(1);  //Wait for a trigger to syncronize all the cores
+    """)
+    seq.code += "\n".join([f"executeTableEntry({rng.integers(WFM_NUM):d});" for _ in range(CT_NUM)])
+
+    # Generate random waveform and associated command table to play them
+    seq.waveforms = Waveforms()
+    ct = CommandTable(ct_schema)
+    ct.active_validation = False
+
+    for j in range(WFM_NUM):
+        # Random waveform parameters, gaussian
+        wfm_len = rng.integers(2,100)*16
+        x = np.linspace(-1, 1, wfm_len)
+        sigma = rng.standard_normal()
+        ampl = rng.random()
+
+        seq.waveforms[j] = (ampl * np.exp( - x**2 / (2 * sigma**2) ))
+        ct.table[j].waveform.index = j
+
+    sequences.append(seq)
+    command_tables.append(ct)
+```
+
+```python
+with session.set_transaction(), ThreadPoolExecutor() as executor:
+    #Compile and upload all the sequences
+    # Get and store a future to verify the compilation once is done
+    futures = {}
+    for index, (awg_node, sequence) in enumerate(zip(awg_nodes, sequences)):
+        future = executor.submit(awg_node.load_sequencer_program, sequence)
+        futures[future] = index
+
+    #Checks the errors
+    # Iterate over all futures to verify the compilation
+    # Then, upload waveforms and command table. This step is done here, to be sure
+    # such upload is done only after the sequence. Since the futures are available as soon as
+    # the compilation is done, their order is not predictable
+    for future in as_completed(futures):
+        index = futures[future]
+        try:
+            _ = future.result()
+            awg_nodes[index].write_to_waveform_memory(sequences[index].waveforms)
+            awg_nodes[index].commandtable.upload_to_device(command_tables[index])
+        except CoreError as e:
+            print("Compilation error on core", index, e)
 ```
