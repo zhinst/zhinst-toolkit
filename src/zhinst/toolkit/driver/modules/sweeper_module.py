@@ -50,16 +50,6 @@ class SweeperModule(BaseModule):
         """
         self._raw_module.finish()
 
-    def progress(self) -> float:
-        """Progress of the execution.
-
-        Returns:
-            Progress of the execution with a number between 0 and 1
-
-        .. versionadded:: 0.5.0
-        """
-        return self._raw_module.progress()[0]
-
     def read(self) -> NodeDict:
         """Read sweeper data.
 

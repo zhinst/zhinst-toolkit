@@ -125,16 +125,6 @@ class DAQModule(BaseModule):
         """
         return self._raw_module.finished()
 
-    def progress(self) -> float:
-        """Progress of the execution.
-
-        Returns:
-            Progress of the execution with a number between 0 and 1
-
-        .. versionadded:: 0.5.0
-        """
-        return self._raw_module.progress()[0]
-
     def trigger(self) -> None:
         """Execute a manual trigger.
 

@@ -155,11 +155,3 @@ class ImpedanceModule(BaseModule):
         if step is None:
             return self.status() == self.expectedstatus()
         return self.status() & (1 << step)
-
-    def progress(self) -> float:
-        """Progress of the execution.
-
-        Returns:
-            Progress of the execution with a number between 0 and 1
-        """
-        return self._raw_module.progress()[0]
