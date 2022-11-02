@@ -18,6 +18,7 @@ from zhinst.toolkit.interface import AveragingMode, SHFQAChannelMode
 from zhinst.toolkit.session import PollFlags, Session
 from zhinst.toolkit.waveform import Waveforms
 from zhinst.toolkit.sequence import Sequence
+from zhinst.toolkit.driver.modules.pid_advisor_module import PIDMode
 
 try:
     from zhinst.toolkit._version import version as __version__
@@ -32,4 +33,5 @@ __all__ = [
     "Session",
     "Waveforms",
     "Sequence",
+    "PIDMode",
 ]

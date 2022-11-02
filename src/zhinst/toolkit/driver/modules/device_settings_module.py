@@ -151,4 +151,4 @@ class DeviceSettingsModule(BaseModule):
         Returns:
             Device settings.
         """
-        return NodeDict(self._raw_module.read(flat=True))
+        return super().read()

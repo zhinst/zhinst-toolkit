@@ -22,6 +22,9 @@ impedance_module:
 nodetree:
   device_type: ["MFLI", "UHFLI"]
 
+pid_advisor_module:
+  device_type: ["MFLI"]
+
 scope_module:
   device_type: ["MFLI", "UHFLI"]
 

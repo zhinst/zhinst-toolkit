@@ -98,13 +98,13 @@ def test_run_stop(mock_connection, pqsc):
 
 def test_wait_done(mock_connection, pqsc):
     mock_connection.return_value.getInt.side_effect = [1, 1, 1, 0, 0, 0, 0, 0]
-    pqsc.wait_done()
+    pqsc.wait_done(sleep_time=0.001)
     mock_connection.return_value.getInt.assert_called_with("/dev1234/execution/enable")
 
     mock_connection.return_value.getInt.side_effect = None
     mock_connection.return_value.getInt.return_value = 1
     with pytest.raises(TimeoutError) as e_info:
-        pqsc.wait_done(timeout=0.2)
+        pqsc.wait_done(timeout=0.01)
     mock_connection.return_value.getInt.assert_called_with("/dev1234/execution/enable")
 
 
@@ -125,17 +125,17 @@ def test_ref_clock(mock_connection, pqsc):
 
     mock_connection.return_value.getInt.side_effect = get_side_effect
 
-    assert pqsc.check_ref_clock()
+    assert pqsc.check_ref_clock(sleep_time=0.001)
     # Locked within time
     status = iter([2] * 2 + [0] * 10)
-    assert pqsc.check_ref_clock()
+    assert pqsc.check_ref_clock(sleep_time=0.001)
     # Locking error but actual_clock == clock
     status = cycle([1])
-    assert not pqsc.check_ref_clock()
+    assert not pqsc.check_ref_clock(sleep_time=0.001)
     # Locking error and actual_clock != clock => reset clock to internal
     source = 1
     mock_connection.return_value.syncSetString.assert_not_called()
-    assert not pqsc.check_ref_clock()
+    assert not pqsc.check_ref_clock(sleep_time=0.001)
     mock_connection.return_value.syncSetString.assert_called_with(
         "/dev1234/system/clocks/referenceclock/in/source", "internal"
     )
@@ -143,7 +143,7 @@ def test_ref_clock(mock_connection, pqsc):
     # timeout
     status = cycle([2])
     with pytest.raises(TimeoutError) as e_info:
-        pqsc.check_ref_clock(timeout=0.2)
+        pqsc.check_ref_clock(timeout=0.01, sleep_time=0.001)
 
 
 def test_check_zsync_connection(mock_connection, pqsc):
@@ -167,46 +167,48 @@ def test_check_zsync_connection(mock_connection, pqsc):
 
     # not connected
     with pytest.raises(TimeoutError):
-        pqsc.check_zsync_connection(timeout=0)
+        pqsc.check_zsync_connection(timeout=0, sleep_time=0.001)
     with pytest.raises(TimeoutError):
-        pqsc.check_zsync_connection(2, timeout=0)
+        pqsc.check_zsync_connection(2, timeout=0, sleep_time=0.001)
     with pytest.raises(TimeoutError):
-        pqsc.check_zsync_connection([0], timeout=0)
+        pqsc.check_zsync_connection([0], timeout=0, sleep_time=0.001)
     with pytest.raises(TimeoutError):
-        pqsc.check_zsync_connection([0, 2], timeout=0)
+        pqsc.check_zsync_connection([0, 2], timeout=0, sleep_time=0.001)
 
     # one connected
     status0 = 2
     assert True == pqsc.check_zsync_connection()
     with pytest.raises(TimeoutError):
-        pqsc.check_zsync_connection(2, timeout=0)
+        pqsc.check_zsync_connection(2, timeout=0, sleep_time=0.001)
     assert [True] == pqsc.check_zsync_connection([0])
     with pytest.raises(TimeoutError):
-        pqsc.check_zsync_connection([0, 2], timeout=0)
+        pqsc.check_zsync_connection([0, 2], timeout=0, sleep_time=0.001)
 
     # one connected the other one in error state
     status0 = 2
     status2 = 3
-    assert True == pqsc.check_zsync_connection()
-    assert False == pqsc.check_zsync_connection(2)
-    assert [True] == pqsc.check_zsync_connection([0])
-    assert [True, False] == pqsc.check_zsync_connection([0, 2])
+    assert True == pqsc.check_zsync_connection(sleep_time=0.001)
+    assert False == pqsc.check_zsync_connection(2, sleep_time=0.001)
+    assert [True] == pqsc.check_zsync_connection([0], sleep_time=0.001)
+    assert [True, False] == pqsc.check_zsync_connection([0, 2], sleep_time=0.001)
 
     # one connected the other one times out
     status0 = 2
     status2 = 1
-    assert True == pqsc.check_zsync_connection()
+    assert True == pqsc.check_zsync_connection(sleep_time=0.001)
     with pytest.raises(TimeoutError) as e_info:
         pqsc.check_zsync_connection(2, timeout=0.01)
-    assert [True] == pqsc.check_zsync_connection([0])
+    assert [True] == pqsc.check_zsync_connection([0], sleep_time=0.001)
 
     with pytest.raises(TimeoutError) as e_info:
-        pqsc.check_zsync_connection([0, 2], timeout=0.01)
+        pqsc.check_zsync_connection([0, 2], timeout=0.01, sleep_time=0.001)
     assert "2" in str(e_info.value)
 
     # test two decimal place value
     status10 = 2
     status0 = 2
     status2 = 3
-    assert [True] == pqsc.check_zsync_connection([10])
-    assert [True, False, True] == pqsc.check_zsync_connection([0, 2, 10])
+    assert [True] == pqsc.check_zsync_connection([10], sleep_time=0.001)
+    assert [True, False, True] == pqsc.check_zsync_connection(
+        [0, 2, 10], sleep_time=0.001
+    )

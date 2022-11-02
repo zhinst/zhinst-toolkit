@@ -1,0 +1,332 @@
+{
+    "/advancedmode": {
+        "Node": "/advancedmode",
+        "Description": "If enabled, automatically calculate the start and stop value used in the Bode and step response plots.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/auto": {
+        "Node": "/auto",
+        "Description": "If enabled, automatically trigger a new optimization process upon an input parameter value change.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/bode": {
+        "Node": "/bode",
+        "Description": "Contains the resulting bode plot of the PID simulation.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "ZIAdvisorWave"
+    },
+    "/bw": {
+        "Node": "/bw",
+        "Description": "Calculated system bandwidth.",
+        "Properties": "Read",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/calculate": {
+        "Node": "/calculate",
+        "Description": "Set to 1 to start the PID Advisor's modelling process and calculation of optimal parameters. The module sets calculate to 0 when the calculation is finished.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/demod/harmonic": {
+        "Node": "/demod/harmonic",
+        "Description": "Only relevant when /DEV.../PIDS/n/INPUT is configured to be a demodulator output. Specifies the demodulator's harmonic to use in the PID Advisor model. This value will be transferred to the instrument node (/DEV..../DEMODS/m/HARMONIC) when the PID is enabled.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/demod/order": {
+        "Node": "/demod/order",
+        "Description": "Only relevant when /DEV.../PIDS/n/INPUT is configured to be a demodulator output. Specifies the demodulator's order to use in the PID Advisor model. This value will be transferred to the instrument node (/DEV..../DEMODS/m/ORDER) when the PID is enabled.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/demod/timeconstant": {
+        "Node": "/demod/timeconstant",
+        "Description": "Only relevant when /DEV.../PIDS/n/INPUT is configured to be a demodulator output and pidAdvisor/pid/autobw=0. Specify the demodulator's timeconstant to use in the PID Advisor model. This value will be transferred to the instrument node (/DEV..../DEMODS/m/TIMECONSTANT) when the PID is enabled.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/device": {
+        "Node": "/device",
+        "Description": "Device string specifying the device for which the PID advisor is performed.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/display/freqstart": {
+        "Node": "/display/freqstart",
+        "Description": "Start frequency for Bode plot. If advancedmode=0 the start value is automatically derived from the system properties.",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/display/freqstop": {
+        "Node": "/display/freqstop",
+        "Description": "Stop frequency for Bode plot.",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/display/timestart": {
+        "Node": "/display/timestart",
+        "Description": "Start time for step response. If advancedmode=0 the start value is 0.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/display/timestop": {
+        "Node": "/display/timestop",
+        "Description": "Stop time for step response.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/dut/bw": {
+        "Node": "/dut/bw",
+        "Description": "Bandwidth of the DUT (device under test).",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/dut/damping": {
+        "Node": "/dut/damping",
+        "Description": "Damping of the second order low pass filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/dut/delay": {
+        "Node": "/dut/delay",
+        "Description": "IO Delay of the feedback system describing the earliest response for a step change.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/dut/fcenter": {
+        "Node": "/dut/fcenter",
+        "Description": "Resonant frequency of the of the modelled resonator.",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/dut/gain": {
+        "Node": "/dut/gain",
+        "Description": "Gain of the DUT transfer function.",
+        "Properties": "Read, Write",
+        "Unit": "Depends on Input, Output, and DUT model",
+        "Type": "Double"
+    },
+    "/dut/q": {
+        "Node": "/dut/q",
+        "Description": "Quality factor of the modelled resonator.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/dut/source": {
+        "Node": "/dut/source",
+        "Description": "Specifies the model used for the external DUT (device under test) to be controlled by the PID.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "1": "\"low_pass_1st_order\": Low-pass first order.",
+            "2": "\"low_pass_2nd_order\": Low-pass second order.",
+            "3": "\"resonator_frequency\": Resonator frequency.",
+            "4": "\"internal_pll\": Internal PLL.",
+            "5": "\"vco\": Voltage-controlled oscillator (VCO).",
+            "6": "\"resonator_amplitude\": Resonator amplitude."
+        }
+    },
+    "/impulse": {
+        "Node": "/impulse",
+        "Description": "Reserved for future use - not yet supported.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "ZIAdvisorWave"
+    },
+    "/index": {
+        "Node": "/index",
+        "Description": "The 0-based index of the PID on the instrument to use for parameter detection.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/pid/autobw": {
+        "Node": "/pid/autobw",
+        "Description": "If enabled, adjust the demodulator bandwidth to fit best to the specified target bandwidth of the full system. In this case, demod/timeconstant is ignored.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/pid/autolimit": {
+        "Node": "/pid/autolimit",
+        "Description": "If enabled, set the instrument PID limits based upon the calculated bw value.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/pid/d": {
+        "Node": "/pid/d",
+        "Description": "The initial value to use in the Advisor for the differential gain. After optimization has finished it contains the optimal value calculated by the Advisor.",
+        "Properties": "Read, Write",
+        "Unit": "(Output Unit . s) / Input Unit",
+        "Type": "Double"
+    },
+    "/pid/dlimittimeconstant": {
+        "Node": "/pid/dlimittimeconstant",
+        "Description": "The initial value to use in the Advisor for the differential filter timeconstant gain. After optimization has finished it contains the optimal value calculated by the Advisor.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/pid/i": {
+        "Node": "/pid/i",
+        "Description": "The initial value to use in the Advisor for the integral gain. After optimization has finished it contains the optimal value calculated by the Advisor.",
+        "Properties": "Read, Write",
+        "Unit": "Output Unit / (Input Unit . s)",
+        "Type": "Double"
+    },
+    "/pid/mode": {
+        "Node": "/pid/mode",
+        "Description": "Select PID Advisor mode. Bit encoded: bit 0 -- optimize P gain; bit 1 -- optimize I gain; bit 2 -- optimize D gain; bit 3 -- optimize D filter limit",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/pid/p": {
+        "Node": "/pid/p",
+        "Description": "The initial value to use in the Advisor for the proportional gain. After optimization has finished it contains the optimal value calculated by the Advisor.",
+        "Properties": "Read, Write",
+        "Unit": "Output Unit / Input Unit",
+        "Type": "Double"
+    },
+    "/pid/rate": {
+        "Node": "/pid/rate",
+        "Description": "PID Advisor sampling rate of the PID control loop.",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/pid/targetbw": {
+        "Node": "/pid/targetbw",
+        "Description": "PID system target bandwidth.",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/pid/type": {
+        "Node": "/pid/type",
+        "Description": "HF2 instruments only. Specify whether to model the instrument's PLL or PID hardware unit when dut/source=4 (internal PLL).",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/pm": {
+        "Node": "/pm",
+        "Description": "Simulated phase margin of the PID with the current settings. The phase margin should be greater than 45 deg and preferably greater than 65 deg for stable conditions.",
+        "Properties": "Read",
+        "Unit": "deg",
+        "Type": "Double"
+    },
+    "/pmfreq": {
+        "Node": "/pmfreq",
+        "Description": "Simulated phase margin frequency.",
+        "Properties": "Read",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/progress": {
+        "Node": "/progress",
+        "Description": "Reports the progress of a PID Advisor action as a value between 0 and 1.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/response": {
+        "Node": "/response",
+        "Description": "Set to 1 to calculate the Bode and the step response plot data from the current pid/* parameters (only relevant when auto=0). The module sets response back to 0 when the plot data has been calculated.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/stable": {
+        "Node": "/stable",
+        "Description": "If equal to 1, the PID Advisor found a stable solution with the given settings. If equal to 0, the solution was deemed instable - revise your settings and rerun the PID Advisor.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/step": {
+        "Node": "/step",
+        "Description": "The resulting step response data of the PID Advisor's simulation.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "ZIAdvisorWave"
+    },
+    "/targetfail": {
+        "Node": "/targetfail",
+        "Description": "A value of 1 indicates the simulated PID BW is smaller than the Target BW.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/tf/closedloop": {
+        "Node": "/tf/closedloop",
+        "Description": "Switch the response calculation mode between closed or open loop.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/tf/input": {
+        "Node": "/tf/input",
+        "Description": "Start point for the plant response simulation for open or closed loops.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/tf/output": {
+        "Node": "/tf/output",
+        "Description": "End point for the plant response simulation for open or closed loops.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/todevice": {
+        "Node": "/todevice",
+        "Description": "Set to 1 to transfer the calculated PID advisor data to the device, the module will immediately reset the parameter to 0 and configure the instrument's nodes.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/tune": {
+        "Node": "/tune",
+        "Description": "If enabled, optimize the instrument's PID parameters so that the noise of the closed- loop system gets minimized. The HF2 doesn't support tuning.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/tuner/averagetime": {
+        "Node": "/tuner/averagetime",
+        "Description": "Time for a tuner iteration.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/tuner/mode": {
+        "Node": "/tuner/mode",
+        "Description": "Select tuner mode. Bit encoded: bit 0 -- tune P gain; bit 1 -- tune I gain; bit 2 -- tune D gain; bit 3 -- tune D filter limit",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    }
+}
