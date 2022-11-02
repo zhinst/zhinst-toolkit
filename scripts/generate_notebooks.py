@@ -25,7 +25,10 @@ def download_example_file(filename: str) -> bytes:
     """
     url = f"{BASE_EXAMPLE_URL}/{filename}"
     response = requests.get(url)
-    response.raise_for_status()
+    try:
+        response.raise_for_status()
+    except requests.exceptions.RequestException:
+        return None
     return response.content
 
 
