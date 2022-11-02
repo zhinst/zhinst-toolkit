@@ -6,7 +6,17 @@ from zhinst.toolkit.driver.modules.daq_module import DAQModule
 from zhinst.toolkit.driver.modules.shfqa_sweeper import SHFQASweeper
 from zhinst.toolkit.driver.modules.sweeper_module import SweeperModule
 from zhinst.toolkit.driver.modules.scope_module import ScopeModule
+from zhinst.toolkit.driver.modules.impedance_module import ImpedanceModule
 
-ModuleType = t.Union[BaseModule, DAQModule, SHFQASweeper, SweeperModule, ScopeModule]
+ModuleType = t.Union[
+    BaseModule, DAQModule, SHFQASweeper, SweeperModule, ScopeModule, ImpedanceModule
+]
 
-__all__ = ["BaseModule", "DAQModule", "SHFQASweeper", "SweeperModule", "ScopeModule"]
+__all__ = [
+    "BaseModule",
+    "DAQModule",
+    "SHFQASweeper",
+    "SweeperModule",
+    "ScopeModule",
+    "ImpedanceModule",
+]
