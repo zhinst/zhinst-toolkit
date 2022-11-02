@@ -10,6 +10,7 @@ from os import PathLike, fspath
 
 from zhinst.core import ModuleBase
 from zhinst.toolkit.nodetree import Node, NodeTree
+from zhinst.toolkit.nodetree.helper import NodeDict
 
 logger = logging.getLogger(__name__)
 
@@ -220,6 +221,16 @@ class BaseModule(Node):
         .. versionadded:: 0.4.1
         """
         self._raw_module.execute()
+
+    def read(self) -> NodeDict:
+        """Read scope data.
+
+        If the recording is still ongoing only a subset of data is returned.
+
+        Returns:
+            Scope data.
+        """
+        return NodeDict(self._raw_module.read(flat=True))
 
     @property
     def raw_module(self) -> ZIModule:  # type: ignore [type-var]

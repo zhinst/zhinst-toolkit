@@ -6,7 +6,6 @@ import typing as t
 from zhinst.core import SweeperModule as ZISweeperModule
 
 from zhinst.toolkit.driver.modules.base_module import BaseModule
-from zhinst.toolkit.nodetree.helper import NodeDict
 
 if t.TYPE_CHECKING:  # pragma: no cover
     from zhinst.toolkit.session import Session
@@ -49,15 +48,3 @@ class SweeperModule(BaseModule):
         .. versionadded:: 0.5.0
         """
         self._raw_module.finish()
-
-    def read(self) -> NodeDict:
-        """Read sweeper data.
-
-        If the recording is still ongoing only a subset of data is returned.
-
-        Returns:
-            Sweeper data.
-
-        .. versionchanged:: 0.5.0 return NodeDict instead of raw dict.
-        """
-        return NodeDict(self._raw_module.read(flat=True))

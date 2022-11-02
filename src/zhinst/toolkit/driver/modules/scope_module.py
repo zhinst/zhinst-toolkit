@@ -6,7 +6,6 @@ import typing as t
 from zhinst.core import ScopeModule as ZIScopeModule
 
 from zhinst.toolkit.driver.modules.base_module import BaseModule
-from zhinst.toolkit.nodetree.helper import NodeDict
 
 if t.TYPE_CHECKING:  # pragma: no cover
     from zhinst.toolkit.session import Session
@@ -65,13 +64,3 @@ class ScopeModule(BaseModule):
     def finish(self) -> None:
         """Stop the module."""
         self._raw_module.finish()
-
-    def read(self) -> NodeDict:
-        """Read scope data.
-
-        If the recording is still ongoing only a subset of data is returned.
-
-        Returns:
-            Scope data.
-        """
-        return NodeDict(self._raw_module.read(flat=True))

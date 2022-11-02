@@ -335,7 +335,7 @@ class ModuleHandler:
             self._session.daq_server.multiDeviceSyncModule(), self._session
         )
 
-    def create_pid_advisor_module(self) -> tk_modules.BaseModule:
+    def create_pid_advisor_module(self) -> tk_modules.PIDAdvisorModule:
         """Create an instance of the PidAdvisorModule.
 
         The resulting Module will have the nodetree accessible. The underlying
@@ -352,7 +352,7 @@ class ModuleHandler:
         Returns:
             Created module
         """
-        return tk_modules.BaseModule(
+        return tk_modules.PIDAdvisorModule(
             self._session.daq_server.pidAdvisor(), self._session
         )
 
@@ -517,7 +517,7 @@ class ModuleHandler:
         return self.create_mds_module()
 
     @lazy_property
-    def pid_advisor(self) -> tk_modules.BaseModule:
+    def pid_advisor(self) -> tk_modules.PIDAdvisorModule:
         """Managed instance of the pid advisor module.
 
         Managed means that only one instance is created
