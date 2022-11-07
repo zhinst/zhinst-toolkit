@@ -15,7 +15,7 @@ jupyter:
 
 # Qubit readout measurements
 
-Parallel read-out of qubits.
+This examples shows how to perform the multiplexed readout of multiple qubits using the SHFQA.
 
 Requirements:
 
@@ -32,6 +32,7 @@ device = session.connect_device("DEVXXXX")
 ```
 
 ### Configure channel inputs and outputs
+Set the center frequency for the signals, the input and output range (in dB) and the mode of the SHFQA channel.
 
 ```python
 CHANNEL_INDEX = 0
@@ -46,24 +47,26 @@ device.qachannels[CHANNEL_INDEX].input.on(1)
 device.qachannels[CHANNEL_INDEX].output.on(1)
 ```
 
-### Generate waveforms
+### Generate the waveforms to readout the state of the qubits.
+In this example the envelope of the readout pulses is a gaussian with a flat top. For each qubit, the envelope is then modulated at the qubit frequency. For illustrative purposes we assume that the frequencies of the qubits are equally spaced in the range [32 MHz, 230 MHz] relative to the center frequency of 5 GHz specified above.
 
 ```python
 from scipy.signal import gaussian
 import numpy as np
 
-
+# Define the parameters for the readout pulses
 NUM_QUBITS = device.max_qubits_per_channel
-RISE_FALL_TIME = 10e-9
+RISE_FALL_TIME = 10e-9  # Duration of the rising and falling parts of the pulse
 SAMPLING_RATE = 2e9
-PULSE_DURATION = 500e-9
-FREQUENCIES = np.linspace(32e6, 230e6, NUM_QUBITS)
+PULSE_DURATION = 500e-9  # Total pulse duration
+FREQUENCIES = np.linspace(32e6, 230e6, NUM_QUBITS)  # Qubits' frequencies
 SCALING = 0.9 / NUM_QUBITS
 
 rise_fall_len = int(RISE_FALL_TIME * SAMPLING_RATE)
 pulse_len = int(PULSE_DURATION * SAMPLING_RATE)
 std_dev = rise_fall_len // 10
 
+# Generate the flat top gaussian envelope
 gauss = gaussian(2 * rise_fall_len, std_dev)
 flat_top_gaussian = np.ones(pulse_len)
 flat_top_gaussian[0:rise_fall_len] = gauss[0:rise_fall_len]
@@ -73,6 +76,7 @@ flat_top_gaussian *= SCALING
 
 time_vec = np.linspace(0, PULSE_DURATION, pulse_len)
 
+# Modulate the envelope at the qubits' frequencies
 readout_pulses = Waveforms()
 for i, f in enumerate(FREQUENCIES):
     readout_pulses.assign_waveform(
@@ -80,15 +84,18 @@ for i, f in enumerate(FREQUENCIES):
         wave1=flat_top_gaussian * np.exp(2j * np.pi * f * time_vec)
     )
 
+# Upload the waveforms to the waveform memory
 device.qachannels[CHANNEL_INDEX].generator.write_to_waveform_memory(readout_pulses)
 ```
 
 ### Configure result logger and weighted integration
+Configure the weights to be used in the weighted integration for the readout of the qubits. We also configure the result logger, specifying the number of readouts to be performed.
 
 ```python
 ROTATION_ANGLE = 0
 NUM_READOUTS = 100
 
+# Define the weights for the weighted integration
 weights =  Waveforms()
 
 for waveform_slot, pulse in readout_pulses.items():
@@ -102,6 +109,8 @@ device.qachannels[CHANNEL_INDEX].readout.write_integration_weights(
     # compensation for the delay between generator output and input of the integration unit
     integration_delay=200e-9
 )
+
+# Configure the result logger
 device.qachannels[CHANNEL_INDEX].readout.configure_result_logger(
     result_length=NUM_READOUTS,
     result_source='result_of_integration'
@@ -109,6 +118,7 @@ device.qachannels[CHANNEL_INDEX].readout.configure_result_logger(
 ```
 
 ### Configure sequencer
+Configure the sequencer to wait for the triggering signal, start the readout, and then repeat this procedure for the chosen number of readouts. We also configure the type of trigger to be used.
 
 ```python
 device.qachannels[CHANNEL_INDEX].generator.configure_sequencer_triggering(

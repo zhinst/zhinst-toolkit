@@ -14,7 +14,7 @@ jupyter:
 ---
 
 # Generate a Rabi Sequence
-
+Generate the sequence of pulses needed in a Rabi experiment using the SHFSG.
 
 Requirements:
 
@@ -29,13 +29,13 @@ session = Session("localhost")
 device = session.connect_device("DEVXXXX")
 ```
 
-### Rabi Sequence parameter configuration
-
+### Configure parameters of the Rabi Sequence
+Define the frequency used to modulate the envelope of the Rabi pulse, the center frequency used by the sinthetizer for the up-conversion, and the output power.
 ```python
 CHANNEL = 0
 # Center Frequency of the synthesizer
 RF_FREQUENCY_HZ = 1e9
-# Frequency of digital sine generator
+# Frequency of digital sine generator for modulation
 OSC_FREQ_HZ = 100e6
 OUTPUT_POWER_DBM = 0
 ```
@@ -51,7 +51,8 @@ device.sgchannels[0].configure_channel(
 )
 ```
 
-### Configure digital demodulation
+### Configure digital modulation
+Configure the digital oscillator used to modulate the Rabi pulse.
 
 ```python
 with device.set_transaction():
@@ -70,6 +71,7 @@ with device.set_transaction():
 ```
 
 ### Load sequencer code
+The following sequencer code defines the envelope for the Rabi pulse, sets the trigger and plays the Rabi pulse multiple times changing the amplitude with the command table defined afterward.
 
 ```python
 SEQUENCER_CODE = """\
@@ -115,6 +117,7 @@ device.sgchannels[0].awg.load_sequencer_program(SEQUENCER_CODE)
 ```
 
 ### Create and upload command table
+Create a command table that increments the amplitude of the Rabi pulse every time it is executed.
 
 ```python
 from zhinst.toolkit import CommandTable
