@@ -358,7 +358,7 @@ class ModuleHandler:
 
     def create_precompensation_advisor_module(
         self,
-    ) -> tk_modules.BaseModule:
+    ) -> tk_modules.PrecompensationAdvisorModule:
         """Create an instance of the PrecompensationAdvisorModule.
 
         In contrast to core.ziDAQServer.precompensationAdvisor() a nodetree property
@@ -374,7 +374,7 @@ class ModuleHandler:
         Returns:
             Created module
         """
-        return tk_modules.BaseModule(
+        return tk_modules.PrecompensationAdvisorModule(
             self._session.daq_server.precompensationAdvisor(), self._session
         )
 
@@ -529,7 +529,7 @@ class ModuleHandler:
         return self.create_pid_advisor_module()
 
     @lazy_property
-    def precompensation_advisor(self) -> tk_modules.BaseModule:
+    def precompensation_advisor(self) -> tk_modules.PrecompensationAdvisorModule:
         """Managed instance of the precompensation advisor module.
 
         Managed means that only one instance is created

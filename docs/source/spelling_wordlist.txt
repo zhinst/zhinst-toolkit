@@ -130,3 +130,6 @@ demods
 natively
 subtree
 misconfiguration
+pre
+forwardwave
+backwardwave

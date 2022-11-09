@@ -941,6 +941,7 @@ def test_connection_dict_callable_nodes(data_dir):
         if value is None:
             return seat + 1
         seat = value + 1
+        return None
 
     data = {"/car/seat": update_seat, "/car/color": "blue", "/street/length": 110.4}
     json_path = data_dir / "nodedoc_fake.json"

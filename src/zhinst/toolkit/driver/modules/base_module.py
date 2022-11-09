@@ -7,6 +7,7 @@ import logging
 import time
 import typing as t
 from os import PathLike, fspath
+from functools import partial
 
 from zhinst.core import ModuleBase
 from zhinst.toolkit.nodetree import Node, NodeTree
@@ -42,7 +43,7 @@ class BaseModule(Node):
         self.root.update_nodes(
             {
                 "/device": {
-                    "GetParser": self._get_device,
+                    "GetParser": partial(self._get_device, self._session),
                     "SetParser": self._set_device,
                 },
                 "/directory": {
@@ -58,7 +59,8 @@ class BaseModule(Node):
     def __repr__(self):
         return str(f"{self._raw_module.__class__.__name__}({repr(self._session)})")
 
-    def _get_device(self, serial: str) -> t.Union["DeviceType", str]:
+    @staticmethod
+    def _get_device(session, serial: str) -> t.Union["DeviceType", str]:
         """Convert a device serial into a toolkit device object.
 
         Args:
@@ -69,7 +71,7 @@ class BaseModule(Node):
                 match to a connected device the serial is returned instead.
         """
         try:
-            return self._session.devices[serial]
+            return session.devices[serial]
         except (RuntimeError, KeyError):
             return serial
 

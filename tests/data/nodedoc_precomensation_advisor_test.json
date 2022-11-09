@@ -1,0 +1,344 @@
+{
+    "/bounces/0/amplitude": {
+        "Node": "/bounces/0/amplitude",
+        "Description": "Amplitude of the bounce compensation filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/bounces/0/delay": {
+        "Node": "/bounces/0/delay",
+        "Description": "Delay between original signal and the bounce echo.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/bounces/0/enable": {
+        "Node": "/bounces/0/enable",
+        "Description": "Enable the bounce compensation filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/device": {
+        "Node": "/device",
+        "Description": "Device string defining the device on which the compensation is performed.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/exponentials/0/amplitude": {
+        "Node": "/exponentials/0/amplitude",
+        "Description": "Amplitude of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/exponentials/0/enable": {
+        "Node": "/exponentials/0/enable",
+        "Description": "Enable the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/exponentials/0/timeconstant": {
+        "Node": "/exponentials/0/timeconstant",
+        "Description": "Time constant (tau) of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/exponentials/1/amplitude": {
+        "Node": "/exponentials/1/amplitude",
+        "Description": "Amplitude of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/exponentials/1/enable": {
+        "Node": "/exponentials/1/enable",
+        "Description": "Enable the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/exponentials/1/timeconstant": {
+        "Node": "/exponentials/1/timeconstant",
+        "Description": "Time constant (tau) of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/exponentials/2/amplitude": {
+        "Node": "/exponentials/2/amplitude",
+        "Description": "Amplitude of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/exponentials/2/enable": {
+        "Node": "/exponentials/2/enable",
+        "Description": "Enable the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/exponentials/2/timeconstant": {
+        "Node": "/exponentials/2/timeconstant",
+        "Description": "Time constant (tau) of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/exponentials/3/amplitude": {
+        "Node": "/exponentials/3/amplitude",
+        "Description": "Amplitude of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/exponentials/3/enable": {
+        "Node": "/exponentials/3/enable",
+        "Description": "Enable the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/exponentials/3/timeconstant": {
+        "Node": "/exponentials/3/timeconstant",
+        "Description": "Time constant (tau) of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/exponentials/4/amplitude": {
+        "Node": "/exponentials/4/amplitude",
+        "Description": "Amplitude of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/exponentials/4/enable": {
+        "Node": "/exponentials/4/enable",
+        "Description": "Enable the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/exponentials/4/timeconstant": {
+        "Node": "/exponentials/4/timeconstant",
+        "Description": "Time constant (tau) of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/exponentials/5/amplitude": {
+        "Node": "/exponentials/5/amplitude",
+        "Description": "Amplitude of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/exponentials/5/enable": {
+        "Node": "/exponentials/5/enable",
+        "Description": "Enable the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/exponentials/5/timeconstant": {
+        "Node": "/exponentials/5/timeconstant",
+        "Description": "Time constant (tau) of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/exponentials/6/amplitude": {
+        "Node": "/exponentials/6/amplitude",
+        "Description": "Amplitude of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/exponentials/6/enable": {
+        "Node": "/exponentials/6/enable",
+        "Description": "Enable the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/exponentials/6/timeconstant": {
+        "Node": "/exponentials/6/timeconstant",
+        "Description": "Time constant (tau) of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/exponentials/7/amplitude": {
+        "Node": "/exponentials/7/amplitude",
+        "Description": "Amplitude of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/exponentials/7/enable": {
+        "Node": "/exponentials/7/enable",
+        "Description": "Enable the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/exponentials/7/timeconstant": {
+        "Node": "/exponentials/7/timeconstant",
+        "Description": "Time constant (tau) of the exponential filter.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/fir/coefficients": {
+        "Node": "/fir/coefficients",
+        "Description": "Vector of FIR filter coefficients. Maximum length 40 elements. The first 8 coefficients are applied to 8 individual samples, whereas the following 32 Coefficients are applied to two consecutive samples each.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "ZIVectorData"
+    },
+    "/fir/enable": {
+        "Node": "/fir/enable",
+        "Description": "Enable the FIR filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/highpass/0/enable": {
+        "Node": "/highpass/0/enable",
+        "Description": "Enable the high-pass compensation filter.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/highpass/0/timeconstant": {
+        "Node": "/highpass/0/timeconstant",
+        "Description": "Time constant (tau) of the high-pass compensation filter.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/latency/enable": {
+        "Node": "/latency/enable",
+        "Description": "Enable latency simulation for the calculated waves.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/latency/value": {
+        "Node": "/latency/value",
+        "Description": "Total delay of the output signal accumulated by all filter stages (read-only).",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/samplingfreq": {
+        "Node": "/samplingfreq",
+        "Description": "Sampling frequency for the simulation (read-only). The value comes from the /device/system/clocks/sampleclock/freq node if available. Default is 2.4 GHz.",
+        "Properties": "Read",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/wave/input/awgindex": {
+        "Node": "/wave/input/awgindex",
+        "Description": "Defines with which AWG output the module is associated. This is used for loading an AWG wave as the source.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/wave/input/delay": {
+        "Node": "/wave/input/delay",
+        "Description": "Artificial time delay of the simulation input.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/wave/input/gain": {
+        "Node": "/wave/input/gain",
+        "Description": "Artificial gain with which to scale the samples of the simulation input.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Double"
+    },
+    "/wave/input/inputvector": {
+        "Node": "/wave/input/inputvector",
+        "Description": "Node to upload a vector of amplitude data used as a signal source. It is assumed the data are equidistantly spaced in time with the sampling rate as defined in the \"samplingfreq\" node.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "ZIVectorData"
+    },
+    "/wave/input/length": {
+        "Node": "/wave/input/length",
+        "Description": "Number of points in the simulated wave.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/wave/input/offset": {
+        "Node": "/wave/input/offset",
+        "Description": "Artificial vertical offset added to the simulation input.",
+        "Properties": "Read, Write",
+        "Unit": "V",
+        "Type": "Double"
+    },
+    "/wave/input/samplingfreq": {
+        "Node": "/wave/input/samplingfreq",
+        "Description": "The sampling frequency determined by the timestamps from the CSV file.",
+        "Properties": "Read, Write",
+        "Unit": "Hz",
+        "Type": "Double"
+    },
+    "/wave/input/source": {
+        "Node": "/wave/input/source",
+        "Description": "Type of wave used for the simulation.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"step\": Step function",
+            "1": "\"impulse\": Pulse",
+            "2": "\"nodes\": Load AWG with the wave specified by the \"waveindex\" and \"awgindex\" nodes.",
+            "3": "\"manual\": Manually loaded wave through the /inputvector node."
+        }
+    },
+    "/wave/input/statusstring": {
+        "Node": "/wave/input/statusstring",
+        "Description": "The status of loading the CSV file.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/wave/input/waveindex": {
+        "Node": "/wave/input/waveindex",
+        "Description": "Determines which AWG wave is loaded from the the AWG output. Internally, all AWG sequencer waves are indexed and stored. With this specifier, the respective AWG wave is loaded into the Simulation.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/wave/output/backwardwave": {
+        "Node": "/wave/output/backwardwave",
+        "Description": "Initial wave upon which the filters have been applied in the reverse direction. This wave is a simulation of signal path response which can be compensated with the filter settings specified in the respective nodes.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "ZIAdvisorWave"
+    },
+    "/wave/output/forwardwave": {
+        "Node": "/wave/output/forwardwave",
+        "Description": "Initial wave upon which the filters have been applied. This wave is a representation of the AWG output when precompensation is enabled with the filter settings specified in the respective nodes.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "ZIAdvisorWave"
+    },
+    "/wave/output/initialwave": {
+        "Node": "/wave/output/initialwave",
+        "Description": "Wave onto which the filters are applied.",
+        "Properties": "Read",
+        "Unit": "None",
+        "Type": "ZIAdvisorWave"
+    }
+}
