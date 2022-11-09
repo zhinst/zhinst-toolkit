@@ -149,7 +149,7 @@ def test_read_integration_weights(mock_connection, readout):
         flat=True,
     )
 
-    result = readout.read_integration_weights([0, 3])
+    readout.read_integration_weights([0, 3])
     mock_connection.return_value.get.assert_called_with(
         "/dev1234/qachannels/0/readout/integration/weights/0/wave,/dev1234/qachannels/0/readout/integration/weights/3/wave",
         settingsonly=False,

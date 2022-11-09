@@ -39,6 +39,7 @@ def test_wait_done(mock_connection, shfqa, generator):
             return single
         if node.upper() == "/DEV1234/QACHANNELS/0/GENERATOR/ENABLE":
             return next(enable)
+        raise RuntimeError("Node not found")
 
     mock_connection.return_value.getInt.side_effect = get_int_side_effect
 
@@ -88,7 +89,6 @@ def test_write_to_waveform_memory(shfqa, generator, mock_connection):
     complex_wave = np.empty(1000, dtype=np.complex128)
     complex_wave.real = np.ones(1000)
     complex_wave.imag = np.ones(1000)
-    complex_wave = complex_wave
 
     assert mock_connection.return_value.set.call_args[0][0][0] == (
         "/dev1234/qachannels/0/generator/clearwave",
@@ -171,7 +171,7 @@ def test_read_from_waveform_memory(shfqa, mock_connection):
         flat=True,
     )
 
-    result = shfqa.qachannels[0].generator.read_from_waveform_memory([0, 3])
+    shfqa.qachannels[0].generator.read_from_waveform_memory([0, 3])
     mock_connection.return_value.get.assert_called_with(
         "/dev1234/qachannels/0/generator/waveforms/0/wave,/dev1234/qachannels/0/generator/waveforms/3/wave",
         settingsonly=False,

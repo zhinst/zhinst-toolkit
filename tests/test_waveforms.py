@@ -25,20 +25,20 @@ def test_dict_behavior():
     waveform[0] = (wave1, wave2)
     assert all(waveform[0][0] == wave1)
     assert all(waveform[0][1] == wave2)
-    assert waveform[0][2] == None
+    assert waveform[0][2] is None
     assert len(waveform.get_raw_vector(0)) == 1008 * 2
 
     # replace wave
     waveform[0] = (wave1, wave3)
     assert all(waveform[0][0] == wave1)
     assert all(waveform[0][1] == wave3)
-    assert waveform[0][2] == None
+    assert waveform[0][2] is None
 
     # replace wave
     waveform.assign_waveform(0, wave1, wave2)
     assert all(waveform[0][0] == wave1)
     assert all(waveform[0][1] == wave2)
-    assert waveform[0][2] == None
+    assert waveform[0][2] is None
 
     # delete wave
     assert 0 in waveform.keys()
@@ -137,7 +137,7 @@ def test_assign():
     assert all(waveform[2][2] == -wave)
     waveform[3] = (0.5 * wave, None, wave)
     assert all(waveform[3][0] == 0.5 * wave)
-    assert waveform[3][1] == None
+    assert waveform[3][1] is None
     assert all(waveform[3][2] == wave)
     waveform[4] = (np.ones(1008, dtype=np.complex128), wave)
     assert all(waveform[4][0] == np.ones(1008, dtype=np.complex128))
@@ -155,16 +155,16 @@ def test_assign():
     assert waveform[7][0].name == "w"
     assert waveform[7][0].output == 1
     assert all(waveform[2][1] == wave)
-    assert waveform[7][1].name == None
-    assert waveform[7][1].output == None
-    assert waveform[7][2] == None
+    assert waveform[7][1].name is None
+    assert waveform[7][1].output is None
+    assert waveform[7][2] is None
     waveform[8] = (Wave(wave, "test", 3), wave, -wave)
     assert all(waveform[8][0] == wave)
     assert waveform[8][0].name == "test"
     assert waveform[8][0].output == 3
     assert all(waveform[8][1] == wave)
-    assert waveform[8][1].name == None
-    assert waveform[8][1].output == None
+    assert waveform[8][1].name is None
+    assert waveform[8][1].output is None
     assert all(waveform[8][2] == -wave)
 
 

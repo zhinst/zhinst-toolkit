@@ -1,8 +1,4 @@
-from itertools import cycle
-from unittest.mock import patch
-
 import numpy as np
-import pytest
 
 from zhinst.toolkit import Sequence, Waveforms
 

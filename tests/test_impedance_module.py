@@ -34,6 +34,7 @@ def test_wait_done(impedance_module):
             return next(status)
         if node == "/expectedstatus":
             return expectedstatus
+        raise RuntimeError("Node not found")
 
     impedance_module.raw_module.getInt.side_effect = getInt
     impedance_module.raw_module.progress.return_value = [1]
@@ -63,6 +64,7 @@ def test_wait_done_fail(impedance_module):
             return status
         if node == "/expectedstatus":
             return expectedstatus
+        raise RuntimeError("Node not found")
 
     impedance_module.raw_module.getInt.side_effect = getInt
     impedance_module.raw_module.progress.return_value = [1]
@@ -82,6 +84,7 @@ def test_wait_done_fail_stage(impedance_module):
             return status
         if node == "/expectedstatus":
             return expectedstatus
+        raise RuntimeError("Node not found")
 
     impedance_module.raw_module.getInt.side_effect = getInt
     impedance_module.raw_module.progress.return_value = [1]

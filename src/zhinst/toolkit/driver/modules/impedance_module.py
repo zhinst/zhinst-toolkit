@@ -89,8 +89,8 @@ class ImpedanceModule(BaseModule):
         super().__init__(impedance_module, session)
         self.root.update_nodes(
             {
-                "/expectedstatus": {"GetParser": lambda v: CalibrationStatus(v)},
-                "/status": {"GetParser": lambda v: CalibrationStatus(v)},
+                "/expectedstatus": {"GetParser": CalibrationStatus},
+                "/status": {"GetParser": CalibrationStatus},
             },
             raise_for_invalid_node=False,
         )

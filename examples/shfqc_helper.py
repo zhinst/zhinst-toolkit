@@ -1,7 +1,5 @@
 import numpy as np
 import time
-import numpy as np
-import typing as t
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 

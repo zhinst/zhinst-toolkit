@@ -27,6 +27,8 @@ DEVICE_CLASS_BY_MODEL = {
 }
 
 __all__ = [
+    "DeviceType",
+    "DEVICE_CLASS_BY_MODEL",
     "BaseInstrument",
     "HDAWG",
     "PQSC",

@@ -66,7 +66,7 @@ def test_init(connection, data_dir):
     connection_broken = MagicMock()
     connection_broken.listNodesJSON.return_value = '{\n"zi/open": {\n"Node": "/ZI/OPEN"\n},\n"zi/close": {\n"Node": "/ZI/CLOSE"\n}\n}\n'
     with pytest.raises(Exception) as e_info:
-        tree = NodeTree(connection_broken)
+        NodeTree(connection_broken)
     assert "Leading slash not found" in e_info.value.args[0]
 
 
@@ -253,7 +253,7 @@ def test_wildcard_node(connection):
     wildcard_node()
     wildcard_node(1)
     with tree.set_transaction():
-        wildcard_node = tree.demods["*"].rate(1)
+        tree.demods["*"].rate(1)
 
     connection.get.return_value = None
     with pytest.raises(KeyError) as e_info:
@@ -366,7 +366,7 @@ def test_get_deep(connection):
     )
     timestamp, data = tree.demods[0].sample(deep=True)
     assert data == 1674.10717773
-    assert timestamp == None
+    assert timestamp is None
 
 
 def test_get_wildcard(connection):
@@ -674,7 +674,7 @@ def test_nameless_options(connection):
     assert options[1].enum == ""
     assert options[1].description == "1st order filter 6 dB/oct"
 
-    assert tree.demods[0].order.node_info.enum == None
+    assert tree.demods[0].order.node_info.enum is None
 
 
 def test_parser(connection):
@@ -784,20 +784,19 @@ def test_child_nodes(connection):
     # wildcard nodes
     connection.listNodes.side_effect = RuntimeError("Weird fail")
     with pytest.raises(RuntimeError) as e_info:
-        result = list(tree.demods["*"].child_nodes())
+        list(tree.demods["*"].child_nodes())
     assert e_info.value.args[0] == "Weird fail"
     connection.listNodes.side_effect = CoreError("Unrelated Error", 1111)
     with pytest.raises(CoreError) as e_info:
-        result = list(tree.demods["*"].child_nodes())
+        list(tree.demods["*"].child_nodes())
     assert e_info.value.args[0] == "Unrelated Error"
 
     connection.listNodes.side_effect = CoreError("Path format invalid", 32768)
     with pytest.raises(RuntimeError) as e_info:
-        result = list(tree.demods["[0,1]"].child_nodes())
+        list(tree.demods["[0,1]"].child_nodes())
     assert "full_wildcard" in e_info.value.args[0]
 
-    result = list(tree.demods["*"].child_nodes(full_wildcard=True))
-    assert result
+    assert list(tree.demods["*"].child_nodes(full_wildcard=True))
 
 
 def test_subscribe(connection):

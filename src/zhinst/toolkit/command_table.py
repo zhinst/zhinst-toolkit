@@ -54,7 +54,7 @@ class ParentNode:
     def __init__(
         self, schema: dict, path: t.Tuple[str, ...], active_validation: bool = True
     ):
-        self._schema = schema
+        self._schema = copy.deepcopy(schema)
         self._path = path
         self._childs: t.Dict[t.Union[str, int], t.Any] = {}
         self._active_validation = active_validation
@@ -210,7 +210,6 @@ class ListEntry(ParentNode):
         self, schema: dict, path: t.Tuple[str, ...], active_validation: bool = True
     ):
         super().__init__(schema, path, active_validation)
-        self._schema = copy.deepcopy(schema)
         self._min_length = schema["minItems"]
         self._max_length = schema["maxItems"]
 

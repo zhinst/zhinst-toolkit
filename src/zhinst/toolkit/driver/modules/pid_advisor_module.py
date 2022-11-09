@@ -58,10 +58,10 @@ class PIDAdvisorModule(BaseModule):
         self.root.update_nodes(
             {
                 "/pid/mode": {
-                    "GetParser": lambda v: PIDMode(v),
+                    "GetParser": PIDMode,
                 },
                 "/tuner/mode": {
-                    "GetParser": lambda v: PIDMode(v),
+                    "GetParser": PIDMode,
                 },
             },
             raise_for_invalid_node=False,

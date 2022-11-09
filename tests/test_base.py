@@ -82,7 +82,7 @@ def test_iter_nodetree(base_instrument):
 
 def test_load_preloaded_json(base_instrument, mock_connection, data_dir):
 
-    assert base_instrument._load_preloaded_json(data_dir) == None
+    assert base_instrument._load_preloaded_json(data_dir) is None
 
     mock_connection.return_value.listNodes.side_effect = [["/dev1234/stats/0/temp"]]
     return_value = base_instrument._load_preloaded_json(

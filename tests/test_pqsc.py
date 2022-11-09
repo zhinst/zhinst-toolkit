@@ -1,8 +1,4 @@
-from collections import OrderedDict
 from itertools import cycle
-from socket import timeout
-
-import numpy as np
 import pytest
 
 from zhinst.toolkit.driver.devices.pqsc import PQSC

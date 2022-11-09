@@ -53,6 +53,7 @@ def test_wait_done(mock_connection, shfsg):
             return single
         if node.upper() == "/DEV1234/SGCHANNELS/0/AWG/ENABLE":
             return next(enable)
+        raise RuntimeError("Node not found")
 
     mock_connection.return_value.getInt.side_effect = get_int_side_effect
 
@@ -102,9 +103,7 @@ def test_load_sequencer_program(mock_connection, shfsg):
     mock_connection.return_value.set.side_effect = RuntimeError()
     mock_connection.return_value.setVector.side_effect = RuntimeError()
     with pytest.raises(RuntimeError):
-        elf, info_original = shfsg.sgchannels[0].awg.load_sequencer_program(
-            "setTrigger(1);"
-        )
+        shfsg.sgchannels[0].awg.load_sequencer_program("setTrigger(1);")
 
 
 def test_load_sequencer_program_qc(mock_connection, shfqc):
@@ -300,7 +299,7 @@ def test_read_from_waveform_memory(waveform_descriptors_json, mock_connection, s
     assert len(waveforms) == 1
     assert all(waveforms[1][0] == np.ones(1008))
     assert all(waveforms[1][1] == -np.ones(1008))
-    assert waveforms[1][2] == None
+    assert waveforms[1][2] is None
 
     single_wave_result = zi_utils.convert_awg_waveform(
         np.ones(1008), None, np.ones(1008)
@@ -310,7 +309,7 @@ def test_read_from_waveform_memory(waveform_descriptors_json, mock_connection, s
     waveforms = shfsg.sgchannels[0].awg.read_from_waveform_memory([1])
     assert len(waveforms) == 1
     assert all(waveforms[1][0] == np.ones(1008))
-    assert waveforms[1][1] == None
+    assert waveforms[1][1] is None
     assert all(waveforms[1][2] == np.ones(1008))
 
     single_wave_result = zi_utils.convert_awg_waveform(np.ones(1008), None, None)
@@ -319,5 +318,5 @@ def test_read_from_waveform_memory(waveform_descriptors_json, mock_connection, s
     waveforms = shfsg.sgchannels[0].awg.read_from_waveform_memory([1])
     assert len(waveforms) == 1
     assert all(waveforms[1][0] == np.ones(1008))
-    assert waveforms[1][1] == None
-    assert waveforms[1][2] == None
+    assert waveforms[1][1] is None
+    assert waveforms[1][2] is None

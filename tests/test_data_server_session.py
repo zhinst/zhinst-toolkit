@@ -142,7 +142,6 @@ def test_connect_device_autodetection(
 ):
 
     connected_devices = ""
-    selected_interface = ""
 
     def get_string_side_effect(arg):
         if arg == "/zi/devices":
@@ -212,9 +211,7 @@ def test_connect_device_autodetection(
     selected_interface = ""
 
 
-def test_connect_device_h2(
-    data_dir, mock_connection, hf2_session, nodedoc_dev1234_json
-):
+def test_connect_device_h2(mock_connection, hf2_session, nodedoc_dev1234_json):
     def connect_device_side_effect(serial, _):
         if serial == "dev1111":
             raise RuntimeError("dev1111 not visible")
@@ -338,9 +335,7 @@ def test_raw_path_to_node(data_dir, mock_connection, session, zi_devices_json):
     assert result.root.connection == session.modules.daq.raw_module
 
     # zi node
-    result = session.raw_path_to_node(
-        "/zi/about/commit",
-    )
+    session.raw_path_to_node("/zi/about/commit")
 
 
 def test_awg_module(data_dir, mock_connection, session):

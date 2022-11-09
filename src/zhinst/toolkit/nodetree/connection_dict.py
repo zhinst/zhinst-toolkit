@@ -54,8 +54,9 @@ class ConnectionDict:
             value: New value of the path.
         """
         if callable(self._values[path]):
-            return self._values[path](value)
-        self._values[path] = value
+            self._values[path](value)
+        else:
+            self._values[path] = value
 
     def listNodesJSON(self, path: str, *args, **kwargs) -> str:
         """Returns a list of nodes with description found at the specified path."""

@@ -238,7 +238,6 @@ def test_build_json_items(command_table_schema):
 def test_table_index_value_error(command_table_schema):
     command_table = CommandTable(command_table_schema)
     idx_min = command_table_schema["definitions"]["tableindex"]["minimum"]
-    command_table_schema["definitions"]["tableindex"]["maximum"]
 
     with pytest.raises(ValidationError):
         command_table.table[idx_min - 5]
@@ -311,7 +310,6 @@ def test_json_non_existing_childs_ignored(command_table):
     command_table.table[0].amplitude00
     command_table.table[0].amplitude00.value
     command_table.table[0]
-    command_table
     command_table.header
     command_table.header.userString
     assert command_table.as_dict() == {

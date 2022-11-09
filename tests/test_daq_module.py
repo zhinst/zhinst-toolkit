@@ -88,7 +88,7 @@ def test_read(daq_module, mock_connection, session):
     assert "systemtime" in result[0].header
     assert (result[0].time == np.array([[0, 1, 2, 3, 4]]) / 60e6).all()
     assert (result[0].value == np.array([[1, 2, 3, 4, 5]])).all()
-    assert result[0].frequency == None
+    assert result[0].frequency is None
     assert result[0].shape == (1, 5)
 
     result = daq_module.read(raw=True)
@@ -128,11 +128,11 @@ def test_read(daq_module, mock_connection, session):
     assert "systemtime" in result0[0].header
     assert (result0[0].time == np.array([[0, 1, 2, 3, 4]]) / 60e6).all()
     assert (result0[0].value == np.array([[1, 2, 3, 4, 5]])).all()
-    assert result0[0].frequency == None
+    assert result0[0].frequency is None
     assert result0[0].shape == (1, 5)
     assert (result0[1].time == np.array([[0, 1, 2, 3, 4]]) / 60e6).all()
     assert (result0[1].value == np.array([[5, 4, 3, 2, 1]])).all()
-    assert result0[1].frequency == None
+    assert result0[1].frequency is None
     assert result0[1].shape == (1, 5)
     assert "gridcoldelta" in result1[0].header
     assert np.allclose(
@@ -140,7 +140,7 @@ def test_read(daq_module, mock_connection, session):
         np.array([[-1.19466e-03, -5.9733e-04, -5.42101e-20, 5.9733e-04, 1.19466e-03]]),
     )
     assert (result1[0].value == np.array([[9, 9, 9, 9, 9]])).all()
-    assert result1[0].time == None
+    assert result1[0].time is None
     assert result1[0].shape == (1, 5)
 
 

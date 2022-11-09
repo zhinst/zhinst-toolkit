@@ -22,6 +22,7 @@ ModuleType = t.Union[
 ]
 
 __all__ = [
+    "ModuleType",
     "BaseModule",
     "DAQModule",
     "SHFQASweeper",

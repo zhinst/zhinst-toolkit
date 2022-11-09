@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 from zhinst.toolkit.driver.parsers import Parse
