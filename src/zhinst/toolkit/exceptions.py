@@ -3,4 +3,3 @@
 
 class ValidationError(Exception):
     """Data validation failed."""
-
