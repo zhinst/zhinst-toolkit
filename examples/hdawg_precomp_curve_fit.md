@@ -13,52 +13,45 @@ jupyter:
     name: python3
 ---
 
-# Precompensation curve fit
+# HDAWG precompensation curve fit
 
-Demonstrate how to connect to a Zurich Instruments HDAWG and
-use the precompensation module to fit filter parameters for a
-measured signal.
-
-Connect to a Zurich Instruments HDAWG. The example uploads a signal to
-the precompensationAdvisor module and reads back the filtered signal. This functionality
-is used to feed a fitting algorithm for fitting filter parameters.
+Demonstrate how to use the precompensation module to fit filter parameters for a
+measured signal. 
 
 Requirements:
 
-* LabOne Version >= 22.02
+* LabOne Version >= 22.08
 * Instruments:
     1 x HDAWG Instrument
 
 ```python
+from zhinst.toolkit import Session
 import numpy as np
 from scipy import signal
 from lmfit import Model
-
-from zhinst.toolkit import Session
 
 session = Session("localhost")
 device = session.connect_device("DEVXXXX")
 ```
 
-### Generate signals
-
 ```python
-SAMPLING_RATE = 2.4e9
+sampling_rate = device.system.clocks.sampleclock.freq(2.4e9, deep=True)
 ```
 
-#### Generate target signal
+### Generate target signal
 
 ```python
 MIN_X = -96
 MAX_X = 5904
 x_values = np.array(range(MIN_X, MAX_X))
-x_values = [element / SAMPLING_RATE for element in x_values]
+x_values = [element / sampling_rate for element in x_values]
 target_signal = np.array(np.concatenate((np.zeros(-MIN_X), np.ones(MAX_X))))
 ```
 
-#### Generate actual signal
+### Generate actual signal
 
-Generate "actual signal" through filtering the initial signal with an exponential filter and add noise
+Generate "actual signal" through filtering the initial signal with an
+exponential filter and add noise.
 
 ```python
 TAU = 100e-9
@@ -80,42 +73,53 @@ distorted_signal = np.array(
 )
 ```
 
-### Prepare precompensationAdvisor module
+### Prepare the Precompensation Advisor module
+
 
 ```python
-precomp_module = session.modules.precompensation_advisor
-precomp_module.device(device)
-
-precomp_module.exponentials[0].enable(True)
-precomp_module.wave.input.source(3)
-device.system.clocks.sampleclock.freq(SAMPLING_RATE)
+module = session.modules.precompensation_advisor
+module.device(device)
+# Manually load wave through the inputvector node.
+module.wave.input.source("manual")
+# Use a single exponential filter.
+module.exponentials[0].enable(True)
 ```
 
-### Fitting the model parameters
+### Fitting the parameters
 
 ```python
-def get_precompensated_signal(module_handle, input_signal, amplitude, timeconstant):
-    """Uploads the input_signal to the precompensationAdvisor module and 
-    returns the simulated forward transformed signal with an exponential 
-    filter (amplitude, timeconstant).
+def labone_exponential_filter(module_handle, input_signal, amplitude, timeconstant):
+    """Calculate precompensated signal for a single exponential filter.
+
+    Uploads the input_signal to the precompensationAdvisor module and returns
+    the simulated forward transformed signal with an exponential
+    filter(amplitude,timeconstant).
+
+    Args:
+        module_handle: Precompensation Advisor Module.
+        input_signal: Amplitude data used as a signal source.
+        amplitude: Amplitude of the exponential filter.
+        timeconstant: Time constant (tau) of the exponential filter.
     """
     module_handle.exponentials[0].amplitude(amplitude)
     module_handle.exponentials[0].timeconstant(timeconstant)
     module_handle.wave.input.inputvector(input_signal)
-    forward_wave = precomp_module.wave.output.forwardwave()
-    return np.array(forward_wave["x"])
+    return np.array(module_handle.wave.output.forwardwave()["x"])
 
-gmodel = Model(
-    get_precompensated_signal, independent_vars=["module_handle", "input_signal"]
+model = Model(
+    labone_exponential_filter, independent_vars=["module_handle", "input_signal"]
 )
-result = gmodel.fit(
+result = model.fit(
     target_signal,
     input_signal=distorted_signal,
-    module_handle=precomp_module,
+    module_handle=module,
     amplitude=0.0,
     timeconstant=1e-4,
     fit_kws={"epsfcn": 1e-3},
 )
+# 'epsfcn' is needed as filter parameters are discretized in precompensationAdvisor
+# module, otherwise fitting will not converge
+print(result.fit_report())
 ```
 
 ### Plot results

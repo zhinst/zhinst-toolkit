@@ -173,8 +173,6 @@ class ParentEntry(ParentNode):
             if isinstance(child, (ParentEntry, HeaderEntry)):
                 if not child.is_empty():
                     result[name] = child.as_dict()
-                else:
-                    continue
             else:
                 result[name] = child
         return result

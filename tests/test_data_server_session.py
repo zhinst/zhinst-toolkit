@@ -4,10 +4,7 @@ from unittest.mock import patch
 import pytest
 
 from zhinst.toolkit import Session
-from zhinst.toolkit.driver.modules.base_module import BaseModule
-from zhinst.toolkit.driver.modules.daq_module import DAQModule
-from zhinst.toolkit.driver.modules.shfqa_sweeper import SHFQASweeper
-from zhinst.toolkit.driver.modules.sweeper_module import SweeperModule
+import zhinst.toolkit.driver.modules as tk_modules
 from zhinst.toolkit.nodetree import Node
 
 
@@ -142,6 +139,7 @@ def test_connect_device_autodetection(
 ):
 
     connected_devices = ""
+    selected_interface = ""
 
     def get_string_side_effect(arg):
         if arg == "/zi/devices":
@@ -207,8 +205,6 @@ def test_connect_device_autodetection(
 
     session.connect_device("dev1234")
     assert selected_interface == "PCIE"
-    connected_devices = ""
-    selected_interface = ""
 
 
 def test_connect_device_h2(mock_connection, hf2_session, nodedoc_dev1234_json):
@@ -348,7 +344,7 @@ def test_awg_module(data_dir, mock_connection, session):
     awg_module = session.modules.awg
     assert awg_module == session.modules.awg
     mock_connection.return_value.awgModule.assert_called_once()
-    assert isinstance(awg_module, BaseModule)
+    assert isinstance(awg_module, tk_modules.BaseModule)
     assert isinstance(awg_module.device, Node)
 
 
@@ -362,12 +358,12 @@ def test_daq_module(data_dir, mock_connection, session):
     daq_module = session.modules.daq
     assert daq_module == session.modules.daq
     mock_connection.return_value.dataAcquisitionModule.assert_called_once()
-    assert isinstance(daq_module, DAQModule)
+    assert isinstance(daq_module, tk_modules.DAQModule)
     assert isinstance(daq_module.device, Node)
 
 
 def test_device_settings_module(data_dir, mock_connection, session):
-    json_path = data_dir / "nodedoc_daq_test.json"
+    json_path = data_dir / "nodedoc_device_settings_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
         nodes_json = file.read()
     mock_connection.return_value.deviceSettings.return_value.listNodesJSON.return_value = (
@@ -376,12 +372,12 @@ def test_device_settings_module(data_dir, mock_connection, session):
     device_settings_module = session.modules.device_settings
     assert device_settings_module == session.modules.device_settings
     mock_connection.return_value.deviceSettings.assert_called_once()
-    assert isinstance(device_settings_module, BaseModule)
+    assert isinstance(device_settings_module, tk_modules.DeviceSettingsModule)
     assert isinstance(device_settings_module.device, Node)
 
 
 def test_impedance_module(data_dir, mock_connection, session):
-    json_path = data_dir / "nodedoc_daq_test.json"
+    json_path = data_dir / "nodedoc_impedance_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
         nodes_json = file.read()
     mock_connection.return_value.impedanceModule.return_value.listNodesJSON.return_value = (
@@ -390,7 +386,7 @@ def test_impedance_module(data_dir, mock_connection, session):
     impedance_module = session.modules.impedance
     assert impedance_module == session.modules.impedance
     mock_connection.return_value.impedanceModule.assert_called_once()
-    assert isinstance(impedance_module, BaseModule)
+    assert isinstance(impedance_module, tk_modules.ImpedanceModule)
     assert isinstance(impedance_module.device, Node)
 
 
@@ -404,12 +400,12 @@ def test_mds_module(data_dir, mock_connection, session):
     mds_module = session.modules.mds
     assert mds_module == session.modules.mds
     mock_connection.return_value.multiDeviceSyncModule.assert_called_once()
-    assert isinstance(mds_module, BaseModule)
+    assert isinstance(mds_module, tk_modules.BaseModule)
     assert isinstance(mds_module.device, Node)
 
 
 def test_pid_advisor_module(data_dir, mock_connection, session):
-    json_path = data_dir / "nodedoc_daq_test.json"
+    json_path = data_dir / "nodedoc_pid_advisor_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
         nodes_json = file.read()
     mock_connection.return_value.pidAdvisor.return_value.listNodesJSON.return_value = (
@@ -418,12 +414,12 @@ def test_pid_advisor_module(data_dir, mock_connection, session):
     pid_advisor_module = session.modules.pid_advisor
     assert pid_advisor_module == session.modules.pid_advisor
     mock_connection.return_value.pidAdvisor.assert_called_once()
-    assert isinstance(pid_advisor_module, BaseModule)
+    assert isinstance(pid_advisor_module, tk_modules.PIDAdvisorModule)
     assert isinstance(pid_advisor_module.device, Node)
 
 
 def test_precompensation_advisor_module(data_dir, mock_connection, session):
-    json_path = data_dir / "nodedoc_daq_test.json"
+    json_path = data_dir / "nodedoc_precomensation_advisor_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
         nodes_json = file.read()
     mock_connection.return_value.precompensationAdvisor.return_value.listNodesJSON.return_value = (
@@ -432,7 +428,9 @@ def test_precompensation_advisor_module(data_dir, mock_connection, session):
     precompensation_advisor_module = session.modules.precompensation_advisor
     assert precompensation_advisor_module == session.modules.precompensation_advisor
     mock_connection.return_value.precompensationAdvisor.assert_called_once()
-    assert isinstance(precompensation_advisor_module, BaseModule)
+    assert isinstance(
+        precompensation_advisor_module, tk_modules.PrecompensationAdvisorModule
+    )
     assert isinstance(precompensation_advisor_module.device, Node)
 
 
@@ -446,12 +444,12 @@ def test_qa_module(data_dir, mock_connection, session):
     qa_module = session.modules.qa
     assert qa_module == session.modules.qa
     mock_connection.return_value.quantumAnalyzerModule.assert_called_once()
-    assert isinstance(qa_module, BaseModule)
+    assert isinstance(qa_module, tk_modules.BaseModule)
     assert isinstance(qa_module.device, Node)
 
 
 def test_scope_module(data_dir, mock_connection, session):
-    json_path = data_dir / "nodedoc_daq_test.json"
+    json_path = data_dir / "nodedoc_scope_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
         nodes_json = file.read()
     mock_connection.return_value.scopeModule.return_value.listNodesJSON.return_value = (
@@ -460,7 +458,7 @@ def test_scope_module(data_dir, mock_connection, session):
     scope_module = session.modules.scope
     assert scope_module == session.modules.scope
     mock_connection.return_value.scopeModule.assert_called_once()
-    assert isinstance(scope_module, BaseModule)
+    assert isinstance(scope_module, tk_modules.BaseModule)
     assert isinstance(scope_module.device, Node)
 
 
@@ -474,14 +472,14 @@ def test_sweeper_module(data_dir, mock_connection, session):
     sweeper_module = session.modules.sweeper
     assert sweeper_module == session.modules.sweeper
     mock_connection.return_value.sweep.assert_called_once()
-    assert isinstance(sweeper_module, SweeperModule)
+    assert isinstance(sweeper_module, tk_modules.SweeperModule)
     assert isinstance(sweeper_module.device, Node)
 
 
 def test_shfqa_sweeper(session, mock_sweeper_daq):
     sweeper = session.modules.shfqa_sweeper
     assert sweeper == session.modules.shfqa_sweeper
-    assert isinstance(sweeper, SHFQASweeper)
+    assert isinstance(sweeper, tk_modules.SHFQASweeper)
 
 
 def test_session_wide_transaction(
