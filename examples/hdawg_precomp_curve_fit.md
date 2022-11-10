@@ -58,7 +58,7 @@ TAU = 100e-9
 AMPL = 0.4
 
 # calculate a and b from amplitude and tau
-alpha = 1 - np.exp(-1 / (SAMPLING_RATE * TAU * (1 + AMPL)))
+alpha = 1 - np.exp(-1 / (sampling_rate * TAU * (1 + AMPL)))
 if AMPL >= 0.0:
     k = AMPL / (1 + AMPL - alpha)
     signal_a = [(1 - k + k * alpha), -(1 - k) * (1 - alpha)]
