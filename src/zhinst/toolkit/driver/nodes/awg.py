@@ -250,7 +250,9 @@ class AWG(Node):
             self.waveform.node_info.path + f"/waves/{index}"
             for index in range(len(waveform_info))
             if (indexes is None or index in indexes)
-            and "__filler" not in waveform_info[index]["name"]
+            # Entries that have a play_config equals to zero ar dummies/fillers
+            # and can therefore be ignored.
+            and int(waveform_info[index]["play_config"])
         ]
         nodes_str = ",".join(nodes)
         waveforms_raw = self._daq_server.get(nodes_str, settingsonly=False, flat=True)
