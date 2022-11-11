@@ -249,22 +249,20 @@ class AWG(Node):
         nodes = [
             self.waveform.node_info.path + f"/waves/{index}"
             for index in range(len(waveform_info))
-            if indexes is None or index in indexes
+            if (indexes is None or index in indexes)
+            and "__filler" not in waveform_info[index]["name"]
         ]
         nodes_str = ",".join(nodes)
         waveforms_raw = self._daq_server.get(nodes_str, settingsonly=False, flat=True)
         waveforms = Waveforms()
         for node, waveform in waveforms_raw.items():
-            slot = int(node[-1])
-            if "__filler" not in waveform_info[slot]["name"]:
-                waveforms.assign_native_awg_waveform(
-                    slot,
-                    waveform[0]["vector"],
-                    channels=int(waveform_info[slot].get("channels", 1)),
-                    markers_present=bool(
-                        int(waveform_info[slot].get("marker_bits")[0])
-                    ),
-                )
+            slot = int(node.rsplit("/", 1)[-1])
+            waveforms.assign_native_awg_waveform(
+                slot,
+                waveform[0]["vector"],
+                channels=int(waveform_info[slot].get("channels", 1)),
+                markers_present=bool(int(waveform_info[slot].get("marker_bits")[0])),
+            )
         return waveforms
 
     @lazy_property
