@@ -265,7 +265,7 @@ def test_read_from_waveform_memory(waveform_descriptors_json, mock_connection, s
     mock_connection.return_value.get.side_effect = get_side_effect
     waveforms = shfsg.sgchannels[0].awg.read_from_waveform_memory()
     mock_connection.return_value.get.assert_called_with(
-        "/dev1234/sgchannels/0/awg/waveform/waves/0,/dev1234/sgchannels/0/awg/waveform/waves/1,/dev1234/sgchannels/0/awg/waveform/waves/2,/dev1234/sgchannels/0/awg/waveform/waves/3",
+        "/dev1234/sgchannels/0/awg/waveform/waves/0,/dev1234/sgchannels/0/awg/waveform/waves/1,/dev1234/sgchannels/0/awg/waveform/waves/3",
         settingsonly=False,
         flat=True,
     )
@@ -320,3 +320,55 @@ def test_read_from_waveform_memory(waveform_descriptors_json, mock_connection, s
     assert all(waveforms[1][0] == np.ones(1008))
     assert waveforms[1][1] is None
     assert waveforms[1][2] is None
+
+
+def test_read_from_waveform_memory_large_index(data_dir, mock_connection, shfsg):
+    json_path = data_dir / "waveform_descriptors_large.json"
+    with json_path.open("r", encoding="UTF-8") as file:
+        waveform_descriptiors = json.loads(file.read())
+
+    def get_side_effect(nodes, **kwargs):
+        if "/dev1234/sgchannels/0/awg/waveform/descriptors" in nodes.lower():
+            return OrderedDict(
+                [
+                    (
+                        "/dev1234/sgchannels/0/awg/waveform/descriptors",
+                        [
+                            {
+                                "timestamp": 1158178198389432,
+                                "flags": 0,
+                                "vector": json.dumps(waveform_descriptiors),
+                            }
+                        ],
+                    ),
+                ]
+            )
+        if "/dev1234/sgchannels/0/awg/waveform/waves/" in nodes.lower():
+            return OrderedDict(
+                [
+                    (
+                        "/dev1234/sgchannels/0/awg/waveform/waves/11",
+                        [
+                            {
+                                "timestamp": 338544371667920,
+                                "flags": 0,
+                                "vector": zi_utils.convert_awg_waveform(
+                                    np.ones(1008), -np.ones(1008), np.ones(1008)
+                                ),
+                            }
+                        ],
+                    )
+                ]
+            )
+        raise RuntimeError()
+
+    mock_connection.return_value.get.side_effect = get_side_effect
+    waveforms = shfsg.sgchannels[0].awg.read_from_waveform_memory()
+    mock_connection.return_value.get.assert_called_with(
+        "/dev1234/sgchannels/0/awg/waveform/waves/11",
+        settingsonly=False,
+        flat=True,
+    )
+    assert all(waveforms[11][0] == np.ones(1008))
+    assert all(waveforms[11][1] == -np.ones(1008))
+    assert all(waveforms[11][2] == np.ones(1008))
