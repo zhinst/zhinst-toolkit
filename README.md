@@ -54,4 +54,4 @@ Please see [Contributing section](https://docs.zhinst.com/zhinst-toolkit/en/late
 
 ## License
 This software is licensed under the terms of the MIT license.
-See [LICENSE](LICENSE) for more detail.
+See [LICENSE](LICENSE) for more detail
