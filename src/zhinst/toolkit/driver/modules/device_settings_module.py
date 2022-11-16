@@ -7,10 +7,11 @@ from pathlib import Path
 from zhinst.core import DeviceSettingsModule as ZIDeviceSettingsModule
 
 from zhinst.toolkit.driver.modules.base_module import BaseModule
-from zhinst.toolkit.driver.devices import DeviceType
+
 from zhinst.toolkit.nodetree.helper import NodeDict
 
 if t.TYPE_CHECKING:  # pragma: no cover
+    from zhinst.toolkit.driver.devices import DeviceType
     from zhinst.toolkit.session import Session
 
 logger = logging.getLogger(__name__)
@@ -55,7 +56,7 @@ class DeviceSettingsModule(BaseModule):
         self,
         command: str,
         filename: t.Union[str, Path],
-        device: t.Union[str, DeviceType],
+        device: t.Union[str, "DeviceType"],
         timeout: float = 30,
     ) -> None:
         """Execute a command on a clean module.
@@ -92,7 +93,7 @@ class DeviceSettingsModule(BaseModule):
     def load_from_file(
         self,
         filename: t.Union[str, Path],
-        device: t.Union[str, DeviceType],
+        device: t.Union["DeviceType", str],
         timeout: float = 30,
     ) -> None:
         """Load a LabOne settings file to a device.
@@ -114,7 +115,7 @@ class DeviceSettingsModule(BaseModule):
     def save_to_file(
         self,
         filename: t.Union[str, Path],
-        device: t.Union[str, DeviceType],
+        device: t.Union["DeviceType", str],
         timeout: int = 30,
     ) -> None:
         """Save the device settings to a LabOne settings file.
