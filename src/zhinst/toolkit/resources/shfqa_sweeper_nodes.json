@@ -70,6 +70,17 @@
             "1": "\"sequencer-based\": sequencer-based sweep (faster)."
         }
     },
+    "/sweep/psd": {
+        "Node": "/sweep/psd",
+        "Description": "Specify whether to compute the Power Spectral Density (PSD) (1) or not (0)",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Boolean",
+        "Options": {
+            "0": "\"host-driven\": Normal integration of the input signal. ",
+            "1": "\"sequencer-based\": Power Spectral Density: computes the square of absolute values of the integration results before averaging."
+        }
+    },
     "/rf/channel": {
         "Node": "/rf/channel",
         "Description": "Device channel to be used",
