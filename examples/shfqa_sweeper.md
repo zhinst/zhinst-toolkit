@@ -72,6 +72,12 @@ sweeper.sweep.oscillator_gain(0.7)
 # sweeper.sweep.mode("host-driven")
 sweeper.sweep.mode("sequencer-based")
 
+# NOTE: we recommend users to disable the Scope in the GUI when the 
+# sweeper is running to avoid potential timeout errors. Alternatively,
+# an additional wait time after integration can be added with the following
+# command, in case the Scope needs to be running during the sweep: 
+# sweeper.sweep.wait_after_integration(4e-6)
+
 sweeper.average.integration_time(100e-6)
 sweeper.average.num_averages(200)
 sweeper.average.mode("sequential")
@@ -146,11 +152,11 @@ sweeper.average.integration_time(envelope_duration)
 sweeper.average.num_averages(2)
 sweeper.average.mode("sequential")
 
-# Note: the default integration delay amounts to 272 ns to compensate the device-
+# Note: the default integration delay amounts to 224 ns to compensate the device-
 # internal delay from output to input.
 # You can set a different integration delay, for example to compensate additional
 # delays in the device under test by using the following line:
-# sweeper.average.integration_delay(272.0e-9)
+# sweeper.average.integration_delay(224.0e-9)
 
 sweeper.rf.channel(CHANNEL)
 sweeper.rf.input_range(0)
