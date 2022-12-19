@@ -1,6 +1,7 @@
 import pathlib
 import re
 import pytest
+import yaml
 
 
 EXAMPLES_PATH = pathlib.Path("examples")
@@ -31,10 +32,15 @@ def get_markdown_files() -> pathlib.Path:
         The path to a markdown file.
 
     """
+    with open(EXAMPLES_PATH / "test.spec.yml", "rb") as f:
+        test_spec = yaml.load(f, Loader=yaml.Loader)
+
     md_list = EXAMPLES_PATH.glob("*.md")
     for md_file in md_list:
         # README.md should not be checked
         if md_file.stem == "README":
+            continue
+        elif "skip" in test_spec[md_file.stem] and test_spec[md_file.stem]["skip"]:
             continue
         else:
             yield md_file
