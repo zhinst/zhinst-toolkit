@@ -26,6 +26,10 @@ def test_example_config():
             example_name in test_spec
         ), f'Example "{example_name}" was not included in the configuration file.'
 
+        # If test has to be skipped, return
+        if "skip" in test_spec[example_name] and test_spec[example_name]["skip"]:
+            return
+
         # Check that it has the device id specified
         assert (
             "device_type" in test_spec[example_name]

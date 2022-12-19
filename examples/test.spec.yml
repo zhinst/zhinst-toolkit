@@ -1,5 +1,11 @@
+active_qubit_reset:
+  skip: True
+
 awg:
   device_type: "HDAWG8"
+
+bell_state_stabilization:
+  skip: True
 
 daq_module:
   device_type: ["MFLI", "UHFLI"]
@@ -24,6 +30,9 @@ nodetree:
 
 pid_advisor_module:
   device_type: ["MFLI"]
+
+repeat_until_success:
+  skip: True
 
 scope_module:
   device_type: ["MFLI", "UHFLI"]
