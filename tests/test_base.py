@@ -17,6 +17,10 @@ def base_instrument(mock_connection, session, nodedoc_dev1234_json):
     yield BaseInstrument("DEV1234", "test_type", session)
 
 
+def test_instrument_session_property(base_instrument, session):
+    assert base_instrument.session == session
+
+
 def test_basic_setup(mock_connection, base_instrument):
     mock_connection.return_value.listNodesJSON.assert_called_with(
         f"/{base_instrument.serial}/*"
