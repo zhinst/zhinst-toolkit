@@ -4,6 +4,7 @@
 * Added full support for the following LabOne modules (no need to fallback to zhinst.core):
   * Impedance Module
   * Precompensation Advisor Module
+* Added `session` property to `BaseInstrument`. This enables getting the given `Session` from the instrument.
 * Fix issue with downloading waveforms from the device. This issue prevented indexes larger than 9 to be read from the device.
 
 ## Version 0.5.0

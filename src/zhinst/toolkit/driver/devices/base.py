@@ -322,6 +322,14 @@ class BaseInstrument(Node):
         return self._serial
 
     @property
+    def session(self) -> "Session":
+        """Underlying session to the data server.
+
+        .. versionadded:: 0.5.1
+        """
+        return self._session
+
+    @property
     def device_type(self) -> str:
         """Type of the instrument (e.g. MFLI)."""
         return self._device_type
