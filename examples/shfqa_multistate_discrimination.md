@@ -109,6 +109,9 @@ signals_simulated = np.loadtxt(
     "resources/example_multistate_signals.csv", dtype="complex128"
 )
 
+# make sure the maximum amplitude of the simulated signal is 1
+signals_simulated /= np.max(np.abs(signals_simulated))
+
 # check that enough simulated traces are available to cover all states
 assert len(signals_simulated) >= max(QUDITS_NUM_STATES.values())
 
