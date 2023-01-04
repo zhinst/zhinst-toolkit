@@ -1,4 +1,4 @@
-sphinx
+sphinx==5.3
 sphinx-issues
 nbsphinx
 nbsphinx_link
