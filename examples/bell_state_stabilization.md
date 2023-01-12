@@ -6,9 +6,9 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.1
+      jupytext_version: 1.14.4
   kernelspec:
-    display_name: toolkit
+    display_name: Python 3 (ipykernel)
     language: python
     name: python3
 ---
@@ -50,7 +50,6 @@ Create a session with a running Data Server, and then connect the Data Server wi
 
 ```python
 from zhinst.toolkit import Session, SHFQAChannelMode, Waveforms, Sequence, CommandTable
-import pqsc_helpers
 import numpy as np
 import time, textwrap
 ```
@@ -111,7 +110,7 @@ with session.set_transaction():
     # PQSC - Replicate ZSync triggers on trigger output port
     pqsc.triggers.out[0].enable(True)
     pqsc.triggers.out[0].source("start_trigger")
-    pqsc.triggers.out[0].port(pqsc_helpers.find_zsync_worker_port(pqsc, shfsg))
+    pqsc.triggers.out[0].port(pqsc.find_zsync_worker_port(shfsg))
 ```
 
 ```python
@@ -260,7 +259,7 @@ And finally enable the Decoder Unit.
 
 ```python
 # Find SHFSG ZSync port ID
-shfsg_zsync_port = pqsc_helpers.find_zsync_worker_port(pqsc, shfsg)
+shfsg_zsync_port = pqsc.find_zsync_worker_port(shfsg)
 
 with pqsc.set_transaction():
     # Enable Decoder Unit
