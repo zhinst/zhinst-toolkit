@@ -208,3 +208,20 @@ def test_check_zsync_connection(mock_connection, pqsc):
     assert [True, False, True] == pqsc.check_zsync_connection(
         [0, 2, 10], sleep_time=0.001
     )
+
+
+def test_find_zsync_worker_port(mock_connection, pqsc):
+    # device not connected
+    ret_val = {"random/path": [{"timestamp": 0, "flags": 0, "vector": ""}]}
+    mock_connection.return_value.get.return_value = ret_val
+    with pytest.raises(RuntimeError):
+        pqsc.find_zsync_worker_port(pqsc)
+
+    # correct use case
+    ret_val = {
+        "/dev1234/zsyncs/0/connection/serial": [
+            {"timestamp": 0, "flags": 0, "vector": "1234"}
+        ]
+    }
+    mock_connection.return_value.get.return_value = ret_val
+    assert pqsc.find_zsync_worker_port(pqsc) == 0

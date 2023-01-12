@@ -6,6 +6,7 @@ from typing import List, Union
 
 from zhinst.toolkit.driver.devices.base import BaseInstrument
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -220,3 +221,37 @@ class PQSC(BaseInstrument):
                 f"on the port {port}."
             ) from error
         return status_node() == 2
+
+    def find_zsync_worker_port(self, device: BaseInstrument) -> int:
+        """Find the ID of the PQSC ZSync port connected to a given device.
+
+        Args:
+            pqsc: PQSC device over whose ports the research shall be done.
+            device: device for which the connected ZSync port shall be found.
+
+        Returns:
+            Integer value represent the ID of the searched PQSC Zsync port.
+
+        Raises:
+            RuntimeError: If the given device doesn't appear to be connected
+                to the PQSC via ZSync.
+
+        """
+        device_serial = device.serial[3:]
+        node_to_serial_dict = self.zsyncs["*"].connection.serial()
+        serial_to_node_dict = {
+            serial: node for node, serial in node_to_serial_dict.items()
+        }
+        # Get the node of the ZSync connected to the device
+        # (will have the form "/devXXXX/zsyncs/N/connection/serial")
+        try:
+            device_zsync_node = serial_to_node_dict[device_serial]
+        except KeyError:
+            raise RuntimeError(
+                "No ZSync connection found between the PQSC "
+                f"{self.serial} and the device {device.serial}."
+            )
+        # Just interested in knowing N: split in
+        # ['', 'devXXXX', 'zsyncs', 'N', 'connection', 'serial']
+        # and take fourth value
+        return int(device_zsync_node.split("/")[3])
