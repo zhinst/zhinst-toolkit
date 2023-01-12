@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.4
+      jupytext_version: 1.14.1
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -31,7 +31,7 @@ Requirements:
 ----
 
 
-```python
+```python vscode={"languageId": "python"}
 from zhinst.toolkit import Session, SHFQAChannelMode, Waveforms, Sequence, CommandTable
 from zhinst.toolkit.waveform import Wave
 import numpy as np
@@ -43,7 +43,7 @@ import time, textwrap
 
 Create a session with a running Data Server, and then connect the Data Server with the instruments.
 
-```python
+```python vscode={"languageId": "python"}
 shfqa_serial = "DEVXXXX"
 shfsg_serial = "DEVYYYY"
 pqsc_serial = "DEVZZZZ"
@@ -61,7 +61,7 @@ pqsc = session.connect_device(pqsc_serial)
 ### Cocks and communications
 Configure clock resources such that the PQSC receives the reference clock by an external source, and then distributes it to the other devices via ZSync connections.
 
-```python
+```python vscode={"languageId": "python"}
 # PQSC external reference clock
 pqsc.system.clocks.referenceclock.in_.source("external")
 pqsc.check_ref_clock()
@@ -76,7 +76,7 @@ shfqa.system.clocks.referenceclock.in_.source("zsync")
 
 Configure the basic settings for the SHFQA and SHFSG inputs and outputs, such as the range and the center frequency. For the PQSC we configure that the trigger signals sent over ZSync are replicated on the trigger output; the trigger output can then be connected to an oscilloscope to visualize the signals.
 
-```python
+```python vscode={"languageId": "python"}
 # Default channels
 QA_CHANNEL = 0
 SG_CHANNEL = 0
@@ -84,8 +84,8 @@ SG_CHANNEL = 0
 with session.set_transaction():
     # SHFQA
     shfqa.qachannels[QA_CHANNEL].centerfreq(1e9)  # Hz
-    shfqa.qachannels[QA_CHANNEL].input_range=0  # dBm
-    shfqa.qachannels[QA_CHANNEL].output_range=0.0  # dBm
+    shfqa.qachannels[QA_CHANNEL].input.range=0  # dBm
+    shfqa.qachannels[QA_CHANNEL].output.range=0.0  # dBm
     shfqa.qachannels[QA_CHANNEL].mode("readout")
     shfqa.qachannels[QA_CHANNEL].input.on(True)
     shfqa.qachannels[QA_CHANNEL].output.on(True)
@@ -102,7 +102,7 @@ with session.set_transaction():
     pqsc.triggers.out[0].port(pqsc.find_zsync_worker_port(shfsg))
 ```
 
-```python
+```python vscode={"languageId": "python"}
 # Sample rate of the SHFQA and SHFSG waveform generator
 SAMPLE_RATE = 2e9
 
@@ -116,13 +116,13 @@ The first thing that we have to do is to configure how to perform the readout of
 
 To perform a simulated qubit readout we connect the signal output of the SHFQA to its signal input in a closed loop. We then mimic the qubit state-dependent resonator response by using two different readout pulses for simulating a qubit in state $|0\rangle$ and in state $|1\rangle$. In particular, the two readout pulses will be both sinusoidal, but with a phase difference of 180 degrees so that the results of the integration will be maximally distant on the complex plane. We also set a common global phase $R$ to the pulses in order to have the complex results of the integration lie on the real axis; the value of $R$ that satisfies this can be measured for example with the Measurement Readout Result Tab in the LabOne Web Interface.
 
-```python
+```python vscode={"languageId": "python"}
 SIMULATED_FAILURES = 2
 ```
 
 Define the readout pulses for the two ancillary qubits.
 
-```python
+```python vscode={"languageId": "python"}
 # Readout pulses parameters
 PULSE_DURATION = 126e-9
 FREQUENCY = 100e6  # Readout frequency
@@ -144,7 +144,7 @@ shfqa.qachannels[QA_CHANNEL].generator.write_to_waveform_memory(readout_pulses)
 
 Define the integration weights for the readout.
 
-```python
+```python vscode={"languageId": "python"}
 # Integration unit of the SHFQA
 INT_UNIT = 0
 
@@ -162,10 +162,10 @@ shfqa.qachannels[QA_CHANNEL].readout.write_integration_weights(
 
 Configure the result logger to give us either 0 or 1, i.e. to perform state discrimination.
 
-```python
-shfqa.qachannels[QA_CHANNEL].readout.configure_result_logger(
-    result_length=SIMULATED_FAILURES, result_source="result_of_discrimination"
-)
+```python vscode={"languageId": "python"}
+shfqa.qachannels[QA_CHANNEL].readout.result.length(SIMULATED_FAILURES + 1)
+shfqa.qachannels[QA_CHANNEL].readout.result.averages(1)
+shfqa.qachannels[QA_CHANNEL].readout.result.source("result_of_discrimination")
 
 shfqa.qachannels[QA_CHANNEL].readout.discriminators[INT_UNIT].threshold(0.0)
 ```
@@ -209,7 +209,7 @@ This may sound complicated at first, so let's have a look at the code.
 
 As first thing we instantiate `QCCSFeedbackModel`, calculate `qa_delay` and the feedback latency of the first iteration.
 
-```python
+```python vscode={"languageId": "python"}
 from zhinst.utils.feedback_model import (
     QCCSFeedbackModel,
     get_feedback_system_description,
@@ -228,9 +228,10 @@ feedback_model = QCCSFeedbackModel(
 )
 
 # Length of the "try" waveform played by the SHFSG
+# in unit of samples (2 GHz or 500 ps steps)
 WAVEFORM_TRY_LEN = 128
 
-# Delay in the QA stage
+# Delay in the QA stage in unit of samples (2 GHz or 500 ps steps)
 # Look at the sequencer code below to match the delays
 int_start = (
     8 + WAVEFORM_TRY_LEN
@@ -242,13 +243,13 @@ int_delay = round(
 
 qa_delay = int_start + int_len + int_delay
 
-# Total feedback latency in the first iteration
+# Total feedback latency in unit of sequencer clock cyles (250 MHz or 4 ns steps)
 feedback_latency = feedback_model.get_latency(qa_delay)
 ```
 
 And now we enforce the duration of one SHFQA iteration to be a multiple of 200 ns. In technical jargon, we say that we create a *timing grid* with a spacing of 200 ns.
 
-```python
+```python vscode={"languageId": "python"}
 GRID_SPACING = 200e-9
 # Number of samples in 200 ns
 grid_samples = SAMPLE_RATE * GRID_SPACING
@@ -279,13 +280,14 @@ These steps are repeated for `SIMULATED_FAILURES` times simulating a readout wit
 
 <u>Note 1</u>:
 Instructions about the readout are provided through the arguments of the function `startQA()`; for this experiment the following parameters are particularly relevant: 
-- the first argument of `startQA()` is in the form `QA_GEN_i`, where `i` is the index of the waveform in the waveform memory to be played;
-- the second argument of `startQA()` is in the form `QA_INT_i`, where `i` is the index of the weight in the integration weights memory to be used during integration;
-- the fourth argument of `startQA()` is the address of the PQSC readout register where the result of the readout is sent.
+- The first argument of `startQA()` is in the form `QA_GEN_i`, where `i` is the index of the waveform in the waveform memory to be played. Multiple waveforms can be played at the same time by combining them with the `| `operator, for example `QA_GEN_0 | QA_GEN_1`.
+- The second argument of `startQA()` is in the form `QA_INT_i`, where `i` is the index of the weight in the integration weights memory to be used during integration. Multiple units can be triggered at the same time by combining them with the `| `operator, for example `QA_INT_0 | QA_INT_1`.
+- The third argument is a flag to trigger the scope with the readout.
+- The fourth argument of `startQA()` is the address of the PQSC readout register where the result of the readout is sent.
 
 <u>Note 2</u>: the way to force the duration of the readout section to be `section_len` is to execute a `playZero(section_len)` before `startQA`. This may seem confusing at first, but the reason why this works is that `playZero` can run in parallel with a `startQA` and will only block other `playZero`. In practice, this will force the duration of the readout section to be `section_len`.
 
-```python
+```python vscode={"languageId": "python"}
 READOUT_REGISTER = 0  # Address of PQSC readout register
 
 seqc_program_shfqa = Sequence()
@@ -311,19 +313,19 @@ seqc_program_shfqa.code = textwrap.dedent(
 
     // Simulate failures
     do {
-        playZero(WAVEFORM_TRY_LEN);                                 // Do nothing while SHFSG plays "try" waveform
-        playZero(section_len);                                      // Define the duration of the startQA section
-        startQA(QA_GEN_0, QA_INT_0, true, READOUT_REGISTER, 0);     // Simulate readout = 0
+        playZero(WAVEFORM_TRY_LEN);                             // Do nothing while SHFSG plays "try" waveform
+        playZero(section_len);                                  // Define the duration of the startQA section
+        startQA(QA_GEN_0, QA_INT_0, true, READOUT_REGISTER);    // Simulate readout = 0
 
-        success = getFeedback(ZSYNC_DATA_RAW, feedback_time);       // Result of the readout
-        feedback_time += cycle_len_clocks;                          // Update feedback time for next iteration
+        success = getFeedback(ZSYNC_DATA_RAW, feedback_time);   // Result of the readout
+        feedback_time += cycle_len_clocks;                      // Update feedback time for next iteration
         remaining_failures -= 1;
     } while (remaining_failures);
 
     // Final try (success)
     playZero(WAVEFORM_TRY_LEN);
     playZero(section_len);
-    startQA(QA_GEN_1, QA_INT_0, true, READOUT_REGISTER, 0);
+    startQA(QA_GEN_1, QA_INT_0, true, READOUT_REGISTER);
 
     success = getFeedback(ZSYNC_DATA_RAW, feedback_time);
     feedback_time += cycle_len_clocks;
@@ -347,9 +349,9 @@ In this experiment we show how to use the Decoder Unit to send to the SHFSG a pr
 
 Firstly, configure the lookup table. Since we only want to forward one bit, we only configure bit 0 of the LUT.
 
-```python
+```python vscode={"languageId": "python"}
 # Enable look-up table (LUT)
-with pqsc.set_transaction():
+with session.set_transaction():
     pqsc.feedback.decoder.lut.sources[0].register(
         READOUT_REGISTER
     )  # Source register for bit 0 of LUT
@@ -362,12 +364,12 @@ with pqsc.set_transaction():
 
 Finally, enable the Decoder.
 
-```python
+```python vscode={"languageId": "python"}
 # Find SHFSG and SHFQA ZSync port IDs
 shfsg_zsync_port = pqsc.find_zsync_worker_port(shfsg)
 shfqa_zsync_port = pqsc.find_zsync_worker_port(shfqa)
 
-with pqsc.set_transaction():
+with session.set_transaction():
     for zsync_port in [shfsg_zsync_port, shfqa_zsync_port]:
         pqsc.zsyncs[zsync_port].output.registerbank.enable(
             False
@@ -386,7 +388,7 @@ The only part still missing is the configuration of the SHFSG. In the following 
 
 We repeat these steps as long as the the feedback value received by the PQSC (which we call `failure`) is 1. When `failure` is 0 the while loop ends and the SHFSG will play a "success" pulse, with half the amplitude and double the duration with respect to the "try" waveform.
 
-```python
+```python vscode={"languageId": "python"}
 seqc_program_shfsg = Sequence()
 
 constants = {
@@ -435,10 +437,16 @@ shfsg.sgchannels[SG_CHANNEL].awg.load_sequencer_program(seqc_program_shfsg)
 shfsg.sgchannels[SG_CHANNEL].awg.write_to_waveform_memory(seqc_program_shfsg.waveforms)
 ```
 
-The PQSC sends up to four qubit states at the same time. Configure the SHFSG to look only at the one interesting for us, i.e. the least significant one.
+The PQSC sends up to four qubit states at the same time. Configure the SHFSG to look only at the one interesting for us, i.e. the least significant one. The data is processed by the sequencer according to the following formula:
 
-```python
-with shfsg.set_transaction():
+```
+feedback_data = ((zsync_raw_message >> shift) & mask) + offset
+```
+
+so to look at the least significant bit, we need to shift by zero positions, mask the last bit (mask = 0b0001) and add no offset.
+
+```python vscode={"languageId": "python"}
+with session.set_transaction():
     shfsg.sgchannels[SG_CHANNEL].awg.zsync.decoder.shift(0)
     shfsg.sgchannels[SG_CHANNEL].awg.zsync.decoder.mask(0b1)
     shfsg.sgchannels[SG_CHANNEL].awg.zsync.decoder.offset(0)
@@ -449,21 +457,36 @@ with shfsg.set_transaction():
 
 We can finally put all the pieces together and run the experiment: enable the readout, the SHFSG awg sequencer, the SHFQA readout pulse generator and finally send the start triggers with the PQSC.
 
-```python
+```python vscode={"languageId": "python"}
 import rtlogger_helpers
 
-rtlogger_helpers.reset_and_enable_rtlogger(shfsg.sgchannels[SG_CHANNEL].awg.rtlogger)
+with session.set_transaction():
+    # Reset RT Logger
+    rtlogger_helpers.reset_and_enable_rtlogger(
+        shfsg.sgchannels[SG_CHANNEL].awg.rtlogger
+    )
+    # Prepare the PQSC for triggering
+    pqsc.arm(repetitions=1, holdoff=100e-3)
+    # Enable SHFQA readout
+    shfqa.qachannels[QA_CHANNEL].readout.result.enable(True)
 
-shfqa.qachannels[QA_CHANNEL].readout.result.enable(True)
-shfsg.sgchannels[SG_CHANNEL].awg.enable_sequencer(single=True)
-shfqa.qachannels[QA_CHANNEL].generator.enable(True, deep=True)
+# Enable SHFQA readout pulse generator and SHFSG awg sequencer
+# Wait until both sequencers report that are running and waiting for triggers
+# or throw an error
+assert shfqa.qachannels[QA_CHANNEL].generator.enable(True, deep=True)
+assert shfsg.sgchannels[SG_CHANNEL].awg.enable(True, deep=True)
 
-pqsc.arm_and_run(repetitions=1, holdoff=100e-3)
+# Run the PQSC. Start triggering and forward feedback
+pqsc.execution.enable(True, deep=True)
+
+# Wait until both sequencers report that their execution is done
+shfqa.qachannels[QA_CHANNEL].generator.enable.wait_for_state_change(False)
+shfsg.sgchannels[SG_CHANNEL].awg.enable.wait_for_state_change(False)
 ```
 
 To check that everything was correct we print the values of `cnt_failures` and `cnt_try` previously saved in the SHFSG user register. We also print the data collected by the RT Logger, which is a tool for logging data received over ZSync. Data with timestamp 0 correspond to start trigger events; the column "decoder data" shows the data coming from the Decoder Unit of the PQSC.
 
-```python
+```python vscode={"languageId": "python"}
 print(
     "Accumulated data: ",
     shfsg.sgchannels[SG_CHANNEL].awg.userregs[0](deep=True)[1],
@@ -478,6 +501,6 @@ print(
 )
 ```
 
-```python
+```python vscode={"languageId": "python"}
 rtlogger_helpers.print_rtlogger_data(session, shfsg.sgchannels[SG_CHANNEL].awg)
 ```
