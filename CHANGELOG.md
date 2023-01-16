@@ -1,5 +1,11 @@
 # zhinst-toolkit Changelog
 
+## Version 0.5.2
+
+Unreleased
+
+* Improved verbosity of the error message when invalid attributes of `CommandTable.header` and `CommandTable.table` are used.
+
 ## Version 0.5.1
 * Added full support for the following LabOne modules (no need to fallback to zhinst.core):
   * Impedance Module

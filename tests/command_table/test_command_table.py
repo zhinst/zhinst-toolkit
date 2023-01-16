@@ -94,9 +94,20 @@ def test_parent_entry_properties(command_table_schema):
             assert hasattr(ct.table[0], property_) is True
 
 
-def test_property_not_existing(command_table):
-    with pytest.raises(AttributeError):
-        getattr(command_table.table[0], "this_property_cannot_exists")
+def test_property_get_not_existing(command_table):
+    properties = (
+        f'{list(command_table._ct_schema["definitions"]["entry"]["properties"].keys())}'
+    )
+    with pytest.raises(AttributeError, match=properties):
+        command_table.table[0].this_property_cannot_exists
+
+
+def test_property_set_not_existing(command_table):
+    properties = (
+        f'{list(command_table._ct_schema["definitions"]["entry"]["properties"].keys())}'
+    )
+    with pytest.raises(AttributeError, match=properties):
+        command_table.table[0].this_property_cannot_exists = 123
 
 
 def test_parent_entry_header(command_table_schema):
