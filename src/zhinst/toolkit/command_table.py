@@ -144,7 +144,9 @@ class ParentEntry(ParentNode):
                 return self._childs[name]
             if name in self._attributes:
                 return self._properties.get(name, None)
-        raise AttributeError(name)
+        raise AttributeError(
+            f"{name}. Available entries: {self._available_attributes()}"
+        )
 
     def __setattr__(self, name: str, value: t.Any):
         if name.startswith("_"):
@@ -160,7 +162,15 @@ class ParentEntry(ParentNode):
         elif value is None and name in self._childs:
             self._childs.pop(name)
         else:
-            raise AttributeError(name)
+            raise AttributeError(
+                f"{name}. Available entries: {self._available_attributes()}"
+            )
+
+    def _available_attributes(self) -> t.List[str]:
+        """Available property attributes for the instance."""
+        return list(
+            self._attributes.keys() if self._attributes else self._child_props.keys()
+        )
 
     def as_dict(self) -> dict:
         """Return a dictionary presentation of the table node.
