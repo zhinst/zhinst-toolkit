@@ -5,6 +5,8 @@
 Unreleased
 
 * Improved verbosity of the error message when invalid attributes of `CommandTable.header` and `CommandTable.table` are used.
+* Introduced new base exception class `zhinst.toolkit.exceptions.ToolkitError`, deriving from `RuntimeError`.
+   * Changed some `RuntimeError` exceptions to `ToolkitError`.
 
 ## Version 0.5.1
 * Added full support for the following LabOne modules (no need to fallback to zhinst.core):

@@ -8,6 +8,7 @@ from collections import OrderedDict
 from numpy import array
 
 from zhinst.toolkit.nodetree.helper import NodeDoc
+from zhinst.toolkit.exceptions import ToolkitError
 
 
 class ConnectionDict:
@@ -123,8 +124,8 @@ class ConnectionDict:
 
     def subscribe(self, path: str) -> None:
         """Mirrors the behavior of zhinst.core subscribe command."""
-        raise RuntimeError("Can not subscribe within the SHFQA_Sweeper")
+        raise ToolkitError("Can not subscribe within the SHFQA_Sweeper")
 
     def unsubscribe(self, path: str) -> None:
         """Mirrors the behavior of zhinst.core unsubscribe command."""
-        raise RuntimeError("Can not subscribe within the SHFQA_Sweeper")
+        raise ToolkitError("Can not subscribe within the SHFQA_Sweeper")

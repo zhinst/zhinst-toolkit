@@ -7,6 +7,7 @@ import pytest
 
 from zhinst.toolkit._min_version import _MIN_DEVICE_UTILS_VERSION, _MIN_LABONE_VERSION
 from zhinst.toolkit.driver.devices.base import BaseInstrument
+from zhinst.toolkit.exceptions import ToolkitError
 
 
 @pytest.fixture()
@@ -114,7 +115,7 @@ def test_check_python_versions():
     # zhinst.core heigher
     BaseInstrument._check_python_versions(add(labone, (1, 0, 0)), device_utils)
     # zhinst.core lower
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ToolkitError):
         BaseInstrument._check_python_versions(sub(labone, (1, 0, 0)), device_utils)
     # utils heigher
     BaseInstrument._check_python_versions(
@@ -125,7 +126,7 @@ def test_check_python_versions():
         ),
     )
     # utils lower
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ToolkitError):
         BaseInstrument._check_python_versions(labone, sub(device_utils, (1, 0, 0)))
 
 
@@ -134,10 +135,10 @@ def test_check_labone_version():
     # matching version
     BaseInstrument._check_labone_version((21, 8, 0), (21, 8, 0))
     # zhinst.core heigher
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ToolkitError):
         BaseInstrument._check_labone_version((22, 2, 0), (21, 8, 0))
     # zhinst.core lower
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ToolkitError):
         BaseInstrument._check_labone_version((21, 2, 0), (21, 8, 0))
     # patchversion missmatch
     with pytest.warns(RuntimeWarning):
@@ -168,7 +169,7 @@ def test_check_firmware_update_status(base_instrument, mock_connection):
         "DEV1235": {},
     }
     mock_connection.return_value.getString.return_value = json.dumps(info)
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ToolkitError):
         base_instrument._check_firmware_update_status()
     info = {
         "DEV1111": {},
@@ -179,7 +180,7 @@ def test_check_firmware_update_status(base_instrument, mock_connection):
         "DEV1235": {},
     }
     mock_connection.return_value.getString.return_value = json.dumps(info)
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ToolkitError):
         base_instrument._check_firmware_update_status()
 
     # Downgrade available
@@ -192,7 +193,7 @@ def test_check_firmware_update_status(base_instrument, mock_connection):
         "DEV1235": {},
     }
     mock_connection.return_value.getString.return_value = json.dumps(info)
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ToolkitError):
         base_instrument._check_firmware_update_status()
     info = {
         "DEV1111": {},
@@ -203,7 +204,7 @@ def test_check_firmware_update_status(base_instrument, mock_connection):
         "DEV1235": {},
     }
     mock_connection.return_value.getString.return_value = json.dumps(info)
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ToolkitError):
         base_instrument._check_firmware_update_status()
 
     # Update in progress
