@@ -122,7 +122,7 @@ class PQSC(BaseInstrument):
                 requesting the reference clock status (default: 1)
 
         Raises:
-            ToolkitError: If the process of locking to the reference clock
+            TimeoutError: If the process of locking to the reference clock
                 exceeds the specified timeout.
         """
         ref_clock_status = self.system.clocks.referenceclock.in_.status
