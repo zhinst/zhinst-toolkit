@@ -19,6 +19,8 @@ from zhinst.toolkit._min_version import _MIN_DEVICE_UTILS_VERSION, _MIN_LABONE_V
 from zhinst.toolkit.driver.parsers import node_parser
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import lazy_property
+from zhinst.toolkit.exceptions import ToolkitError
+
 
 logger = logging.getLogger(__name__)
 
@@ -129,15 +131,15 @@ class BaseInstrument(Node):
             zi_utils_version: zhinst.utils package version
 
         Raises:
-            RuntimeError: If the zhinst.core version does not match the
+            ToolkitError: If the zhinst.core version does not match the
                 minimum requirements for zhinst.toolkit
-            RuntimeError: If the zhinst.utils version does not match the
+            ToolkitError: If the zhinst.utils version does not match the
                 minimum requirements for zhinst.toolkit
         """
         if zi_python_version < BaseInstrument._version_string_to_tuple(
             _MIN_LABONE_VERSION
         ):
-            raise RuntimeError(
+            raise ToolkitError(
                 "zhinst.core version does not match the minimum required version "
                 f"for zhinst.toolkit {zi_python_version} < {_MIN_LABONE_VERSION}. "
                 "Use `pip install --upgrade zhinst` to get the latest version."
@@ -145,7 +147,7 @@ class BaseInstrument(Node):
         if zi_utils_version < BaseInstrument._version_string_to_tuple(
             _MIN_DEVICE_UTILS_VERSION
         ):
-            raise RuntimeError(
+            raise ToolkitError(
                 "zhinst.utils version does not match the minimum required "
                 f"version for zhinst.toolkit {zi_utils_version} < "
                 f"{_MIN_DEVICE_UTILS_VERSION}. Use `pip install "
@@ -164,18 +166,18 @@ class BaseInstrument(Node):
             labone_version: LabOne DataServer version
 
         Raises:
-            RuntimeError: If the zhinst.core version does not match the
+            ToolkitError: If the zhinst.core version does not match the
                 version of the connected LabOne DataServer.
         """
         if labone_version[:2] < zi_python_version[:2]:
-            raise RuntimeError(
+            raise ToolkitError(
                 "The LabOne version is smaller than the zhinst.core version. "
                 f"{labone_version} < {zi_python_version}. "
                 "Please install the latest/matching LabOne version from "
                 "https://www.zhinst.com/support/download-center."
             )
         if labone_version[:2] > zi_python_version[:2]:
-            raise RuntimeError(
+            raise ToolkitError(
                 "the zhinst.core version is smaller than the LabOne version "
                 f"{zi_python_version} < {labone_version}. "
                 "Please install the latest/matching version from pypi.org."
@@ -193,7 +195,7 @@ class BaseInstrument(Node):
 
         Raises:
             ConnectionError: If the device is currently updating
-            RuntimeError: If the firmware revision does not match to th
+            ToolkitError: If the firmware revision does not match to the
                 version of the connected LabOne DataServer.
         """
         device_info = json.loads(self._session.daq_server.getString("/zi/devices"))[
@@ -206,12 +208,12 @@ class BaseInstrument(Node):
                 "process is complete"
             )
         if status_flag & 1 << 4 or status_flag & 1 << 5:
-            raise RuntimeError(
+            raise ToolkitError(
                 "The Firmware does not match the LabOne version. "
                 "Please update the firmware (e.g. in the LabOne UI)"
             )
         if status_flag & 1 << 6 or status_flag & 1 << 7:
-            raise RuntimeError(
+            raise ToolkitError(
                 "The Firmware does not match the LabOne version. "
                 "Please update LabOne to the latest version from "
                 "https://www.zhinst.com/support/download-center."
@@ -230,7 +232,7 @@ class BaseInstrument(Node):
 
         Raises:
             ConnectionError: If the device is currently updating
-            RuntimeError: If one of the above mentioned criterion is not
+            ToolkitError: If one of the above mentioned criterion is not
                 fulfilled
         """
         self._check_python_versions(

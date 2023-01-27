@@ -12,6 +12,7 @@ from contextlib import contextmanager
 
 from zhinst.toolkit.nodetree.helper import NodeDoc, _NodeInfo
 from zhinst.toolkit.nodetree.node import Node
+from zhinst.toolkit.exceptions import ToolkitError
 
 
 class Connection(Protocol):
@@ -80,14 +81,14 @@ class Transaction:
                 transaction.
 
         Raises:
-            Runtime Error if the transaction is already in progress
+            ToolkitError: A transaction is already in progress.
 
         .. versionchanged:: 0.4.0
 
             add_callback added.
         """
         if self.in_progress():
-            raise RuntimeError(
+            raise ToolkitError(
                 "A transaction is already in progress. Only one transaction is "
                 "possible at a time."
             )

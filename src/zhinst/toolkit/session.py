@@ -8,6 +8,7 @@ from contextlib import contextmanager
 
 import zhinst.toolkit.driver.devices as tk_devices
 import zhinst.toolkit.driver.modules as tk_modules
+from zhinst.toolkit.exceptions import ToolkitError
 from zhinst import core
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import lazy_property, NodeDict
@@ -149,6 +150,7 @@ class HF2Devices(Devices):
 
         Raises:
             RuntimeError: If the device is not connected to the data server
+            ToolkitError: DataServer is HF2, but the device is not.
         """
         try:
             return super()._create_device(serial)
@@ -157,7 +159,7 @@ class HF2Devices(Devices):
                 discovery = core.ziDiscovery()
                 discovery.find(serial)
                 dev_type = discovery.get(serial)["devicetype"]
-                raise RuntimeError(
+                raise ToolkitError(
                     "Can only connect HF2 devices to an HF2 data "
                     f"server. {serial} identifies itself as a {dev_type}."
                 ) from error
@@ -189,10 +191,10 @@ class HF2Devices(Devices):
             serial: Serial of the HF2 device
 
         Raises:
-            RuntimeError: If the device was already added in that session.
+            ToolkitError: If the device was already added in that session.
         """
         if serial in self._devices:
-            raise RuntimeError(f"Can only create one instance of {serial}.")
+            raise ToolkitError(f"Can only create one instance of {serial}.")
         self._devices[serial] = self._create_device(serial)
 
 
@@ -666,12 +668,12 @@ class Session(Node):
         if connection is not None:
             self._is_hf2_server = "HF2" in connection.getString("/zi/about/dataserver")
             if hf2 and not self._is_hf2_server:
-                raise RuntimeError(
+                raise ToolkitError(
                     "hf2 flag was set but the passed "
                     "DAQServer instance is not a HF2 data server."
                 )
             if hf2 is False and self._is_hf2_server:
-                raise RuntimeError(
+                raise ToolkitError(
                     "hf2 flag was set but the passed "
                     "DAQServer instance is a HF2 data server."
                 )
@@ -697,7 +699,7 @@ class Session(Node):
                         1,
                     )
                 elif not hf2:
-                    raise RuntimeError(
+                    raise ToolkitError(
                         "hf2 Flag was reset but the specified "
                         f"server at {server_host}:{server_port} is a "
                         "HF2 data server."
