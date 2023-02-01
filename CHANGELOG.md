@@ -9,6 +9,8 @@ Unreleased
    * Changed some `RuntimeError` exceptions to `ToolkitError`.
 * Added `find_zsync_worker_port()` to `PQSC` device class.
   The function can be used to find the ID of the PQSC ZSync port connected to a given device.
+* Changed SHFQA node `qachannels/*/oscs/0/freq` value range from (-500e6 Hz, 500e6 Hz) to (-1e9 Hz, 1e9 Hz). Out-of-range values now rounds
+  to (-1e9 Hz, 1e9 Hz). The functionality is changed to be consistent with LabOne UI.
 
 ## Version 0.5.1
 * Added full support for the following LabOne modules (no need to fallback to zhinst.core):
