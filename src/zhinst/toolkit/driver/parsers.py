@@ -207,12 +207,6 @@ node_parser = {
                 lambda v: Parse.greater_equal(v, 0.0),
             ],
         },
-        "qachannels/*/oscs/0/freq": {
-            "SetParser": [
-                lambda v: Parse.smaller_equal(v, 500e6),
-                lambda v: Parse.greater_equal(v, -500e6),
-            ],
-        },
         "qachannels/*/spectroscopy/length": {
             "SetParser": [
                 lambda v: Parse.greater_equal(v, 4),
