@@ -9,6 +9,7 @@ from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import (
     lazy_property,
     create_or_append_set_transaction,
+    prevent_transaction,
 )
 from zhinst.toolkit.waveform import Waveforms
 from zhinst.toolkit.sequence import Sequence
@@ -49,6 +50,7 @@ class AWG(Node):
         self._device_type = device_type
         self._device_options = device_options
 
+    @prevent_transaction
     def enable_sequencer(self, *, single: bool) -> None:
         """Starts the sequencer of a specific channel.
 
@@ -77,6 +79,7 @@ class AWG(Node):
                 "sequencer program is loaded and configured correctly."
             )
 
+    @prevent_transaction
     def wait_done(self, *, timeout: float = 10, sleep_time: float = 0.005) -> None:
         """Wait until the AWG is finished.
 

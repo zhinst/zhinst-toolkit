@@ -7,7 +7,7 @@ import zhinst.utils.shfqa as utils
 
 from zhinst.toolkit.interface import AveragingMode
 from zhinst.toolkit.nodetree import Node, NodeTree
-from zhinst.toolkit.nodetree.helper import lazy_property
+from zhinst.toolkit.nodetree.helper import lazy_property, prevent_transaction
 from zhinst.toolkit.waveform import Waveforms
 from zhinst.toolkit.driver.nodes.multistate import MultiState
 
@@ -42,6 +42,7 @@ class Readout(Node):
         self._index = index
         self._max_qubits_per_channel = max_qubits_per_channel
 
+    @prevent_transaction
     def configure_result_logger(
         self,
         *,
@@ -70,6 +71,7 @@ class Readout(Node):
             averaging_mode=int(averaging_mode),
         )
 
+    @prevent_transaction
     def run(self) -> None:
         """Reset and enable the result logger."""
         utils.enable_result_logger(
@@ -79,6 +81,7 @@ class Readout(Node):
             mode="readout",
         )
 
+    @prevent_transaction
     def stop(self, *, timeout: float = 10, sleep_time: float = 0.05) -> None:
         """Stop the result logger.
 
@@ -102,6 +105,7 @@ class Readout(Node):
                 f"within the specified timeout ({timeout}s)."
             ) from error
 
+    @prevent_transaction
     def wait_done(self, *, timeout: float = 10, sleep_time: float = 0.05) -> None:
         """Wait until the readout is finished.
 
@@ -124,6 +128,7 @@ class Readout(Node):
                 f"within the specified timeout ({timeout}s)."
             ) from error
 
+    @prevent_transaction
     def read(
         self,
         *,
@@ -141,6 +146,7 @@ class Readout(Node):
             self._daq_server, self._serial, self._index, mode="readout", timeout=timeout
         )
 
+    @prevent_transaction
     def write_integration_weights(
         self,
         weights: t.Union[Waveforms, dict],

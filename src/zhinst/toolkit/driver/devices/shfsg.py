@@ -9,7 +9,7 @@ import zhinst.utils.shfsg as utils
 from zhinst.toolkit.driver.devices.base import BaseInstrument
 from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.nodetree import Node
-from zhinst.toolkit.nodetree.helper import lazy_property
+from zhinst.toolkit.nodetree.helper import lazy_property, prevent_transaction
 from zhinst.toolkit.nodetree.node import NodeList
 
 logger = logging.getLogger(__name__)
@@ -21,6 +21,7 @@ if t.TYPE_CHECKING:  # pragma: no cover
 class AWGCore(AWG):
     """AWG Core Node."""
 
+    @prevent_transaction
     def configure_marker_and_trigger(
         self,
         *,
@@ -101,6 +102,7 @@ class SGChannel(Node):
         self._serial = device.serial
         self._session = session
 
+    @prevent_transaction
     def configure_channel(
         self,
         *,
@@ -128,6 +130,7 @@ class SGChannel(Node):
             rflf_path=int(rf_path),
         )
 
+    @prevent_transaction
     def configure_pulse_modulation(
         self,
         *,
@@ -170,6 +173,7 @@ class SGChannel(Node):
             sine_generator_index=sine_generator_index,
         )
 
+    @prevent_transaction
     def configure_sine_generation(
         self,
         *,

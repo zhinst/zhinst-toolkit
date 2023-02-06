@@ -6,6 +6,7 @@ import zhinst.utils.shfqa as utils
 from zhinst.core import ziDAQServer
 
 from zhinst.toolkit.nodetree import Node, NodeTree
+from zhinst.toolkit.nodetree.helper import prevent_transaction
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,7 @@ class SHFScope(Node):
         self._daq_server = daq_server
         self._serial = serial
 
+    @prevent_transaction
     def run(
         self, *, single: bool = True, timeout: float = 10, sleep_time: float = 0.005
     ) -> None:
@@ -59,6 +61,7 @@ class SHFScope(Node):
                 f"the specified timeout ({timeout})s"
             ) from error
 
+    @prevent_transaction
     def stop(self, *, timeout: float = 10, sleep_time: float = 0.005) -> None:
         """Stop the scope recording.
 
@@ -81,6 +84,7 @@ class SHFScope(Node):
                 f"the specified timeout ({timeout})s"
             ) from error
 
+    @prevent_transaction
     def wait_done(self, *, timeout: float = 10, sleep_time: float = 0.005) -> None:
         """Wait until the scope recording is finished.
 
@@ -102,6 +106,7 @@ class SHFScope(Node):
                 f"within the specified timeout({timeout})s."
             ) from error
 
+    @prevent_transaction
     def configure(
         self,
         *,

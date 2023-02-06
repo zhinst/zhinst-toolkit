@@ -27,6 +27,26 @@ _NodeInfo = TypedDict(
 NodeDoc = t.Dict[str, _NodeInfo]
 
 
+def prevent_transaction(function: t.Callable[..., T]) -> t.Callable[..., T]:
+    """Decorator preventing a device function to be called in a transaction."""
+
+    def wrapper(node: "Node", *args, **kwargs) -> T:
+        try:
+            if node.root.transaction.in_progress():
+                raise RuntimeError(
+                    f"The function `{function.__name__}` must not be called within "
+                    "a transaction!"
+                )
+        except AttributeError as e:
+            raise AttributeError(
+                "Decorator `prevent_transaction` expects the first argument of "
+                f"`{function.__name__}` to be a `Node` object."
+            ) from e
+        return function(node, *args, **kwargs)
+
+    return wrapper
+
+
 def lazy_property(property_function: t.Callable[..., T]) -> property:
     """Alternative for functools.lazy_property.
 

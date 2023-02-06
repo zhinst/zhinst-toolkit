@@ -5,6 +5,7 @@ import time
 from typing import List, Union
 
 from zhinst.toolkit.driver.devices.base import BaseInstrument
+from zhinst.toolkit.nodetree.helper import prevent_transaction
 
 
 logger = logging.getLogger(__name__)
@@ -92,6 +93,7 @@ class PQSC(BaseInstrument):
         """
         self.execution.enable(False, deep=deep)
 
+    @prevent_transaction
     def wait_done(self, *, timeout: float = 10, sleep_time: float = 0.005) -> None:
         """Wait until trigger generation and feedback processing is done.
 
@@ -112,6 +114,7 @@ class PQSC(BaseInstrument):
         except TimeoutError as error:
             raise TimeoutError("PQSC timed out.") from error
 
+    @prevent_transaction
     def check_ref_clock(self, *, timeout: int = 30, sleep_time: int = 1) -> bool:
         """Check if reference clock is locked successfully.
 
@@ -185,6 +188,7 @@ class PQSC(BaseInstrument):
             )
         return status if isinstance(ports, list) else status[0]
 
+    @prevent_transaction
     def _check_zsync_connection(
         self, port: int, timeout: float, sleep_time: float
     ) -> bool:

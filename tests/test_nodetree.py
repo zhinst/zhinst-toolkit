@@ -14,6 +14,7 @@ from zhinst.toolkit.driver.devices import HDAWG
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.connection_dict import ConnectionDict
 from zhinst.toolkit.nodetree.node import NodeList
+from zhinst.toolkit.nodetree.helper import prevent_transaction
 
 from zhinst.core.errors import CoreError
 
@@ -985,6 +986,25 @@ def test_nodelist_hash(connection, hdawg):
     nt = NodeTree(connection, "DEV1234")
     bar = NodeList([hdawg], nt, ("foobar",))
     hash(bar) == hash(Node(nt, ("foobar",)))
+
+
+def test_prevent_transaction(hdawg):
+    @prevent_transaction
+    def tester(node: Node):
+        raise NotImplementedError("Should not be called in a transaction")
+
+    # No transaction
+    with pytest.raises(NotImplementedError):
+        tester(hdawg)
+
+    # Transaction
+    with pytest.raises(RuntimeError):
+        with hdawg.set_transaction():
+            tester(hdawg)
+
+    # Wrong arguments
+    with pytest.raises(AttributeError):
+        tester("wrong")
 
 
 class TestWildCardResult:

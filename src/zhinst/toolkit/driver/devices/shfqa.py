@@ -16,6 +16,7 @@ from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import (
     lazy_property,
     create_or_append_set_transaction,
+    prevent_transaction,
 )
 from zhinst.toolkit.nodetree.node import NodeList
 from zhinst.toolkit.waveform import Waveforms
@@ -113,6 +114,7 @@ class Generator(AWG):
             waveforms[slot] = waveform[0]["vector"]
         return waveforms
 
+    @prevent_transaction
     def configure_sequencer_triggering(
         self, *, aux_trigger: str, play_pulse_delay: float = 0.0
     ) -> None:
@@ -167,6 +169,7 @@ class QAChannel(Node):
         self._serial = device.serial
         self._session = session
 
+    @prevent_transaction
     def configure_channel(
         self,
         *,
@@ -242,6 +245,7 @@ class SHFQA(BaseInstrument):
         warnings.warn("Factory preset is not yet supported for SHFQA.", RuntimeWarning)
         logger.warning("Factory preset is not yet supported in SHFQA.")
 
+    @prevent_transaction
     def start_continuous_sw_trigger(
         self, *, num_triggers: int, wait_time: float
     ) -> None:

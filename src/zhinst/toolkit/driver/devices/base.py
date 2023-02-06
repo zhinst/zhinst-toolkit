@@ -18,7 +18,7 @@ from zhinst.core import __version__ as zhinst_version_str
 from zhinst.toolkit._min_version import _MIN_DEVICE_UTILS_VERSION, _MIN_LABONE_VERSION
 from zhinst.toolkit.driver.parsers import node_parser
 from zhinst.toolkit.nodetree import Node, NodeTree
-from zhinst.toolkit.nodetree.helper import lazy_property
+from zhinst.toolkit.nodetree.helper import lazy_property, prevent_transaction
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +84,7 @@ class BaseInstrument(Node):
             f"{self.__class__.__name__}({self._device_type}" f"{options},{self.serial})"
         )
 
+    @prevent_transaction
     def factory_reset(self, *, deep: bool = True) -> None:
         """Load the factory default settings.
 

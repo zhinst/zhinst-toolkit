@@ -6,6 +6,7 @@ import zhinst.utils.shfqa as utils
 
 from zhinst.toolkit.interface import AveragingMode
 from zhinst.toolkit.nodetree import Node, NodeTree
+from zhinst.toolkit.nodetree.helper import prevent_transaction
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,7 @@ class Spectroscopy(Node):
         self._serial = serial
         self._index = index
 
+    @prevent_transaction
     def configure_result_logger(
         self,
         *,
@@ -58,6 +60,7 @@ class Spectroscopy(Node):
             averaging_mode=int(averaging_mode),
         )
 
+    @prevent_transaction
     def run(self) -> None:
         """Resets and enables the spectroscopy result logger."""
         utils.enable_result_logger(
@@ -67,6 +70,7 @@ class Spectroscopy(Node):
             mode="spectroscopy",
         )
 
+    @prevent_transaction
     def stop(self, *, timeout: float = 10, sleep_time: float = 0.05) -> None:
         """Stop the result logger.
 
@@ -91,6 +95,7 @@ class Spectroscopy(Node):
                 f"within the specified timeout ({timeout}s)."
             ) from error
 
+    @prevent_transaction
     def wait_done(self, *, timeout: float = 10, sleep_time: float = 0.05) -> None:
         """Wait until spectroscopy is finished.
 

@@ -5,6 +5,7 @@
 Unreleased
 
 * Improved verbosity of the error message when invalid attributes of `CommandTable.header` and `CommandTable.table` are used.
+* Introduce `prevent_transaction` decorator to prevent certain functions to be called within a transaction.
 
 ## Version 0.5.1
 * Added full support for the following LabOne modules (no need to fallback to zhinst.core):
