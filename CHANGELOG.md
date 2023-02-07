@@ -1,22 +1,17 @@
 # zhinst-toolkit Changelog
 
-## Version 0.5.2
-
-Unreleased
-
-* Improved verbosity of the error message when invalid attributes of `CommandTable.header` and `CommandTable.table` are used.
+## Version 0.5.1
+* Added full support for the following LabOne modules (no need to fallback to `zhinst.core`):
+  * Impedance Module
+  * Precompensation Advisor Module
 * Introduced new base exception class `zhinst.toolkit.exceptions.ToolkitError`, deriving from `RuntimeError`.
    * Changed some `RuntimeError` exceptions to `ToolkitError`.
 * Added `find_zsync_worker_port()` to `PQSC` device class.
   The function can be used to find the ID of the PQSC ZSync port connected to a given device.
+* Added `session` property to `BaseInstrument`. This enables getting the given `Session` from the instrument.
 * Changed SHFQA node `qachannels/*/oscs/0/freq` value range from (-500e6 Hz, 500e6 Hz) to (-1e9 Hz, 1e9 Hz). Out-of-range values now rounds
   to (-1e9 Hz, 1e9 Hz). The functionality is changed to be consistent with LabOne UI.
-
-## Version 0.5.1
-* Added full support for the following LabOne modules (no need to fallback to zhinst.core):
-  * Impedance Module
-  * Precompensation Advisor Module
-* Added `session` property to `BaseInstrument`. This enables getting the given `Session` from the instrument.
+* Improved verbosity of the error message when invalid attributes of `CommandTable.header` and `CommandTable.table` are used.
 * Fix issue with downloading waveforms from the device. This issue prevented indexes larger than 9 to be read from the device.
 
 ## Version 0.5.0
