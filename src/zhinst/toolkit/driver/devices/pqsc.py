@@ -236,7 +236,7 @@ class PQSC(BaseInstrument):
             RuntimeError: If the given device doesn't appear to be connected
                 to the PQSC via ZSync.
 
-        .. versionadded:: 0.5.2
+        .. versionadded:: 0.5.1
         """
         device_serial = device.serial[3:]
         node_to_serial_dict = self.zsyncs["*"].connection.serial()
