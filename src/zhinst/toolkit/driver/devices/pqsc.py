@@ -5,6 +5,7 @@ import time
 from typing import List, Union
 
 from zhinst.toolkit.driver.devices.base import BaseInstrument
+from zhinst.toolkit.exceptions import ToolkitError
 
 
 logger = logging.getLogger(__name__)
@@ -233,7 +234,7 @@ class PQSC(BaseInstrument):
             Integer value represent the ID of the searched PQSC Zsync port.
 
         Raises:
-            RuntimeError: If the given device doesn't appear to be connected
+            ToolkitError: If the given device doesn't appear to be connected
                 to the PQSC via ZSync.
 
         .. versionadded:: 0.5.1
@@ -248,7 +249,7 @@ class PQSC(BaseInstrument):
         try:
             device_zsync_node = serial_to_node_dict[device_serial]
         except KeyError:
-            raise RuntimeError(
+            raise ToolkitError(
                 "No ZSync connection found between the PQSC "
                 f"{self.serial} and the device {device.serial}."
             )
