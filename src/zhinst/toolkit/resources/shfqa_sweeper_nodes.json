@@ -150,7 +150,8 @@
             "10": "\"channel1_sequencer_trigger0\": Channel 1 sequencer trigger 0.",
             "11": "\"channel2_sequencer_trigger0\": Channel 2 sequencer trigger 0.",
             "12": "\"channel3_sequencer_trigger0\": Channel 3 sequencer trigger 0.",
-            "13": "\"software_trigger0\": Software trigger 0."
+            "13": "\"software_trigger0\": Software trigger 0.",
+            "14": "\"internal_trigger\": Internal trigger."
         }
     },
     "/trigger/level": {
