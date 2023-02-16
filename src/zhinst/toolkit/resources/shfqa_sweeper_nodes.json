@@ -70,6 +70,13 @@
             "1": "\"sequencer-based\": sequencer-based sweep (faster)."
         }
     },
+    "/sweep/psd": {
+        "Node": "/sweep/psd",
+        "Description": "Specify whether to compute the Power Spectral Density (PSD) (1) or not (0)",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer"
+    },
     "/rf/channel": {
         "Node": "/rf/channel",
         "Description": "Device channel to be used",
