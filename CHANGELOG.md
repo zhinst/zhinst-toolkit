@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 0.5.2
+* Add SHFQA / SHFQC Power Spectral Density (PSD) node and example
+
 ## Version 0.5.1
 * Added full support for the following LabOne modules (no need to fallback to `zhinst.core`):
   * Impedance Module
