@@ -49,6 +49,9 @@ shfqa_qubit_readout_weights:
 shfqa_sweeper:
   device_type: "SHFQA2"
 
+shfqa_shfqc_power_spectral_density:
+  device_type: "SHFQA2"
+
 shfqc_propagation_delay:
   device_type: "SHFQC"
 

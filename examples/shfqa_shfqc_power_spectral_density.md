@@ -31,7 +31,7 @@ from zhinst.toolkit import Session, SHFQAChannelMode
 
 
 session = Session("localhost")
-device = session.connect_device("DEV12XXX")
+device = session.connect_device("DEVXXXX")
 
 ```
 
