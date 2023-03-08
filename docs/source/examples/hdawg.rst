@@ -38,5 +38,4 @@ zhinst-toolkit.
 .. toctree::
    :maxdepth: 2
 
-   hdawg_awg
    hdawg_precomp_curve_fit
