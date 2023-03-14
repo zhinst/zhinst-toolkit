@@ -4,6 +4,7 @@ import typing as t
 
 import numpy as np
 import zhinst.utils.shfqa as utils
+from zhinst.toolkit.exceptions import ToolkitError
 
 from zhinst.toolkit.interface import AveragingMode
 from zhinst.toolkit.nodetree import Node, NodeTree
@@ -155,17 +156,16 @@ class Readout(Node):
                 keys correspond to the indices of the integration units to be
                 configured.
             integration_delay: Delay in seconds before starting the readout.
-                (default = 0.0)
             clear_existing: Flag whether to clear the waveform memory before
-                the present upload. (default = True)
+                the present upload.
         """
         if (
             len(weights.keys()) > 0
             and max(weights.keys()) >= self._max_qubits_per_channel
         ):
-            raise RuntimeError(
+            raise ToolkitError(
                 f"The device only has {self._max_qubits_per_channel} qubits per channel"
-                f", but {max(weights.keys())} where specified"
+                f", but {max(weights.keys())} were specified."
             )
         waveform_dict = {}
         if isinstance(weights, Waveforms):
