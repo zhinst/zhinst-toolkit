@@ -98,6 +98,10 @@ class Parse:
 
         Returns:
             Rounded value.
+
+        .. versionchanged:: 0.5.3
+
+            Invalid `rounding` value raises `ValueError` instead of `RuntimeError`.
         """
         if abs(round(value / factor) * factor - value) < 1e-12:
             return value
@@ -117,7 +121,7 @@ class Parse:
                 f"multiple: {v_rounded:.3e}",
             )
             return v_rounded
-        raise RuntimeError(
+        raise ValueError(
             f"Invalid rounding type {rounding} only the "
             "following values are allowed: [nearest,down]"
         )
