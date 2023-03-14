@@ -312,7 +312,7 @@ def test_raw_path_to_node(data_dir, mock_connection, session, zi_devices_json):
     assert result.root.prefix_hide == "dev1234"
 
     # Only absolut paths are supported
-    with pytest.raises(RuntimeError) as e_info:
+    with pytest.raises(ValueError) as e_info:
         session.raw_path_to_node("dev1234/test/a/b/c")
 
     # Not connected device
