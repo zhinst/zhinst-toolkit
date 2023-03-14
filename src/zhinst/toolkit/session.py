@@ -881,13 +881,18 @@ class Session(Node):
             Corresponding toolkit node object.
 
         Raises:
-            RuntimeError: If the node does not belong to the optional module or
+            ValueError: If the `raw_path` does not start with a leading dash.
+            ToolkitError: If the node does not belong to the optional module or
                 to a connected device.
+
+        .. versionchanged:: 0.5.3
+
+            Changed `RuntimeError` to `ValueError`.
         """
         if not raw_path.startswith("/"):
-            raise RuntimeError(
+            raise ValueError(
                 f"{raw_path} does not seem to be an absolute path. "
-                "(it must start with a leading slash)"
+                "It must start with a leading slash."
             )
         if module is not None:
             node = module.root.raw_path_to_node(raw_path)
@@ -899,7 +904,7 @@ class Session(Node):
                 return self.root.raw_path_to_node(raw_path)
             return self.devices[serial].root.raw_path_to_node(raw_path)
         except KeyError as error:
-            raise RuntimeError(
+            raise ToolkitError(
                 f"Node belongs to a device({raw_path.split('/')[1]}) not connected to "
                 "the Data Server."
             ) from error
