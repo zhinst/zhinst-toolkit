@@ -11,6 +11,7 @@ from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.driver.nodes.readout import Readout
 from zhinst.toolkit.driver.nodes.shfqa_scope import SHFScope
 from zhinst.toolkit.driver.nodes.spectroscopy import Spectroscopy
+from zhinst.toolkit.exceptions import ToolkitError
 from zhinst.toolkit.interface import SHFQAChannelMode
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import (
@@ -74,9 +75,9 @@ class Generator(AWG):
             len(pulses.keys()) > 0
             and max(pulses.keys()) >= self._max_qubits_per_channel
         ):
-            raise RuntimeError(
+            raise ToolkitError(
                 f"The device only has {self._max_qubits_per_channel} qubits per channel"
-                f", but {max(pulses.keys())} where specified"
+                f", but {max(pulses.keys())} were specified."
             )
         with create_or_append_set_transaction(self._root):
             if clear_existing:
