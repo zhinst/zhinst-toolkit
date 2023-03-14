@@ -10,12 +10,13 @@ from enum import IntEnum
 from pathlib import Path
 
 import numpy as np
+from zhinst.core import ziDAQServer
 from zhinst.utils.shf_sweeper import AvgConfig, EnvelopeConfig, RfConfig
 from zhinst.utils.shf_sweeper import ShfSweeper as CoreSweeper
 from zhinst.utils.shf_sweeper import SweepConfig, TriggerConfig
-from zhinst.core import ziDAQServer
 
 from zhinst.toolkit.driver.parsers import Parse
+from zhinst.toolkit.exceptions import ToolkitError
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.connection_dict import ConnectionDict
 from zhinst.toolkit.nodetree.helper import NodeDoc
@@ -195,7 +196,7 @@ class SHFQASweeper(Node):
         Converts the nodetree into a valid configuration for the SHFSweeper.
         """
         if not self.device():
-            raise RuntimeError(
+            raise ToolkitError(
                 "The device serial needs to be set before using the module."
             )
         data = OrderedDict()
