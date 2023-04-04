@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 0.5.3
+* Add internal trigger to SHFQA sweeper class.
+
 ## Version 0.5.2
 * Add SHFQA / SHFQC Power Spectral Density (PSD) node and example
 
