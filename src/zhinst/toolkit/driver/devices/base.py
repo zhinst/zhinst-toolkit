@@ -86,15 +86,27 @@ class BaseInstrument(Node):
             f"{self.__class__.__name__}({self._device_type}" f"{options},{self.serial})"
         )
 
-    def factory_reset(self, *, deep: bool = True) -> None:
+    def factory_reset(self, *, deep: bool = True, timeout: int = 30) -> None:
         """Load the factory default settings.
 
         Args:
             deep: A flag that specifies if a synchronization
                 should be performed between the device and the data
                 server after loading the factory preset (default: True).
+            timeout: Timeout in seconds to wait for the factory reset to
+                complete.
+
+        Raises:
+            ToolkitError: If the factory preset could not be loaded.
+            TimeoutError: If the factory reset did not complete within the
+                given timeout.
         """
         self.system.preset.load(1, deep=deep)
+        self.system.preset.busy.wait_for_state_change(0, timeout=timeout)
+        if self.system.preset.error(deep=True)[1]:
+            raise ToolkitError(
+                f"Failed to load factory preset to device {self.serial.upper()}."
+            )
         logger.info(f"Factory preset is loaded to device {self.serial.upper()}.")
 
     @staticmethod

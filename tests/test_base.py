@@ -1,5 +1,6 @@
 import json
 import operator
+from collections import OrderedDict
 from contextlib import _GeneratorContextManager
 from unittest.mock import MagicMock, Mock, patch
 
@@ -46,12 +47,42 @@ def test_hf2_setup(data_dir, mock_connection, hf2_session):
     assert repr(instrument) == "BaseInstrument(HF2LI(OptionA),DEV1234)"
 
 
-def test_factory_reset(base_instrument, mock_connection):
-    base_instrument.factory_reset()
+def test_factory_reset_ok(base_instrument, mock_connection):
     dev_id = base_instrument.serial.lower()
+    mock_connection.return_value.getInt.return_value = 0
+    mock_connection.return_value.get.return_value = OrderedDict(
+        [
+            (
+                f"/{dev_id}/system/preset/error",
+                {"timestamp": [0], "value": [0]},
+            )
+        ]
+    )
+    base_instrument.factory_reset()
     mock_connection.return_value.syncSetInt.assert_called_once_with(
         f"/{dev_id}/system/preset/load", 1
     )
+
+
+def test_factory_reset_timeout(base_instrument, mock_connection):
+    mock_connection.return_value.getInt.return_value = 1
+    with pytest.raises(TimeoutError):
+        base_instrument.factory_reset(timeout=0.00001)
+
+
+def test_factory_reset_failure(base_instrument, mock_connection):
+    dev_id = base_instrument.serial.lower()
+    mock_connection.return_value.getInt.return_value = 0
+    mock_connection.return_value.get.return_value = OrderedDict(
+        [
+            (
+                f"/{dev_id}/system/preset/error",
+                {"timestamp": [0], "value": [1]},
+            )
+        ]
+    )
+    with pytest.raises(ToolkitError):
+        base_instrument.factory_reset()
 
 
 def test_get_streamingnodes(base_instrument):

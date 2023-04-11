@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 0.5.4
+* `device.factory_reset` now raises an exception if the factory reset was not successful (`#243`).
+
 ## Version 0.5.3
 * Add internal trigger to SHFQA sweeper class.
 
