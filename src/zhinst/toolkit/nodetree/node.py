@@ -468,7 +468,11 @@ class Node:
     def __dir__(self):
         dir_info = list(self._next_layer)
         for var, value in vars(self.__class__).items():
-            if isinstance(value, property) and not var.startswith("_"):
+            if (
+                isinstance(value, property)
+                and not var.startswith("_")
+                and var not in dir_info
+            ):
                 dir_info.append(var)
         return dir_info
 

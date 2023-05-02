@@ -2,6 +2,7 @@
 
 ## Version 0.5.4
 * `device.factory_reset` now raises an exception if the factory reset was not successful (`#243`).
+* Fixed issue where calling a `Node` with `dir()` returned duplicate values on some nodes.
 
 ## Version 0.5.3
 * Add internal trigger to SHFQA sweeper class.
@@ -29,7 +30,7 @@
   * Sweeper Module
   * DAQ Module
 * Renamed `zhinst.toolkit.nodetree.node.WildcardResult` to `zhinst.toolkit.nodetree.helpers.NodeDict`
-* Added `active_validation` argument to `CommandTable`. By disabling it, `CommandTable` does not actively 
+* Added `active_validation` argument to `CommandTable`. By disabling it, `CommandTable` does not actively
   validate the inputs and therefore it improves the speed for command table creation.
 * Adapt `awg.enable_sequencer` to check the acknowledged value instead of using `wait_for_state_change`. This makes it much more stable when used with short sequences.
 * Fix issue with downloading waveforms from the device. This issue prevented reading waveforms from any other than the base channel.
@@ -45,7 +46,7 @@
   * shfqa.qachannels[n].readout.multistate.qudits[m].configure(settings)
   * shfqa.qachannels[n].readout.multistate.get_qudits_results()
 * Added new example for the multistate discrimination (shfqa_multistate_discrimination) for the SHFQA
-* Fixed issue `#181` (Wrong _device_type of awg node of UHFQA/UHFLI) which prevented 
+* Fixed issue `#181` (Wrong _device_type of awg node of UHFQA/UHFLI) which prevented
   the compilation of sequences.
 * Waveform validation moved from the `write_to_waveform_memory` into `Waveforms.validate`
 * Command Table `$schema` key removed from the output of `CommandTable.as_dict` function
@@ -59,9 +60,9 @@
 * For all LabOne modules forward the `execute` function from the zhinst-core in zhinst-toolkit
 
 ## Version 0.4.0
-* Add new class `zhinst.toolkit.Sequence` that allows a more flexible use of 
+* Add new class `zhinst.toolkit.Sequence` that allows a more flexible use of
   sequences in toolkit (`#141`).
-* Add support for session wide transactions that bundle set command from all 
+* Add support for session wide transactions that bundle set command from all
   devices connected to the data server. (`#134`)
 * Add `from_existing_connection()` to `zhinst.toolkit.Session` to help reusing the existing DataServer connection.
 * Bugfix: Nodes with nameless options don't raise an exception when their enum attribute is called (`#165`).
@@ -76,9 +77,9 @@
 ## Version 0.3.5
 * Adapt AWG Waveform upload (`write_to_waveform_memory`) to append to existing transactions.
 * Make consistency validate during waveform upload optional (new flag `validate` in `write_to_waveform_memory`).
-* Add `get_sequence_snippet` function to `zhinst.toolkit.Waveforms` class. 
+* Add `get_sequence_snippet` function to `zhinst.toolkit.Waveforms` class.
   The function is able to generated a sequence code snippet that defines and assigns
-  the waveforms for this object. Additional meta information like an optional name 
+  the waveforms for this object. Additional meta information like an optional name
   or the output configuration can be specified through a newly added `Wave` class from `zhinst.toolkit.Waveforms`.
 * Getting a value by calling a wildcard node now returns `zhinst.toolkit.nodetree.node.WildcardResult`
 

@@ -242,6 +242,22 @@ Unit: 1/s"""
         tree.demods.waves[0].node_info.unit
 
 
+def test_node_dir_property_not_duplicated(connection):
+    class MockNode(Node):
+        def __init__(self, root: "NodeTree", tree: tuple):
+            self._root = root
+            self._tree = tree
+
+        @property
+        def features(self):
+            pass
+
+    tree = NodeTree(connection, "DEV1234")
+    assert "features" in dir(tree)
+    node = MockNode(tree, ())
+    assert len(dir(node)) == len(set(dir(node)))
+
+
 def test_wildcard_node(connection):
     tree = NodeTree(connection, "DEV1234")
     wildcard_node = tree.demods["*"].rate
