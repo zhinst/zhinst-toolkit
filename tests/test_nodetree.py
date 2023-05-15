@@ -14,6 +14,7 @@ from zhinst.toolkit.driver.devices import HDAWG
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.connection_dict import ConnectionDict
 from zhinst.toolkit.nodetree.node import NodeList
+from zhinst.toolkit.nodetree.helper import resolve_wildcards_labone
 
 from zhinst.core.errors import CoreError
 
@@ -274,6 +275,7 @@ def test_wildcard_node(connection):
     connection.get.return_value = None
     with pytest.raises(KeyError) as e_info:
         tree.hello["*"].rate()
+    connection.set.side_effect = RuntimeError("test")
     with pytest.raises(KeyError) as e_info:
         tree.hello["*"].rate(1)
 
@@ -465,12 +467,6 @@ def test_module_get_wildcard(connection):
         ]
     )
     connection.get.side_effect = [TypeError(), return_value]
-    assert tree.demods()[tree.demods[0].impedance] == 123
-
-    connection.get.side_effect = [TypeError(), RuntimeError(), return_value]
-    assert tree.demods()[tree.demods[0].impedance] == 123
-
-    connection.get.side_effect = [RuntimeError(), return_value]
     assert tree.demods()[tree.demods[0].impedance] == 123
 
 
@@ -715,11 +711,6 @@ def test_get_as_event(connection):
     tree.demods[0].sample.get_as_event()
     connection.getAsEvent.assert_called_once_with(tree.demods[0].sample.node_info.path)
 
-    connection.getAsEvent.side_effect = [RuntimeError(), None, None]
-    tree.demods["[1,2]"].sample.get_as_event()
-    connection.getAsEvent.assert_any_call(tree.demods[1].sample.node_info.path)
-    connection.getAsEvent.assert_any_call(tree.demods[2].sample.node_info.path)
-
     connection.getAsEvent.side_effect = RuntimeError()
     with pytest.raises(KeyError):
         tree.demods["*"].test.get_as_event()
@@ -806,13 +797,6 @@ def test_child_nodes(connection):
     with pytest.raises(CoreError) as e_info:
         list(tree.demods["*"].child_nodes())
     assert e_info.value.args[0] == "Unrelated Error"
-
-    connection.listNodes.side_effect = CoreError("Path format invalid", 32768)
-    with pytest.raises(RuntimeError) as e_info:
-        list(tree.demods["[0,1]"].child_nodes())
-    assert "full_wildcard" in e_info.value.args[0]
-
-    assert list(tree.demods["*"].child_nodes(full_wildcard=True))
 
 
 def test_subscribe(connection):
@@ -923,9 +907,9 @@ def test_connection_dict(data_dir):
     assert tree.car.color() == "1"
 
     # subscribe and unsubscribe is not supported
-    with pytest.raises(RuntimeError) as e_info:
+    with pytest.raises(KeyError) as e_info:
         tree.car.seat.subscribe()
-    with pytest.raises(RuntimeError) as e_info:
+    with pytest.raises(KeyError) as e_info:
         tree.car.seat.unsubscribe()
 
     tree = NodeTree(connection, list_nodes=["/car/*"])
@@ -946,6 +930,26 @@ def test_connection_dict(data_dir):
     assert tree.car.color() == "{'blue'}"
     with pytest.raises(TypeError):
         tree.street.length()
+
+
+def test_connection_dict_set_list(data_dir):
+    data = {"/car/seat": 4, "/car/color": "blue", "/street/length": 110.4}
+    json_path = data_dir / "nodedoc_fake.json"
+    with json_path.open("r", encoding="UTF-8") as file:
+        nodes_json = json.loads(file.read())
+    connection = ConnectionDict(data, nodes_json)
+    connection.set([("/car/seat", 1), ("/car/color", "red")])
+    assert {"/car/seat": 1, "/car/color": "red", "/street/length": 110.4} == data
+
+
+def test_connection_dict_missing_node(data_dir):
+    data = {"/car/seat": 4, "/car/color": "blue", "/street/length": 110.4}
+    json_path = data_dir / "nodedoc_fake.json"
+    with json_path.open("r", encoding="UTF-8") as file:
+        nodes_json = json.loads(file.read())
+    connection = ConnectionDict(data, nodes_json)
+    with pytest.raises(KeyError):
+        connection.set("/car/test", 5)
 
 
 def test_connection_dict_callable_nodes(data_dir):
@@ -1001,6 +1005,70 @@ def test_nodelist_hash(connection, hdawg):
     nt = NodeTree(connection, "DEV1234")
     bar = NodeList([hdawg], nt, ("foobar",))
     hash(bar) == hash(Node(nt, ("foobar",)))
+
+
+def test_resolve_wildcards_labone_single_ok():
+    paths = ["test/hello/world", "test/hello/there", "test/hi/there"]
+    assert resolve_wildcards_labone("test/hello/world", paths) == ["test/hello/world"]
+
+
+def test_resolve_wildcards_labone_single_fail():
+    paths = ["test/hello/world", "test/hello/there", "test/hi/there"]
+    assert resolve_wildcards_labone("test/hello/a", paths) == []
+
+
+def test_resolve_wildcards_labone_wildcard_middle_ok():
+    paths = ["test/hello/world", "test/hello/there", "test/hi/there"]
+    assert resolve_wildcards_labone("test/*/there", paths) == [
+        "test/hello/there",
+        "test/hi/there",
+    ]
+
+
+def test_resolve_wildcards_labone_wildcard_middle_fail():
+    paths = ["test/hello/world", "test/hello/there", "test/hi/there"]
+    assert resolve_wildcards_labone("test/*/you", paths) == []
+
+
+def test_resolve_wildcards_labone_wildcard_partial_ok():
+    paths = ["test/hello/world", "test/hello/there", "test/hi/there"]
+    assert resolve_wildcards_labone("test", paths) == [
+        "test/hello/world",
+        "test/hello/there",
+        "test/hi/there",
+    ]
+
+
+def test_resolve_wildcards_labone_wildcard_partial_fail():
+    paths = ["test/hello/world", "test/hello/there", "test/hi/there"]
+    assert resolve_wildcards_labone("tes", paths) == []
+
+
+def test_resolve_wildcards_labone_wildcard_partial_subset():
+    paths = [
+        "/awgs/0/outputs/0/enables/0",
+        "/awgs/1/outputs/0/enables/0",
+        "/awgs/0/outputs/1/enables/0",
+        "/awgs/0/enable",
+        "/awgs/1/enable",
+    ]
+    assert resolve_wildcards_labone("/awgs/*/enable", paths) == [
+        "/awgs/0/enable",
+        "/awgs/1/enable",
+    ]
+
+
+def test_resolve_wildcards_labone_wildcard_end_ok():
+    paths = ["test/hello/world", "test/hello/there", "test/hi/there"]
+    assert resolve_wildcards_labone("test/hello/*", paths) == [
+        "test/hello/world",
+        "test/hello/there",
+    ]
+
+
+def test_resolve_wildcards_labone_wildcard_end_fail():
+    paths = ["test/hello/world", "test/hello/there", "test/hi/there"]
+    assert resolve_wildcards_labone("new/hello/*", paths) == []
 
 
 class TestWildCardResult:

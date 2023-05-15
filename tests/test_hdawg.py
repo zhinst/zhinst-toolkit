@@ -36,14 +36,8 @@ def test_enable_qccs_mode(mock_connection, hdawg):
             ("/dev1234/dios/0/interface", 0),
             ("/dev1234/dios/0/mode", "qccs"),
             ("/dev1234/dios/0/drive", 12),
-            ("/dev1234/awgs/0/dio/strobe/slope", "off"),
-            ("/dev1234/awgs/1/dio/strobe/slope", "off"),
-            ("/dev1234/awgs/2/dio/strobe/slope", "off"),
-            ("/dev1234/awgs/3/dio/strobe/slope", "off"),
-            ("/dev1234/awgs/0/dio/valid/polarity", "none"),
-            ("/dev1234/awgs/1/dio/valid/polarity", "none"),
-            ("/dev1234/awgs/2/dio/valid/polarity", "none"),
-            ("/dev1234/awgs/3/dio/valid/polarity", "none"),
+            ("/dev1234/awgs/*/dio/strobe/slope", "off"),
+            ("/dev1234/awgs/*/dio/valid/polarity", "none"),
         ]
     )
     mock_connection.reset_mock()
@@ -55,14 +49,8 @@ def test_enable_qccs_mode(mock_connection, hdawg):
             ("/dev1234/dios/0/interface", 0),
             ("/dev1234/dios/0/mode", "qccs"),
             ("/dev1234/dios/0/drive", 12),
-            ("/dev1234/awgs/0/dio/strobe/slope", "off"),
-            ("/dev1234/awgs/1/dio/strobe/slope", "off"),
-            ("/dev1234/awgs/2/dio/strobe/slope", "off"),
-            ("/dev1234/awgs/3/dio/strobe/slope", "off"),
-            ("/dev1234/awgs/0/dio/valid/polarity", "none"),
-            ("/dev1234/awgs/1/dio/valid/polarity", "none"),
-            ("/dev1234/awgs/2/dio/valid/polarity", "none"),
-            ("/dev1234/awgs/3/dio/valid/polarity", "none"),
+            ("/dev1234/awgs/*/dio/strobe/slope", "off"),
+            ("/dev1234/awgs/*/dio/valid/polarity", "none"),
         ]
     )
 

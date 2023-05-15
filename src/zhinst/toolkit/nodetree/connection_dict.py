@@ -45,6 +45,11 @@ class ConnectionDict:
             return value()
         return value
 
+    def _resolve_wildcards(self, path: str) -> t.List[str]:
+        path_raw = path.replace("/\\*/", "/[^/]*/")
+        path_raw_regex = re.compile(path_raw)
+        return list(filter(path_raw_regex.match, self._values.keys()))
+
     def _set_value(self, path: str, value: t.Any) -> None:
         """Set the value for a given path.
 
@@ -54,6 +59,13 @@ class ConnectionDict:
             path: Key in the internal values dictionary.
             value: New value of the path.
         """
+        paths = self._resolve_wildcards(path)
+        if not paths:
+            raise KeyError(path)
+        for path in paths:
+            self._do_set_value(path, value)
+
+    def _do_set_value(self, path: str, value: t.Any) -> None:
         if callable(self._values[path]):
             self._values[path](value)
         else:

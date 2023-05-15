@@ -1,6 +1,9 @@
 # zhinst-toolkit Changelog
 
-## Version 0.5.4
+## Version 0.6.0
+* Revert full support of `fnmatch` wildcards and instead use the LabOne wildcard support.
+  This means only `*` symbols are supported. A `*` in the middle of the path matches
+  everything instead of a `/`. A `*` at the end of the path matches everything.
 * `device.factory_reset` now raises an exception if the factory reset was not successful (`#243`).
 * Fixed issue where calling a `Node` with `dir()` returned duplicate values on some nodes.
 

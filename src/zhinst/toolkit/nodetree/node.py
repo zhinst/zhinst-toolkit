@@ -12,12 +12,10 @@ from enum import IntEnum
 from functools import lru_cache
 
 from zhinst.toolkit.nodetree.helper import (
-    create_or_append_set_transaction,
-    lazy_property,
     NodeDict,
+    lazy_property,
+    resolve_wildcards_labone,
 )
-
-from zhinst.core.errors import CoreError
 
 if t.TYPE_CHECKING:  # pragma: no cover
     from zhinst.toolkit.nodetree import NodeTree
@@ -563,8 +561,8 @@ class Node:
         Returns:
             List of matched nodes in the raw path format
         """
-        return fnmatch.filter(
-            self._root.raw_dict.keys(), self._root.node_to_raw_path(self) + "*"
+        return resolve_wildcards_labone(
+            self._root.node_to_raw_path(self), self._root.raw_dict.keys()
         )
 
     def _parse_get_value(
@@ -711,16 +709,7 @@ class Node:
             result_raw = self._root.connection.get(self.node_info.path, **kwargs)
         except TypeError:
             del kwargs["settingsonly"]
-            try:
-                result_raw = self._root.connection.get(self.node_info.path, **kwargs)
-            except (RuntimeError, TypeError):
-                # resolve wildecard and get the value of the resulting leaf nodes
-                nodes_raw = self._resolve_wildcards()
-                result_raw = self._root.connection.get(",".join(nodes_raw), **kwargs)
-        except RuntimeError:
-            # resolve wildecard and get the value of the resulting leaf nodes
-            nodes_raw = self._resolve_wildcards()
-            result_raw = self._root.connection.get(",".join(nodes_raw), **kwargs)
+            result_raw = self._root.connection.get(self.node_info.path, **kwargs)
         if not result_raw:
             raise KeyError(self.node_info.path)
         if not kwargs["flat"]:
@@ -831,7 +820,7 @@ class Node:
             TypeError: Connection does not support deep set
         """
         writable = self.node_info.writable
-        if writable:
+        if writable or (writable is None and self.node_info.contains_wildcards):
             if parse:
                 value = self.node_info.set_parser(value)
             if self._root.transaction.in_progress():
@@ -852,34 +841,9 @@ class Node:
                     else:
                         raise
             return None
-        if writable is None and (
-            self.node_info.contains_wildcards or self.node_info.is_partial
-        ):
-            self._set_wildcard(value, parse=parse, **kwargs)
-            return None
         if writable is False:
             raise AttributeError(f"{self.node_info.path} is read-only.")
         raise KeyError(self.node_info.path)
-
-    def _set_wildcard(self, value: t.Any, parse: bool = True, **kwargs) -> None:
-        """Performs a transactional set on all nodes that match the wildcard.
-
-        The kwargs will be forwarded to the mapped zhinst.core function call.
-
-        Args:
-            value: value
-            parse: Flag if the SetParser, if present, should be applied or not.
-                (default=True)
-
-        Raises:
-            KeyError: if the wildcard does not resolve to a valid node
-        """
-        nodes_raw = self._resolve_wildcards()
-        if not nodes_raw:
-            raise KeyError(self._root.node_to_raw_path(self))
-        with create_or_append_set_transaction(self._root):
-            for node_raw in nodes_raw:
-                self._root.raw_path_to_node(node_raw)(value, parse=parse, **kwargs)
 
     def _set_deep(self, value: t.Any, **kwargs) -> t.Any:
         """Set the node value from device.
@@ -1004,11 +968,7 @@ class Node:
         try:
             self._root.connection.subscribe(self.node_info.path)
         except RuntimeError as error:
-            nodes_raw = self._resolve_wildcards()
-            if not nodes_raw:
-                raise KeyError(self.node_info.path) from error
-            for node_raw in nodes_raw:
-                self._root.connection.subscribe(node_raw)
+            raise KeyError(self.node_info.path) from error
 
     def unsubscribe(self) -> None:
         """Unsubscribe this node (its child lead nodes).
@@ -1019,11 +979,7 @@ class Node:
         try:
             self._root.connection.unsubscribe(self.node_info.path)
         except RuntimeError as error:
-            nodes_raw = self._resolve_wildcards()
-            if not nodes_raw:
-                raise KeyError(self.node_info.path) from error
-            for node_raw in nodes_raw:
-                self._root.connection.unsubscribe(node_raw)
+            raise KeyError(self.node_info.path) from error
 
     def get_as_event(self) -> None:
         """Trigger an event for that node (its child lead nodes).
@@ -1033,11 +989,7 @@ class Node:
         try:
             self._root.connection.getAsEvent(self.node_info.path)
         except RuntimeError as error:
-            nodes_raw = self._resolve_wildcards()
-            if not nodes_raw:
-                raise KeyError(self.node_info.path) from error
-            for node_raw in nodes_raw:
-                self._root.connection.getAsEvent(node_raw)
+            raise KeyError(self.node_info.path) from error
 
     def child_nodes(
         self,
@@ -1050,7 +1002,6 @@ class Node:
         basechannelonly: bool = False,
         excludestreaming: bool = False,
         excludevectors: bool = False,
-        full_wildcard: bool = False,
     ) -> t.Generator["Node", None, None]:
         """Generator for all child nodes that matches the filters.
 
@@ -1086,62 +1037,24 @@ class Node:
                 of multiple channels (default: False).
             excludestreaming: Exclude streaming nodes (default: False).
             excludevectors: Exclude vector nodes (default: False).
-            full_wildcard: Enables full wildcard support. Per default
-                only the asterisk wildcard is supported. (Automatically sets
-                recursive and leavesonly) (default = False)
 
         Returns:
             Generator of all child nodes that match the filters
         """
         raw_path = self._root.node_to_raw_path(self)
-        try:
-            raw_result = self._root.connection.listNodes(
-                raw_path,
-                recursive=recursive,
-                leavesonly=leavesonly,
-                settingsonly=settingsonly,
-                streamingonly=streamingonly,
-                subscribedonly=subscribedonly,
-                basechannelonly=basechannelonly,
-                excludestreaming=excludestreaming,
-                excludevectors=excludevectors,
-            )
-            for node_raw in raw_result:
-                yield self._root.raw_path_to_node(node_raw)
-        except CoreError as error:
-            if error.code != 32768:  # Replace with correct error in 23.02
-                raise
-            if not full_wildcard:
-                raise RuntimeError(
-                    "The node contains wildcards that the DataServer can not resolve. "
-                    "Use the `full_wildcard` flag to search for child nodes manually."
-                ) from error
-            nodes_raw = self._resolve_wildcards()
-            for node_raw in nodes_raw:
-                node = self._root.raw_path_to_node(node_raw)
-                if not (
-                    (settingsonly and not node.node_info.is_setting)
-                    or (excludevectors and node.node_info.is_vector)
-                    or (
-                        basechannelonly
-                        and any(number != 0 for number in re.findall(r"\d+", node_raw))
-                    )
-                    or (
-                        (excludestreaming or subscribedonly or streamingonly)
-                        and not self._root.connection.listNodes(
-                            node_raw[:-1] + "*",  # TODO remove once listNodes is fixed
-                            recursive=recursive,
-                            leavesonly=leavesonly,
-                            settingsonly=settingsonly,
-                            streamingonly=streamingonly,
-                            subscribedonly=subscribedonly,
-                            basechannelonly=basechannelonly,
-                            excludestreaming=excludestreaming,
-                            excludevectors=excludevectors,
-                        )
-                    )
-                ):
-                    yield node
+        raw_result = self._root.connection.listNodes(
+            raw_path,
+            recursive=recursive,
+            leavesonly=leavesonly,
+            settingsonly=settingsonly,
+            streamingonly=streamingonly,
+            subscribedonly=subscribedonly,
+            basechannelonly=basechannelonly,
+            excludestreaming=excludestreaming,
+            excludevectors=excludevectors,
+        )
+        for node_raw in raw_result:
+            yield self._root.raw_path_to_node(node_raw)
 
     @lru_cache()
     def is_valid(self) -> bool:

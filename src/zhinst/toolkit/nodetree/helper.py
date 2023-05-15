@@ -3,6 +3,7 @@ import typing as t
 from contextlib import contextmanager
 from functools import lru_cache
 from collections.abc import Mapping
+import re
 
 # TypedDict is available in the typing module since 3.8
 # Ift we only support 3.8 we should switch to t.TypedDict
@@ -71,6 +72,20 @@ def create_or_append_set_transaction(nodetree) -> t.Generator[None, None, None]:
             yield
     else:
         yield
+
+
+def resolve_wildcards_labone(path: str, nodes: t.List[str]) -> t.List[str]:
+    """Resolves potential wildcards.
+
+    Also will resolve partial nodes to its leaf nodes.
+
+    Returns:
+        List of matched nodes in the raw path format
+    """
+    node_raw = re.escape(path)
+    node_raw = node_raw.replace("/\\*/", "/[^/]*/").replace("/\\*", "/*") + "(/.*)?$"
+    node_raw_regex = re.compile(node_raw)
+    return list(filter(node_raw_regex.match, nodes))
 
 
 class NodeDict(Mapping):
