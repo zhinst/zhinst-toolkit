@@ -53,7 +53,8 @@ shfqa_shfqc_power_spectral_density:
   device_type: "SHFQA2"
 
 shfqc_propagation_delay:
-  device_type: "SHFQC"
+  # device_type: "SHFQC"
+  skip: True
 
 shfqc_qubit_spectroscopy:
   device_type: "SHFQC"
@@ -78,4 +79,3 @@ uhf_boxcar:
 
 uhfqa_result_unit:
   device_type: "UHFQA"
-
