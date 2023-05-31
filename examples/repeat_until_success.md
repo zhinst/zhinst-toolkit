@@ -58,7 +58,7 @@ pqsc = session.connect_device(pqsc_serial)
 ## Basic initial setup
 
 
-### Cocks and communications
+### Clocks and communications
 Configure clock resources such that the PQSC receives the reference clock by an external source, and then distributes it to the other devices via ZSync connections.
 
 ```python vscode={"languageId": "python"}
