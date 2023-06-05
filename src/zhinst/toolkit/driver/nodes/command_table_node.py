@@ -2,7 +2,6 @@
 import json
 import string
 import typing as t
-from functools import lru_cache
 from pathlib import Path
 
 from zhinst.toolkit.command_table import CommandTable
@@ -38,6 +37,7 @@ class CommandTableNode(Node):
     ) -> None:
         Node.__init__(self, root, tree)
         self._device_type = device_type
+        self._schema: t.Optional[t.Dict[str, t.Any]] = None
 
     def check_status(self) -> bool:
         """Check status of the command table.
@@ -56,19 +56,20 @@ class CommandTableNode(Node):
             )
         return ct_status == 1
 
-    @lru_cache()
     def load_validation_schema(self) -> t.Dict[str, t.Any]:
         """Load device command table validation schema.
 
         Returns:
             JSON validation schema for the device command tables.
         """
-        try:
-            return json.loads(self.schema())
-        except KeyError:
-            device_type_striped = self._device_type.lower().rstrip(string.digits)
-            with open(_CT_FILES[device_type_striped], encoding="utf-8") as file_:
-                return json.load(file_)
+        if self._schema is None:
+            try:
+                self._schema = json.loads(self.schema())
+            except KeyError:
+                device_type_striped = self._device_type.lower().rstrip(string.digits)
+                with open(_CT_FILES[device_type_striped], encoding="utf-8") as file_:
+                    self._schema = json.load(file_)
+        return self._schema  # type: ignore
 
     def upload_to_device(
         self,

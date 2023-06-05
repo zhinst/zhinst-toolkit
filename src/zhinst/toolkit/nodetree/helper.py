@@ -1,9 +1,9 @@
 """Helper functions used in toolkit."""
 import typing as t
 from contextlib import contextmanager
-from functools import lru_cache
 from collections.abc import Mapping
 import re
+from _thread import RLock  # type: ignore
 
 # TypedDict is available in the typing module since 3.8
 # Ift we only support 3.8 we should switch to t.TypedDict
@@ -27,22 +27,67 @@ _NodeInfo = TypedDict(
 )
 NodeDoc = t.Dict[str, _NodeInfo]
 
+_NOT_FOUND = object()
 
-def lazy_property(property_function: t.Callable[..., T]) -> property:
-    """Alternative for functools.lazy_property.
 
-    functools.lazy_property is only available since python 3.8.
-    Should be replaced with functools.lazy_property once no version below
-    python 3.8 is supported.
+# Exact implementation of functools.cached_property from Python 3.8
+# This is needed for Python 3.7 compatibility
+# It should be removed once we drop support for Python 3.7
+class lazy_property:
+    """Copied functools.cached_property from Python 3.8.
 
-    Args:
-        property_function (Callable): property function
-
-    Returns
-        Return value of the property function
-
+    Decorator that converts a method with a single self argument into a
+    property cached on the instance.
     """
-    return property(lru_cache()(property_function))
+
+    def __init__(self, func):
+        self.func = func
+        self.attrname = None
+        self.__doc__ = func.__doc__
+        self.lock = RLock()
+
+    def __set_name__(self, owner, name):
+        if self.attrname is None:
+            self.attrname = name
+        elif name != self.attrname:
+            raise TypeError(
+                "Cannot assign the same cached_property to two different names "
+                f"({self.attrname!r} and {name!r})."
+            )
+
+    def __get__(self, instance, owner=None):
+        if instance is None:
+            return self
+        if self.attrname is None:
+            raise TypeError(
+                "Cannot use cached_property instance without "
+                "calling __set_name__ on it."
+            )
+        try:
+            cache = instance.__dict__
+        except AttributeError:  # not all objects have __dict__
+            msg = (
+                f"No '__dict__' attribute on {type(instance).__name__!r} "
+                f"instance to cache {self.attrname!r} property."
+            )
+            raise TypeError(msg) from None
+        val = cache.get(self.attrname, _NOT_FOUND)
+        if val is _NOT_FOUND:
+            with self.lock:
+                # check if another thread filled cache while we awaited lock
+                val = cache.get(self.attrname, _NOT_FOUND)
+                if val is _NOT_FOUND:
+                    val = self.func(instance)
+                    try:
+                        cache[self.attrname] = val
+                    except TypeError:
+                        msg = (
+                            f"The '__dict__' attribute on {type(instance).__name__!r} "
+                            "instance does not support item assignment for caching "
+                            f"{self.attrname!r} property."
+                        )
+                        raise TypeError(msg) from None
+        return val
 
 
 @contextmanager
