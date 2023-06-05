@@ -9,7 +9,6 @@ import logging
 import re
 import typing as t
 import warnings
-from functools import lru_cache
 from pathlib import Path
 
 from zhinst.utils._version import version as utils_version_str
@@ -65,6 +64,8 @@ class BaseInstrument(Node):
             preloaded_json = self._load_preloaded_json(
                 Path(__file__).parent / "../../resources/nodedoc_hf2.json"
             )
+
+        self._streaming_nodes: t.Optional[t.List[Node]] = None
 
         nodetree = NodeTree(
             self._session.daq_server,
@@ -261,18 +262,18 @@ class BaseInstrument(Node):
         )
         self._check_firmware_update_status()
 
-    @lru_cache()
     def get_streamingnodes(self) -> t.List[Node]:
         """Create a list with all streaming nodes available.
 
         Returns:
             Available streaming node.
         """
-        streaming_nodes = []
-        for node, info in self:
-            if "Stream" in info.get("Properties"):
-                streaming_nodes.append(node)
-        return streaming_nodes
+        if self._streaming_nodes is None:
+            self._streaming_nodes = []
+            for node, info in self:
+                if "Stream" in info.get("Properties"):
+                    self._streaming_nodes.append(node)
+        return self._streaming_nodes
 
     def _load_preloaded_json(self, filename: Path) -> t.Optional[dict]:
         """Load a preloaded json and match the existing nodes.

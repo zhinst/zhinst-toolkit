@@ -9,7 +9,6 @@ import typing as t
 from collections import namedtuple
 from collections.abc import Sequence
 from enum import IntEnum
-from functools import lru_cache
 
 from zhinst.toolkit.nodetree.helper import (
     NodeDict,
@@ -114,7 +113,7 @@ class NodeInfo:
             self._is_wildcard = True
         else:
             try:
-                self._info = next(iter(node.root.get_node_info(node).values()))
+                self._info = next(iter(node.root.get_node_info_raw(node).values()))
                 self._info["Node"] = self._info.get(
                     "Node", node.root.node_to_raw_path(node)
                 ).lower()
@@ -439,6 +438,7 @@ class Node:
     def __init__(self, root: "NodeTree", tree: tuple):
         self._root = root
         self._tree = tree
+        self._is_valid: t.Optional[bool] = None
 
     def __getattr__(self, name) -> "Node":
         return Node(self._root, self._tree + (name,))
@@ -1058,7 +1058,6 @@ class Node:
         for node_raw in raw_result:
             yield self._root.raw_path_to_node(node_raw)
 
-    @lru_cache()
     def is_valid(self) -> bool:
         """Check if the node is a valid node.
 
@@ -1069,13 +1068,15 @@ class Node:
         Returns:
             Flag if the node is a valid node
         """
-        keys = self._resolve_wildcards()
-        return len(keys) > 0
+        if self._is_valid is None:
+            keys = self._resolve_wildcards()
+            self._is_valid = len(keys) > 0
+        return self._is_valid
 
-    @lazy_property
+    @property
     def node_info(self) -> NodeInfo:
         """Additional information about the node."""
-        return NodeInfo(self)
+        return self.root.get_node_info(self)
 
     @property
     def raw_tree(self) -> t.Tuple[str, ...]:

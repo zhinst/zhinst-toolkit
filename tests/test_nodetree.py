@@ -6,6 +6,7 @@ from types import GeneratorType
 from unittest.mock import MagicMock, Mock
 from copy import deepcopy
 import pickle
+import gc
 
 import pytest
 from numpy import array as nparray
@@ -563,37 +564,39 @@ def test_transactional_set(connection):
                 pass
 
 
-def test_get_node_info(connection):
+def test_get_node_info_raw(connection):
     tree = NodeTree(connection, "DEV1234")
     # raw get
-    assert tree.get_node_info("demods/0/rate") == tree.get_node_info(
+    assert tree.get_node_info_raw("demods/0/rate") == tree.get_node_info_raw(
         tree.demods[0].rate
     )
-    assert tree.get_node_info("/dev1234/demods/0/rate") == tree.get_node_info(
+    assert tree.get_node_info_raw("/dev1234/demods/0/rate") == tree.get_node_info_raw(
         tree.demods[0].rate
     )
     with pytest.raises(KeyError) as e_info:
-        tree.get_node_info("zi/config/open")
-    assert tree.get_node_info("/zi/config/open") == tree.get_node_info(
+        tree.get_node_info_raw("zi/config/open")
+    assert tree.get_node_info_raw("/zi/config/open") == tree.get_node_info_raw(
         tree.zi.config.open
     )
     with pytest.raises(KeyError) as e_info:
-        tree.get_node_info("/demods/0/rate")
+        tree.get_node_info_raw("/demods/0/rate")
     assert e_info.value.args[0] == "/demods/0/rate"
     with pytest.raises(KeyError):
-        tree.get_node_info("dev1234/demods/0/rate")
+        tree.get_node_info_raw("dev1234/demods/0/rate")
     with pytest.raises(KeyError) as e_info:
-        tree.get_node_info("no/real/element")
+        tree.get_node_info_raw("no/real/element")
     assert e_info.value.args[0] == "/dev1234/no/real/element"
 
     # raw get wildcards
-    assert tree.get_node_info("demods/*/rate") == tree.get_node_info("demods/?/rate")
-    assert len(tree.get_node_info("demods/0/*")) > 1
+    assert tree.get_node_info_raw("demods/*/rate") == tree.get_node_info_raw(
+        "demods/?/rate"
+    )
+    assert len(tree.get_node_info_raw("demods/0/*")) > 1
     with pytest.raises(KeyError) as e_info:
-        tree.get_node_info("demods/0/real/*")
+        tree.get_node_info_raw("demods/0/real/*")
     assert e_info.value.args[0] == "/dev1234/demods/0/real/*"
     with pytest.raises(KeyError) as e_info:
-        tree.get_node_info("demod/0/*")
+        tree.get_node_info_raw("demod/0/*")
     assert e_info.value.args[0] == "/dev1234/demod/0/*"
 
 
@@ -604,12 +607,14 @@ def test_update_node(connection):
     assert tree.demods[0].rate.node_info.unit == "test"
     tree.update_node("demods/0/rate", {"Test": "test"})
     assert (
-        next(iter(tree.get_node_info("demods/0/rate").values())).get("Test", None)
+        next(iter(tree.get_node_info_raw("demods/0/rate").values())).get("Test", None)
         == "test"
     )
     tree.update_node("demods/0/rate", {"Unit": "test2", "Test2": True})
     assert tree.demods[0].rate.node_info.unit == "test2"
-    assert next(iter(tree.get_node_info("demods/0/rate").values())).get("Test2", None)
+    assert next(iter(tree.get_node_info_raw("demods/0/rate").values())).get(
+        "Test2", None
+    )
 
     # new Node
     with pytest.raises(KeyError) as e_info:
@@ -618,7 +623,7 @@ def test_update_node(connection):
 
     assert str(tree.test) == "/dev1234/test"
     tree.update_node("/test", {"Node": "test"}, add=True)
-    tree.get_node_info(tree.test)
+    tree.get_node_info_raw(tree.test)
     assert tree.test.node_info["Node"] == "test"
 
     assert str(tree.demods[0].test) == "/dev1234/demods/0/test"
@@ -889,6 +894,21 @@ def test_hash_node(connection):
     assert test_dict[tree.demods[0].trigger] == 1
 
 
+def test_hash_node_info(connection):
+    tree = NodeTree(connection, "DEV1234")
+
+    test_dict = {tree.demods[0].rate.node_info: 0, tree.demods[0].trigger.node_info: 1}
+
+    assert test_dict[tree.demods[0].rate.node_info] == 0
+    assert test_dict[tree.demods[0].trigger.node_info] == 1
+
+
+def test_eq_node_info(connection):
+    tree = NodeTree(connection, "DEV1234")
+
+    assert tree.demods[0].rate.node_info == tree["demods/0"].rate.node_info
+
+
 def test_connection_dict(data_dir):
     data = {"/car/seat": 4, "/car/color": "blue", "/street/length": 110.4}
     json_path = data_dir / "nodedoc_fake.json"
@@ -1075,6 +1095,43 @@ def test_resolve_wildcards_labone_wildcard_end_ok():
 def test_resolve_wildcards_labone_wildcard_end_fail():
     paths = ["test/hello/world", "test/hello/there", "test/hi/there"]
     assert resolve_wildcards_labone("new/hello/*", paths) == []
+
+
+def test_garbage_collection_of_session(connection):
+
+    gc.collect()
+
+    def tester():
+        tree = NodeTree(connection, "DEV1234")
+        assert tree.demods[0].freq.is_valid()
+
+    tester()
+    gc.collect()
+    for obj in gc.get_objects():
+        assert not isinstance(obj, NodeTree)
+
+
+def test_garbage_collection_of_session_node_info(connection):
+
+    gc.collect()
+
+    def tester():
+        tree = NodeTree(connection, "DEV1234")
+        assert not tree.demods[0].freq.node_info.is_setting
+
+    tester()
+    gc.collect()
+    for obj in gc.get_objects():
+        assert not isinstance(obj, NodeTree)
+
+
+def test_node_info_caching(connection):
+    tree = NodeTree(connection, "DEV1234")
+    assert tree._node_infos == {}
+
+    assert not tree.demods[0].freq.node_info.is_setting
+
+    assert tree.demods[0].freq in tree._node_infos
 
 
 class TestWildCardResult:

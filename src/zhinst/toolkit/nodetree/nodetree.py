@@ -11,7 +11,7 @@ from typing_extensions import Protocol
 from contextlib import contextmanager
 
 from zhinst.toolkit.nodetree.helper import NodeDoc, _NodeInfo
-from zhinst.toolkit.nodetree.node import Node
+from zhinst.toolkit.nodetree.node import Node, NodeInfo
 from zhinst.toolkit.exceptions import ToolkitError
 
 
@@ -202,6 +202,7 @@ class NodeTree:
         # prefixes to keep
         self._first_layer: t.List[str] = []
         self._prefixes_keep: t.List[str] = []
+        self._node_infos: t.Dict[Node, NodeInfo] = {}
         self._generate_first_layer()
 
     def __getattr__(self, name):
@@ -253,7 +254,34 @@ class NodeTree:
                     self._prefixes_keep.append(node_split[1])
         self._first_layer.extend(self._prefixes_keep)
 
-    def get_node_info(
+    def get_node_info(self, node: Node):
+        """Get the node information for a node.
+
+        The nodetree caches the node information for each node.
+        This enables lazy created nodes to access its information
+        fast without additional cost.
+
+        Please note that this function returns a valid object for all
+        node objects. Even if the node does not exist on the device.
+
+        The cache (dict) lifetime is bound to the nodetree object and
+        each session/nodetree instance must have its own cache.
+
+        Args:
+            node: Node object
+
+        Returns:
+            Node information
+
+        .. versionadded:: 0.6.0
+        """
+        try:
+            return self._node_infos[node]
+        except KeyError:
+            self._node_infos[node] = NodeInfo(node)
+            return self._node_infos[node]
+
+    def get_node_info_raw(
         self, node: t.Union[Node, str]
     ) -> t.Dict[Node, t.Optional[t.Dict]]:
         """Get the information/data for a node.
@@ -323,7 +351,7 @@ class NodeTree:
         else:
             for single_key in keys:
                 self._flat_dict[single_key].update(updates)
-        Node.node_info.fget.cache_clear()
+        self._node_infos = {}
 
     def update_nodes(
         self,

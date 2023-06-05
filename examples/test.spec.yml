@@ -59,9 +59,6 @@ shfqc_propagation_delay:
 shfqc_qubit_spectroscopy:
   device_type: "SHFQC"
 
-shfqc_resonator_spectroscopy_cw_power:
-  device_type: "SHFQC"
-
 shfqc_resonator_spectroscopy_cw:
   device_type: "SHFQC"
 

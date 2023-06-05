@@ -4,6 +4,10 @@
 * Revert full support of `fnmatch` wildcards and instead use the LabOne wildcard support.
   This means only `*` symbols are supported. A `*` in the middle of the path matches
   everything instead of a `/`. A `*` at the end of the path matches everything.
+* Fix problem of garbage collection daq sessions. The problem was caused due to using
+  lru caches for instance methods. The usage of lru cache has now been bypassed or 
+  replaced with the `functools.cached_property` decorator (which is currently copied
+  to ensure support for python 3.7).
 * `device.factory_reset` now raises an exception if the factory reset was not successful (`#243`).
 * Fixed issue where calling a `Node` with `dir()` returned duplicate values on some nodes.
 
