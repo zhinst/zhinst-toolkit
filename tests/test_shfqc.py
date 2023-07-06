@@ -11,12 +11,6 @@ def test_repr(shfqc):
     assert repr(shfqc) == "SHFQC(SHFQC,DEV1234)"
 
 
-def test_factory_reset(shfqc):
-    # factory reset not yet implemented
-    with pytest.warns(RuntimeWarning) as record:
-        shfqc.factory_reset()
-
-
 def test_start_continuous_sw_trigger(mock_connection, shfqc):
     with patch("zhinst.toolkit.driver.devices.shfqa.utils", autospec=True) as utils:
         shfqc.start_continuous_sw_trigger(num_triggers=10, wait_time=20.0)

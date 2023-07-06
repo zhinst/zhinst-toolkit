@@ -2,7 +2,6 @@
 
 import logging
 import typing as t
-import warnings
 
 import zhinst.utils.shfqa as utils
 
@@ -231,17 +230,6 @@ class QAChannel(Node):
 
 class SHFQA(BaseInstrument):
     """High-level driver for the Zurich Instruments SHFQA."""
-
-    def factory_reset(self, *, deep: bool = True) -> None:
-        """Load the factory default settings.
-
-        Args:
-            deep: A flag that specifies if a synchronization
-                should be performed between the device and the data
-                server after loading the factory preset (default: True).
-        """
-        warnings.warn("Factory preset is not yet supported for SHFQA.", RuntimeWarning)
-        logger.warning("Factory preset is not yet supported in SHFQA.")
 
     def start_continuous_sw_trigger(
         self, *, num_triggers: int, wait_time: float
