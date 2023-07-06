@@ -10,6 +10,7 @@
   to ensure support for python 3.7).
 * `device.factory_reset` now raises an exception if the factory reset was not successful (`#243`).
 * Fixed issue where calling a `Node` with `dir()` returned duplicate values on some nodes.
+* Factory preset is now available for SHFSG, SHFQA, SHFQA devices (`#249`).
 
 ## Version 0.5.3
 * Add internal trigger to SHFQA sweeper class.

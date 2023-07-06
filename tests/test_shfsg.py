@@ -10,12 +10,6 @@ def test_repr(shfsg):
     assert repr(shfsg) == "SHFSG(SHFSG8,DEV1234)"
 
 
-def test_factory_reset(shfsg):
-    # factory reset not yet implemented
-    with pytest.warns(RuntimeWarning) as record:
-        shfsg.factory_reset()
-
-
 def test_sgchannels(shfsg, mock_connection):
     assert len(shfsg.sgchannels) == 8
     assert isinstance(shfsg.sgchannels[0], SGChannel)

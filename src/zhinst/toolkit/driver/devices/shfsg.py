@@ -2,7 +2,6 @@
 
 import logging
 import typing as t
-import warnings
 
 import zhinst.utils.shfsg as utils
 
@@ -235,17 +234,6 @@ class SGChannel(Node):
 
 class SHFSG(BaseInstrument):
     """High-level driver for the Zurich Instruments SHFSG."""
-
-    def factory_reset(self, *, deep: bool = True) -> None:
-        """Load the factory default settings.
-
-        Args:
-            deep: A flag that specifies if a synchronization
-                should be performed between the device and the data
-                server after loading the factory preset (default: True).
-        """
-        warnings.warn("Factory preset is not yet supported for SHFSG.", RuntimeWarning)
-        logger.warning("Factory preset is not yet supported in SHFSG.")
 
     @lazy_property
     def sgchannels(self) -> t.Sequence[SGChannel]:
