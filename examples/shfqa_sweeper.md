@@ -132,7 +132,7 @@ flat_top_gaussian[0:rise_fall_len] = gauss[0:rise_fall_len]
 flat_top_gaussian[-rise_fall_len:] = gauss[-rise_fall_len:]
 ```
 
-#### Plot Envelope
+### Plot Envelope
 
 ```python
 import matplotlib.pyplot as plt
