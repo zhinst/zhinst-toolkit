@@ -150,20 +150,21 @@ class PQSC(BaseInstrument):
 
     def check_zsync_connection(
         self,
-        ports: Union[List[int], int] = 0,
+        ports: Union[List[int], int, List[BaseInstrument], BaseInstrument],
         *,
         timeout: float = 10.0,
         sleep_time: float = 0.1,
     ) -> Union[List[bool], bool]:
-        """Check if the ZSync connection on the given port(s) is established.
+        """Check if a ZSync connection is established.
 
-        This function checks the current status of the instrument connected to
-        the given ports.
+        Checks the current status of the instrument connected to the given ports.
+        If a instrument(s) is given instead of a port number, first finds the correct
+        port number(s).
 
         Args:
             ports: The port numbers to check the ZSync connection for.
-                It can either be a single port number given as integer or a list
-                of several port numbers. (default: 0)
+                It can either be a single port number given as integer, a list
+                of several port numbers an instrument or a list of instruments.
             timeout: Maximum time in seconds the program waits (default: 10.0).
             sleep_time: Time in seconds to wait between requesting the reference
                 clock status (default: 0.1)
@@ -179,6 +180,15 @@ class PQSC(BaseInstrument):
         # Check the status of all ports
         status = []
         for port in ports_list:
+            # Convert the instrument into a port, if needed
+            if isinstance(port, BaseInstrument):
+                port = self.find_zsync_worker_port(
+                    port,
+                    timeout=max(0, timeout - (time.time() - start_time)),
+                    sleep_time=sleep_time,
+                )
+
+            # Check or wait until the connection is ready
             status.append(
                 self._check_zsync_connection(
                     port,
@@ -216,15 +226,22 @@ class PQSC(BaseInstrument):
             ) from error
         return status_node() == 2
 
-    def find_zsync_worker_port(self, device: BaseInstrument) -> int:
+    def find_zsync_worker_port(
+        self,
+        device: BaseInstrument,
+        timeout: float = 10,
+        sleep_time: float = 0.1,
+    ) -> int:
         """Find the ID of the PQSC ZSync port connected to a given device.
 
         Args:
-            pqsc: PQSC device over whose ports the research shall be done.
             device: device for which the connected ZSync port shall be found.
+            timeout: Maximum time in seconds the program waits (default: 10).
+            sleep_time: Time in seconds to wait between requesting the reference
+                clock status (default: 0.1)
 
         Returns:
-            Integer value represent the ID of the searched PQSC ZSync port.
+            Index of the searched PQSC ZSync port.
 
         Raises:
             ToolkitError: If the given device doesn't appear to be connected
@@ -233,19 +250,28 @@ class PQSC(BaseInstrument):
         .. versionadded:: 0.5.1
         """
         device_serial = device.serial[3:]
-        node_to_serial_dict = self.zsyncs["*"].connection.serial()
-        serial_to_node_dict = {
-            serial: node for node, serial in node_to_serial_dict.items()
-        }
-        # Get the node of the ZSync connected to the device
-        # (will have the form "/devXXXX/zsyncs/N/connection/serial")
-        try:
-            device_zsync_node = serial_to_node_dict[device_serial]
-        except KeyError:
+
+        start = time.time()
+        while time.time() - start < timeout:
+            node_to_serial_dict = self.zsyncs["*"].connection.serial()
+
+            if device_serial in node_to_serial_dict.values():
+                break
+
+            time.sleep(sleep_time)
+        else:
             raise ToolkitError(
                 "No ZSync connection found between the PQSC "
                 f"{self.serial} and the device {device.serial}."
             )
+
+        # Get the node of the ZSync connected to the device
+        # (will have the form "/devXXXX/zsyncs/N/connection/serial")
+        serial_to_node_dict = {
+            serial: node for node, serial in node_to_serial_dict.items()
+        }
+        device_zsync_node = serial_to_node_dict[device_serial]
+
         # Just interested in knowing N: split in
         # ['', 'devXXXX', 'zsyncs', 'N', 'connection', 'serial']
         # and take fourth value

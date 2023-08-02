@@ -179,7 +179,7 @@ def test_check_zsync_connection(mock_connection, pqsc):
 
     # not connected
     with pytest.raises(TimeoutError):
-        pqsc.check_zsync_connection(timeout=0, sleep_time=0.001)
+        pqsc.check_zsync_connection(0, timeout=0, sleep_time=0.001)
     with pytest.raises(TimeoutError):
         pqsc.check_zsync_connection(2, timeout=0, sleep_time=0.001)
     with pytest.raises(TimeoutError):
@@ -189,7 +189,7 @@ def test_check_zsync_connection(mock_connection, pqsc):
 
     # one connected
     status0 = 2
-    assert True == pqsc.check_zsync_connection()
+    assert True == pqsc.check_zsync_connection(0)
     with pytest.raises(TimeoutError):
         pqsc.check_zsync_connection(2, timeout=0, sleep_time=0.001)
     assert [True] == pqsc.check_zsync_connection([0])
@@ -199,7 +199,7 @@ def test_check_zsync_connection(mock_connection, pqsc):
     # one connected the other one in error state
     status0 = 2
     status2 = 3
-    assert True == pqsc.check_zsync_connection(sleep_time=0.001)
+    assert True == pqsc.check_zsync_connection(0, sleep_time=0.001)
     assert False == pqsc.check_zsync_connection(2, sleep_time=0.001)
     assert [True] == pqsc.check_zsync_connection([0], sleep_time=0.001)
     assert [True, False] == pqsc.check_zsync_connection([0, 2], sleep_time=0.001)
@@ -207,7 +207,7 @@ def test_check_zsync_connection(mock_connection, pqsc):
     # one connected the other one times out
     status0 = 2
     status2 = 1
-    assert True == pqsc.check_zsync_connection(sleep_time=0.001)
+    assert True == pqsc.check_zsync_connection(0, sleep_time=0.001)
     with pytest.raises(TimeoutError) as e_info:
         pqsc.check_zsync_connection(2, timeout=0.01)
     assert [True] == pqsc.check_zsync_connection([0], sleep_time=0.001)
