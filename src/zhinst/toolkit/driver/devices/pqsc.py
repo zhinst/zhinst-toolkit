@@ -175,6 +175,8 @@ class PQSC(BaseInstrument):
         ports_list = ports if isinstance(ports, list) else [ports]
 
         start_time = time.time()
+
+        # Check the status of all ports
         status = []
         for port in ports_list:
             status.append(
@@ -204,17 +206,9 @@ class PQSC(BaseInstrument):
                 specified port exceeds the specified timeout.
         """
         status_node = self.zsyncs[port].connection.status
-        start_time = time.time()
         try:
-            status_node.wait_for_state_change(
-                0, invert=True, timeout=timeout, sleep_time=sleep_time
-            )
-            status_node.wait_for_state_change(
-                1,
-                invert=True,
-                timeout=max(0, timeout - (time.time() - start_time)),
-                sleep_time=sleep_time,
-            )
+            # Waits until the status node is "connected" (2)
+            status_node.wait_for_state_change(2, timeout=timeout, sleep_time=sleep_time)
         except TimeoutError as error:
             raise TimeoutError(
                 "Timeout while establishing ZSync connection to the instrument "
@@ -230,7 +224,7 @@ class PQSC(BaseInstrument):
             device: device for which the connected ZSync port shall be found.
 
         Returns:
-            Integer value represent the ID of the searched PQSC Zsync port.
+            Integer value represent the ID of the searched PQSC ZSync port.
 
         Raises:
             ToolkitError: If the given device doesn't appear to be connected
