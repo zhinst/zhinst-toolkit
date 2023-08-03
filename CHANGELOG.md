@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 0.6.1
+* Deep gets on nodes with keywords returns an enum like the regular get.
+
 ## Version 0.6.0
 * Revert full support of `fnmatch` wildcards and instead use the LabOne wildcard support.
   This means only `*` symbols are supported. A `*` in the middle of the path matches
