@@ -946,21 +946,31 @@ class Node:
         else:
             value = self._parse_get_value(value)
             start_time = time.time()
-            while (
-                start_time + timeout >= time.time() and (self._get() == value) == invert
-            ):
+
+            # Performs a deep get to avoid waiting on stale values from cache
+            # In the loop we can use a shallow get
+            # Since deep get
+            curr_value = self._get(deep=True)[1]
+
+            while start_time + timeout >= time.time():
+                # Verify if we get to the correct value.
+                # If yes, exit the function.
+                if (curr_value == value) is not invert:
+                    return
+
                 time.sleep(sleep_time)
-            curr_value = self._get()
-            if (curr_value == value) is invert:
-                if invert:
-                    raise TimeoutError(
-                        f"{self.node_info.path} did not change from the expected"
-                        f" value {value} within {timeout}s."
-                    )
+                curr_value = self._get(deep=False)
+
+            # In case of timeout, raise the correct error
+            if invert:
                 raise TimeoutError(
-                    f"{self.node_info.path} did not change to the expected value"
-                    f" within {timeout}s. {value} != {curr_value}"
+                    f"{self.node_info.path} did not change from the expected"
+                    f" value {value} within {timeout}s."
                 )
+            raise TimeoutError(
+                f"{self.node_info.path} did not change to the expected value"
+                f" within {timeout}s. {value} != {curr_value}"
+            )
 
     def subscribe(self) -> None:
         """Subscribe to this node (its child lead nodes).

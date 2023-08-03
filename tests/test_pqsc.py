@@ -93,12 +93,18 @@ def test_run_stop(mock_connection, pqsc):
 
 
 def test_wait_done(mock_connection, pqsc):
-    mock_connection.return_value.getInt.side_effect = [1, 1, 1, 0, 0, 0, 0, 0]
+    sequence = iter([1] * 3 + [0] * 5)
+    mock_connection.return_value.getInt.side_effect = lambda node: next(sequence)
+    mock_connection.return_value.get.side_effect = lambda node, **kwargs: {
+        node: {"timestamp": [0], "value": [next(sequence)]}
+    }
     pqsc.wait_done(sleep_time=0.001)
     mock_connection.return_value.getInt.assert_called_with("/dev1234/execution/enable")
 
-    mock_connection.return_value.getInt.side_effect = None
-    mock_connection.return_value.getInt.return_value = 1
+    mock_connection.return_value.getInt.side_effect = lambda node: 1
+    mock_connection.return_value.get.side_effect = lambda node, **kwargs: {
+        node: {"timestamp": [0], "value": [1]}
+    }
     with pytest.raises(TimeoutError) as e_info:
         pqsc.wait_done(timeout=0.01)
     mock_connection.return_value.getInt.assert_called_with("/dev1234/execution/enable")
@@ -110,7 +116,7 @@ def test_ref_clock(mock_connection, pqsc):
     source = 0
     source_actual = 0
 
-    def get_side_effect(path):
+    def getInt_side_effect(path):
         if path == "/dev1234/system/clocks/referenceclock/in/status":
             return next(status)
         if path == "/dev1234/system/clocks/referenceclock/in/source":
@@ -119,7 +125,12 @@ def test_ref_clock(mock_connection, pqsc):
             return source_actual
         raise RuntimeError("Invalid Node")
 
-    mock_connection.return_value.getInt.side_effect = get_side_effect
+    def get_side_effect(path, **kwargs):
+        value = getInt_side_effect(path)
+        return {path: {"timestamp": [0], "value": [value]}}
+
+    mock_connection.return_value.getInt.side_effect = getInt_side_effect
+    mock_connection.return_value.get.side_effect = get_side_effect
 
     assert pqsc.check_ref_clock(sleep_time=0.001)
     # Locked within time
@@ -159,7 +170,12 @@ def test_check_zsync_connection(mock_connection, pqsc):
             return status10
         raise RuntimeError("Invalid Node")
 
+    def get_side_effect(path, **kwargs):
+        value = getInt_side_effect(path)
+        return {path: {"timestamp": [0], "value": [value]}}
+
     mock_connection.return_value.getInt.side_effect = getInt_side_effect
+    mock_connection.return_value.get.side_effect = get_side_effect
 
     # not connected
     with pytest.raises(TimeoutError):

@@ -23,6 +23,10 @@ def test_repr(device_settings_module):
 
 def test_load_from_file(device_settings_module):
     device_settings_module.raw_module.getInt.return_value = 1
+    device_settings_module.raw_module.get.return_value = {
+        "/finished": {"timestamp": [0], "value": [1]}
+    }
+
     device_settings_module.load_from_file(Path("/path/to/file.json"), "dev1234")
     device_settings_module.raw_module.set.assert_any_call("/device", "dev1234")
     device_settings_module.raw_module.set.assert_any_call("/filename", "file")
@@ -33,6 +37,10 @@ def test_load_from_file(device_settings_module):
 
 def test_load_from_file_timeout(device_settings_module):
     device_settings_module.raw_module.getInt.return_value = 0
+    device_settings_module.raw_module.get.return_value = {
+        "/finished": {"timestamp": [0], "value": [0]}
+    }
+
     with pytest.raises(TimeoutError):
         device_settings_module.load_from_file(
             Path("/path/to/file.json"), "dev1234", timeout=0.01
@@ -41,6 +49,10 @@ def test_load_from_file_timeout(device_settings_module):
 
 def test_save_to_file(device_settings_module):
     device_settings_module.raw_module.getInt.return_value = 1
+    device_settings_module.raw_module.get.return_value = {
+        "/finished": {"timestamp": [0], "value": [1]}
+    }
+
     device_settings_module.save_to_file(Path("/path/to/file.json"), "dev1234")
     device_settings_module.raw_module.set.assert_any_call("/device", "dev1234")
     device_settings_module.raw_module.set.assert_any_call("/filename", "file")
@@ -51,6 +63,10 @@ def test_save_to_file(device_settings_module):
 
 def test_save_to_file_timeout(device_settings_module):
     device_settings_module.raw_module.getInt.return_value = 0
+    device_settings_module.raw_module.get.return_value = {
+        "/finished": {"timestamp": [0], "value": [0]}
+    }
+
     with pytest.raises(TimeoutError):
         device_settings_module.save_to_file(
             Path("/path/to/file.json"), "dev1234", timeout=0.01

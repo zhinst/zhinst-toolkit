@@ -65,7 +65,12 @@ def test_factory_reset_ok(base_instrument, mock_connection):
 
 
 def test_factory_reset_timeout(base_instrument, mock_connection):
+    dev_id = base_instrument.serial.lower()
     mock_connection.return_value.getInt.return_value = 1
+    mock_connection.return_value.get.return_value = {
+        f"/{dev_id}/system/preset/busy": {"timestamp": [0], "value": [1]}
+    }
+
     with pytest.raises(TimeoutError):
         base_instrument.factory_reset(timeout=0.00001)
 

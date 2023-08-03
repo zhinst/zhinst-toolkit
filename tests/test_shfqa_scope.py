@@ -9,37 +9,57 @@ def scope(shfqa):
 
 
 def test_run(mock_connection, scope):
+    node = "/dev1234/scopes/0/enable"
+
     # already enabled
     mock_connection.return_value.getInt.return_value = 1
+    mock_connection.return_value.get.return_value = {
+        node: {"timestamp": [0], "value": [1]}
+    }
     scope.run()
-    mock_connection.return_value.set.assert_called_with(
-        "/dev1234/scopes/0/enable", True
-    )
+    mock_connection.return_value.set.assert_called_with(node, True)
     # never disabled
     mock_connection.return_value.getInt.return_value = 0
+    mock_connection.return_value.get.return_value = {
+        node: {"timestamp": [0], "value": [0]}
+    }
     with pytest.raises(TimeoutError) as e_info:
         scope.run(timeout=0.5)
 
 
 def test_stop(mock_connection, scope):
+    node = "/dev1234/scopes/0/enable"
+
     # already disabled
     mock_connection.return_value.getInt.return_value = 0
+    mock_connection.return_value.get.return_value = {
+        node: {"timestamp": [0], "value": [0]}
+    }
     scope.stop()
-    mock_connection.return_value.set.assert_called_with(
-        "/dev1234/scopes/0/enable", False
-    )
+    mock_connection.return_value.set.assert_called_with(node, False)
     # never disabled
     mock_connection.return_value.getInt.return_value = 1
+    mock_connection.return_value.get.return_value = {
+        node: {"timestamp": [0], "value": [1]}
+    }
     with pytest.raises(TimeoutError) as e_info:
         scope.stop(timeout=0.5)
 
 
 def test_wait_done(mock_connection, scope):
+    node = "/dev1234/scopes/0/enable"
+
     # already disabled
     mock_connection.return_value.getInt.return_value = 0
+    mock_connection.return_value.get.return_value = {
+        node: {"timestamp": [0], "value": [0]}
+    }
     scope.wait_done()
     # never disabled
     mock_connection.return_value.getInt.return_value = 1
+    mock_connection.return_value.get.return_value = {
+        node: {"timestamp": [0], "value": [1]}
+    }
     with pytest.raises(TimeoutError) as e_info:
         scope.wait_done(timeout=0.5)
 

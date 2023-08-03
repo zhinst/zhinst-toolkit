@@ -7,6 +7,7 @@ from unittest.mock import MagicMock, Mock
 from copy import deepcopy
 import pickle
 import gc
+from itertools import cycle
 
 import pytest
 from numpy import array as nparray
@@ -830,14 +831,23 @@ def test_subscribe(connection):
 def test_wait_for_state_change(connection):
     tree = NodeTree(connection, "DEV1234")
 
-    connection.getInt.side_effect = [1] * 3 + [2] * 2
+    sequence = iter([1] * 3 + [2] * 2)
+    connection.getInt.side_effect = lambda node: next(sequence)
+    connection.get.side_effect = lambda node, **kwargs: {
+        node: {"timestamp": [0], "value": [next(sequence)]}
+    }
     tree.demods[0].trigger.wait_for_state_change(2)
-    connection.getInt.side_effect = None
 
-    connection.getInt.return_value = 2
+    connection.getInt.side_effect = lambda node: 2
+    connection.get.side_effect = lambda node, **kwargs: {
+        node: {"timestamp": [0], "value": [2]}
+    }
     tree.demods[0].trigger.wait_for_state_change(2)
 
-    connection.getInt.return_value = 1
+    connection.getInt.side_effect = lambda node: 1
+    connection.get.side_effect = lambda node, **kwargs: {
+        node: {"timestamp": [0], "value": [1]}
+    }
     with pytest.raises(TimeoutError) as e:
         tree.demods[0].trigger.wait_for_state_change(2, timeout=0.5)
     assert (
@@ -852,7 +862,11 @@ def test_wait_for_state_change(connection):
         "expected value 1 within 0.5s."
     )
 
-    connection.getInt.side_effect = [1] * 3 + [2] * 8
+    sequence = cycle([1] * 3 + [2])
+    connection.getInt.side_effect = lambda node: next(sequence)
+    connection.get.side_effect = lambda node, **kwargs: {
+        node: {"timestamp": [0], "value": [next(sequence)]}
+    }
     tree.demods["*"].trigger.wait_for_state_change(2)
 
     with pytest.raises(KeyError) as e_info:
@@ -860,6 +874,30 @@ def test_wait_for_state_change(connection):
 
     with pytest.raises(KeyError) as e_info:
         tree.hello["*"].test.wait_for_state_change(1)
+
+    # Stale cache
+    sequence = iter([1] * 3 + [0])
+    stale_cache = True
+
+    def get_side_effect(node, **kwargs):
+        nonlocal stale_cache
+        stale_cache = False
+        return {node: {"timestamp": [0], "value": [next(sequence)]}}
+
+    def get_int_side_effect(node, **kwargs):
+        if stale_cache:
+            pytest.fail("wait_for_state_change accessed a stale cache element!")
+        return get_side_effect(node)[node]["value"][0]
+
+    connection.getInt.side_effect = get_int_side_effect
+    connection.get.side_effect = get_side_effect
+
+    tree.demods[0].trigger.wait_for_state_change(0)
+
+    # Verify the correct value has been fetched from the device
+    # and it didn't stop early.
+    with pytest.raises(StopIteration):
+        next(sequence)
 
 
 def test_nodetree_iterator(connection):

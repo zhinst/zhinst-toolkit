@@ -50,24 +50,38 @@ def test_run(mock_connection, spectroscopy, m_utils):
 
 
 def test_stop(mock_connection, spectroscopy):
+    node = "/dev1234/qachannels/0/spectroscopy/result/enable"
+
     # already disabled
     mock_connection.return_value.getInt.return_value = 0
+    mock_connection.return_value.get.return_value = {
+        node: {"timestamp": [0], "value": [0]}
+    }
     spectroscopy.stop()
-    mock_connection.return_value.set.assert_called_with(
-        "/dev1234/qachannels/0/spectroscopy/result/enable", False
-    )
+    mock_connection.return_value.set.assert_called_with(node, False)
     # never disabled
     mock_connection.return_value.getInt.return_value = 1
+    mock_connection.return_value.get.return_value = {
+        node: {"timestamp": [0], "value": [1]}
+    }
     with pytest.raises(TimeoutError) as e_info:
         spectroscopy.stop(timeout=0.5)
 
 
 def test_wait_done(mock_connection, spectroscopy):
+    node = "/dev1234/qachannels/0/spectroscopy/result/enable"
+
     # already disabled
     mock_connection.return_value.getInt.return_value = 0
+    mock_connection.return_value.get.return_value = {
+        node: {"timestamp": [0], "value": [0]}
+    }
     spectroscopy.wait_done()
     # never disabled
     mock_connection.return_value.getInt.return_value = 1
+    mock_connection.return_value.get.return_value = {
+        node: {"timestamp": [0], "value": [1]}
+    }
     with pytest.raises(TimeoutError) as e_info:
         spectroscopy.wait_done(timeout=0.5)
 
