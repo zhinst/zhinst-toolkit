@@ -48,13 +48,17 @@ def test_wait_done(mock_connection, shfsg):
     single = 0
     enable = iter([])
 
-    def get_int_side_effect(node):
-        if node.upper() == "/DEV1234/SGCHANNELS/0/AWG/SINGLE":
-            return single
-        if node.upper() == "/DEV1234/SGCHANNELS/0/AWG/ENABLE":
-            return next(enable)
+    def get_side_effect(node, **kwargs):
+        if node.lower() == "/dev1234/sgchannels/0/awg/single":
+            return {node: {"timestamp": [0], "value": [single]}}
+        if node.lower() == "/dev1234/sgchannels/0/awg/enable":
+            return {node: {"timestamp": [0], "value": [next(enable)]}}
         raise RuntimeError("Node not found")
 
+    def get_int_side_effect(node):
+        return get_side_effect(node)[node]["value"][0]
+
+    mock_connection.return_value.get.side_effect = get_side_effect
     mock_connection.return_value.getInt.side_effect = get_int_side_effect
 
     # if not single mode this function throws a RuntimeError
