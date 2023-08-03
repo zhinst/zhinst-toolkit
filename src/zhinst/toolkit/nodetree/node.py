@@ -9,6 +9,7 @@ import typing as t
 from collections import namedtuple
 from collections.abc import Sequence
 from enum import IntEnum
+import numpy as np
 
 from zhinst.toolkit.nodetree.helper import (
     NodeDict,
@@ -525,6 +526,9 @@ class Node:
 
             .. versionchanged:: 0.5.0 Returns NodeDict instead of WildcardResult
 
+            .. versionchanged:: 0.6.1 Returns an enum on keywords nodes also
+                for deep gets.
+
         Raises:
             AttributeError: If the connection does not support the necessary
                 function to get/set the value.
@@ -579,7 +583,7 @@ class Node:
         Returns:
             Parsed value
         """
-        if enum and isinstance(value, int):
+        if enum and isinstance(value, (int, np.integer)):
             try:
                 value = self.node_info.enum(value) if self.node_info.enum else value
             except ValueError:
