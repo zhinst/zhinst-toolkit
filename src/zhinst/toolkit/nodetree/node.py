@@ -299,10 +299,18 @@ class NodeInfo:
         """Options of the node."""
         option_map = {}
         for key, value in self._info.get("Options", {}).items():
-            node_options = re.findall(r'("(.+?)"[,:]+)? ?(.*)', value)
-            option_map[int(key)] = self._option_info(
-                node_options[0][1], node_options[0][2]
-            )
+            # Find all the keywords. We use only the first one
+            # since it should be unambiguous
+            enum_re = re.findall(r'"(\w+)"', value)
+            enum = enum_re[0] if enum_re else ""
+
+            # The description is either what comes after
+            # the colon and space, or the whole string.
+            # This is the case for nameless options, when the
+            # key is an integer (for example demods/x/order)
+            desc = re.findall(r'(?:.+":\s)?(.+)$', value)[0]
+
+            option_map[int(key)] = self._option_info(enum, desc)
         return option_map
 
     @lazy_property
