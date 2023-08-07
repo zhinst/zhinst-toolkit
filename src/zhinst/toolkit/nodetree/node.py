@@ -316,16 +316,21 @@ class NodeInfo:
     @lazy_property
     def enum(self) -> t.Optional[NodeEnum]:
         """Enum of the node options."""
-        try:
-            options_reversed = {value.enum: key for key, value in self.options.items()}
-            return (
-                NodeEnum(self.path, options_reversed, module=__name__)
-                if options_reversed
-                else None
-            )
-        except ValueError:
+        options_reversed = {}
+        for int_key, value in self._info.get("Options", {}).items():
+            # Find all the keywords associated to a integer key
+            enum_re = re.finditer(r'"(?P<keyword>\w+)"', value)
+            for m in enum_re:
+                keyword = m.group("keyword")
+                options_reversed[keyword] = int_key
+
+        return (
+            NodeEnum(self.path, options_reversed, module=__name__)
+            if options_reversed
             # Nameless options do not have a enum.
-            return None
+            else None
+        )
+
 
 
 class Node:

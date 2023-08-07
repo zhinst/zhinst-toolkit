@@ -700,6 +700,7 @@ def test_nameless_options(connection):
 
     assert tree.demods[0].order.node_info.enum is None
 
+
 def test_multiple_options(connection):
     tree = NodeTree(connection, "DEV1234")
 
@@ -707,6 +708,13 @@ def test_multiple_options(connection):
 
     assert options[0].enum == "sigin0"
     assert options[0].description == "Sig In 1"
+
+    assert tree.demods[0].adcselect.node_info.enum.sigin0 == 0
+    assert tree.demods[0].adcselect.node_info.enum.signal_input0 == 0
+
+    assert tree.demods[0].adcselect.node_info.enum.currin0 == 1
+    assert tree.demods[0].adcselect.node_info.enum.current_input0 == 1
+
 
 def test_parser(connection):
     tree = NodeTree(connection, "DEV1234")
