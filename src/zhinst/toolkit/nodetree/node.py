@@ -332,7 +332,6 @@ class NodeInfo:
         )
 
 
-
 class Node:
     """Lazy node of a ``Nodetree``.
 
@@ -919,7 +918,7 @@ class Node:
 
     def wait_for_state_change(
         self,
-        value: t.Union[int, str],
+        value: t.Union[int, str, NodeEnum],
         *,
         invert: bool = False,
         timeout: float = 2,
@@ -933,6 +932,9 @@ class Node:
 
         Args:
             value: Expected value of the node.
+
+            .. versionchanged:: 0.6.1 Enums or strings are accepted for keywords nodes.
+
             invert: Instead of waiting for the value, the function will wait for
                 any value except the passed value instead. (default = False)
 
@@ -957,7 +959,14 @@ class Node:
                     sleep_time=sleep_time,
                 )
         else:
-            value = self._parse_get_value(value)
+            # If the node is a keyword (has a enum defined) and the value is a string
+            # converts it to the numeric value
+            if self.node_info.enum and isinstance(value, str):
+                enum_value = self.node_info.enum[value]
+                parsed_value = self._parse_get_value(enum_value)
+            else:
+                parsed_value = self._parse_get_value(value)
+
             start_time = time.time()
 
             # Performs a deep get to avoid waiting on stale values from cache
@@ -968,13 +977,19 @@ class Node:
             while start_time + timeout >= time.time():
                 # Verify if we get to the correct value.
                 # If yes, exit the function.
-                if (curr_value == value) is not invert:
+                if (curr_value == parsed_value) is not invert:
                     return
 
                 time.sleep(sleep_time)
                 curr_value = self._get(deep=False)
 
             # In case of timeout, raise the correct error
+
+            # If the user passed a string or enum, uses it for the error report
+            if isinstance(value, (str, NodeEnum)):
+                value = repr(parsed_value.name)
+                curr_value = repr(curr_value.name)
+
             if invert:
                 raise TimeoutError(
                     f"{self.node_info.path} did not change from the expected"
