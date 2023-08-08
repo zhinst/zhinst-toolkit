@@ -853,28 +853,81 @@ def test_wait_for_state_change(connection):
     }
     tree.demods[0].trigger.wait_for_state_change(2)
 
+    sequence = iter([1] * 3 + [2] * 2)
+    value_enum1 = tree.demods[0].trigger.node_info.enum.trigin0_rising
+    value_enum2 = tree.demods[0].trigger.node_info.enum.trigin0_falling
+    tree.demods[0].trigger.wait_for_state_change(value_enum2)
+
+    sequence = iter([1] * 3 + [2] * 2)
+    tree.demods[0].trigger.wait_for_state_change("trigin0_falling")
+    tree.demods[0].trigger.wait_for_state_change("trigger_input0_falling")
+
     connection.getInt.side_effect = lambda node: 2
     connection.get.side_effect = lambda node, **kwargs: {
         node: {"timestamp": [0], "value": [2]}
     }
     tree.demods[0].trigger.wait_for_state_change(2)
+    tree.demods[0].trigger.wait_for_state_change(value_enum2)
+    tree.demods[0].trigger.wait_for_state_change("trigin0_falling")
+    tree.demods[0].trigger.wait_for_state_change("trigger_input0_falling")
 
     connection.getInt.side_effect = lambda node: 1
     connection.get.side_effect = lambda node, **kwargs: {
         node: {"timestamp": [0], "value": [1]}
     }
     with pytest.raises(TimeoutError) as e:
-        tree.demods[0].trigger.wait_for_state_change(2, timeout=0.5)
+        tree.demods[0].trigger.wait_for_state_change(2, timeout=0.1)
     assert (
         str(e.value) == "/dev1234/demods/0/trigger did not change to the "
-        "expected value within 0.5s. 2 != 1"
+        "expected value within 0.1s. 2 != 1"
     )
 
     with pytest.raises(TimeoutError) as e:
-        tree.demods[0].trigger.wait_for_state_change(1, invert=True, timeout=0.5)
+        tree.demods[0].trigger.wait_for_state_change(value_enum2, timeout=0.1)
+    assert (
+        str(e.value) == "/dev1234/demods/0/trigger did not change to the "
+        "expected value within 0.1s. 'trigin0_falling' != 'trigin0_rising'"
+    )
+
+    with pytest.raises(TimeoutError) as e:
+        tree.demods[0].trigger.wait_for_state_change("trigin0_falling", timeout=0.1)
+    assert (
+        str(e.value) == "/dev1234/demods/0/trigger did not change to the "
+        "expected value within 0.1s. 'trigin0_falling' != 'trigin0_rising'"
+    )
+
+    with pytest.raises(TimeoutError) as e:
+        tree.demods[0].trigger.wait_for_state_change(
+            "trigger_input0_falling", timeout=0.1
+        )
+    assert (
+        str(e.value) == "/dev1234/demods/0/trigger did not change to the "
+        "expected value within 0.1s. 'trigin0_falling' != 'trigin0_rising'"
+    )
+
+    with pytest.raises(TimeoutError) as e:
+        tree.demods[0].trigger.wait_for_state_change(1, invert=True, timeout=0.1)
     assert (
         str(e.value) == "/dev1234/demods/0/trigger did not change from the "
-        "expected value 1 within 0.5s."
+        "expected value 1 within 0.1s."
+    )
+
+    with pytest.raises(TimeoutError) as e:
+        tree.demods[0].trigger.wait_for_state_change(
+            value_enum1, invert=True, timeout=0.1
+        )
+    assert (
+        str(e.value) == "/dev1234/demods/0/trigger did not change from the "
+        "expected value 'trigin0_rising' within 0.1s."
+    )
+
+    with pytest.raises(TimeoutError) as e:
+        tree.demods[0].trigger.wait_for_state_change(
+            "trigger_input0_rising", invert=True, timeout=0.1
+        )
+    assert (
+        str(e.value) == "/dev1234/demods/0/trigger did not change from the "
+        "expected value 'trigin0_rising' within 0.1s."
     )
 
     sequence = cycle([1] * 3 + [2])
@@ -913,6 +966,9 @@ def test_wait_for_state_change(connection):
     # and it didn't stop early.
     with pytest.raises(StopIteration):
         next(sequence)
+
+    with pytest.raises(KeyError) as e:
+        tree.demods[0].trigger.wait_for_state_change("non_existant_key")
 
 
 def test_nodetree_iterator(connection):

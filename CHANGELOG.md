@@ -4,6 +4,7 @@
 * Deep gets on nodes with keywords returns an enum like the regular get.
 * Fix rare failures of `wait_for_state_change` function that resulted in early timeouts.
 * All keywords on nodes are correctly supported, and not only the first one for each option.
+* Function `wait_for_state_change` now supports strings and enums for keywords nodes.
 
 ## Version 0.6.0
 * Revert full support of `fnmatch` wildcards and instead use the LabOne wildcard support.
