@@ -1169,7 +1169,8 @@ class NodeList(Sequence, Node):
         ...
 
     def __getitem__(self, item):
-        if isinstance(item, int):
+        # User numpy check here to ensure numpy types are handled correctly (#252)
+        if np.issubdtype(type(item), np.integer):
             return self._elements[item]
         return Node(self._root, self._tree + (str(item),))
 

@@ -10,7 +10,7 @@ import gc
 from itertools import cycle
 
 import pytest
-from numpy import array as nparray
+import numpy as np
 
 from zhinst.toolkit.driver.devices import HDAWG
 from zhinst.toolkit.nodetree import Node, NodeTree
@@ -382,7 +382,7 @@ def test_get_deep(connection):
     assert data == array("l", [123, 10, 32, 10, 125, 10])
     # HF2 node
     connection.get.return_value = OrderedDict(
-        [("/dev1234/demods/0/rate", nparray([1674.10717773]))]
+        [("/dev1234/demods/0/rate", np.array([1674.10717773]))]
     )
     timestamp, data = tree.demods[0].sample(deep=True)
     assert data == 1674.10717773
@@ -425,7 +425,7 @@ def test_get_wildcard(connection):
 
     # HF2 support
     connection.get.return_value = OrderedDict(
-        [("/dev1234/demods/0/impedance", nparray([125]))]
+        [("/dev1234/demods/0/impedance", np.array([125]))]
     )
     result = tree.demods()
     assert result[tree.demods[0].impedance] == 125
@@ -1134,6 +1134,13 @@ def test_nodelist_is_node(connection, hdawg):
     bar = NodeList([hdawg], nt, ("foobar",))
     assert bar[0] == hdawg
     assert bar == Node(nt, ("foobar",))
+
+
+def test_nodelist_numpy(connection, hdawg):
+    nt = NodeTree(connection, "DEV1234")
+    bar = NodeList([hdawg, hdawg], nt, ("foobar",))
+    for test_index in np.arange(2):
+        assert bar[test_index] == hdawg
 
 
 def test_nodelist_hash(connection, hdawg):
