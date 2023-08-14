@@ -301,7 +301,7 @@ class NodeInfo:
         for key, value in self._info.get("Options", {}).items():
             # Find all the keywords. We use only the first one
             # since it should be unambiguous
-            enum_re = re.findall(r'"(\w+)"', value)
+            enum_re = re.findall(r'"([a-zA-Z0-9-_"]+)"', value)
             enum = enum_re[0] if enum_re else ""
 
             # The description is either what comes after
@@ -319,7 +319,7 @@ class NodeInfo:
         options_reversed = {}
         for int_key, value in self._info.get("Options", {}).items():
             # Find all the keywords associated to a integer key
-            enum_re = re.finditer(r'"(?P<keyword>\w+)"', value)
+            enum_re = re.finditer(r'"(?P<keyword>[a-zA-Z0-9-_"]+)"', value)
             for m in enum_re:
                 keyword = m.group("keyword")
                 options_reversed[keyword] = int_key
