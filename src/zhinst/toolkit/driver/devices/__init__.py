@@ -24,6 +24,7 @@ DEVICE_CLASS_BY_MODEL = {
     "PQSC": PQSC,
     "UHFQA": UHFQA,
     "UHFLI": UHFLI,
+    "UHFAWG": UHFLI,
 }
 
 __all__ = [
