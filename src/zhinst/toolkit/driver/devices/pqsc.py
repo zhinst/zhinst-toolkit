@@ -93,12 +93,12 @@ class PQSC(BaseInstrument):
         """
         self.execution.enable(False, deep=deep)
 
-    def wait_done(self, *, timeout: float = 10, sleep_time: float = 0.005) -> None:
+    def wait_done(self, *, timeout: float = 10.0, sleep_time: float = 0.005) -> None:
         """Wait until trigger generation and feedback processing is done.
 
         Args:
             timeout: The maximum waiting time in seconds for the
-                PQSC (default: 10).
+                PQSC (default: 10.0).
             sleep_time: Time in seconds to wait between
                 requesting PQSC state
 
@@ -113,12 +113,14 @@ class PQSC(BaseInstrument):
         except TimeoutError as error:
             raise TimeoutError("PQSC timed out.") from error
 
-    def check_ref_clock(self, *, timeout: int = 30, sleep_time: int = 1) -> bool:
+    def check_ref_clock(
+        self, *, timeout: float = 30.0, sleep_time: float = 1.0
+    ) -> bool:
         """Check if reference clock is locked successfully.
 
         Args:
             timeout: Maximum time in seconds the program waits
-                (default: 30).
+                (default: 30.0).
             sleep_time: Time in seconds to wait between
                 requesting the reference clock status (default: 1)
 
@@ -152,8 +154,8 @@ class PQSC(BaseInstrument):
         self,
         ports: Union[List[int], int] = 0,
         *,
-        timeout: int = 30,
-        sleep_time: int = 1,
+        timeout: float = 30.0,
+        sleep_time: float = 1.0,
     ) -> Union[List[bool], bool]:
         """Check if the ZSync connection on the given port(s) is established.
 
@@ -164,9 +166,9 @@ class PQSC(BaseInstrument):
             ports: The port numbers to check the ZSync connection for.
                 It can either be a single port number given as integer or a list
                 of several port numbers. (default: 0)
-            timeout: Maximum time in seconds the program waits (default: 30).
+            timeout: Maximum time in seconds the program waits (default: 30.0).
             sleep_time: Time in seconds to wait between requesting the reference
-                clock status (default: 1)
+                clock status (default: 1.0)
 
         Raises:
             TimeoutError: If the process of establishing a ZSync connection on
@@ -196,9 +198,8 @@ class PQSC(BaseInstrument):
 
         Args:
             ports: Port number to check the ZSync connection for.
-            timeout: Maximum time in seconds the program waits (default: 30).
+            timeout: Maximum time in seconds the program waits.
             sleep_time: Time in seconds to wait between requesting the status
-                (default: 1)
 
         Raises:
             TimeoutError: If the process of establishing a ZSync connection the
