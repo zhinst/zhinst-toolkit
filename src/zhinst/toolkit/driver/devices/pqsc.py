@@ -154,8 +154,8 @@ class PQSC(BaseInstrument):
         self,
         ports: Union[List[int], int] = 0,
         *,
-        timeout: float = 30.0,
-        sleep_time: float = 1.0,
+        timeout: float = 10.0,
+        sleep_time: float = 0.1,
     ) -> Union[List[bool], bool]:
         """Check if the ZSync connection on the given port(s) is established.
 
@@ -166,9 +166,11 @@ class PQSC(BaseInstrument):
             ports: The port numbers to check the ZSync connection for.
                 It can either be a single port number given as integer or a list
                 of several port numbers. (default: 0)
-            timeout: Maximum time in seconds the program waits (default: 30.0).
+            timeout: Maximum time in seconds the program waits (default: 10.0).
             sleep_time: Time in seconds to wait between requesting the reference
-                clock status (default: 1.0)
+                clock status (default: 0.1)
+
+            .. versionchanged:: 0.6.1: Reduce default timeout and sleep_time.
 
         Raises:
             TimeoutError: If the process of establishing a ZSync connection on
