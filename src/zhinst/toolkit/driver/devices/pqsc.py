@@ -171,6 +171,9 @@ class PQSC(BaseInstrument):
                 clock status (default: 0.1)
 
             .. versionchanged:: 0.6.1: Reduce default timeout and sleep_time.
+            .. versionchanged:: 0.6.1: Raise an error if the port is in a faulty
+                                       state, instead of return False.
+
 
         Raises:
             TimeoutError: If the process of establishing a ZSync connection on
@@ -179,6 +182,8 @@ class PQSC(BaseInstrument):
         ports_list = ports if isinstance(ports, list) else [ports]
 
         start_time = time.time()
+
+        # Check the status of all ports
         status = []
         for port in ports_list:
             status.append(
@@ -208,23 +213,32 @@ class PQSC(BaseInstrument):
                 specified port exceeds the specified timeout.
         """
         status_node = self.zsyncs[port].connection.status
-        start_time = time.time()
         try:
-            status_node.wait_for_state_change(
-                0, invert=True, timeout=timeout, sleep_time=sleep_time
-            )
-            status_node.wait_for_state_change(
-                1,
-                invert=True,
-                timeout=max(0, timeout - (time.time() - start_time)),
-                sleep_time=sleep_time,
-            )
+            # Waits until the status node is "connected" (2)
+            status_node.wait_for_state_change(2, timeout=timeout, sleep_time=sleep_time)
         except TimeoutError as error:
-            raise TimeoutError(
+            status = status_node()
+            err_msg = (
                 "Timeout while establishing ZSync connection to the instrument "
                 f"on the port {port}."
-            ) from error
-        return status_node() == 2
+            )
+
+            if status == 0:
+                # No connection
+                err_msg += "No instrument detected."
+            elif status == 1:
+                # In progress
+                err_msg += (
+                    "Connection still in progress. Consider increasing the timeout."
+                )
+            elif status == 3:
+                # Error
+                err_msg += (
+                    "Impossible to establish a connect. Check cabling and FW version"
+                )
+
+            raise TimeoutError(err_msg) from error
+        return True
 
     def find_zsync_worker_port(self, device: BaseInstrument) -> int:
         """Find the ID of the PQSC ZSync port connected to a given device.
@@ -234,7 +248,7 @@ class PQSC(BaseInstrument):
             device: device for which the connected ZSync port shall be found.
 
         Returns:
-            Integer value represent the ID of the searched PQSC Zsync port.
+            Integer value represent the ID of the searched PQSC ZSync port.
 
         Raises:
             ToolkitError: If the given device doesn't appear to be connected
