@@ -2,6 +2,7 @@ from itertools import cycle
 import pytest
 
 from zhinst.toolkit.driver.devices.pqsc import PQSC
+from zhinst.toolkit.exceptions import ToolkitError
 
 
 @pytest.fixture()
@@ -153,9 +154,12 @@ def test_ref_clock(mock_connection, pqsc):
         pqsc.check_ref_clock(timeout=0.01, sleep_time=0.001)
 
 
-def test_check_zsync_connection(mock_connection, pqsc):
+def test_check_zsync_connection(mock_connection, pqsc, shfqa, shfsg, shfqc):
 
-    cycle([2])
+    # hijack serials of instruments
+    shfsg._serial = "dev1111"  # port 0
+    shfqa._serial = "dev2222"  # port 2
+    shfqc._serial = "dev3333"  # port 10
 
     status0 = 0
     status2 = 0
@@ -170,16 +174,39 @@ def test_check_zsync_connection(mock_connection, pqsc):
             return status10
         raise RuntimeError("Invalid Node")
 
+    def get_serials(path):
+        # assume it ask for path "/dev1234/zsyncs/*/connection/serial"
+        return_dict = {}
+        for port in range(18):
+            key = f"/dev1234/zsyncs/{port:d}/connection/serial"
+            if port == 0 and status0 != 0:
+                serial = "1111"
+            elif port == 2 and status2 != 0:
+                serial = "2222"
+            elif port == 10 and status10 != 0:
+                serial = "3333"
+            else:
+                serial = ""
+
+            return_dict[key] = [{"timestamp": 0, "flags": 0, "vector": serial}]
+
+        return return_dict
+
     def get_side_effect(path, **kwargs):
-        value = getInt_side_effect(path)
-        return {path: {"timestamp": [0], "value": [value]}}
+        if path.endswith("status"):
+            value = getInt_side_effect(path)
+            return {path: {"timestamp": [0], "value": [value]}}
+        elif path.endswith("serial"):
+            return get_serials(path)
+        else:
+            return None
 
     mock_connection.return_value.getInt.side_effect = getInt_side_effect
     mock_connection.return_value.get.side_effect = get_side_effect
 
     # not connected
     with pytest.raises(TimeoutError):
-        pqsc.check_zsync_connection(timeout=0, sleep_time=0.001)
+        pqsc.check_zsync_connection(0, timeout=0, sleep_time=0.001)
     with pytest.raises(TimeoutError):
         pqsc.check_zsync_connection(2, timeout=0, sleep_time=0.001)
     with pytest.raises(TimeoutError):
@@ -189,7 +216,7 @@ def test_check_zsync_connection(mock_connection, pqsc):
 
     # one connected
     status0 = 2
-    assert True == pqsc.check_zsync_connection()
+    assert True == pqsc.check_zsync_connection(0)
     with pytest.raises(TimeoutError):
         pqsc.check_zsync_connection(2, timeout=0, sleep_time=0.001)
     assert [True] == pqsc.check_zsync_connection([0])
@@ -199,7 +226,7 @@ def test_check_zsync_connection(mock_connection, pqsc):
     # one connected the other one in error state
     status0 = 2
     status2 = 3
-    assert True == pqsc.check_zsync_connection(sleep_time=0.001)
+    assert True == pqsc.check_zsync_connection(0, sleep_time=0.001)
     with pytest.raises(TimeoutError) as e_info:
         pqsc.check_zsync_connection(2, timeout=0.01)
     assert [True] == pqsc.check_zsync_connection([0], sleep_time=0.001)
@@ -211,7 +238,7 @@ def test_check_zsync_connection(mock_connection, pqsc):
     # one connected the other one times out
     status0 = 2
     status2 = 1
-    assert True == pqsc.check_zsync_connection(sleep_time=0.001)
+    assert True == pqsc.check_zsync_connection(0, sleep_time=0.001)
     with pytest.raises(TimeoutError) as e_info:
         pqsc.check_zsync_connection(2, timeout=0.01)
     assert [True] == pqsc.check_zsync_connection([0], sleep_time=0.001)
@@ -228,6 +255,24 @@ def test_check_zsync_connection(mock_connection, pqsc):
     with pytest.raises(TimeoutError) as e_info:
         pqsc.check_zsync_connection([0, 2, 10], timeout=0.01, sleep_time=0.001)
     assert "2" in str(e_info.value)
+
+    # Test with instruments
+    status0 = 2
+    status2 = 2
+
+    assert True == pqsc.check_zsync_connection(shfsg, timeout=0.05, sleep_time=0.001)
+    assert True == pqsc.check_zsync_connection(shfqa, timeout=0.05, sleep_time=0.001)
+    assert [True, True] == pqsc.check_zsync_connection(
+        [shfsg, shfqa], timeout=0.05, sleep_time=0.001
+    )
+
+    status10 = 3
+    with pytest.raises(TimeoutError) as e_info:
+        pqsc.check_zsync_connection(shfqc, timeout=0.05, sleep_time=0.001)
+
+    status10 = 0
+    with pytest.raises(ToolkitError) as e_info:
+        pqsc.check_zsync_connection(shfqc, timeout=0.05, sleep_time=0.001)
 
 
 def test_find_zsync_worker_port(mock_connection, pqsc):

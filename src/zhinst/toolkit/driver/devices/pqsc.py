@@ -152,20 +152,21 @@ class PQSC(BaseInstrument):
 
     def check_zsync_connection(
         self,
-        ports: Union[List[int], int] = 0,
+        inputs: Union[List[int], int, List[BaseInstrument], BaseInstrument],
         *,
         timeout: float = 10.0,
         sleep_time: float = 0.1,
     ) -> Union[List[bool], bool]:
-        """Check if the ZSync connection on the given port(s) is established.
+        """Check if a ZSync connection is established.
 
-        This function checks the current status of the instrument connected to
-        the given ports.
+        Checks the current status of the instrument connected to the given ports.
+        If a instrument(s) is given instead of a port number, first finds the correct
+        port number(s).
 
         Args:
-            ports: The port numbers to check the ZSync connection for.
-                It can either be a single port number given as integer or a list
-                of several port numbers. (default: 0)
+            inputs: The port numbers to check the ZSync connection for.
+                It can either be a single port number given as integer, a list
+                of several port numbers an instrument or a list of instruments.
             timeout: Maximum time in seconds the program waits (default: 10.0).
             sleep_time: Time in seconds to wait between requesting the reference
                 clock status (default: 0.1)
@@ -179,13 +180,24 @@ class PQSC(BaseInstrument):
             TimeoutError: If the process of establishing a ZSync connection on
                 one of the specified ports exceeds the specified timeout.
         """
-        ports_list = ports if isinstance(ports, list) else [ports]
+        inputs_list = inputs if isinstance(inputs, list) else [inputs]
 
         start_time = time.time()
 
         # Check the status of all ports
         status = []
-        for port in ports_list:
+        for input in inputs_list:
+            # Convert the instrument into a port, if needed
+            if isinstance(input, BaseInstrument):
+                port = self.find_zsync_worker_port(
+                    input,
+                    timeout=max(0, timeout - (time.time() - start_time)),
+                    sleep_time=sleep_time,
+                )
+            else:
+                port = input
+
+            # Check or wait until the connection is ready
             status.append(
                 self._check_zsync_connection(
                     port,
@@ -193,7 +205,7 @@ class PQSC(BaseInstrument):
                     sleep_time=sleep_time,
                 )
             )
-        return status if isinstance(ports, list) else status[0]
+        return status if isinstance(inputs, list) else status[0]
 
     def _check_zsync_connection(
         self, port: int, timeout: float, sleep_time: float
