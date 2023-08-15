@@ -977,7 +977,7 @@ class Node:
             while start_time + timeout >= time.time():
                 # Verify if we get to the correct value.
                 # If yes, exit the function.
-                if (curr_value == parsed_value) is not invert:
+                if (curr_value == parsed_value) != invert:
                     return
 
                 time.sleep(sleep_time)

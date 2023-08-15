@@ -970,6 +970,26 @@ def test_wait_for_state_change(connection):
     with pytest.raises(KeyError) as e:
         tree.demods[0].trigger.wait_for_state_change("non_existant_key")
 
+    # Numpy types
+    sequence = iter([1] * 3 + [0])
+
+    def get_side_effect(node, **kwargs):
+        val = nparray([next(sequence)], dtype="longlong")
+        return {node: {"timestamp": [0], "value": val}}
+
+    def get_int_side_effect(node, **kwargs):
+        return int(get_side_effect(node)[node]["value"][0])
+
+    connection.getInt.side_effect = get_int_side_effect
+    connection.get.side_effect = get_side_effect
+
+    tree.demods[0].harmonic.wait_for_state_change(0)
+
+    # Verify the correct value has been fetched from the device
+    # and it didn't stop early.
+    with pytest.raises(StopIteration):
+        next(sequence)
+
 
 def test_nodetree_iterator(connection):
     tree = NodeTree(connection, "DEV1234")
