@@ -6,6 +6,8 @@
 * All keywords on nodes are correctly supported, and not only the first one for each option.
 * Function `wait_for_state_change` now supports strings and enums for keywords nodes.
 * Fix #252. ListNodes now also supports numpy integer types as index argument.
+* The function `check_zsync_connection` of PQSC now raise an error if the port is in a faulty
+  state, instead of return False.
 
 ## Version 0.6.0
 * Revert full support of `fnmatch` wildcards and instead use the LabOne wildcard support.

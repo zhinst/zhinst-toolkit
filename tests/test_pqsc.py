@@ -200,9 +200,13 @@ def test_check_zsync_connection(mock_connection, pqsc):
     status0 = 2
     status2 = 3
     assert True == pqsc.check_zsync_connection(sleep_time=0.001)
-    assert False == pqsc.check_zsync_connection(2, sleep_time=0.001)
+    with pytest.raises(TimeoutError) as e_info:
+        pqsc.check_zsync_connection(2, timeout=0.01)
     assert [True] == pqsc.check_zsync_connection([0], sleep_time=0.001)
-    assert [True, False] == pqsc.check_zsync_connection([0, 2], sleep_time=0.001)
+
+    with pytest.raises(TimeoutError) as e_info:
+        pqsc.check_zsync_connection([0, 2], timeout=0.01, sleep_time=0.001)
+    assert "2" in str(e_info.value)
 
     # one connected the other one times out
     status0 = 2
@@ -221,9 +225,9 @@ def test_check_zsync_connection(mock_connection, pqsc):
     status0 = 2
     status2 = 3
     assert [True] == pqsc.check_zsync_connection([10], sleep_time=0.001)
-    assert [True, False, True] == pqsc.check_zsync_connection(
-        [0, 2, 10], sleep_time=0.001
-    )
+    with pytest.raises(TimeoutError) as e_info:
+        pqsc.check_zsync_connection([0, 2, 10], timeout=0.01, sleep_time=0.001)
+    assert "2" in str(e_info.value)
 
 
 def test_find_zsync_worker_port(mock_connection, pqsc):
