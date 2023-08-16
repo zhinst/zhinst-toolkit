@@ -974,7 +974,7 @@ def test_wait_for_state_change(connection):
     sequence = iter([1] * 3 + [0])
 
     def get_side_effect(node, **kwargs):
-        val = nparray([next(sequence)], dtype="longlong")
+        val = np.array([next(sequence)], dtype="longlong")
         return {node: {"timestamp": [0], "value": val}}
 
     def get_int_side_effect(node, **kwargs):
