@@ -66,8 +66,11 @@ grouping = 1        # Channel grouping 2x4
 awg_group = 0       # AWG group
 output_range = 1.0  # Output range [V]
 
-awg_cores = awg_group * 2**grouping + np.arange(2**grouping)        # AWG cores
-channels = awg_group * 2**(grouping+1) + np.arange(2**(grouping+1)) # Output channels
+awg_cores_i = awg_group * 2**grouping + np.arange(2**grouping)        # AWG cores
+channels_i = awg_group * 2**(grouping+1) + np.arange(2**(grouping+1)) # Output channels
+
+awg_cores = [device.awgs[awg_core] for awg_core in awg_cores_i]
+channels = [device.sigouts[channel] for channel in channels_i]
 
 # Per-core settings
 with device.set_transaction():
@@ -76,17 +79,17 @@ with device.set_transaction():
     device.system.awg.channelgrouping(grouping)
     
     for awg_core in awg_cores:
-        device.awgs[awg_core].outputs[0].gains[0](1.0)         # Set the output gains matrix to identity
-        device.awgs[awg_core].outputs[0].gains[1](0.0)         
-        device.awgs[awg_core].outputs[1].gains[0](0.0)         
-        device.awgs[awg_core].outputs[1].gains[1](1.0)
-        device.awgs[awg_core].outputs[0].modulation.mode(0)    # Turn off modulation mode
-        device.awgs[awg_core].outputs[1].modulation.mode(0)
+        awg_core.outputs[0].gains[0](1.0)         # Set the output gains matrix to identity
+        awg_core.outputs[0].gains[1](0.0)
+        awg_core.outputs[1].gains[0](0.0)
+        awg_core.outputs[1].gains[1](1.0)
+        awg_core.outputs[0].modulation.mode(0)    # Turn off modulation mode
+        awg_core.outputs[1].modulation.mode(0)
 
     # Per-channel settings
     for channel in channels:
-        device.sigouts[channel].range(output_range)     # Select the output range
-        device.sigouts[channel].on(True)                # Turn on the outputs. Should be the last setting
+        channel.range(output_range)     # Select the output range
+        channel.on(True)                # Turn on the outputs. Should be the last setting
 ```
 
 ### AWG sequencer program
@@ -157,7 +160,7 @@ if compiler_status == 2:
 start = time.time()
 for awg_core in awg_cores:
     # Check the ready status for each core
-    while device.awgs[awg_core].ready() == 0:
+    while awg_core.ready() == 0:
         # Timeout if all the cores doesn't report ready in time
         if time.time() - start >= timeout:
             raise TimeoutError(f"Sequence not uploaded within {timeout:.1f}s.")
@@ -201,7 +204,7 @@ Upload the two command tables to the two AWG cores and check if the upload ends 
 
 ```python
 for ct, awg_core in zip(cts, awg_cores):
-    device.awgs[awg_core].commandtable.upload_to_device(ct)
+    awg_core.commandtable.upload_to_device(ct)
 
 print("Command tables upload successful")
 ```
@@ -232,7 +235,7 @@ Upload the native waveforms to the device.
 ```python
 with device.set_transaction():
     for awg_core in awg_cores:
-        device.awgs[awg_core].write_to_waveform_memory(waveforms)
+        awg_core.write_to_waveform_memory(waveforms)
 
 print("Waveforms upload successful")
 ```
@@ -245,10 +248,6 @@ Note that it is not necessary to enable all the AWG cores manually: by enabling 
 
 ```python
 with device.set_transaction():
-    device.awgs[awg_cores[0]].single(True)
-    device.awgs[awg_cores[0]].enable(True)
-```
-
-```python
-
+    awg_cores[0].single(True)
+    awg_cores[0].enable(True)
 ```
