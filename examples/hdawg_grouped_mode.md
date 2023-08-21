@@ -95,28 +95,31 @@ with device.set_transaction():
 ### AWG sequencer program
 Define an AWG program as a string stored in the variable `awg_program`, equivalent to what would be entered in the Sequence Editor window in the graphical UI. Differently to a self-contained program, this example refers to a command table by the instruction `executeTableEntry`, and to placeholder waveforms `p1`, `p2`, `p3`, `p4` by the instruction `placeholder`. Both the command table and the waveform data for the placeholders need to be uploaded separately before this sequence program can be run.
 
-After defining the sequencer program, this must be compiled before being uploaded. The function `compile_seqc` of `zhinst-utils`, which is the preferred tool for compiling AWG programs, does not support working with the grouped mode. For this reason, in this example the compilation must be done using the LabOne module `awgModule`.
+After defining the sequencer program, this must be compiled before being uploaded. The function `load_sequencer_program` of `zhinst-toolkit`, which is the preferred tool for compiling AWG programs, does not support working with the grouped mode. For this reason, in this example the compilation must be done using the LabOne module `awgModule`.
 
 ```python
-wfm_index = 0
-wfm_length = 1024
-awg_program = textwrap.dedent(
-    f"""\
-    // Define placeholder with 1024 samples:
-    wave p1 = placeholder({wfm_length:d});
-    wave p2 = placeholder({wfm_length:d});
-    wave p3 = placeholder({wfm_length:d});
-    wave p4 = placeholder({wfm_length:d});
+awg_program = tk.Sequence()
+awg_program.constants['wfm_index'] = 0
+awg_program.constants['wfm_length'] = 1024
 
-    // Assign an index to the placeholder waveform
-    assignWaveIndex(1,p1, 2,p2, {wfm_index:d});
-    assignWaveIndex(3,p3, 4,p4, {wfm_index:d});
+awg_program.code = """
+// Define placeholder with 1024 samples:
+wave p1 = placeholder(wfm_length);
+wave p2 = placeholder(wfm_length);
+wave p3 = placeholder(wfm_length);
+wave p4 = placeholder(wfm_length);
 
-    while(true) {{
-      executeTableEntry(0);
-    }}
-    """
-)
+// Assign an index to the placeholder waveform
+assignWaveIndex(1,p1, 2,p2, wfm_index);
+assignWaveIndex(3,p3, 4,p4, wfm_index);
+
+while(true) {
+  executeTableEntry(0);
+}
+"""
+
+# Conver to a string
+awg_program = str(awg_program)
 ```
 
 Compile and upload the AWG program to the device using the AWG Module.
@@ -128,7 +131,7 @@ awgModule.index(awg_group)
 awgModule.sequencertype('auto-detect')
 awgModule.execute()
 
-awgModule.compiler.sourcestring(awg_program)
+awgModule.compiler.sourcestring(str(awg_program))
 ```
 
 Check that the sequencer program was compiled and uploaded correctly. This is not mandatory, but only to ensure that the script can continue with the next steps.
@@ -171,7 +174,7 @@ print("Sequence successfully uploaded.")
 
 ### Command Table definition and upload
 
-The waveforms are played by a command table, whose structure must conform to a defined schema. The schema can be read from the device. This example validates the command table against the schema before uploading it. This step is not mandatory since the device will validate the schema as well. However, it is helpful for debugging.
+The waveforms are played by a command table, whose structure must conform to a defined schema. The schema can be read from the device. This example validates the command table against the schema before uploading it.
 
 
 Read the schema from the device.
@@ -185,7 +188,7 @@ ct2 = tk.CommandTable(schema)
 print(f"The device is using the commandtable schema version {schema['version']}")
 ```
 
-Define two command tables and validate them against the schema.
+Define two command tables and automatically validate them against the schema.
 
 ```python
 # First command table
