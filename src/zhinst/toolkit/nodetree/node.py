@@ -759,7 +759,12 @@ class Node:
         # Flat must be set to True (if customers want the flat option they need
         # to call zhinst.core directly)
         kwargs["flat"] = True
-        raw_dict = self._root.connection.get(self.node_info.path, **kwargs)
+        try:
+            raw_dict = self._root.connection.get(self.node_info.path, **kwargs)
+        except TypeError:
+            # Modules do not support settingsonly argument
+            del kwargs["settingsonly"]
+            raw_dict = self._root.connection.get(self.node_info.path, **kwargs)
         if not raw_dict or len(raw_dict) == 0:
             raise TypeError(
                 "keyword 'deep' is not available for this node. "

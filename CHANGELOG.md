@@ -1,5 +1,9 @@
 # zhinst-toolkit Changelog
 
+## Version 0.6.2
+* Allow deep get on LabOne Module nodes. (It does not differ from a normal get
+  but should a at least not raise an error.)
+
 ## Version 0.6.1
 * Deep gets on nodes with keywords returns an enum like the regular get.
 * Fix rare failures of `wait_for_state_change` function that resulted in early timeouts.
