@@ -8,7 +8,7 @@ from zhinst.toolkit.exceptions import ToolkitError
 
 from zhinst.toolkit.interface import AveragingMode
 from zhinst.toolkit.nodetree import Node, NodeTree
-from zhinst.toolkit.nodetree.helper import lazy_property
+from zhinst.toolkit.nodetree.helper import lazy_property, not_callable_in_transactions
 from zhinst.toolkit.waveform import Waveforms
 from zhinst.toolkit.driver.nodes.multistate import MultiState
 
@@ -61,8 +61,7 @@ class Readout(Node):
             averaging_mode: Select the averaging order of the result, with
                 0 = cyclic and 1 = sequential.
         """
-        utils.configure_result_logger_for_readout(
-            self._daq_server,
+        settings = utils.get_result_logger_for_readout_settings(
             self._serial,
             self._index,
             result_source=result_source,
@@ -70,7 +69,9 @@ class Readout(Node):
             num_averages=num_averages,
             averaging_mode=int(averaging_mode),
         )
+        self._send_set_list(settings)
 
+    @not_callable_in_transactions
     def run(self) -> None:
         """Reset and enable the result logger."""
         utils.enable_result_logger(
@@ -125,6 +126,7 @@ class Readout(Node):
                 f"within the specified timeout ({timeout}s)."
             ) from error
 
+    @not_callable_in_transactions
     def read(
         self,
         *,
@@ -142,6 +144,7 @@ class Readout(Node):
             self._daq_server, self._serial, self._index, mode="readout", timeout=timeout
         )
 
+    @not_callable_in_transactions
     def write_integration_weights(
         self,
         weights: t.Union[Waveforms, dict],

@@ -121,6 +121,25 @@ class Transaction:
         except AttributeError as exception:
             raise AttributeError("No set transaction is in progress.") from exception
 
+    def add_raw_list(self, node_value_pairs: t.List[t.Tuple[str, t.Any]]) -> None:
+        """Adds multiple set commands at a time.
+
+        Args:
+            node_value_pairs: List of settings in the form of (node_string, value)
+            the node_strings are assumed to be valid and of the form /dev1234/.../attr1
+
+        Raises:
+            TookitError: if this function is called outside a transaction. It is
+                exclusively designed to be used within transactions.
+
+        Note: settings can only take strings which to
+                describe a node, but no node objects
+        """
+        try:
+            self._queue += node_value_pairs  # type: ignore[operator]  # caught
+        except TypeError as exception:
+            raise ToolkitError("No set transaction is in progress.") from exception
+
     def in_progress(self) -> bool:
         """Flag if the transaction is in progress."""
         return self._queue is not None

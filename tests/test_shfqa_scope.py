@@ -71,8 +71,7 @@ def test_configure(mock_connection, scope):
             num_samples=10,
             trigger_input=scope.available_trigger_inputs[0],
         )
-        utils.configure_scope.assert_called_with(
-            mock_connection.return_value,
+        utils.get_scope_settings.assert_called_with(
             "DEV1234",
             input_select=scope.available_inputs[0],
             num_samples=10,
@@ -89,8 +88,7 @@ def test_configure(mock_connection, scope):
             num_averages=10,
             trigger_delay=33,
         )
-        utils.configure_scope.assert_called_with(
-            mock_connection.return_value,
+        utils.get_scope_settings.assert_called_with(
             "DEV1234",
             input_select=scope.available_inputs[0],
             num_samples=10,

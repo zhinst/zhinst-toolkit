@@ -44,8 +44,7 @@ def test_qa_configure_channel(mock_connection, shfqa):
             center_frequency=30.0,
             mode=SHFQAChannelMode.READOUT,
         )
-        utils.configure_channel.assert_called_once_with(
-            mock_connection.return_value,
+        utils.get_channel_settings.assert_called_once_with(
             "DEV1234",
             0,
             input_range=10,

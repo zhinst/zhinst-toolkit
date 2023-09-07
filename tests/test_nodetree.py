@@ -16,7 +16,11 @@ from zhinst.toolkit.driver.devices import HDAWG
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.connection_dict import ConnectionDict
 from zhinst.toolkit.nodetree.node import NodeList
-from zhinst.toolkit.nodetree.helper import resolve_wildcards_labone
+from zhinst.toolkit.nodetree.helper import (
+    resolve_wildcards_labone,
+    not_callable_in_transactions,
+)
+from zhinst.toolkit.exceptions import ToolkitError
 
 from zhinst.core.errors import CoreError
 
@@ -28,7 +32,6 @@ def data_dir(request):
 
 @pytest.fixture()
 def connection(data_dir):
-
     json_path = data_dir / "nodedoc_dev1234_zi.json"
     with json_path.open("r", encoding="UTF-8") as file:
         nodes_json = file.read()
@@ -243,6 +246,76 @@ Unit: 1/s"""
     # dynamic node
     with pytest.raises(KeyError):
         tree.demods.waves[0].node_info.unit
+
+
+def test_send_set_list(connection):
+    tree = NodeTree(connection, "DEV1234")
+    node = tree.demods[0]
+    settings = [(str(node.freq), 2000)]
+
+    node._send_set_list(settings)
+
+    connection.set.assert_called_once_with(settings)
+
+
+def test_send_set_list_transaction(connection):
+    tree = NodeTree(connection, "DEV1234")
+    node = tree.demods[0]
+    settings = [(str(node.freq), 2000)]
+
+    with tree.set_transaction():
+        node.enable(True)
+        node._send_set_list(settings)
+
+        connection.set.assert_not_called()
+
+    connection.set.assert_called_once_with([(str(node.enable), True)] + settings)
+
+
+def test_add_raw_list_outside_transaction(connection):
+    tree = NodeTree(connection, "DEV1234")
+    transaction = tree.transaction
+    settings = [("/dev1234/test1", True), ("/dev1234/test2", 17)]
+
+    with pytest.raises(ToolkitError, match="No set transaction is in progress."):
+        transaction.add_raw_list(settings)
+
+
+def test_add_raw_list(connection):
+    tree = NodeTree(connection, "DEV1234")
+    transaction = tree.transaction
+    settings = [("/dev1234/test1", True), ("/dev1234/test2", 17)]
+
+    with tree.set_transaction():
+        transaction.add("/dev1234/test3", 3.5)
+        transaction.add_raw_list(settings)
+        transaction.add("/dev1234/test4", False)
+
+    connection.set.assert_called_once_with(
+        [
+            ("/dev1234/test3", 3.5),
+            ("/dev1234/test1", True),
+            ("/dev1234/test2", 17),
+            ("/dev1234/test4", False),
+        ]
+    )
+
+
+def test_not_callable_in_transactions(connection):
+    tree = NodeTree(connection, "DEV1234")
+    node = tree.demods[0]
+
+    @not_callable_in_transactions
+    def example_func(node: Node, kwarg=None):
+        return True
+
+    example_func(node)  # no error
+
+    with pytest.raises(
+        RuntimeError, match="'example_func' cannot be called inside a transaction"
+    ):
+        with tree.set_transaction():
+            example_func(node)
 
 
 def test_node_dir_property_not_duplicated(connection):
@@ -1150,7 +1223,6 @@ def test_connection_dict_callable_nodes(data_dir):
 
 @pytest.fixture()
 def hdawg(data_dir, mock_connection, session):
-
     json_path = data_dir / "nodedoc_dev1234_hdawg.json"
     with json_path.open("r", encoding="UTF-8") as file:
         nodes_json = file.read()
@@ -1252,7 +1324,6 @@ def test_resolve_wildcards_labone_wildcard_end_fail():
 
 
 def test_garbage_collection_of_session(connection):
-
     gc.collect()
 
     def tester():
@@ -1266,7 +1337,6 @@ def test_garbage_collection_of_session(connection):
 
 
 def test_garbage_collection_of_session_node_info(connection):
-
     gc.collect()
 
     def tester():

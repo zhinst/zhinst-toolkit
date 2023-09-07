@@ -14,8 +14,7 @@ def readout(shfqa):
 def test_configure_result_logger(mock_connection, readout):
     with patch("zhinst.toolkit.driver.nodes.readout.utils", autospec=True) as utils:
         readout.configure_result_logger(result_source="test", result_length=10)
-        utils.configure_result_logger_for_readout.assert_called_with(
-            mock_connection.return_value,
+        utils.get_result_logger_for_readout_settings.assert_called_with(
             "DEV1234",
             0,
             result_source="test",
@@ -26,8 +25,7 @@ def test_configure_result_logger(mock_connection, readout):
         readout.configure_result_logger(
             result_source="test2", result_length=0, num_averages=2, averaging_mode=1
         )
-        utils.configure_result_logger_for_readout.assert_called_with(
-            mock_connection.return_value,
+        utils.get_result_logger_for_readout_settings.assert_called_with(
             "DEV1234",
             0,
             result_source="test2",

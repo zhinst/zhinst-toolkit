@@ -1119,6 +1119,21 @@ class Node:
             self._is_valid = len(keys) > 0
         return self._is_valid
 
+    def _send_set_list(self, settings: t.List[t.Tuple[str, t.Any]]) -> None:
+        """Applies settings and takes care of a possibly ongoing transaction.
+
+        In case of an active transaction, the settings will be put into it,
+        rather than being applied immediately.
+
+        Args:
+            settings: List of node-string, value pairs which list the settings to
+            be changed
+        """
+        if self.root.transaction.in_progress():
+            self.root.transaction.add_raw_list(settings)
+        else:
+            self.root.connection.set(settings)
+
     @property
     def node_info(self) -> NodeInfo:
         """Additional information about the node."""

@@ -16,6 +16,7 @@ from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import (
     lazy_property,
     create_or_append_set_transaction,
+    not_callable_in_transactions,
 )
 from zhinst.toolkit.nodetree.node import NodeList
 from zhinst.toolkit.waveform import Waveforms
@@ -124,13 +125,13 @@ class Generator(AWG):
             play_pulse_delay: Delay in seconds before the start of waveform playback.
         """
         # Only Digital Trigger 1
-        utils.configure_sequencer_triggering(
-            self._daq_server,
+        settings = utils.get_sequencer_triggering_settings(
             self._serial,
             self._index,
             aux_trigger=aux_trigger,
             play_pulse_delay=play_pulse_delay,
         )
+        self._send_set_list(settings)
 
     @property
     def available_aux_trigger_inputs(self) -> t.List[str]:
@@ -183,8 +184,7 @@ class QAChannel(Node):
             center_frequency: Center frequency of the analysis band [Hz]
             mode: Select between spectroscopy and readout mode.
         """
-        utils.configure_channel(
-            self._session.daq_server,
+        settings = utils.get_channel_settings(
             self._serial,
             self._index,
             input_range=input_range,
@@ -192,6 +192,7 @@ class QAChannel(Node):
             center_frequency=center_frequency,
             mode=mode.value,
         )
+        self._send_set_list(settings)
 
     @lazy_property
     def generator(self) -> Generator:
@@ -231,6 +232,7 @@ class QAChannel(Node):
 class SHFQA(BaseInstrument):
     """High-level driver for the Zurich Instruments SHFQA."""
 
+    @not_callable_in_transactions
     def start_continuous_sw_trigger(
         self, *, num_triggers: int, wait_time: float
     ) -> None:
