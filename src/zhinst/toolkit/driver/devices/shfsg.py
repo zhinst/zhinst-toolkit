@@ -156,8 +156,7 @@ class SGChannel(Node):
             sine_generator_index: Selects which sine generator to use on a
                 given channel.
         """
-        utils.configure_pulse_modulation(
-            self._session.daq_server,
+        settings = utils.get_pulse_modulation_settings(
             self._device.serial,
             self._index,
             enable=int(enable),
@@ -168,6 +167,8 @@ class SGChannel(Node):
             gains=gains,
             sine_generator_index=sine_generator_index,
         )
+
+        self._root.send_or_add2transaction(settings)
 
     def configure_sine_generation(
         self,
@@ -198,7 +199,7 @@ class SGChannel(Node):
             sine_generator_index: Selects which sine generator to use on a given
                 channel
         """
-        utils.configure_sine_generation(
+        settings = utils.get_sine_generation_settings (
             self._session.daq_server,
             self._device.serial,
             self._index,
@@ -209,6 +210,8 @@ class SGChannel(Node):
             gains=gains,
             sine_generator_index=sine_generator_index,
         )
+
+        self._root.send_or_add2transaction(settings)
 
     @property
     def awg_modulation_freq(self) -> float:

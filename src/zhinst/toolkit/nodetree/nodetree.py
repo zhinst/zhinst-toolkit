@@ -121,6 +121,10 @@ class Transaction:
         except AttributeError as exception:
             raise AttributeError("No set transaction is in progress.") from exception
 
+    def add_list(self, node_value_pairs: t.List[t.Tuple[t.Union[Node, str], t.Any]]) -> None:
+        for node, value in node_value_pairs:
+            self.add(node, value)
+
     def in_progress(self) -> bool:
         """Flag if the transaction is in progress."""
         return self._queue is not None
@@ -488,6 +492,12 @@ class NodeTree:
                     "absolute path (leading slash)"
                 ) from error
         return node.lower()
+
+    def send_or_add2transaction(self, settings: t.List[t.Tuple[t.Union[Node, str], t.Any]]):
+        if self.transaction.in_progress():
+            self.transaction.add_list(settings)
+        else:
+            self._session.daq_server.set(settings)
 
     @contextmanager
     def set_transaction(self) -> t.Generator[None, None, None]:
