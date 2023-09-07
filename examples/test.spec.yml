@@ -13,7 +13,7 @@ daq_module:
 device_settings_module:
   device_type: ["MFLI", "UHFLI", "UHFQA", "HDAWG8", "SHFSG4"]
 
-hdawg_awg:
+hdawg_grouped_mode:
   device_type: "HDAWG8"
 
 hdawg_precomp_curve_fit:

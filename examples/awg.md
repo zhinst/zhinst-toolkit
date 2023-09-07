@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.1
+      jupytext_version: 1.14.7
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -87,85 +87,10 @@ awg_node.enable_sequencer(single=True)
 awg_node.wait_done()
 ```
 
-### Offline compilation
-
-When uploading the sequencer code with `load_sequencer_program` as a string,
-`zhinst-toolkit` first compiles the the code into a binary elf format. After 
-that it uploads the byte code to the device. One can also use the offline 
-compiler directly or `zhinst-toolkit` to compile the sequence without an 
-active device connection. 
-
-```python
-# Using the buildin command provided by zhinst-toolkit
-elf, info = awg_node.compile_sequencer_program(SEQUENCER_CODE)
-info
-```
-
-```python
-# Using the zhinst.core offline compiler directly
-from zhinst.core import compile_seqc
-
-# Fetch device properties
-device_type = device.device_type
-device_options = device.device_options
-samplerate = device.system.clocks.sampleclock.freq() if device_type.startswith('HDAWG') else None
-sequencer_type = 'SG' if device.device_type.startswith('SHFSG') or device.device_type.startswith('SHFQC') else 'auto'
-
-# Offline compilation
-elf, info = compile_seqc(
-    SEQUENCER_CODE, device_type, device_options, index=AWG_CORE, samplerate=samplerate, sequencer=sequencer_type
-)
-info
-
-```
-
-```python
-# Uploading the binary elf to the device
-awg_node.elf.data(elf)
-```
-
 **Warning**
 
-`zhinst-toolkit` uses by default the offline compiler provided by `zhinst-core`.
-If a feature or setting is not supported by the offline compiler (e.g. channel
-grouping on the HDAWG) the best way is to fallback to the awg module from Labone.
+The HDAWG can be programmed with the function `load_sequencer_program` only when in 4x2 or 2x2 mode. Other grouped modes (like 1x8, 2x4 or 1x4) should use the AWG module. See [hdawg_grouped_mode](hdawg_grouped_mode.md) for more details.
 
-```python
-import time
-awg = session.modules.awg
-awg.device(device.serial)
-awg.index(AWG_CORE)
-awg.sequencertype('sg' if device.device_type.startswith('SHFSG') or device.device_type.startswith('SHFQC') else 'auto-detect')
-awg.execute()
-awg.compiler.sourcestring(SEQUENCER_CODE)
-
-# The following lines are not mandatory but only to ensure that everything was compiled and uploaded correctly. 
-timeout = 100.0  # seconds
-compiler_status = awg.compiler.status()
-start = time.time()
-while compiler_status == -1:
-    if time.time() - start >= timeout:
-        raise TimeoutError("Program compilation timed out")
-    time.sleep(0.1)
-    compiler_status = awg.compiler.status()
-if compiler_status == 1:
-    raise RuntimeError(
-        "Error during sequencer compilation. Check the log for detailed information"
-    )
-if compiler_status == 2:
-    print(f"Warning during sequencer compilation {awg.compiler.statusstring()}")
-# Check and wait until the elf upload to the device was successful
-progress = awg.progress()
-while progress < 1.0 or awg.elf.status() == 2 or awg_node.ready() == 0:
-    if time.time() - start >= timeout:
-        raise TimeoutError(f"Program upload timed out")
-    time.sleep(0.1)
-    progress = awg.progress()
-if awg.elf.status() or not awg_node.ready():
-    raise RuntimeError(
-        "Error during upload of ELF file. Check the log for detailed information"
-    )
-```
 
 ### Sequencer Class
 zhinst-toolkit also offers a class `Sequence` representing a LabOne Sequence.
