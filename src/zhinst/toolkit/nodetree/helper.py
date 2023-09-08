@@ -178,3 +178,18 @@ class NodeDict(Mapping):
         After conversion, :class:`Node` objects cannot be used to get items.
         """
         return self._result
+
+
+def not_callable_in_transactions(func: t.Callable[['Node', ...], None]):
+    """Wrapper to prevent certain functions from being used within a transaction.
+
+    Certain utils functions which that both get and set values would not work like
+    expected in a transaction. This wrapper prevents misuse by throwing an error
+    in such cases.
+    """
+    def f(self: 'Node', *args, **kwargs):
+        if self.root.transaction.in_progress():
+            raise RuntimeError(f"'{func.__name__}' cannot be called inside a transaction")
+        func(self, *args, **kwargs)
+
+    return f

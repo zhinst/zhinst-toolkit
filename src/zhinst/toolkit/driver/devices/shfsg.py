@@ -8,7 +8,7 @@ import zhinst.utils.shfsg as utils
 from zhinst.toolkit.driver.devices.base import BaseInstrument
 from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.nodetree import Node
-from zhinst.toolkit.nodetree.helper import lazy_property
+from zhinst.toolkit.nodetree.helper import lazy_property, not_callable_in_transactions
 from zhinst.toolkit.nodetree.node import NodeList
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ class AWGCore(AWG):
                 the sequencer. For a list of available values use
                 `available_trigger_slopes`
         """
-        utils.configure_marker_and_trigger(
+        settings = utils.get_marker_and_trigger_settings(
             self._daq_server,
             self._serial,
             self._index,
@@ -48,6 +48,7 @@ class AWGCore(AWG):
             trigger_in_slope=trigger_in_slope,
             marker_out_source=marker_out_source,
         )
+        self._send_set_list(settings)
 
     @property
     def available_trigger_inputs(self) -> t.List[str]:
@@ -100,6 +101,7 @@ class SGChannel(Node):
         self._serial = device.serial
         self._session = session
 
+    @not_callable_in_transactions
     def configure_channel(
         self,
         *,
@@ -168,7 +170,7 @@ class SGChannel(Node):
             sine_generator_index=sine_generator_index,
         )
 
-        self._root.send_or_add2transaction(settings)
+        self._send_set_list(settings)
 
     def configure_sine_generation(
         self,
@@ -199,7 +201,7 @@ class SGChannel(Node):
             sine_generator_index: Selects which sine generator to use on a given
                 channel
         """
-        settings = utils.get_sine_generation_settings (
+        settings = utils.get_sine_generation_settings(
             self._session.daq_server,
             self._device.serial,
             self._index,
@@ -211,7 +213,7 @@ class SGChannel(Node):
             sine_generator_index=sine_generator_index,
         )
 
-        self._root.send_or_add2transaction(settings)
+        self._send_set_list(settings)
 
     @property
     def awg_modulation_freq(self) -> float:

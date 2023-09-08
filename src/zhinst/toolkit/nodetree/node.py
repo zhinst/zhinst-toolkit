@@ -1115,6 +1115,13 @@ class Node:
             self._is_valid = len(keys) > 0
         return self._is_valid
 
+    def _send_set_list(self, settings: t.List[t.Tuple[str, t.Any]]):
+        if self.root.transaction.in_progress():
+            self.root.transaction.add_raw_list(settings)
+        else:
+            self.root.session.daq_server.set(settings)
+
+
     @property
     def node_info(self) -> NodeInfo:
         """Additional information about the node."""

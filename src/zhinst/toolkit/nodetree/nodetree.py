@@ -71,7 +71,7 @@ class Transaction:
         self._add_callback: t.Optional[t.Callable[[str, t.Any], None]] = None
 
     def start(
-        self, add_callback: t.Optional[t.Callable[[str, t.Any], None]] = None
+            self, add_callback: t.Optional[t.Callable[[str, t.Any], None]] = None
     ) -> None:
         """Start the transaction.
 
@@ -121,9 +121,11 @@ class Transaction:
         except AttributeError as exception:
             raise AttributeError("No set transaction is in progress.") from exception
 
-    def add_list(self, node_value_pairs: t.List[t.Tuple[t.Union[Node, str], t.Any]]) -> None:
-        for node, value in node_value_pairs:
-            self.add(node, value)
+    def add_raw_list(self, node_value_pairs: t.List[t.Tuple[str, t.Any]]):
+        try:
+            self._queue += node_value_pairs
+        except AttributeError as exception:
+            raise AttributeError("No set transaction is in progress.") from exception
 
     def in_progress(self) -> bool:
         """Flag if the transaction is in progress."""
@@ -183,11 +185,11 @@ class NodeTree:
     """
 
     def __init__(
-        self,
-        connection: Connection,
-        prefix_hide: t.Optional[str] = None,
-        list_nodes: t.Optional[list] = None,
-        preloaded_json: t.Optional[NodeDoc] = None,
+            self,
+            connection: Connection,
+            prefix_hide: t.Optional[str] = None,
+            list_nodes: t.Optional[list] = None,
+            preloaded_json: t.Optional[NodeDoc] = None,
     ):
         self._prefix_hide = prefix_hide.lower() if prefix_hide else None
         self._connection = connection
@@ -286,7 +288,7 @@ class NodeTree:
             return self._node_infos[node]
 
     def get_node_info_raw(
-        self, node: t.Union[Node, str]
+            self, node: t.Union[Node, str]
     ) -> t.Dict[Node, t.Optional[t.Dict]]:
         """Get the information/data for a node.
 
@@ -314,11 +316,11 @@ class NodeTree:
         return result
 
     def update_node(
-        self,
-        node: t.Union[Node, str],
-        updates: t.Dict[str, t.Any],
-        *,
-        add: bool = False,
+            self,
+            node: t.Union[Node, str],
+            updates: t.Dict[str, t.Any],
+            *,
+            add: bool = False,
     ) -> None:
         """Update a node in the NodeTree.
 
@@ -358,11 +360,11 @@ class NodeTree:
         self._node_infos = {}
 
     def update_nodes(
-        self,
-        update_dict: t.Dict[t.Union[Node, str], t.Dict[str, t.Any]],
-        *,
-        add: bool = False,
-        raise_for_invalid_node: bool = True,
+            self,
+            update_dict: t.Dict[t.Union[Node, str], t.Dict[str, t.Any]],
+            *,
+            add: bool = False,
+            raise_for_invalid_node: bool = True,
     ) -> None:
         """Update multiple nodes in the NodeTree.
 
@@ -492,12 +494,6 @@ class NodeTree:
                     "absolute path (leading slash)"
                 ) from error
         return node.lower()
-
-    def send_or_add2transaction(self, settings: t.List[t.Tuple[t.Union[Node, str], t.Any]]):
-        if self.transaction.in_progress():
-            self.transaction.add_list(settings)
-        else:
-            self._session.daq_server.set(settings)
 
     @contextmanager
     def set_transaction(self) -> t.Generator[None, None, None]:
