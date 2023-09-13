@@ -136,14 +136,15 @@ def test_sg_awg_modulation_freq(mock_connection, shfqc):
 
 
 def test_awg_configure_marker_and_trigger(data_dir, mock_connection, shfqc):
+    import site
+    print(site.getsitepackages())
     with patch("zhinst.toolkit.driver.devices.shfsg.utils", autospec=True) as utils:
         shfqc.sgchannels[0].awg.configure_marker_and_trigger(
             trigger_in_source="test1",
             trigger_in_slope="test2",
             marker_out_source="test3",
         )
-        utils.configure_marker_and_trigger.assert_called_once_with(
-            mock_connection.return_value,
+        utils.get_marker_and_trigger_settings.assert_called_once_with(
             "DEV1234",
             0,
             trigger_in_source="test1",
@@ -219,8 +220,7 @@ def test_configure_pulse_modulation(mock_connection, shfqc):
             gains=(3.0, -1.0, 5.0, 1.0),
             sine_generator_index=8,
         )
-        utils.configure_pulse_modulation.assert_called_once_with(
-            mock_connection.return_value,
+        utils.get_pulse_modulation_settings.assert_called_once_with(
             "DEV1234",
             0,
             enable=1,
@@ -243,8 +243,7 @@ def test_configure_sine_generation(mock_connection, shfqc):
             gains=(3.0, -1.0, 5.0, 1.0),
             sine_generator_index=8,
         )
-        utils.configure_sine_generation.assert_called_once_with(
-            mock_connection.return_value,
+        utils.get_sine_generation_settings.assert_called_once_with(
             "DEV1234",
             0,
             enable=1,

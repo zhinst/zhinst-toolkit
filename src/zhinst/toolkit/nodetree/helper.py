@@ -187,9 +187,11 @@ def not_callable_in_transactions(func: t.Callable[['Node', ...], None]):
     expected in a transaction. This wrapper prevents misuse by throwing an error
     in such cases.
     """
-    def f(self: 'Node', *args, **kwargs):
-        if self.root.transaction.in_progress():
-            raise RuntimeError(f"'{func.__name__}' cannot be called inside a transaction")
-        func(self, *args, **kwargs)
+    def wrapper(node: 'Node', *args, **kwargs):
+        if node.root.transaction.in_progress():
+            raise RuntimeError(
+                f"'{func.__name__}' cannot be called inside a transaction"
+            )
+        func(node, *args, **kwargs)
 
-    return f
+    return wrapper

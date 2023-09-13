@@ -63,8 +63,7 @@ def test_awg_configure_marker_and_trigger(data_dir, mock_connection, shfsg):
             trigger_in_slope="test2",
             marker_out_source="test3",
         )
-        utils.configure_marker_and_trigger.assert_called_once_with(
-            mock_connection.return_value,
+        utils.get_marker_and_trigger_settings.assert_called_once_with(
             "DEV1234",
             0,
             trigger_in_source="test1",
@@ -139,8 +138,7 @@ def test_configure_pulse_modulation(mock_connection, shfsg):
             gains=(3.0, -1.0, 5.0, 1.0),
             sine_generator_index=8,
         )
-        utils.configure_pulse_modulation.assert_called_once_with(
-            mock_connection.return_value,
+        utils.get_pulse_modulation_settings.assert_called_once_with(
             "DEV1234",
             0,
             enable=1,
@@ -163,8 +161,7 @@ def test_configure_sine_generation(mock_connection, shfsg):
             gains=(3.0, -1.0, 5.0, 1.0),
             sine_generator_index=8,
         )
-        utils.configure_sine_generation.assert_called_once_with(
-            mock_connection.return_value,
+        utils.get_sine_generation_settings.assert_called_once_with(
             "DEV1234",
             0,
             enable=1,

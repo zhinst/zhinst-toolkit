@@ -28,7 +28,6 @@ def data_dir(request):
 
 @pytest.fixture()
 def connection(data_dir):
-
     json_path = data_dir / "nodedoc_dev1234_zi.json"
     with json_path.open("r", encoding="UTF-8") as file:
         nodes_json = file.read()
@@ -169,12 +168,12 @@ def test_node(connection):
     tree = NodeTree(connection, "DEV1234")
     # test properties of node
     assert (
-        repr(tree.demods[0].rate.node_info)
-        == 'NodeInfo("/dev1234/demods/0/rate",leaf-node)'
+            repr(tree.demods[0].rate.node_info)
+            == 'NodeInfo("/dev1234/demods/0/rate",leaf-node)'
     )
     assert (
-        str(tree.demods[0].rate.node_info)
-        == """\
+            str(tree.demods[0].rate.node_info)
+            == """\
 /dev1234/demods/0/rate
 Defines the demodulator sampling rate, the number of samples that are sent to the host \
 computer per second. A rate of about 7-10 higher as compared to the filter bandwidth \
@@ -243,6 +242,58 @@ Unit: 1/s"""
     # dynamic node
     with pytest.raises(KeyError):
         tree.demods.waves[0].node_info.unit
+
+
+def test_send_set_list(connection):
+    tree = NodeTree(connection, "DEV1234")
+    node = tree.demods[0]
+    settings = [(str(node.freq), 2000)]
+
+    node._send_set_list(settings)
+
+    connection.set.assert_called_once_with(
+        settings
+    )
+
+
+def test_send_set_list_transaction(connection):
+    tree = NodeTree(connection, "DEV1234")
+    node = tree.demods[0]
+    settings = [(str(node.freq), 2000)]
+
+    with tree.set_transaction():
+        node.enable(True)
+        node._send_set_list(settings)
+
+        connection.set.assert_not_called()
+
+    connection.set.assert_called_once_with(
+        [(str(node.enable), True)] + settings
+    )
+
+def test_add_raw_list_outside_transaction(connection):
+    tree = NodeTree(connection, "DEV1234")
+    transaction = tree.transaction
+    settings = [('test1', True), ('test2', 17)]
+
+    with pytest.raises(AttributeError, match="No set transaction is in progress."):
+        transaction.add_raw_list(settings)
+
+
+def test_add_raw_list(connection):
+    tree = NodeTree(connection, "DEV1234")
+    transaction = tree.transaction
+    settings = [('test1', True), ('test2', 17)]
+
+    with tree.set_transaction():
+        transaction.add("test3", 3.5)
+        transaction.add_raw_list(settings)
+        transaction.add('test4', False)
+
+    connection.set.assert_called_once_with(
+        [('/dev1234/test3', 3.5), ('/dev1234/test1', True),
+         ('/dev1234/test2', 17), ('/dev1234/test4', False)]
+    )
 
 
 def test_node_dir_property_not_duplicated(connection):
@@ -448,8 +499,8 @@ def test_get_wildcard(connection):
     )
     result = tree.demods()
     assert (
-        result[tree.demods[0].impedance]
-        == connection.get.return_value["/dev1234/demods/0/impedance"]
+            result[tree.demods[0].impedance]
+            == connection.get.return_value["/dev1234/demods/0/impedance"]
     )
     connection.get.assert_called_with("/dev1234/demods", settingsonly=False, flat=True)
 
@@ -608,8 +659,9 @@ def test_update_node(connection):
     assert tree.demods[0].rate.node_info.unit == "test"
     tree.update_node("demods/0/rate", {"Test": "test"})
     assert (
-        next(iter(tree.get_node_info_raw("demods/0/rate").values())).get("Test", None)
-        == "test"
+            next(iter(tree.get_node_info_raw("demods/0/rate").values())).get("Test",
+                                                                             None)
+            == "test"
     )
     tree.update_node("demods/0/rate", {"Unit": "test2", "Test2": True})
     assert tree.demods[0].rate.node_info.unit == "test2"
@@ -878,22 +930,22 @@ def test_wait_for_state_change(connection):
     with pytest.raises(TimeoutError) as e:
         tree.demods[0].trigger.wait_for_state_change(2, timeout=0.1)
     assert (
-        str(e.value) == "/dev1234/demods/0/trigger did not change to the "
-        "expected value within 0.1s. 2 != 1"
+            str(e.value) == "/dev1234/demods/0/trigger did not change to the "
+                            "expected value within 0.1s. 2 != 1"
     )
 
     with pytest.raises(TimeoutError) as e:
         tree.demods[0].trigger.wait_for_state_change(value_enum2, timeout=0.1)
     assert (
-        str(e.value) == "/dev1234/demods/0/trigger did not change to the "
-        "expected value within 0.1s. 'trigin0_falling' != 'trigin0_rising'"
+            str(e.value) == "/dev1234/demods/0/trigger did not change to the "
+                            "expected value within 0.1s. 'trigin0_falling' != 'trigin0_rising'"
     )
 
     with pytest.raises(TimeoutError) as e:
         tree.demods[0].trigger.wait_for_state_change("trigin0_falling", timeout=0.1)
     assert (
-        str(e.value) == "/dev1234/demods/0/trigger did not change to the "
-        "expected value within 0.1s. 'trigin0_falling' != 'trigin0_rising'"
+            str(e.value) == "/dev1234/demods/0/trigger did not change to the "
+                            "expected value within 0.1s. 'trigin0_falling' != 'trigin0_rising'"
     )
 
     with pytest.raises(TimeoutError) as e:
@@ -901,15 +953,15 @@ def test_wait_for_state_change(connection):
             "trigger_input0_falling", timeout=0.1
         )
     assert (
-        str(e.value) == "/dev1234/demods/0/trigger did not change to the "
-        "expected value within 0.1s. 'trigin0_falling' != 'trigin0_rising'"
+            str(e.value) == "/dev1234/demods/0/trigger did not change to the "
+                            "expected value within 0.1s. 'trigin0_falling' != 'trigin0_rising'"
     )
 
     with pytest.raises(TimeoutError) as e:
         tree.demods[0].trigger.wait_for_state_change(1, invert=True, timeout=0.1)
     assert (
-        str(e.value) == "/dev1234/demods/0/trigger did not change from the "
-        "expected value 1 within 0.1s."
+            str(e.value) == "/dev1234/demods/0/trigger did not change from the "
+                            "expected value 1 within 0.1s."
     )
 
     with pytest.raises(TimeoutError) as e:
@@ -917,8 +969,8 @@ def test_wait_for_state_change(connection):
             value_enum1, invert=True, timeout=0.1
         )
     assert (
-        str(e.value) == "/dev1234/demods/0/trigger did not change from the "
-        "expected value 'trigin0_rising' within 0.1s."
+            str(e.value) == "/dev1234/demods/0/trigger did not change from the "
+                            "expected value 'trigin0_rising' within 0.1s."
     )
 
     with pytest.raises(TimeoutError) as e:
@@ -926,8 +978,8 @@ def test_wait_for_state_change(connection):
             "trigger_input0_rising", invert=True, timeout=0.1
         )
     assert (
-        str(e.value) == "/dev1234/demods/0/trigger did not change from the "
-        "expected value 'trigin0_rising' within 0.1s."
+            str(e.value) == "/dev1234/demods/0/trigger did not change from the "
+                            "expected value 'trigin0_rising' within 0.1s."
     )
 
     sequence = cycle([1] * 3 + [2])
@@ -1132,7 +1184,6 @@ def test_connection_dict_callable_nodes(data_dir):
 
 @pytest.fixture()
 def hdawg(data_dir, mock_connection, session):
-
     json_path = data_dir / "nodedoc_dev1234_hdawg.json"
     with json_path.open("r", encoding="UTF-8") as file:
         nodes_json = file.read()
@@ -1234,7 +1285,6 @@ def test_resolve_wildcards_labone_wildcard_end_fail():
 
 
 def test_garbage_collection_of_session(connection):
-
     gc.collect()
 
     def tester():
@@ -1248,7 +1298,6 @@ def test_garbage_collection_of_session(connection):
 
 
 def test_garbage_collection_of_session_node_info(connection):
-
     gc.collect()
 
     def tester():

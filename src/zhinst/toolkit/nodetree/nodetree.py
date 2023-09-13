@@ -122,9 +122,22 @@ class Transaction:
             raise AttributeError("No set transaction is in progress.") from exception
 
     def add_raw_list(self, node_value_pairs: t.List[t.Tuple[str, t.Any]]):
+        """Adds multiple set commands at a time.
+
+        Args:
+            node_value_pairs: List of settings in the form of
+            (node_string, value)
+
+        Note: settings can only take strings which to
+                describe a node, but no node objects
+        """
         try:
-            self._queue += node_value_pairs
-        except AttributeError as exception:
+            self._queue += list(map(
+                lambda tup: (self._root.string_to_raw_path(tup[0]), tup[1]),
+                node_value_pairs
+            ))
+
+        except TypeError as exception:
             raise AttributeError("No set transaction is in progress.") from exception
 
     def in_progress(self) -> bool:
