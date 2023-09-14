@@ -203,8 +203,7 @@ def test_configure_sequencer_triggering(generator, mock_connection):
         generator.configure_sequencer_triggering(
             aux_trigger="fobarob", play_pulse_delay=0.0001
         )
-        utils.configure_sequencer_triggering.assert_called_with(
-            mock_connection.return_value,
+        utils.get_sequencer_triggering_settings.assert_called_with(
             "DEV1234",
             0,
             aux_trigger="fobarob",

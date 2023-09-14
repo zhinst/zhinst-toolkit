@@ -202,7 +202,6 @@ class SGChannel(Node):
                 channel
         """
         settings = utils.get_sine_generation_settings(
-            self._session.daq_server,
             self._device.serial,
             self._index,
             enable=int(enable),

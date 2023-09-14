@@ -16,7 +16,8 @@ from zhinst.toolkit.driver.devices import HDAWG
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.connection_dict import ConnectionDict
 from zhinst.toolkit.nodetree.node import NodeList
-from zhinst.toolkit.nodetree.helper import resolve_wildcards_labone
+from zhinst.toolkit.nodetree.helper import (resolve_wildcards_labone,
+                                            not_callable_in_transactions)
 
 from zhinst.core.errors import CoreError
 
@@ -295,6 +296,21 @@ def test_add_raw_list(connection):
          ('/dev1234/test2', 17), ('/dev1234/test4', False)]
     )
 
+
+def test_not_callable_in_transactions(connection):
+    tree = NodeTree(connection, "DEV1234")
+    node = tree.demods[0]
+
+    @not_callable_in_transactions
+    def example_func(node: Node, kwarg=None):
+        return True
+
+    example_func(node)  # no error
+
+    with pytest.raises(RuntimeError,
+                       match="'example_func' cannot be called inside a transaction"):
+        with tree.set_transaction():
+            example_func(node)
 
 def test_node_dir_property_not_duplicated(connection):
     class MockNode(Node):
