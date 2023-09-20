@@ -71,7 +71,7 @@ class Transaction:
         self._add_callback: t.Optional[t.Callable[[str, t.Any], None]] = None
 
     def start(
-            self, add_callback: t.Optional[t.Callable[[str, t.Any], None]] = None
+        self, add_callback: t.Optional[t.Callable[[str, t.Any], None]] = None
     ) -> None:
         """Start the transaction.
 
@@ -125,20 +125,16 @@ class Transaction:
         """Adds multiple set commands at a time.
 
         Args:
-            node_value_pairs: List of settings in the form of
-            (node_string, value)
+            node_value_pairs: List of settings in the form of (node_string, value)
+            the node_strings are assumed to be valid and of the form /dev1234/.../attr1
 
         Note: settings can only take strings which to
                 describe a node, but no node objects
         """
         try:
-            self._queue += list(map(
-                lambda tup: (self._root.string_to_raw_path(tup[0]), tup[1]),
-                node_value_pairs
-            ))
-
+            self._queue += node_value_pairs  # type: ignore[operator]  # caught
         except TypeError as exception:
-            raise AttributeError("No set transaction is in progress.") from exception
+            raise ToolkitError("No set transaction is in progress.") from exception
 
     def in_progress(self) -> bool:
         """Flag if the transaction is in progress."""
@@ -198,11 +194,11 @@ class NodeTree:
     """
 
     def __init__(
-            self,
-            connection: Connection,
-            prefix_hide: t.Optional[str] = None,
-            list_nodes: t.Optional[list] = None,
-            preloaded_json: t.Optional[NodeDoc] = None,
+        self,
+        connection: Connection,
+        prefix_hide: t.Optional[str] = None,
+        list_nodes: t.Optional[list] = None,
+        preloaded_json: t.Optional[NodeDoc] = None,
     ):
         self._prefix_hide = prefix_hide.lower() if prefix_hide else None
         self._connection = connection
@@ -301,7 +297,7 @@ class NodeTree:
             return self._node_infos[node]
 
     def get_node_info_raw(
-            self, node: t.Union[Node, str]
+        self, node: t.Union[Node, str]
     ) -> t.Dict[Node, t.Optional[t.Dict]]:
         """Get the information/data for a node.
 
@@ -329,11 +325,11 @@ class NodeTree:
         return result
 
     def update_node(
-            self,
-            node: t.Union[Node, str],
-            updates: t.Dict[str, t.Any],
-            *,
-            add: bool = False,
+        self,
+        node: t.Union[Node, str],
+        updates: t.Dict[str, t.Any],
+        *,
+        add: bool = False,
     ) -> None:
         """Update a node in the NodeTree.
 
@@ -373,11 +369,11 @@ class NodeTree:
         self._node_infos = {}
 
     def update_nodes(
-            self,
-            update_dict: t.Dict[t.Union[Node, str], t.Dict[str, t.Any]],
-            *,
-            add: bool = False,
-            raise_for_invalid_node: bool = True,
+        self,
+        update_dict: t.Dict[t.Union[Node, str], t.Dict[str, t.Any]],
+        *,
+        add: bool = False,
+        raise_for_invalid_node: bool = True,
     ) -> None:
         """Update multiple nodes in the NodeTree.
 

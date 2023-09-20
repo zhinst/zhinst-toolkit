@@ -180,14 +180,17 @@ class NodeDict(Mapping):
         return self._result
 
 
-def not_callable_in_transactions(func: t.Callable[['Node', ...], None]):
+def not_callable_in_transactions(
+    func: t.Callable[["Node", ...], None]  # type: ignore[misc]
+):
     """Wrapper to prevent certain functions from being used within a transaction.
 
     Certain utils functions which that both get and set values would not work like
     expected in a transaction. This wrapper prevents misuse by throwing an error
     in such cases.
     """
-    def wrapper(node: 'Node', *args, **kwargs):
+
+    def wrapper(node: "Node", *args, **kwargs):
         if node.root.transaction.in_progress():
             raise RuntimeError(
                 f"'{func.__name__}' cannot be called inside a transaction"

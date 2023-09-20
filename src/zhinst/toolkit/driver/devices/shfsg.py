@@ -41,7 +41,6 @@ class AWGCore(AWG):
                 `available_trigger_slopes`
         """
         settings = utils.get_marker_and_trigger_settings(
-            ####self._daq_server,
             self._serial,
             self._index,
             trigger_in_source=trigger_in_source,
