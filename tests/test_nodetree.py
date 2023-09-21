@@ -20,6 +20,7 @@ from zhinst.toolkit.nodetree.helper import (
     resolve_wildcards_labone,
     not_callable_in_transactions,
 )
+from zhinst.toolkit.exceptions import ToolkitError
 
 from zhinst.core.errors import CoreError
 
@@ -276,7 +277,7 @@ def test_add_raw_list_outside_transaction(connection):
     transaction = tree.transaction
     settings = [("/dev1234/test1", True), ("/dev1234/test2", 17)]
 
-    with pytest.raises(AttributeError, match="No set transaction is in progress."):
+    with pytest.raises(ToolkitError, match="No set transaction is in progress."):
         transaction.add_raw_list(settings)
 
 
