@@ -27,7 +27,6 @@ Requirements:
 ---
 
 ```python
-import textwrap
 import numpy as np
 import time
 
@@ -53,7 +52,10 @@ device = session.connect_device(device_id)
 device.factory_reset()
 
 # check if firmware is compatible
-device.check_compatibility()
+try:
+    device.check_compatibility()
+except tk.exceptions.ToolkitError as e:
+    print(f"{e}\nPlease update the firmware on your device.")
 ```
 
 ### Basic configuration
@@ -99,8 +101,10 @@ After defining the sequencer program, this must be compiled before being uploade
 
 ```python
 awg_program = tk.Sequence()
-awg_program.constants['wfm_index'] = 0
-awg_program.constants['wfm_length'] = 1024
+wfm_index = 0
+wfm_length = 1024
+awg_program.constants['wfm_index'] = wfm_index
+awg_program.constants['wfm_length'] = wfm_length
 
 awg_program.code = """
 // Define placeholder with 1024 samples:

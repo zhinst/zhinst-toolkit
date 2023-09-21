@@ -389,6 +389,24 @@ def test_get_deep(connection):
     assert timestamp is None
 
 
+def test_get_deep_module(connection):
+    tree = NodeTree(connection, "DEV1234")
+    data = OrderedDict(
+        [
+            (
+                "/dev1234/demods/0/rate",
+                {
+                    "timestamp": array("q", [1236389131550]),
+                    "value": array("d", [1674.10717773]),
+                },
+            )
+        ]
+    )
+    connection.get.side_effect = [TypeError(), data]
+    tree.demods[0].rate(deep=True)
+    connection.get.assert_called_with(tree.demods[0].rate.node_info.path, flat=True)
+
+
 def test_get_wildcard(connection):
     tree = NodeTree(connection, "DEV1234")
 
