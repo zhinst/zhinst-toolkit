@@ -6,7 +6,7 @@ jupyter:
       extension: .md
       format_name: markdown
       format_version: '1.3'
-      jupytext_version: 1.14.7
+      jupytext_version: 1.15.2
   kernelspec:
     display_name: Python 3 (ipykernel)
     language: python
@@ -65,12 +65,12 @@ const SIGMA = WFM_LEN/8;
 // Define waveforms
 wave w0_1 = gauss(WFM_LEN, 1.0, GAUSS_CENTER, SIGMA) + marker(128, 1);
 wave w0_2 = drag(WFM_LEN, 1.0, GAUSS_CENTER, SIGMA);
-wave w1_1 = gauss(WFM_LEN, 0.5, GAUSS_CENTER, SIGMA) + marker(128, 1);
+wave w1_1 = gauss(WFM_LEN, 0.5, GAUSS_CENTER, SIGMA);
 wave w1_2 = drag(WFM_LEN, 0.5, GAUSS_CENTER, SIGMA);
 
 // Assign waveforms to an index in the waveform memory
 assignWaveIndex(1,2, w0_1, 1,2, w0_2, 0);
-assignWaveIndex(1,2, w1_1, 1,2, w1_2, 1);
+assignWaveIndex(1,2, w1_1, 1,2, w1_2, 2);
 
 // Play wave 1
 playWave(1,2, w0_1, 1,2, w0_2);
@@ -168,7 +168,7 @@ waveforms = Waveforms()
 # Waveform at index 0 with markers
 waveforms[0] = (0.5*np.ones(1008), -0.2*np.ones(1008), np.ones(1008))
 # Waveform at index 2 without markers
-waveforms[2] = (np.random.rand(1008)), np.random.rand(1008)
+waveforms[2] = (np.random.rand(1008), np.random.rand(1008))
 
 awg_node.write_to_waveform_memory(waveforms)
 ```
@@ -268,6 +268,7 @@ from the device (only if the sequencer code is already uploaded).
 
 ```python
 waveforms = awg_node.read_from_waveform_memory()
+elf,_ = awg_node.compile_sequencer_program(SEQUENCER_CODE)
 
 waveforms.validate(elf)
 waveforms.validate(awg_node.waveform.descriptors())

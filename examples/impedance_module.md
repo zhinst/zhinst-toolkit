@@ -67,10 +67,7 @@ module.validation(0)
 # 4 = Load
 # 5 = Short Load
 # 8 = Load Load Load
-# Note that the additional open step can be added to all of the options above
-# except the Load Load Load option.
 module.mode(1)
-module.openstep(1)
 ```
 
 Set up the logging to track the progress of the calibration
