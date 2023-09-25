@@ -135,9 +135,6 @@ def test_sg_awg_modulation_freq(mock_connection, shfqc):
 
 
 def test_awg_configure_marker_and_trigger(data_dir, mock_connection, shfqc):
-    import site
-
-    print(site.getsitepackages())
     with patch("zhinst.toolkit.driver.devices.shfsg.utils", autospec=True) as utils:
         shfqc.sgchannels[0].awg.configure_marker_and_trigger(
             trigger_in_source="test1",

@@ -31,8 +31,8 @@ class AWGCore(AWG):
 
         Args:
             trigger_in_source: Alias for the trigger input used by the
-                sequencer. For a list of available values use:>
-                raise AttributeError("Mock object has no attribute %r" % name)
+                sequencer. For a list of available values use:
+                `available_trigger_inputs`
             trigger_in_slope: Alias for the slope of the input trigger
                 used by sequencer. For a list of available values use
                 `available_trigger_inputs`
