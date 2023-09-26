@@ -6,6 +6,7 @@ import zhinst.utils.shfqa as utils
 
 from zhinst.toolkit.interface import AveragingMode
 from zhinst.toolkit.nodetree import Node, NodeTree
+from zhinst.toolkit.nodetree.helper import not_callable_in_transactions
 
 logger = logging.getLogger(__name__)
 
@@ -49,15 +50,16 @@ class Spectroscopy(Node):
             num_averages: Number of averages, will be rounded to 2^n.
             averaging_mode: Averaging order of the result.
         """
-        utils.configure_result_logger_for_spectroscopy(
-            self._daq_server,
+        settings = utils.get_result_logger_for_spectroscopy_settings(
             self._serial,
             self._index,
             result_length=result_length,
             num_averages=num_averages,
             averaging_mode=int(averaging_mode),
         )
+        self._send_set_list(settings)
 
+    @not_callable_in_transactions
     def run(self) -> None:
         """Resets and enables the spectroscopy result logger."""
         utils.enable_result_logger(
@@ -115,6 +117,7 @@ class Spectroscopy(Node):
                 f"within the specified timeout ({timeout}s)."
             ) from error
 
+    @not_callable_in_transactions
     def read(
         self,
         *,

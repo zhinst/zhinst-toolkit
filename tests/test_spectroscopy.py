@@ -18,8 +18,7 @@ def m_utils():
 
 def test_configure_result_logger(mock_connection, spectroscopy, m_utils):
     spectroscopy.configure_result_logger(result_length=10)
-    m_utils.configure_result_logger_for_spectroscopy.assert_called_with(
-        mock_connection.return_value,
+    m_utils.get_result_logger_for_spectroscopy_settings.assert_called_with(
         "DEV1234",
         0,
         result_length=10,
@@ -29,8 +28,7 @@ def test_configure_result_logger(mock_connection, spectroscopy, m_utils):
     spectroscopy.configure_result_logger(
         result_length=0, num_averages=2, averaging_mode=1
     )
-    m_utils.configure_result_logger_for_spectroscopy.assert_called_with(
-        mock_connection.return_value,
+    m_utils.get_result_logger_for_spectroscopy_settings.assert_called_with(
         "DEV1234",
         0,
         result_length=0,

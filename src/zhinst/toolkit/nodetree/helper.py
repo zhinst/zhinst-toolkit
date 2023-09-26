@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from collections.abc import Mapping
 import re
 from _thread import RLock  # type: ignore
+from functools import wraps
 
 # TypedDict is available in the typing module since 3.8
 # Ift we only support 3.8 we should switch to t.TypedDict
@@ -178,3 +179,30 @@ class NodeDict(Mapping):
         After conversion, :class:`Node` objects cannot be used to get items.
         """
         return self._result
+
+
+def not_callable_in_transactions(
+    func: t.Callable[["Node", t.Any], t.Any]
+) -> t.Callable[["Node", t.Any], t.Any]:
+    """Wrapper to prevent certain functions from being used within a transaction.
+
+    Certain utils functions which that both get and set values would not work like
+    expected in a transaction. This wrapper prevents misuse by throwing an error
+    in such cases.
+
+    Args:
+        func: function to wrap
+
+    Returns:
+        Similar function, but not callable from transactions
+    """
+
+    @wraps(func)
+    def wrapper(node: "Node", *args, **kwargs):
+        if node.root.transaction.in_progress():
+            raise RuntimeError(
+                f"'{func.__name__}' cannot be called inside a transaction"
+            )
+        return func(node, *args, **kwargs)
+
+    return wrapper

@@ -6,6 +6,7 @@ import zhinst.utils.shfqa as utils
 from zhinst.core import ziDAQServer
 
 from zhinst.toolkit.nodetree import Node, NodeTree
+from zhinst.toolkit.nodetree.helper import not_callable_in_transactions
 
 logger = logging.getLogger(__name__)
 
@@ -132,8 +133,7 @@ class SHFScope(Node):
             trigger_delay: delay in samples specifying the time between the
                 start of data acquisition and reception of a trigger.
         """
-        utils.configure_scope(
-            self._daq_server,
+        settings = utils.get_scope_settings(
             self._serial,
             input_select=input_select,
             num_samples=num_samples,
@@ -142,7 +142,9 @@ class SHFScope(Node):
             num_averages=num_averages,
             trigger_delay=trigger_delay,
         )
+        self._send_set_list(settings)
 
+    @not_callable_in_transactions
     def read(
         self,
         *,

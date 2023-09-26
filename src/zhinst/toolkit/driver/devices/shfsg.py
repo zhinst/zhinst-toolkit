@@ -8,7 +8,7 @@ import zhinst.utils.shfsg as utils
 from zhinst.toolkit.driver.devices.base import BaseInstrument
 from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.nodetree import Node
-from zhinst.toolkit.nodetree.helper import lazy_property
+from zhinst.toolkit.nodetree.helper import lazy_property, not_callable_in_transactions
 from zhinst.toolkit.nodetree.node import NodeList
 
 logger = logging.getLogger(__name__)
@@ -40,14 +40,14 @@ class AWGCore(AWG):
                 the sequencer. For a list of available values use
                 `available_trigger_slopes`
         """
-        utils.configure_marker_and_trigger(
-            self._daq_server,
+        settings = utils.get_marker_and_trigger_settings(
             self._serial,
             self._index,
             trigger_in_source=trigger_in_source,
             trigger_in_slope=trigger_in_slope,
             marker_out_source=marker_out_source,
         )
+        self._send_set_list(settings)
 
     @property
     def available_trigger_inputs(self) -> t.List[str]:
@@ -100,6 +100,7 @@ class SGChannel(Node):
         self._serial = device.serial
         self._session = session
 
+    @not_callable_in_transactions
     def configure_channel(
         self,
         *,
@@ -156,8 +157,7 @@ class SGChannel(Node):
             sine_generator_index: Selects which sine generator to use on a
                 given channel.
         """
-        utils.configure_pulse_modulation(
-            self._session.daq_server,
+        settings = utils.get_pulse_modulation_settings(
             self._device.serial,
             self._index,
             enable=int(enable),
@@ -168,6 +168,8 @@ class SGChannel(Node):
             gains=gains,
             sine_generator_index=sine_generator_index,
         )
+
+        self._send_set_list(settings)
 
     def configure_sine_generation(
         self,
@@ -198,8 +200,7 @@ class SGChannel(Node):
             sine_generator_index: Selects which sine generator to use on a given
                 channel
         """
-        utils.configure_sine_generation(
-            self._session.daq_server,
+        settings = utils.get_sine_generation_settings(
             self._device.serial,
             self._index,
             enable=int(enable),
@@ -209,6 +210,8 @@ class SGChannel(Node):
             gains=gains,
             sine_generator_index=sine_generator_index,
         )
+
+        self._send_set_list(settings)
 
     @property
     def awg_modulation_freq(self) -> float:
