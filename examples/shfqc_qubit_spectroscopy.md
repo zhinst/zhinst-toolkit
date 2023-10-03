@@ -142,7 +142,7 @@ averages_per_sweep_step = int(
 device.qachannels[0].readout.configure_result_logger(
     result_length=num_sweep_steps_qubit_spectroscopy,
     num_averages=averages_per_sweep_step,
-    result_source="integration",
+    result_source="result_of_integration",
     averaging_mode=AveragingMode.SEQUENTIAL,
 )
 device.qachannels[0].readout.run()
