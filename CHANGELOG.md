@@ -1,5 +1,10 @@
 # zhinst-toolkit Changelog
 
+## Version 0.6.2
+* The function `enable_qccs_mode` of the HDAWG driver now accept an optional argument to select the QCCS generation.
+  It's advised to set it to 2 (gen2) when the HDAWG is operated with PQSC together with SHF instruments, and set it
+  to 1 (gen1) when the HDAWG is operated with PQSC together with UHFQA instruments.
+
 ## Version 0.6.1
 * Deep gets on nodes with keywords returns an enum like the regular get.
 * Fix rare failures of `wait_for_state_change` function that resulted in early timeouts.
