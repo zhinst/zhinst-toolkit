@@ -3,6 +3,7 @@ from unittest.mock import patch
 
 from zhinst.toolkit.driver.devices.hdawg import AWG, HDAWG
 from zhinst.toolkit.nodetree import Node
+from zhinst.toolkit.exceptions import ToolkitError
 
 
 @pytest.fixture()
@@ -29,30 +30,69 @@ def test_repr(hdawg):
 
 
 def test_enable_qccs_mode(mock_connection, hdawg):
+    # No argument, equal to gen1
     hdawg.enable_qccs_mode()
     mock_connection.return_value.set.assert_called_with(
         [
-            ("/dev1234/system/clocks/referenceclock/source", "zsync"),
-            ("/dev1234/dios/0/interface", 0),
             ("/dev1234/dios/0/mode", "qccs"),
+            ("/dev1234/system/clocks/sampleclock/freq", 2.4e9),
+            ("/dev1234/dios/0/interface", 0),
             ("/dev1234/dios/0/drive", 12),
+            ("/dev1234/system/clocks/referenceclock/source", "zsync"),
             ("/dev1234/awgs/*/dio/strobe/slope", "off"),
             ("/dev1234/awgs/*/dio/valid/polarity", "none"),
         ]
     )
+
+    # Set transaction check
     mock_connection.reset_mock()
     with hdawg.set_transaction():
         hdawg.enable_qccs_mode()
     mock_connection.return_value.set.assert_called_with(
         [
-            ("/dev1234/system/clocks/referenceclock/source", "zsync"),
-            ("/dev1234/dios/0/interface", 0),
             ("/dev1234/dios/0/mode", "qccs"),
+            ("/dev1234/system/clocks/sampleclock/freq", 2.4e9),
+            ("/dev1234/dios/0/interface", 0),
             ("/dev1234/dios/0/drive", 12),
+            ("/dev1234/system/clocks/referenceclock/source", "zsync"),
             ("/dev1234/awgs/*/dio/strobe/slope", "off"),
             ("/dev1234/awgs/*/dio/valid/polarity", "none"),
         ]
     )
+
+    # Gen1 test
+    mock_connection.reset_mock()
+    hdawg.enable_qccs_mode(gen=1)
+    mock_connection.return_value.set.assert_called_with(
+        [
+            ("/dev1234/dios/0/mode", "qccs"),
+            ("/dev1234/system/clocks/sampleclock/freq", 2.4e9),
+            ("/dev1234/dios/0/interface", 0),
+            ("/dev1234/dios/0/drive", 12),
+            ("/dev1234/system/clocks/referenceclock/source", "zsync"),
+            ("/dev1234/awgs/*/dio/strobe/slope", "off"),
+            ("/dev1234/awgs/*/dio/valid/polarity", "none"),
+        ]
+    )
+
+    # Gen2 test
+    mock_connection.reset_mock()
+    hdawg.enable_qccs_mode(gen=2)
+    mock_connection.return_value.set.assert_called_with(
+        [
+            ("/dev1234/dios/0/mode", "qccs"),
+            ("/dev1234/system/clocks/sampleclock/freq", 2.0e9),
+            ("/dev1234/dios/0/drive", 0),
+            ("/dev1234/system/clocks/referenceclock/source", "zsync"),
+            ("/dev1234/awgs/*/dio/strobe/slope", "off"),
+            ("/dev1234/awgs/*/dio/valid/polarity", "none"),
+        ]
+    )
+
+    # wrong argument
+    mock_connection.reset_mock()
+    with pytest.raises(ToolkitError):
+        hdawg.enable_qccs_mode(gen=1234)
 
 
 def test_awg(hdawg):
