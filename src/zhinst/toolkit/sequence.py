@@ -1,5 +1,6 @@
 """Custom sequence code class."""
 from zhinst.toolkit.waveform import Waveforms
+from zhinst.toolkit.command_table import CommandTable
 import re
 import typing as t
 
@@ -57,10 +58,12 @@ class Sequence:
         *,
         constants: t.Dict[str, float] = None,
         waveforms: Waveforms = None,
+        command_table: CommandTable = None,
     ):
         self._partial_seq = code if code else ""
         self._constants = constants if constants else {}
         self._waveforms = waveforms
+        self._command_table = command_table
 
     def __str__(self) -> str:
         return self.to_string()
@@ -102,31 +105,41 @@ class Sequence:
         return sequence
 
     @property
-    def code(self):
+    def code(self) -> str:
         """Code of the Sequence."""
         return self._partial_seq
 
     @code.setter
-    def code(self, value):
+    def code(self, value: str) -> None:
         """Code of the Sequence."""
         self._partial_seq = value
 
     @property
-    def constants(self):
+    def constants(self) -> t.Dict[str, float]:
         """Constants of the Sequence."""
         return self._constants
 
     @constants.setter
-    def constants(self, value):
+    def constants(self, value: t.Dict[str, float]) -> None:
         """Constants of the Sequence."""
         self._constants = value
 
     @property
-    def waveforms(self):
+    def waveforms(self) -> Waveforms:
         """Waveforms of the Sequence."""
         return self._waveforms
 
     @waveforms.setter
-    def waveforms(self, value):
+    def waveforms(self, value: Waveforms) -> None:
         """Waveforms of the Sequence."""
         self._waveforms = value
+
+    @property
+    def command_table(self) -> CommandTable:
+        """Command table of the Sequence."""
+        return self._command_table
+
+    @command_table.setter
+    def command_table(self, value: CommandTable) -> None:
+        """Command table of the Sequence."""
+        self._command_table = value
