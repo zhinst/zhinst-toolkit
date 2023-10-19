@@ -9,33 +9,18 @@ import json
 import typing as t
 
 import jsonref
-import jsonschema
 
 from zhinst.toolkit.exceptions import ValidationError
-
-# JSON Schema validator for validating the schemes.
-JSON_SCHEMA_VALIDATOR = jsonschema.Draft4Validator
+import fastjsonschema
 
 
-def _validate_instance(instance: object, schema: dict, validator=JSON_SCHEMA_VALIDATOR):
-    """Validate JSON instance.
-
-    Args:
-        instance: Instance to be validated.
-        schema: Schema
-        validation: Validator
-
-    Raises:
-        ValidationError: Validation failed.
-    """
-    try:
-        jsonschema.validate(
-            instance=instance,
-            schema=schema,
-            cls=validator,
-        )
-    except jsonschema.ValidationError as e:
-        raise ValidationError(str(e)) from None
+def _carry_schema_ver(
+    parent: dict, child: dict, default="https://json-schema.org/draft-04/schema#"
+) -> dict:
+    """Carry over parent JSON schema version to the child."""
+    # Required for `fastjsonschema` validation
+    child["$schema"] = parent.get("$schema", default)
+    return child
 
 
 class ParentNode:
@@ -55,6 +40,13 @@ class ParentNode:
         self, schema: dict, path: t.Tuple[str, ...], active_validation: bool = True
     ):
         self._schema = copy.deepcopy(schema)
+        self._validator = (
+            fastjsonschema.compile(
+                _carry_schema_ver(self._schema, self._schema), use_default=False
+            )
+            if active_validation
+            else None
+        )
         self._path = path
         self._childs: t.Dict[t.Union[str, int], t.Any] = {}
         self._active_validation = active_validation
@@ -62,18 +54,27 @@ class ParentNode:
     def __repr__(self) -> str:
         return "/" + "/".join(self._path)
 
-    def _validate_instance(self, instance: object, schema: dict):
+    def _validate_instance(
+        self, instance: object, validator: t.Callable[[object], None] = None
+    ):
         """Validate JSON instance.
 
         Args:
             instance: Instance to be validated.
             schema: Schema
+            validator: Schema validator.
 
         Raises:
             ValidationError: Validation failed.
         """
         if self._active_validation:
-            _validate_instance(instance, schema)
+            try:
+                if validator:
+                    validator(instance)
+                else:
+                    self._validator(instance)
+            except fastjsonschema.JsonSchemaException as e:
+                raise ValidationError(str(e)) from None
 
     def is_empty(self) -> bool:
         """Check if the Node is empty and has no properties.
@@ -112,12 +113,20 @@ class ParentEntry(ParentNode):
         self._attributes = {}
         self._child_props = {}
         self._properties: t.Dict[str, t.Any] = {}
+        self._attribute_validators = {}
         # ParentEntry does not have json list entries at this moment.
         for name, property_ in schema["properties"].items():
             if "properties" in property_:
                 self._child_props[name] = property_
             else:
                 self._attributes[name] = property_
+                self._attribute_validators[name] = (
+                    fastjsonschema.compile(
+                        _carry_schema_ver(self._schema, property_), use_default=False
+                    )
+                    if self._active_validation
+                    else None
+                )
 
     def __contains__(self, k):
         return k in self._child_props or self._attributes.get(k, None) is not None
@@ -156,7 +165,7 @@ class ParentEntry(ParentNode):
                 self._childs.pop(name, None)
                 self._properties.pop(name, None)
             else:
-                self._validate_instance(value, self._attributes[name])
+                self._validate_instance(value, self._attribute_validators[name])
                 self._childs[name] = value
                 self._properties[name] = value
         elif value is None and name in self._childs:
@@ -223,17 +232,24 @@ class ListEntry(ParentNode):
 
         self._index_schema = schema["items"]["properties"]["index"]
         self._schema["items"]["properties"].pop("index", None)
+        self._index_validator = (
+            fastjsonschema.compile(
+                _carry_schema_ver(self._schema, self._index_schema), use_default=False
+            )
+            if self._active_validation
+            else None
+        )
 
     def __len__(self):
         return len(self._childs)
 
     def __getitem__(self, number: int) -> ParentEntry:
-        self._validate_instance(number, self._index_schema)
+        self._validate_instance(number, self._index_validator)
         try:
             return self._childs[number]
         except KeyError:
             self._childs[number] = ParentEntry(
-                self._schema["items"],
+                _carry_schema_ver(self._schema, self._schema["items"]),
                 self._path + (str(number),),
                 self._active_validation,
             )
@@ -435,7 +451,9 @@ class CommandTable:
 
     def _header_entry(self) -> HeaderEntry:
         return HeaderEntry(
-            self._ct_schema["definitions"]["header"],
+            _carry_schema_ver(
+                self._ct_schema, self._ct_schema["definitions"]["header"]
+            ),
             ("header",),
             self._ct_schema.get("version", ""),
             self._active_validation,
@@ -443,7 +461,11 @@ class CommandTable:
 
     def _table_entry(self) -> ListEntry:
         return ListEntry(
-            self._ct_schema["definitions"]["table"], ("table",), self._active_validation
+            schema=_carry_schema_ver(
+                self._ct_schema, self._ct_schema["definitions"]["table"]
+            ),
+            path=("table",),
+            active_validation=self._active_validation,
         )
 
     def clear(self) -> None:
@@ -451,13 +473,45 @@ class CommandTable:
         self._header = self._header_entry()
         self._table = self._table_entry()
 
+    def is_valid(self, raise_for_invalid: bool = False) -> bool:
+        """Checks if the command table matches the schema.
+
+        Args:
+            raise_for_invalid: Raises exception if the command table is invalid.
+                The flag can be used for getting feedback on what is wrong in
+                the command table.
+
+        Returns:
+            True if :class:`CommandTable` is valid.
+
+        Raises:
+            ValidationError: If `raise_for_invalid` was set to `True` and the
+                schema is invalid.
+
+        .. versionadded:: 0.6.2
+        """
+        # Due to active_validation having a state, we need to force it to True.
+        orig_state = self._active_validation
+        try:
+            self._active_validation = True if self._active_validation is False else True
+            self.as_dict()
+            self._active_validation = orig_state
+            return True
+        except ValidationError as e:
+            self._active_validation = orig_state
+            if raise_for_invalid:
+                raise e
+            return False
+
     def as_dict(self) -> dict:
         """Return a dictionary representation of the :class:`CommandTable`.
 
-        The function formats the returner value into a schema which is
+        The function formats the :class:`CommandTable` instance into a schema which is
         accepted by the ZI devices which support command tables.
 
-        The table is validated against the given schema.
+        Validates the command table unless `active_validation` is set to `False`.
+        If :class:`CommandTable` is built with `active_validation` as `False`, use
+        `is_valid()` for optional validation.
 
         Returns:
             CommandTable as a Python dictionary.
@@ -465,6 +519,10 @@ class CommandTable:
         Raises:
             :class:`~zhinst.toolkit.exceptions.ValidateError`: The command table
                 does not correspond to the given JSON schema.
+
+        .. versionchanged:: 0.6.2
+
+            Does not validate the schema if `active_validation` is set to `False`.
 
         .. versionchanged:: 0.4.2
 
@@ -474,7 +532,15 @@ class CommandTable:
             "header": self._header.as_dict(),
             "table": self._table.as_list(),
         }
-        _validate_instance(result, self._ct_schema)
+        if self._active_validation:
+            try:
+                fastjsonschema.validate(
+                    _carry_schema_ver(self._ct_schema, self._ct_schema),
+                    result,
+                    use_default=False,
+                )
+            except fastjsonschema.JsonSchemaException as e:
+                raise ValidationError(str(e)) from None
         return result
 
     def update(self, command_table: t.Union[str, dict]) -> None:
@@ -493,7 +559,15 @@ class CommandTable:
             return json_  # type: ignore[return-value]
 
         command_table = json_to_dict(copy.deepcopy(command_table))
-        _validate_instance(command_table, self._ct_schema)
+        if not self._active_validation:
+            try:
+                fastjsonschema.validate(
+                    _carry_schema_ver(self._ct_schema, self._ct_schema),
+                    command_table,
+                    use_default=False,
+                )
+            except fastjsonschema.JsonSchemaException as e:
+                raise ValidationError(str(e)) from None
 
         def build_nodes(path: t.Optional[ParentEntry], index: int, obj: dict):
             for k, v in obj.items():

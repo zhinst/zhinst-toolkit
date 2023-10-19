@@ -6,8 +6,10 @@ from unittest.mock import patch
 
 import pytest
 
-from zhinst.toolkit.driver.nodes.command_table_node import CommandTableNode
+from zhinst.toolkit.command_table import CommandTable
 from zhinst.toolkit.driver.devices.shfsg import SHFSG
+from zhinst.toolkit.driver.nodes.command_table_node import CommandTableNode
+from zhinst.toolkit.exceptions import ValidationError
 
 
 @pytest.fixture()
@@ -181,3 +183,61 @@ def test_ct_node_status_called(command_table_node, mock_connection):
     mock_connection.return_value.getInt.assert_called_with(
         "/dev1234/sgchannels/0/awg/commandtable/status"
     )
+
+
+class TestUploadCommandTableClass:
+    @pytest.fixture
+    def ct(self):
+        ct = mock.Mock(wraps=CommandTable)
+        ct.as_dict.return_value = {
+            "header": {"version": "1.1", "userString": "Test string"},
+            "table": [],
+        }
+        yield ct
+
+    @pytest.fixture
+    def node_conn(self, command_table_node, mock_connection):
+        command_table_node.check_status = mock.Mock(return_value=True)
+        mock_connection.return_value.set = mock.Mock(side_effect=RuntimeError)
+        yield command_table_node, mock_connection
+
+    def test_valid_with_validation(self, ct, node_conn):
+        ct_node, mock_connection = node_conn
+        ct.is_valid.return_value = True
+        ct_node.upload_to_device(ct, validate=True)
+        mock_connection.return_value.setVector.assert_called_with(
+            "/dev1234/sgchannels/0/awg/commandtable/data",
+            (
+                '{"header": {"version": "1.1", "userString": "Test string"}, "table": []}'
+            ),
+        )
+        ct_node.upload_to_device(ct, validate=False)
+        mock_connection.return_value.setVector.assert_called_with(
+            "/dev1234/sgchannels/0/awg/commandtable/data",
+            (
+                '{"header": {"version": "1.1", "userString": "Test string"}, "table": []}'
+            ),
+        )
+
+    def test_invalid(self, ct, node_conn):
+        ct_node, mock_connection = node_conn
+
+        def mock_is_valid(raise_for_invalid):
+            if raise_for_invalid:
+                raise ValidationError("foo")
+            return True
+
+        ct.is_valid = mock_is_valid
+        ct.as_dict.return_value = {
+            "header": {"version": "1.1", "userString": "Test string"},
+            "table": [],
+        }
+        with pytest.raises(ValidationError):
+            ct_node.upload_to_device(ct, validate=True)
+        ct_node.upload_to_device(ct, validate=False)
+        mock_connection.return_value.setVector.assert_called_with(
+            "/dev1234/sgchannels/0/awg/commandtable/data",
+            (
+                '{"header": {"version": "1.1", "userString": "Test string"}, "table": []}'
+            ),
+        )

@@ -1,8 +1,7 @@
 import json
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import jsonref
-import jsonschema
 import pytest
 
 from zhinst.toolkit.command_table import CommandTable, ParentNode, _derefence_json
@@ -121,19 +120,10 @@ def test_parent_entry_header(command_table_schema):
 
 
 def test_assert_validate_called_table_index(command_table):
-    with patch("zhinst.toolkit.command_table.jsonschema.validate") as mocked_method:
+    # Cannot patch fastjsonschema validate as fastjsonschema.compile() returns a partial function
+    with patch.object(command_table.table, "_index_validator") as mocked_method:
         command_table.table[44]
-        mocked_method.assert_called_once_with(
-            instance=44,
-            schema={
-                "type": "integer",
-                "minimum": 0,
-                "maximum": 1023,
-                "exclusiveMinimum": False,
-                "exclusiveMaximum": False,
-            },
-            cls=jsonschema.validators.Draft4Validator,
-        )
+        mocked_method.assert_called_once_with(44)
 
 
 @pytest.mark.parametrize("value", [True, False])
@@ -161,8 +151,10 @@ def test_command_table_active_validation_table(command_table_schema):
         ct.table[999999]
     ct = CommandTable(command_table_schema, active_validation=False)
     ct.table[999999].amplitude00.value = 1
+    ct.as_dict()
+    ct.is_valid()
     with pytest.raises(ValidationError):
-        ct.as_dict()
+        ct.is_valid(raise_for_invalid=True)
 
 
 def test_command_table_active_validation_parent_entry(command_table_schema):
@@ -188,20 +180,11 @@ def test_assert_validate_called_parent_entry_attribute_set(
     input_, output, command_table
 ):
     obj = command_table.table[0]
-    with patch("zhinst.toolkit.command_table.jsonschema.validate") as mocked_method:
+    s = Mock()
+    with patch.dict(obj.amplitude00._attribute_validators) as f:
+        obj.amplitude00._attribute_validators["value"] = s
         obj.amplitude00.value = input_
-        mocked_method.assert_called_once_with(
-            instance=output,
-            schema={
-                "description": "Amplitude scaling factor of the given AWG channel",
-                "type": "number",
-                "minimum": -1.0,
-                "maximum": 1.0,
-                "exclusiveMinimum": False,
-                "exclusiveMaximum": False,
-            },
-            cls=jsonschema.validators.Draft4Validator,
-        )
+        s.assert_called_once_with(output)
 
 
 def test_parent_entry_table_index(command_table):
@@ -367,3 +350,18 @@ def test_minimum_items_in_table(command_table):
 def test_table_property_validation_error(command_table):
     with pytest.raises(ValidationError):
         command_table.table[0].amplitude00.value = 99999
+
+
+@pytest.mark.parametrize("state", [True, False])
+def test_table_is_valid_active_validation_state_persists(command_table, state):
+    command_table.active_validation = state
+    command_table.is_valid()
+    assert command_table.active_validation is state
+
+    command_table.as_dict = Mock(side_effect=ValidationError)
+    command_table.is_valid()
+    assert command_table.active_validation is state
+
+    with pytest.raises(ValidationError):
+        command_table.is_valid(raise_for_invalid=True)
+    assert command_table.active_validation is state

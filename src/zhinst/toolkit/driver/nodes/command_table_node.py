@@ -106,6 +106,8 @@ class CommandTableNode(Node):
             `check_status` is only called when not in a ongoing transaction.
         """
         try:
+            if validate:
+                ct.is_valid(raise_for_invalid=True)  # type: ignore
             self.data(json.dumps(ct.as_dict()))  # type: ignore
         except AttributeError:
             if validate:

@@ -1,9 +1,9 @@
 import json
-import pytest
 from pathlib import Path
 
-from zhinst.toolkit.command_table import CommandTable
+import pytest
 
+from zhinst.toolkit.command_table import CommandTable
 
 CT_SCHEMA_22_02 = Path(__file__).parent / "data/command_table_schema_22_02.json"
 CT_SCHEMA_22_08 = Path(__file__).parent / "data/command_table_schema_22_08.json"

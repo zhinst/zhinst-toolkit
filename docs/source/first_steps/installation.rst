@@ -15,7 +15,7 @@ These distributions will be installed automatically when installing zhinst-toolk
 * `numpy <https://pypi.org/project/numpy/>`_ adds support for large, multi-dimensional
   arrays and matrices, along with a large collection of high-level mathematical
   functions to operate on these arrays.
-* `jsonschema <https://pypi.org/project/jsonschema/>`_ is an implementation of the JSON
+* `fastjsonschema <https://pypi.org/project/fastjsonschema/>`_ is an implementation of the JSON
   Schema specification for Python.
 * `zhinst-core <https://pypi.org/project/zhinst-core/>`_ is the low level python API for Zurich
   Instruments devices.
