@@ -338,6 +338,9 @@ class CommandTable:
             No validation happens during command table entry modifications, thus
             making the creation of the command table faster.
 
+            Method `is_valid()` can be used for command table validation when active
+            validation is disabled. It is recommended to avoid it in production code.
+
     .. versionadded:: 0.5.0
        The ``active_validation`` parameter was added.
 
@@ -482,6 +485,36 @@ class CommandTable:
         if self.active_validation:
             _validate_instance(result, self._ct_schema)
         return result
+
+    def is_valid(self, raise_for_invalid: bool = False) -> bool:
+        """Checks if the command table is valid.
+
+        Args:
+            raise_for_invalid: Raises exception if the command table is invalid.
+                The flag can be used for getting feedback on what is wrong in
+                the command table.
+
+        Returns:
+            True if the command table is valid.
+
+        Raises:
+            ValidationError: If `raise_for_invalid` was set to `True` and the
+                command table is invalid.
+
+        .. versionadded:: 0.6.2
+        """
+        # Due to active_validation having a state, we need to force it to True.
+        orig_state = self._active_validation
+        try:
+            self._active_validation = True if self._active_validation is False else True
+            self.as_dict()
+            self._active_validation = orig_state
+            return True
+        except ValidationError as e:
+            self._active_validation = orig_state
+            if raise_for_invalid:
+                raise e
+            return False
 
     def update(self, command_table: t.Union[str, dict]) -> None:
         """Update the existing instance of ``CommandTable`` with command table JSON.

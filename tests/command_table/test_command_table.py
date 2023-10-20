@@ -1,5 +1,5 @@
 import json
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 import jsonref
 import jsonschema
@@ -162,9 +162,25 @@ def test_command_table_active_validation_table(command_table_schema):
     ct = CommandTable(command_table_schema, active_validation=False)
     ct.table[999999].amplitude00.value = 1
     ct.as_dict()
+    assert ct.is_valid() is False
     ct.active_validation = True
     with pytest.raises(ValidationError):
         ct.as_dict()
+
+
+@pytest.mark.parametrize("state", [True, False])
+def test_table_is_valid_active_validation_state_persists(command_table, state):
+    command_table.active_validation = state
+    command_table.is_valid() is True
+    assert command_table.active_validation is state
+
+    command_table.as_dict = Mock(side_effect=ValidationError)
+    command_table.is_valid() is False
+    assert command_table.active_validation is state
+
+    with pytest.raises(ValidationError):
+        command_table.is_valid(raise_for_invalid=True)
+    assert command_table.active_validation is state
 
 
 def test_command_table_active_validation_parent_entry(command_table_schema):
