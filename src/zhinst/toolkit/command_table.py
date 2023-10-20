@@ -54,7 +54,7 @@ class ParentNode:
     def __init__(
         self, schema: dict, path: t.Tuple[str, ...], active_validation: bool = True
     ):
-        self._schema = copy.deepcopy(schema)
+        self._schema = schema
         self._path = path
         self._childs: t.Dict[t.Union[str, int], t.Any] = {}
         self._active_validation = active_validation
@@ -215,23 +215,25 @@ class ListEntry(ParentNode):
     """
 
     def __init__(
-        self, schema: dict, path: t.Tuple[str, ...], active_validation: bool = True
+        self,
+        schema: dict,
+        index_schema: dict,
+        path: t.Tuple[str, ...],
+        active_validation: bool = True,
     ):
         super().__init__(schema, path, active_validation)
         self._min_length = schema["minItems"]
         self._max_length = schema["maxItems"]
-
-        self._index_schema = schema["items"]["properties"]["index"]
-        self._schema["items"]["properties"].pop("index", None)
+        self._index_schema = index_schema
 
     def __len__(self):
         return len(self._childs)
 
     def __getitem__(self, number: int) -> ParentEntry:
-        self._validate_instance(number, self._index_schema)
         try:
             return self._childs[number]
         except KeyError:
+            self._validate_instance(number, self._index_schema)
             self._childs[number] = ParentEntry(
                 self._schema["items"],
                 self._path + (str(number),),
@@ -445,8 +447,13 @@ class CommandTable:
         )
 
     def _table_entry(self) -> ListEntry:
+        schema = copy.deepcopy(self._ct_schema["definitions"]["table"])
+        index_schema = schema["items"]["properties"].pop("index")
         return ListEntry(
-            self._ct_schema["definitions"]["table"], ("table",), self._active_validation
+            schema=schema,
+            index_schema=index_schema,
+            path=("table",),
+            active_validation=self._active_validation,
         )
 
     def clear(self) -> None:
