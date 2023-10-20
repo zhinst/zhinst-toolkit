@@ -466,6 +466,11 @@ class CommandTable:
             :class:`~zhinst.toolkit.exceptions.ValidateError`: The command table
                 does not correspond to the given JSON schema.
 
+        .. versionchanged:: 0.6.2
+
+            Removed validation when `active_validation` is set to `False`.
+                This improves performance when validation is not needed.
+
         .. versionchanged:: 0.4.2
 
             Removed `$schema` key from resulting dictionary.
@@ -474,7 +479,8 @@ class CommandTable:
             "header": self._header.as_dict(),
             "table": self._table.as_list(),
         }
-        _validate_instance(result, self._ct_schema)
+        if self.active_validation:
+            _validate_instance(result, self._ct_schema)
         return result
 
     def update(self, command_table: t.Union[str, dict]) -> None:
@@ -493,7 +499,8 @@ class CommandTable:
             return json_  # type: ignore[return-value]
 
         command_table = json_to_dict(copy.deepcopy(command_table))
-        _validate_instance(command_table, self._ct_schema)
+        if self._active_validation:
+            _validate_instance(command_table, self._ct_schema)
 
         def build_nodes(path: t.Optional[ParentEntry], index: int, obj: dict):
             for k, v in obj.items():

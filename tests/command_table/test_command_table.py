@@ -161,6 +161,8 @@ def test_command_table_active_validation_table(command_table_schema):
         ct.table[999999]
     ct = CommandTable(command_table_schema, active_validation=False)
     ct.table[999999].amplitude00.value = 1
+    ct.as_dict()
+    ct.active_validation = True
     with pytest.raises(ValidationError):
         ct.as_dict()
 
