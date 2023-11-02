@@ -1,1 +1,2 @@
 recursive-include src/ *.json
+include src/zhinst/toolkit/py.typed

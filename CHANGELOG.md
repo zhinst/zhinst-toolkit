@@ -6,6 +6,7 @@
   to 1 (gen1) when the HDAWG is operated with PQSC together with UHFQA instruments.
 * Improved `CommandTable` performance when `CommandTable.active_validation` is disabled.
 * Added `CommandTable.is_valid()` method to check validity of the command table.
+* Added `py.typed` type information marker file.
 
 ## Version 0.6.1
 * Deep gets on nodes with keywords returns an enum like the regular get.
