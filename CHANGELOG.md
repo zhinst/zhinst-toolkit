@@ -4,6 +4,8 @@
 * The function `enable_qccs_mode` of the HDAWG driver now accept an optional argument to select the QCCS generation.
   It's advised to set it to 2 (gen2) when the HDAWG is operated with PQSC together with SHF instruments, and set it
   to 1 (gen1) when the HDAWG is operated with PQSC together with UHFQA instruments.
+* Improved `CommandTable` performance when `CommandTable.active_validation` is disabled.
+* Added `CommandTable.is_valid()` method to check validity of the command table.
 
 ## Version 0.6.1
 * Deep gets on nodes with keywords returns an enum like the regular get.
@@ -19,7 +21,7 @@
   This means only `*` symbols are supported. A `*` in the middle of the path matches
   everything instead of a `/`. A `*` at the end of the path matches everything.
 * Fix problem of garbage collection daq sessions. The problem was caused due to using
-  lru caches for instance methods. The usage of lru cache has now been bypassed or 
+  lru caches for instance methods. The usage of lru cache has now been bypassed or
   replaced with the `functools.cached_property` decorator (which is currently copied
   to ensure support for python 3.7).
 * `device.factory_reset` now raises an exception if the factory reset was not successful (`#243`).
