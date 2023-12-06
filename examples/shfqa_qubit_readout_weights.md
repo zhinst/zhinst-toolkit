@@ -73,7 +73,7 @@ Generate the readout pulses with a flat top gaussian envelope. For each qubit th
 
 ```python
 
-from scipy.signal import gaussian
+from scipy.signal.windows import gaussian
 import numpy as np
 
 # Define the parameters for the readout pulses
