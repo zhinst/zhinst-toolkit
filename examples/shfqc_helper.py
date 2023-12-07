@@ -45,7 +45,7 @@ def generate_flat_top_gaussian(
                 unit circle."
         )
 
-    from scipy.signal import gaussian
+    from scipy.signal.windows import gaussian
 
     rise_fall_len = int(rise_fall_time * sampling_rate)
     pulse_len = int(pulse_duration * sampling_rate)

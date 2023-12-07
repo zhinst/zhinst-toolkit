@@ -170,7 +170,7 @@ else:
 # Generate an interesting test waveform
 from zhinst.toolkit import Waveforms
 import numpy as np
-from scipy import signal
+from scipy.signal.windows import gaussian
 from zhinst.utils.shfqa import SHFQA_SAMPLING_FREQUENCY
 
 # Modulate a Gaussian with complex sinusoidal
@@ -180,7 +180,7 @@ modulation_freq = 100e6
 waveform_length = np.min(128, int(sweeper.average.integration_time() / SHFQA_SAMPLING_FREQUENCY))
 time_axis = np.arange(waveform_length) / SHFQA_SAMPLING_FREQUENCY
 test_signal = np.exp(1j * 2 * np.pi * modulation_freq * time_axis)
-test_signal *= signal.gaussian(waveform_length, std=waveform_length/8)
+test_signal *= gaussian(waveform_length, std=waveform_length/8)
 
 # Upload waveform to the device
 waveforms = Waveforms()

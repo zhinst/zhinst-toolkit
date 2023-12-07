@@ -51,7 +51,7 @@ device.qachannels[CHANNEL_INDEX].output.on(1)
 In this example the envelope of the readout pulses is a gaussian with a flat top. For each qubit, the envelope is then modulated at the qubit frequency. For illustrative purposes we assume that the frequencies of the qubits are equally spaced in the range [32 MHz, 230 MHz] relative to the center frequency of 5 GHz specified above.
 
 ```python
-from scipy.signal import gaussian
+from scipy.signal.windows import gaussian
 import numpy as np
 
 # Define the parameters for the readout pulses
