@@ -150,6 +150,7 @@ class Readout(Node):
         weights: t.Union[Waveforms, dict],
         *,
         integration_delay: float = 0.0,
+        integration_length: t.Optional[int] = None,
         clear_existing: bool = True,
     ) -> None:
         """Configures the weighted integration.
@@ -159,6 +160,9 @@ class Readout(Node):
                 keys correspond to the indices of the integration units to be
                 configured.
             integration_delay: Delay in seconds before starting the readout.
+            integration_length: Number of samples over which the weighted integration
+                runs. If set to None, the integration length is determined by the
+                length of the first weights vector.
             clear_existing: Flag whether to clear the waveform memory before
                 the present upload.
         """
@@ -183,6 +187,7 @@ class Readout(Node):
             self._index,
             weights=waveform_dict,
             integration_delay=integration_delay,
+            integration_length=integration_length,
             clear_existing=clear_existing,
         )
 
