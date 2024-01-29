@@ -26,7 +26,7 @@ class PrecompensationAdvisorModule(Node):
     output signal, before using the setup in the actual device.
 
     For a complete documentation see the LabOne user manual
-    https://docs.zhinst.com/labone_programming_manual/precompensation_advisor_module.html
+    https://docs.zhinst.com/labone_api_user_manual/modules/precompensation_advisor/index.html
 
     Note:
         Unlike most other LabOne modules, this module does not expose any
