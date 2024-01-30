@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 0.6.3
+* Adapt `write_integration_weights` function in the readout module to be callable within transactions.
+
 ## Version 0.6.2
 * The function `enable_qccs_mode` of the HDAWG driver now accept an optional argument to select the QCCS generation.
   It's advised to set it to 2 (gen2) when the HDAWG is operated with PQSC together with SHF instruments, and set it

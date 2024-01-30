@@ -109,41 +109,54 @@ def test_write_integration_weights(mock_connection, readout):
         complex_wave.real = np.ones(1000)
         complex_wave.imag = np.ones(1000)
         assert (
-            utils.configure_weighted_integration.call_args[0][0]
-            == mock_connection.return_value
+            utils.get_configure_weighted_integration_settings.call_args[0][0]
+            == "DEV1234"
         )
-        assert utils.configure_weighted_integration.call_args[0][1] == "DEV1234"
-        assert utils.configure_weighted_integration.call_args[0][2] == 0
+        assert utils.get_configure_weighted_integration_settings.call_args[0][1] == 0
         assert np.allclose(
-            utils.configure_weighted_integration.call_args[1]["weights"][1],
+            utils.get_configure_weighted_integration_settings.call_args[1]["weights"][
+                1
+            ],
             np.ones(1000, dtype=np.complex128),
         )
         assert np.allclose(
-            utils.configure_weighted_integration.call_args[1]["weights"][2],
+            utils.get_configure_weighted_integration_settings.call_args[1]["weights"][
+                2
+            ],
             complex_wave,
         )
         assert (
-            utils.configure_weighted_integration.call_args[1]["integration_delay"]
+            utils.get_configure_weighted_integration_settings.call_args[1][
+                "integration_delay"
+            ]
             == 0.0
         )
         assert (
-            utils.configure_weighted_integration.call_args[1]["clear_existing"] == True
+            utils.get_configure_weighted_integration_settings.call_args[1][
+                "clear_existing"
+            ]
+            == True
         )
 
         readout.write_integration_weights(waveforms, integration_delay=0.5)
         assert (
-            utils.configure_weighted_integration.call_args[1]["integration_delay"]
+            utils.get_configure_weighted_integration_settings.call_args[1][
+                "integration_delay"
+            ]
             == 0.5
         )
 
         readout.write_integration_weights(waveforms, clear_existing=False)
         assert (
-            utils.configure_weighted_integration.call_args[1]["clear_existing"] == False
+            utils.get_configure_weighted_integration_settings.call_args[1][
+                "clear_existing"
+            ]
+            == False
         )
 
         readout.write_integration_weights({0: np.ones(1000)}, clear_existing=True)
         assert all(
-            utils.configure_weighted_integration.call_args[1]["weights"][0]
+            utils.get_configure_weighted_integration_settings.call_args[1]["weights"][0]
             == np.ones(1000)
         )
 
