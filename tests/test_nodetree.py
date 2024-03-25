@@ -1081,6 +1081,13 @@ def test_wait_for_state_change(connection):
     with pytest.raises(StopIteration):
         next(sequence)
 
+    # Test with zero timeout
+    connection.getInt.side_effect = lambda node: 2
+    connection.get.side_effect = lambda node, **kwargs: {
+        node: {"timestamp": [0], "value": [2]}
+    }
+    tree.demods[0].trigger.wait_for_state_change(2, timeout=0.0)
+
 
 def test_nodetree_iterator(connection):
     tree = NodeTree(connection, "DEV1234")

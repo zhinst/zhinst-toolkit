@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 0.6.4
+* Function `wait_for_state_change` now works with zero timeout; the node value is always checked at least once.
+
 ## Version 0.6.3
 * Adapt `write_integration_weights` function in the readout module to be callable within transactions.
 
