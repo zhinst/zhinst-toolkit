@@ -925,7 +925,7 @@ class Node:
         value: t.Union[int, str, NodeEnum],
         *,
         invert: bool = False,
-        timeout: float = 2,
+        timeout: float = 2.0,
         sleep_time: float = 0.005,
     ) -> None:
         """Waits until the node has the expected state/value.
@@ -944,6 +944,9 @@ class Node:
 
                 Useful when waiting for value to change from existing one.
             timeout: Maximum wait time in seconds. (default = 2)
+
+            .. versionchanged:: 0.6.4 A zero seconds timeout is accepted.
+
             sleep_time: Sleep interval in seconds. (default = 0.005)
 
         Raises:
@@ -975,14 +978,17 @@ class Node:
 
             # Performs a deep get to avoid waiting on stale values from cache
             # In the loop we can use a shallow get
-            # Since deep get
             curr_value = self._get(deep=True)[1]
 
-            while start_time + timeout >= time.time():
+            while True:
                 # Verify if we get to the correct value.
                 # If yes, exit the function.
                 if (curr_value == parsed_value) != invert:
                     return
+
+                # Timeout check
+                if time.time() > start_time + timeout:
+                    break
 
                 time.sleep(sleep_time)
                 curr_value = self._get(deep=False)
