@@ -781,11 +781,12 @@ class Session(Node):
                     dev_info = json.loads(self.daq_server.getString("/zi/devices"))[
                         serial.upper()
                     ]
-                    interface = dev_info["INTERFACE"]
-                    if interface == "none":
+                    interface = t.cast(str, dev_info["INTERFACE"])
+                    undefined_interfaces = ("none", "", "unknown")
+                    if interface.lower() in undefined_interfaces:
                         interface = (
                             "1GbE"
-                            if "1GbE" in dev_info["INTERFACES"]
+                            if "1gbe" in dev_info["INTERFACES"].lower()
                             else dev_info["INTERFACES"].split(",")[0]
                         )
             self._daq_server.connectDevice(serial, interface)
