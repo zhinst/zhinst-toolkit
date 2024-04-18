@@ -172,21 +172,23 @@ def test_connect_device_autodetection(
     connected_devices = ""
     selected_interface = ""
 
-    zi_devices = json.loads(zi_devices_json)
-    zi_devices["DEV1234"]["INTERFACE"] = "none"
-    zi_devices_json = json.dumps(zi_devices)
+    for none_interface in ("none", "", "unknown"):
+        zi_devices = json.loads(zi_devices_json)
+        zi_devices["DEV1234"]["INTERFACE"] = none_interface
+        zi_devices_json = json.dumps(zi_devices)
 
-    session.connect_device("dev1234")
-    assert selected_interface == "1GbE"
+        session.connect_device("dev1234")
+        assert selected_interface == "1GbE"
     connected_devices = ""
     selected_interface = ""
 
-    zi_devices = json.loads(zi_devices_json)
-    zi_devices["DEV1234"]["INTERFACES"] = "1GbE,USB"
-    zi_devices_json = json.dumps(zi_devices)
+    for gbe_interface in ("1GBE", "1GbE"):
+        zi_devices = json.loads(zi_devices_json)
+        zi_devices["DEV1234"]["INTERFACES"] = f"{gbe_interface},USB"
+        zi_devices_json = json.dumps(zi_devices)
 
-    session.connect_device("dev1234")
-    assert selected_interface == "1GbE"
+        session.connect_device("dev1234")
+        assert selected_interface == "1GbE"
     connected_devices = ""
     selected_interface = ""
 
