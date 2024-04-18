@@ -10,7 +10,7 @@ pyelftools
 pytest
 
 # Lint
-black==22.8.0
+black==24.3.0
 isort==5.10.1
 
 # Misc
