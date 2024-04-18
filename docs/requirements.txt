@@ -10,3 +10,4 @@ jupytext==1.13.7
 ipython
 requests
 sphinxcontrib-spelling
+lxml[html_clean]
