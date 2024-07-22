@@ -98,7 +98,6 @@ MIN_NUMBER_OF_RECORDS = 20
 
 scope_module = session.modules.scope
 scope_module.mode(1)
-scope_module.averager.weight(1)
 scope_module.historylength(MIN_NUMBER_OF_RECORDS)
 scope_module.fft.window(0)
 ```
