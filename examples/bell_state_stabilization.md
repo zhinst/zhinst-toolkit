@@ -102,6 +102,8 @@ pqsc.check_ref_clock()
 # SHFSG and SHFQA ZSync clock
 shfsg.system.clocks.referenceclock.in_.source("zsync")
 shfqa.system.clocks.referenceclock.in_.source("zsync")
+shfsg.check_ref_clock()
+shfqa.check_ref_clock()
 
 # Verify if the ZSync connection is successful
 pqsc.check_zsync_connection([shfqa, shfsg])

@@ -1,3 +1,5 @@
+from itertools import cycle
+import re
 from unittest.mock import patch
 
 import pytest
@@ -128,3 +130,50 @@ def test_awg_compiler(mock_connection, hdawg):
             1,
             samplerate=10000,
         )
+
+
+def test_ref_clock_hdawg(mock_connection, hdawg):
+    """Test reference clock logic of HDAWG"""
+    # Note: When the source actual node is introduced on HDAWG, this test should be removed
+    #       and HDAWG support should be added to the test shf_test_ref_clock (and that test
+    #       should then be renamed).
+    status = cycle([0])
+    source = cycle([1])
+    sigout_busy = cycle([0])
+
+    def getInt_side_effect(path):
+        if path == "/dev1234/system/clocks/referenceclock/status":
+            return next(status)
+        if path == "/dev1234/system/clocks/referenceclock/source":
+            return source
+        if re.match(r"^/dev1234/sigouts/(\d+|\*)/busy$", path):
+            return next(sigout_busy)
+        raise RuntimeError("Invalid Node")
+
+    def get_side_effect(path, **kwargs):
+        value = getInt_side_effect(path)
+        return {path: {"timestamp": [0], "value": [value]}}
+
+    mock_connection.return_value.getInt.side_effect = getInt_side_effect
+    mock_connection.return_value.get.side_effect = get_side_effect
+
+    assert hdawg.check_ref_clock(sleep_time=0.001)
+    # Locked within time
+    status = iter([2] * 2 + [0] * 10)
+    sigout_busy = iter([1] * 2 + [0] * 10)
+    assert hdawg.check_ref_clock(sleep_time=0.001)
+
+    # Locked within time, but channel stays busy too long
+    status = iter([2] * 2 + [0] * 10)
+    sigout_busy = cycle([1])
+    with pytest.raises(TimeoutError) as _:
+        hdawg.check_ref_clock(sleep_time=0.001)
+
+    # Locking error but actual_clock == clock
+    status = cycle([1])
+    assert not hdawg.check_ref_clock(sleep_time=0.001)
+
+    # timeout
+    status = cycle([2])
+    with pytest.raises(TimeoutError) as _:
+        hdawg.check_ref_clock(timeout=0.01, sleep_time=0.001)

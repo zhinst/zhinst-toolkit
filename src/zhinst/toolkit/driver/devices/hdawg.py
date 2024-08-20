@@ -1,15 +1,16 @@
 """HDAWG Instrument Driver."""
 
+import logging
 import typing as t
 from functools import cached_property
 
 from zhinst.toolkit.driver.devices.base import BaseInstrument
 from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.exceptions import ToolkitError
-from zhinst.toolkit.nodetree.helper import (
-    create_or_append_set_transaction,
-)
+from zhinst.toolkit.nodetree.helper import create_or_append_set_transaction
 from zhinst.toolkit.nodetree.node import NodeList
+
+logger = logging.getLogger(__name__)
 
 
 class HDAWG(BaseInstrument):
@@ -93,3 +94,53 @@ class HDAWG(BaseInstrument):
             self._root,
             (*self._tree, "awgs"),
         )
+
+    def check_ref_clock(
+        self,
+        *,
+        timeout: float = 30.0,
+        sleep_time: float = 1.0,
+    ) -> bool:
+        """Check if reference clock is locked successfully to an external source (ZSync, or external reference clock).
+
+        Args:
+            timeout: Maximum time in seconds the program waits
+                (default: 30.0).
+            sleep_time: Time in seconds to wait between
+                requesting the reference clock status (default: 1.0)
+
+        Raises:
+            TimeoutError: If the process of locking to the reference clock
+                exceeds the specified timeout.
+        """
+        ref_clock_status = self.system.clocks.referenceclock.status
+        locked_enum = ref_clock_status.node_info.enum.locked
+        busy_enum = ref_clock_status.node_info.enum.busy
+
+        ref_clock = self.system.clocks.referenceclock.source
+        internal_enum = ref_clock.node_info.enum.internal
+        try:
+            ref_clock_status.wait_for_state_change(
+                busy_enum,
+                invert=True,
+                timeout=timeout,
+                sleep_time=sleep_time,
+            )
+        except TimeoutError as error:
+            msg = "Timeout during locking to reference clock signal"
+            raise TimeoutError(
+                msg,
+            ) from error
+        # The following condition should be harmonized to match the one used
+        # for SHF devices, where a source-actual node is available.
+        if ref_clock_status() == locked_enum and ref_clock() != internal_enum:
+            self.sigouts["*"].busy.wait_for_state_change(0, timeout=5)
+            return True
+
+        ref_clock("internal", deep=True)
+        logger.error(
+            f"There was an error locking the device({self.serial}) "
+            f"onto reference clock signal. Automatically switching to internal "
+            f"reference clock. Please try again.",
+        )
+        return False

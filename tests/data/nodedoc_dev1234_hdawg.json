@@ -3151,9 +3151,9 @@
         "Type": "Integer (enumerated)",
         "Unit": "None",
         "Options": {
-            "0": "Reference clock has been locked on.",
-            "1": "There was an error locking onto the reference clock signal. After an error the source is automatically switched back to internal reference clock.",
-            "2": "The device is busy trying to lock onto the reference clock signal."
+            "0": "\"locked\": Reference clock has been locked on.",
+            "1": "\"error\": There was an error locking onto the reference clock signal. After an error the source is automatically switched back to internal reference clock.",
+            "2": "\"busy\": The device is busy trying to lock onto the reference clock signal."
         }
     },
     "\/dev1234\/system\/clocks\/referenceclock\/freq": {

@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 1.1
+* Added `check_ref_clock`-function for HDAWG, and SHF* devices
+
 ## Version 1.0
 `zhinst-toolkit` has been stable since version 0.3 and we intend to keep that stability going forward. This is way we have decided to promote the library to version 1.0. 
 

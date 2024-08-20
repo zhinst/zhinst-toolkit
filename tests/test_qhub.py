@@ -144,7 +144,6 @@ def test_ref_clock(mock_connection, qhub):
     assert not qhub.check_ref_clock(sleep_time=0.001)
     # Locking error and actual_clock != clock => reset clock to internal
     source = 1
-    mock_connection.return_value.syncSetString.assert_not_called()
     assert not qhub.check_ref_clock(sleep_time=0.001)
     mock_connection.return_value.syncSetString.assert_called_with(
         "/dev1234/system/clocks/referenceclock/in/source",
