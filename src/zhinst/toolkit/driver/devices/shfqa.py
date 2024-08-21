@@ -5,7 +5,7 @@ import typing as t
 
 import zhinst.utils.shfqa as utils
 
-from zhinst.toolkit.driver.devices.base import BaseInstrument
+from zhinst.toolkit.driver.devices.shf import SHF
 from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.driver.nodes.readout import Readout
 from zhinst.toolkit.driver.nodes.shfqa_scope import SHFScope
@@ -229,7 +229,7 @@ class QAChannel(Node):
         )
 
 
-class SHFQA(BaseInstrument):
+class SHFQA(SHF):
     """High-level driver for the Zurich Instruments SHFQA."""
 
     @not_callable_in_transactions

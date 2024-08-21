@@ -4,6 +4,7 @@ import pytest
 
 from zhinst.toolkit import SHFQAChannelMode
 from zhinst.toolkit.driver.devices.shfqa import Generator, QAChannel, Readout, SHFScope
+from tests.utils import shf_test_ref_clock
 
 
 def test_repr(shfqa):
@@ -81,3 +82,7 @@ def test_qa_readout(shfqa):
         "0",
         "readout",
     )
+
+
+def test_ref_clock(mock_connection, shfqa):
+    shf_test_ref_clock(mock_connection, shfqa)
