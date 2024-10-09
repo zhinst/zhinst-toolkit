@@ -1,0 +1,2661 @@
+{
+    "\/dev1234\/system\/kerneltype": {
+        "Node": "\/DEV1234\/SYSTEM\/KERNELTYPE",
+        "Description": "Returns the type of the data server kernel (mdk or hpk).",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/update": {
+        "Node": "\/DEV1234\/SYSTEM\/UPDATE",
+        "Description": "Requests update of the device firmware and bitstream from the dataserver.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/clockbase": {
+        "Node": "\/DEV1234\/CLOCKBASE",
+        "Description": "Returns the internal clock frequency of the device.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Hz"
+    },
+    "\/dev1234\/system\/activeinterface": {
+        "Node": "\/DEV1234\/SYSTEM\/ACTIVEINTERFACE",
+        "Description": "Currently active interface of the device.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/fwrevision": {
+        "Node": "\/DEV1234\/SYSTEM\/FWREVISION",
+        "Description": "Revision of the device-internal controller software.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/fpgarevision": {
+        "Node": "\/DEV1234\/SYSTEM\/FPGAREVISION",
+        "Description": "HDL firmware revision.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/features\/serial": {
+        "Node": "\/DEV1234\/FEATURES\/SERIAL",
+        "Description": "Device serial number.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/features\/devtype": {
+        "Node": "\/DEV1234\/FEATURES\/DEVTYPE",
+        "Description": "Returns the device type.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/stats\/physical\/power\/voltages\/0": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/VOLTAGES\/0",
+        "Description": "Voltages of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/power\/voltages\/1": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/VOLTAGES\/1",
+        "Description": "Voltages of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/power\/voltages\/2": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/VOLTAGES\/2",
+        "Description": "Voltages of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/power\/voltages\/3": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/VOLTAGES\/3",
+        "Description": "Voltages of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/power\/voltages\/4": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/VOLTAGES\/4",
+        "Description": "Voltages of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/power\/voltages\/5": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/VOLTAGES\/5",
+        "Description": "Voltages of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/power\/voltages\/6": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/VOLTAGES\/6",
+        "Description": "Voltages of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/power\/voltages\/7": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/VOLTAGES\/7",
+        "Description": "Voltages of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/power\/voltages\/8": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/VOLTAGES\/8",
+        "Description": "Voltages of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/power\/currents\/0": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/CURRENTS\/0",
+        "Description": "Currents of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "A"
+    },
+    "\/dev1234\/stats\/physical\/power\/currents\/1": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/CURRENTS\/1",
+        "Description": "Currents of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "A"
+    },
+    "\/dev1234\/stats\/physical\/power\/currents\/2": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/CURRENTS\/2",
+        "Description": "Currents of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "A"
+    },
+    "\/dev1234\/stats\/physical\/power\/currents\/3": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/CURRENTS\/3",
+        "Description": "Currents of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "A"
+    },
+    "\/dev1234\/stats\/physical\/power\/currents\/4": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/CURRENTS\/4",
+        "Description": "Currents of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "A"
+    },
+    "\/dev1234\/stats\/physical\/power\/currents\/5": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/CURRENTS\/5",
+        "Description": "Currents of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "A"
+    },
+    "\/dev1234\/stats\/physical\/power\/currents\/6": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/CURRENTS\/6",
+        "Description": "Currents of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "A"
+    },
+    "\/dev1234\/stats\/physical\/power\/currents\/7": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/CURRENTS\/7",
+        "Description": "Currents of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "A"
+    },
+    "\/dev1234\/stats\/physical\/power\/currents\/8": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/CURRENTS\/8",
+        "Description": "Currents of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "A"
+    },
+    "\/dev1234\/stats\/physical\/power\/temperatures\/0": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/TEMPERATURES\/0",
+        "Description": "Temperatures of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/power\/temperatures\/1": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/TEMPERATURES\/1",
+        "Description": "Temperatures of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/power\/temperatures\/2": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/TEMPERATURES\/2",
+        "Description": "Temperatures of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/power\/temperatures\/3": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/TEMPERATURES\/3",
+        "Description": "Temperatures of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/power\/temperatures\/4": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/TEMPERATURES\/4",
+        "Description": "Temperatures of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/power\/temperatures\/5": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/TEMPERATURES\/5",
+        "Description": "Temperatures of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/power\/temperatures\/6": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/TEMPERATURES\/6",
+        "Description": "Temperatures of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/power\/temperatures\/7": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/TEMPERATURES\/7",
+        "Description": "Temperatures of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/power\/temperatures\/8": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/POWER\/TEMPERATURES\/8",
+        "Description": "Temperatures of the main power supply.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/voltages\/0": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/VOLTAGES\/0",
+        "Description": "Internal voltage measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/voltages\/1": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/VOLTAGES\/1",
+        "Description": "Internal voltage measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/voltages\/2": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/VOLTAGES\/2",
+        "Description": "Internal voltage measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/voltages\/3": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/VOLTAGES\/3",
+        "Description": "Internal voltage measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/voltages\/4": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/VOLTAGES\/4",
+        "Description": "Internal voltage measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/voltages\/5": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/VOLTAGES\/5",
+        "Description": "Internal voltage measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/currents\/0": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/CURRENTS\/0",
+        "Description": "Internal current measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "mA"
+    },
+    "\/dev1234\/stats\/physical\/currents\/1": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/CURRENTS\/1",
+        "Description": "Internal current measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "mA"
+    },
+    "\/dev1234\/stats\/physical\/currents\/2": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/CURRENTS\/2",
+        "Description": "Internal current measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "mA"
+    },
+    "\/dev1234\/stats\/physical\/currents\/3": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/CURRENTS\/3",
+        "Description": "Internal current measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "mA"
+    },
+    "\/dev1234\/stats\/physical\/currents\/4": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/CURRENTS\/4",
+        "Description": "Internal current measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "mA"
+    },
+    "\/dev1234\/stats\/physical\/currents\/5": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/CURRENTS\/5",
+        "Description": "Internal current measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "mA"
+    },
+    "\/dev1234\/stats\/physical\/temperatures\/0": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/TEMPERATURES\/0",
+        "Description": "Internal temperature measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/temperatures\/1": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/TEMPERATURES\/1",
+        "Description": "Internal temperature measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/temperatures\/2": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/TEMPERATURES\/2",
+        "Description": "Internal temperature measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/temperatures\/3": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/TEMPERATURES\/3",
+        "Description": "Internal temperature measurements.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/fanspeeds\/0": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/FANSPEEDS\/0",
+        "Description": "Speed of the internal cooling fans for monitoring.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "RPM"
+    },
+    "\/dev1234\/stats\/physical\/fanspeeds\/1": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/FANSPEEDS\/1",
+        "Description": "Speed of the internal cooling fans for monitoring.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "RPM"
+    },
+    "\/dev1234\/stats\/physical\/fanspeeds\/2": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/FANSPEEDS\/2",
+        "Description": "Speed of the internal cooling fans for monitoring.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "RPM"
+    },
+    "\/dev1234\/stats\/physical\/fanspeeds\/3": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/FANSPEEDS\/3",
+        "Description": "Speed of the internal cooling fans for monitoring.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "RPM"
+    },
+    "\/dev1234\/stats\/physical\/fanspeeds\/4": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/FANSPEEDS\/4",
+        "Description": "Speed of the internal cooling fans for monitoring.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "RPM"
+    },
+    "\/dev1234\/stats\/physical\/fanspeeds\/5": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/FANSPEEDS\/5",
+        "Description": "Speed of the internal cooling fans for monitoring.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "RPM"
+    },
+    "\/dev1234\/status\/flags\/binary": {
+        "Node": "\/DEV1234\/STATUS\/FLAGS\/BINARY",
+        "Description": "",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/status\/time": {
+        "Node": "\/DEV1234\/STATUS\/TIME",
+        "Description": "The current timestamp.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/stats\/physical\/fpga\/temp": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/FPGA\/TEMP",
+        "Description": "Internal temperature of the FPGA.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/fpga\/core": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/FPGA\/CORE",
+        "Description": "Core voltage of the FPGA.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/fpga\/aux": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/FPGA\/AUX",
+        "Description": "Supply voltage of the FPGA.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "V"
+    },
+    "\/dev1234\/stats\/physical\/fpga\/pstemp": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/FPGA\/PSTEMP",
+        "Description": "Internal temperature of the FPGA's processor system.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "°C"
+    },
+    "\/dev1234\/stats\/physical\/overtemperature": {
+        "Node": "\/DEV1234\/STATS\/PHYSICAL\/OVERTEMPERATURE",
+        "Description": "This flag is set to 1 if the temperature of the FPGA exceeds 85°C. It will be reset to 0 after a restart of the device.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/saveip": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/SAVEIP",
+        "Description": "If written, this action will program the defined static IP address to the device.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/defaultip4": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/DEFAULTIP4",
+        "Description": "IPv4 address of the device to use if static IP is enabled.",
+        "Properties": "Read, Write",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/defaultmask": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/DEFAULTMASK",
+        "Description": "IPv4 mask in case of static IP.",
+        "Properties": "Read, Write",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/defaultgateway": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/DEFAULTGATEWAY",
+        "Description": "Default gateway configuration for the network connection.",
+        "Properties": "Read, Write",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/static": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/STATIC",
+        "Description": "Enable this flag if the device is used in a network with fixed IP assignment without a DHCP server.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/mac": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/MAC",
+        "Description": "Current MAC address of the device network interface.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/ip4": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/IP4",
+        "Description": "Current IPv4 of the device.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/mask": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/MASK",
+        "Description": "Current network mask.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/nics\/0\/gateway": {
+        "Node": "\/DEV1234\/SYSTEM\/NICS\/0\/GATEWAY",
+        "Description": "Current network gateway.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/stall": {
+        "Node": "\/DEV1234\/SYSTEM\/STALL",
+        "Description": "Indicates if the network connection is stalled.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/identify": {
+        "Node": "\/DEV1234\/SYSTEM\/IDENTIFY",
+        "Description": "Setting this node to 1 will cause the device to blink the power led for a few seconds.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/features\/options": {
+        "Node": "\/DEV1234\/FEATURES\/OPTIONS",
+        "Description": "Returns enabled options.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/features\/code": {
+        "Node": "\/DEV1234\/FEATURES\/CODE",
+        "Description": "Node providing a mechanism to write feature codes.",
+        "Properties": "Write",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/properties\/timebase": {
+        "Node": "\/DEV1234\/SYSTEM\/PROPERTIES\/TIMEBASE",
+        "Description": "Minimal time difference between two timestamps. The value is equal to 1\/(maximum sampling rate).",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "s"
+    },
+    "\/dev1234\/system\/swtriggers\/0\/single": {
+        "Node": "\/DEV1234\/SYSTEM\/SWTRIGGERS\/0\/SINGLE",
+        "Description": "Issues a single software trigger event.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/fwlogenable": {
+        "Node": "\/DEV1234\/SYSTEM\/FWLOGENABLE",
+        "Description": "Enables logging to the fwlog node.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/boardrevisions\/0": {
+        "Node": "\/DEV1234\/SYSTEM\/BOARDREVISIONS\/0",
+        "Description": "Hardware revision of the FPGA base board",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/boardrevisions\/1": {
+        "Node": "\/DEV1234\/SYSTEM\/BOARDREVISIONS\/1",
+        "Description": "Hardware revision of the analog board",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/shutdown": {
+        "Node": "\/DEV1234\/SYSTEM\/SHUTDOWN",
+        "Description": "Sending a '1' to this node initiates a shutdown of the operating system on the device. It is recommended to trigger this shutdown before switching the device off with the hardware switch at the back side of the device.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/clocks\/referenceclock\/in\/source": {
+        "Node": "\/DEV1234\/SYSTEM\/CLOCKS\/REFERENCECLOCK\/IN\/SOURCE",
+        "Description": "The intended reference clock source. When the source is changed, all the instruments connected with ZSync links will be disconnected. The connection should be re-established manually.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "\"internal\": The internal clock is intended to be used as the frequency and time base reference.",
+            "1": "\"external\": An external clock is intended to be used as the frequency and time base reference. Provide a clean and stable 10 MHz or 100 MHz reference to the appropriate back panel connector."
+        }
+    },
+    "\/dev1234\/system\/clocks\/referenceclock\/in\/sourceactual": {
+        "Node": "\/DEV1234\/SYSTEM\/CLOCKS\/REFERENCECLOCK\/IN\/SOURCEACTUAL",
+        "Description": "The actual reference clock source.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "\"internal\": The internal clock is used as the frequency and time base reference.",
+            "1": "\"external\": An external clock is used as the frequency and time base reference."
+        }
+    },
+    "\/dev1234\/system\/clocks\/referenceclock\/in\/status": {
+        "Node": "\/DEV1234\/SYSTEM\/CLOCKS\/REFERENCECLOCK\/IN\/STATUS",
+        "Description": "Status of the reference clock.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "\"locked\": Reference clock has been locked on.",
+            "1": "\"error\": There was an error locking onto the reference clock signal.",
+            "2": "\"busy\": The device is busy trying to lock onto the reference clock signal."
+        }
+    },
+    "\/dev1234\/system\/clocks\/referenceclock\/in\/freq": {
+        "Node": "\/DEV1234\/SYSTEM\/CLOCKS\/REFERENCECLOCK\/IN\/FREQ",
+        "Description": "Indicates the frequency of the reference clock.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "Hz"
+    },
+    "\/dev1234\/system\/clocks\/referenceclock\/out\/enable": {
+        "Node": "\/DEV1234\/SYSTEM\/CLOCKS\/REFERENCECLOCK\/OUT\/ENABLE",
+        "Description": "Enable clock signal on the reference clock output. When the clock output is turned on or off, all the instruments connected with ZSync links will be disconnected. The connection should be re-established manually.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/clocks\/referenceclock\/out\/freq": {
+        "Node": "\/DEV1234\/SYSTEM\/CLOCKS\/REFERENCECLOCK\/OUT\/FREQ",
+        "Description": "Select the frequency of the output reference clock. Only 10 MHz and 100 MHz are allowed.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "Hz"
+    },
+    "\/dev1234\/system\/fwlog": {
+        "Node": "\/DEV1234\/SYSTEM\/FWLOG",
+        "Description": "Returns log output of the firmware.",
+        "Properties": "Read",
+        "Type": "String",
+        "Unit": "None"
+    },
+    "\/dev1234\/triggers\/out\/0\/enable": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/0\/ENABLE",
+        "Description": "Enable the Trigger Out.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/triggers\/out\/0\/source": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/0\/SOURCE",
+        "Description": "",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/triggers\/out\/0\/port": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/0\/PORT",
+        "Description": "The ZSync port associated with the Trigger Out source.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/triggers\/out\/0\/pulsewidth": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/0\/PULSEWIDTH",
+        "Description": "",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "s"
+    },
+    "\/dev1234\/triggers\/out\/1\/enable": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/1\/ENABLE",
+        "Description": "Enable the Trigger Out.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/triggers\/out\/1\/source": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/1\/SOURCE",
+        "Description": "",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/triggers\/out\/1\/port": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/1\/PORT",
+        "Description": "The ZSync port associated with the Trigger Out source.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/triggers\/out\/1\/pulsewidth": {
+        "Node": "\/DEV1234\/TRIGGERS\/OUT\/1\/PULSEWIDTH",
+        "Description": "",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "s"
+    },
+    "\/dev1234\/system\/preset\/load": {
+        "Node": "\/DEV1234\/SYSTEM\/PRESET\/LOAD",
+        "Description": "Load the selected preset.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/preset\/busy": {
+        "Node": "\/DEV1234\/SYSTEM\/PRESET\/BUSY",
+        "Description": "Indicates if presets are currently loaded.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/system\/preset\/error": {
+        "Node": "\/DEV1234\/SYSTEM\/PRESET\/ERROR",
+        "Description": "Indicates if the last operation was illegal. Successful: 0, Error: 1.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/1\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/2\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/3\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/4\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/5\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/6\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/7\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/8\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/9\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/10\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/11\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/12\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/13\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/14\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/15\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/16\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/17\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/18\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/18\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/19\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/19\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/20\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/20\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/21\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/21\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/22\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/22\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/23\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/23\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/24\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/24\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/25\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/25\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/26\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/26\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/27\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/27\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/28\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/28\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/29\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/29\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/30\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/30\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/31\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/31\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/32\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/32\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/33\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/33\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/34\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/34\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/35\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/35\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/36\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/36\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/37\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/37\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/38\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/38\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/39\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/39\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/40\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/40\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/41\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/41\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/42\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/42\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/43\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/43\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/44\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/44\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/45\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/45\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/46\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/46\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/47\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/47\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/48\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/48\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/49\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/49\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/50\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/50\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/51\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/51\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/52\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/52\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/53\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/53\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/54\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/54\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/55\/connection\/status": {
+        "Node": "\/DEV1234\/ZSYNCS\/55\/CONNECTION\/STATUS",
+        "Description": "The current status of the instrument connected to the port.",
+        "Properties": "Read",
+        "Type": "Integer (enumerated)",
+        "Unit": "None",
+        "Options": {
+            "0": "No connection",
+            "1": "Connection in progress",
+            "2": "Connected",
+            "3": "Connection error"
+        }
+    },
+    "\/dev1234\/zsyncs\/0\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/0\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/0\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/1\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/1\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/2\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/2\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/3\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/3\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/4\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/4\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/5\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/5\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/6\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/6\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/7\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/7\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/8\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/8\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/9\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/9\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/10\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/10\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/11\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/11\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/12\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/12\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/13\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/13\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/14\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/14\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/15\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/15\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/16\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/16\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/17\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/17\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/18\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/18\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/18\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/18\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/18\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/18\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/19\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/19\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/19\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/19\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/19\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/19\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/20\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/20\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/20\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/20\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/20\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/20\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/21\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/21\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/21\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/21\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/21\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/21\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/22\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/22\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/22\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/22\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/22\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/22\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/23\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/23\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/23\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/23\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/23\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/23\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/24\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/24\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/24\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/24\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/24\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/24\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/25\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/25\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/25\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/25\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/25\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/25\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/26\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/26\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/26\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/26\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/26\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/26\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/27\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/27\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/27\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/27\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/27\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/27\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/28\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/28\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/28\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/28\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/28\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/28\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/29\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/29\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/29\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/29\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/29\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/29\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/30\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/30\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/30\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/30\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/30\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/30\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/31\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/31\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/31\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/31\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/31\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/31\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/32\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/32\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/32\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/32\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/32\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/32\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/33\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/33\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/33\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/33\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/33\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/33\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/34\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/34\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/34\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/34\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/34\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/34\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/35\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/35\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/35\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/35\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/35\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/35\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/36\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/36\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/36\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/36\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/36\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/36\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/37\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/37\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/37\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/37\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/37\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/37\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/38\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/38\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/38\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/38\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/38\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/38\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/39\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/39\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/39\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/39\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/39\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/39\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/40\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/40\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/40\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/40\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/40\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/40\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/41\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/41\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/41\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/41\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/41\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/41\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/42\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/42\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/42\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/42\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/42\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/42\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/43\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/43\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/43\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/43\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/43\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/43\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/44\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/44\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/44\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/44\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/44\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/44\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/45\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/45\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/45\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/45\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/45\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/45\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/46\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/46\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/46\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/46\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/46\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/46\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/47\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/47\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/47\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/47\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/47\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/47\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/48\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/48\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/48\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/48\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/48\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/48\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/49\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/49\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/49\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/49\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/49\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/49\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/50\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/50\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/50\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/50\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/50\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/50\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/51\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/51\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/51\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/51\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/51\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/51\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/52\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/52\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/52\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/52\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/52\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/52\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/53\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/53\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/53\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/53\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/53\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/53\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/54\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/54\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/54\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/54\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/54\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/54\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/55\/connection\/serial": {
+        "Node": "\/DEV1234\/ZSYNCS\/55\/CONNECTION\/SERIAL",
+        "Description": "The device ID of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/55\/connection\/alias": {
+        "Node": "\/DEV1234\/ZSYNCS\/55\/CONNECTION\/ALIAS",
+        "Description": "User-given name to the instrument connected to this port.",
+        "Properties": "Read, Write, Setting",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/zsyncs\/55\/connection\/devtype": {
+        "Node": "\/DEV1234\/ZSYNCS\/55\/CONNECTION\/DEVTYPE",
+        "Description": "The device type of the instrument connected to this port.",
+        "Properties": "Read",
+        "Type": "ZIVectorData",
+        "Unit": "None"
+    },
+    "\/dev1234\/execution\/enable": {
+        "Node": "\/DEV1234\/EXECUTION\/ENABLE",
+        "Description": "Activate the trigger generation. Auto-resets to zero when done.",
+        "Properties": "Read, Write",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/execution\/repetitions": {
+        "Node": "\/DEV1234\/EXECUTION\/REPETITIONS",
+        "Description": "Number of triggers to be generated.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "\/dev1234\/execution\/holdoff": {
+        "Node": "\/DEV1234\/EXECUTION\/HOLDOFF",
+        "Description": "Hold-off time between repeated triggers.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Double",
+        "Unit": "s"
+    },
+    "\/dev1234\/execution\/progress": {
+        "Node": "\/DEV1234\/EXECUTION\/PROGRESS",
+        "Description": "The fraction of the triggers generated so far.",
+        "Properties": "Read",
+        "Type": "Double",
+        "Unit": "None"
+    },
+    "\/dev1234\/execution\/synchronization\/enable": {
+        "Node": "\/DEV1234\/EXECUTION\/SYNCHRONIZATION\/ENABLE",
+        "Description": "Enable synchronization. Trigger generation will only start once all workers have reported a ready status. Synchronization checks will be repeated with the same trigger generation settings (holdoff and repetitions) until synchronization is disabled.",
+        "Properties": "Read, Write, Setting",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    }
+}

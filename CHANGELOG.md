@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 0.7.0
+* Add QHub driver
+
 ## Version 0.6.4
 * Function `wait_for_state_change` now works with zero timeout; the node value is always checked at least once.
 * Improved the stability of device interface auto-detection when it is not supplied while connecting to a device.
