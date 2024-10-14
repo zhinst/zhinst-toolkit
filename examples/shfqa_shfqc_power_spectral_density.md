@@ -38,7 +38,7 @@ device = session.connect_device("DEVXXXX")
 ### Parameter
 
 ```python
-qachannel_center_frequency = 7.1e9
+qachannel_center_frequency = 7.2e9
 qachannel_power_in = -15
 
 main_channel = 0  # The PSD is measured on the main channel
