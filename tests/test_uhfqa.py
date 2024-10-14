@@ -176,7 +176,7 @@ class TestWriteIntegrationWeights:
         np.testing.assert_array_equal(wave1, call_args[0][0][0][1])
 
     def test_write_integration_weights_dict_complex(self, mock_connection, uhfqa):
-        wave_complex = 1.0 * np.ones(8, dtype=np.complex_)
+        wave_complex = 1.0 * np.ones(8, dtype=np.complex128)
         uhfqa.qas[0].integration.write_integration_weights({0: wave_complex})
         call_args = mock_connection.return_value.set.call_args
         assert "/dev1234/qas/0/integration/weights/0/real" == call_args[0][0][0][0]
