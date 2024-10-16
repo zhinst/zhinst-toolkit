@@ -53,7 +53,7 @@ device.qachannels[0].configure_channel(
 
 # configure sg channels
 sgchannel_number = list(range(number_of_qubits))
-sgchannel_center_frequency = [4.7e9, 4.7e9, 3.2e9, 3.2e9]
+sgchannel_center_frequency = [4.6e9, 4.6e9, 3.2e9, 3.2e9]
 sgchannel_power_out = [0] * number_of_qubits
 sgchannel_trigger_input = 0
 
