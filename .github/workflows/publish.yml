@@ -37,7 +37,7 @@ jobs:
           bash build_tools/test_wheels.sh ${{ github.ref_name }}
 
       - name: Store artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: source-dist
           path: dist
@@ -48,7 +48,7 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
     - name: Download artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         name: source-dist
         path: dist
