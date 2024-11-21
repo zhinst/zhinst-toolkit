@@ -10,7 +10,6 @@ from enum import IntEnum
 from pathlib import Path
 
 import numpy as np
-from zhinst.core import ziDAQServer
 from zhinst.utils.shf_sweeper import AvgConfig, EnvelopeConfig, RfConfig
 from zhinst.utils.shf_sweeper import ShfSweeper as CoreSweeper
 from zhinst.utils.shf_sweeper import SweepConfig, TriggerConfig
@@ -71,11 +70,7 @@ class SHFQASweeper(Node):
             "force_sw_trigger": "sw_trigger_mode",
         }
         super().__init__(self._create_nodetree(), tuple())
-        self._daq_server = ziDAQServer(
-            session.daq_server.host,
-            session.daq_server.port,
-            6,
-        )
+        self._daq_server = session.clone_underlying_session()
         self._raw_module = CoreSweeper(self._daq_server, "")
         self._session = session
         self.root.update_nodes(
