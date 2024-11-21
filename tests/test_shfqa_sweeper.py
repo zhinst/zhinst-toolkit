@@ -33,7 +33,7 @@ def mock_TriggerConfig():
 
 
 @pytest.fixture()
-def sweeper_module(session, mock_sweeper_daq, mock_shf_sweeper):
+def sweeper_module(session, mock_shf_sweeper):
     yield SHFQASweeper(session)
 
 
@@ -41,7 +41,7 @@ def test_repr(sweeper_module):
     assert "SHFQASweeper(DataServerSession(localhost:8004))" in repr(sweeper_module)
 
 
-def test_missing_node(mock_connection, mock_shf_sweeper, mock_sweeper_daq, session):
+def test_missing_node(mock_connection, mock_shf_sweeper, session):
     with patch(
         "zhinst.toolkit.driver.modules.shfqa_sweeper.SweepConfig",
         make_dataclass("Y", fields=[("s", str, 0)], bases=(SweepConfig,)),
@@ -50,13 +50,11 @@ def test_missing_node(mock_connection, mock_shf_sweeper, mock_sweeper_daq, sessi
         assert sweeper_module.sweep.s() == 0
 
 
-def test_device(
-    mock_connection, sweeper_module, session, mock_shf_sweeper, mock_sweeper_daq
-):
+def test_device(mock_connection, sweeper_module, session, mock_shf_sweeper):
     assert sweeper_module.device() == ""
 
     sweeper_module.device("dev1234")
-    mock_shf_sweeper.assert_called_with(mock_sweeper_daq(), "dev1234")
+    mock_shf_sweeper.assert_called_with(sweeper_module._daq_server, "dev1234")
     assert sweeper_module.device() == "dev1234"
 
     connected_devices = "dev1234"
@@ -73,9 +71,7 @@ def test_device(
     assert sweeper_module.device() == session.devices["dev1234"]
 
 
-def test_update_settings(
-    mock_connection, sweeper_module, mock_shf_sweeper, mock_sweeper_daq
-):
+def test_update_settings(sweeper_module, mock_shf_sweeper):
     assert not sweeper_module.envelope.enable()
     mock_shf_sweeper.assert_called_with(sweeper_module._daq_server, "")
     # device needs to be set first
@@ -83,7 +79,7 @@ def test_update_settings(
         sweeper_module._update_settings()
 
     sweeper_module.device("dev1234")
-    mock_shf_sweeper.assert_called_with(mock_sweeper_daq(), "dev1234")
+    mock_shf_sweeper.assert_called_with(sweeper_module._daq_server, "dev1234")
     sweeper_module._update_settings()
     mock_shf_sweeper.return_value.configure.assert_called_once()
     assert "sweep_config" in mock_shf_sweeper.return_value.configure.call_args[1]
@@ -135,7 +131,6 @@ def test_update_settings_broken(
     mock_shf_sweeper,
     caplog,
 ):
-
     sweeper_module.device("dev1234")
     sweeper_module._update_settings()
     assert (
@@ -157,7 +152,6 @@ def test_update_settings_broken(
 
 
 def test_run(sweeper_module, mock_shf_sweeper):
-
     sweeper_module.device("dev1234")
     sweeper_module.run()
     mock_shf_sweeper.return_value.configure.assert_called_once()
@@ -165,7 +159,6 @@ def test_run(sweeper_module, mock_shf_sweeper):
 
 
 def test_get_result(sweeper_module, mock_shf_sweeper):
-
     sweeper_module.device("dev1234")
     sweeper_module.get_result()
     mock_shf_sweeper.return_value.configure.assert_called_once()
@@ -173,7 +166,6 @@ def test_get_result(sweeper_module, mock_shf_sweeper):
 
 
 def test_plot(sweeper_module, mock_shf_sweeper):
-
     sweeper_module.device("dev1234")
     sweeper_module.plot()
     mock_shf_sweeper.return_value.configure.assert_called_once()
@@ -181,7 +173,6 @@ def test_plot(sweeper_module, mock_shf_sweeper):
 
 
 def test_get_offset_freq_vector(sweeper_module, mock_shf_sweeper):
-
     sweeper_module.device("dev1234")
     sweeper_module.get_offset_freq_vector()
     mock_shf_sweeper.return_value.configure.assert_called_once()

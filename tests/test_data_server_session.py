@@ -1,5 +1,5 @@
 import json
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -9,7 +9,9 @@ from zhinst.toolkit.nodetree import Node
 
 
 def test_setup(mock_connection, session):
-    mock_connection.assert_called_once_with("localhost", 8004, 6)
+    mock_connection.assert_called_once_with(
+        "localhost", 8004, 6, allow_version_mismatch=True
+    )
     mock_connection.return_value.listNodesJSON.assert_called_once_with("/zi/*")
     assert repr(session) == "DataServerSession(localhost:8004)"
     assert not session.is_hf2_server
@@ -18,10 +20,58 @@ def test_setup(mock_connection, session):
 
 
 def test_setup_hf2(mock_connection, hf2_session):
-    mock_connection.assert_called_once_with("localhost", 8005, 1)
+    mock_connection.assert_called_once_with(
+        "localhost", 8005, 1, allow_version_mismatch=True
+    )
     mock_connection.return_value.listNodesJSON.assert_not_called()
     assert repr(hf2_session) == "HF2DataServerSession(localhost:8005)"
     assert hf2_session.is_hf2_server
+
+
+def test_allow_mismatch_not_supported(mock_connection, nodedoc_zi_json):
+    mock_daq = MagicMock()
+    mock_daq.listNodesJSON.return_value = nodedoc_zi_json
+
+    def create_daq(*args, **kwargs):
+        if "allow_version_mismatch" in kwargs:
+            raise TypeError("allow_version_mismatch not recognized")
+        return mock_daq
+
+    mock_connection.side_effect = create_daq
+    Session("localhost", 8004)
+    mock_connection.assert_any_call("localhost", 8004, 6, allow_version_mismatch=True)
+    mock_connection.assert_called_with("localhost", 8004, 6)
+
+
+# Passing "allow_version_mismatch" does not cause an error, even if the underlying
+# zhinst.core does not recognize this flag.
+def test_allow_mismatch_passed_but_not_supported(mock_connection, nodedoc_zi_json):
+    mock_daq = MagicMock()
+    mock_daq.listNodesJSON.return_value = nodedoc_zi_json
+
+    def create_daq(*args, **kwargs):
+        if "allow_version_mismatch" in kwargs:
+            raise TypeError("allow_version_mismatch not recognized")
+        return mock_daq
+
+    mock_connection.side_effect = create_daq
+    Session("localhost", 8004, allow_version_mismatch=True)
+    mock_connection.assert_any_call("localhost", 8004, 6, allow_version_mismatch=True)
+    mock_connection.assert_called_with("localhost", 8004, 6)
+
+
+def test_allow_mismatch_default(mock_connection, nodedoc_zi_json):
+    mock_daq = MagicMock()
+    mock_daq.listNodesJSON.return_value = nodedoc_zi_json
+
+    def create_daq(*args, **kwargs):
+        return mock_daq
+
+    mock_connection.side_effect = create_daq
+    Session("localhost", 8004)
+    mock_connection.assert_called_once_with(
+        "localhost", 8004, 6, allow_version_mismatch=True
+    )
 
 
 def test_existing_connection(nodedoc_zi_json, mock_connection):
@@ -77,7 +127,6 @@ def test_unkown_init_error(mock_connection):
 def test_connect_device(
     zi_devices_json, mock_connection, session, nodedoc_dev1234_json
 ):
-
     connected_devices = ""
 
     def get_string_side_effect(arg):
@@ -137,7 +186,6 @@ def test_connect_device(
 def test_connect_device_autodetection(
     zi_devices_json, mock_connection, session, nodedoc_dev1234_json
 ):
-
     connected_devices = ""
     selected_interface = ""
 
@@ -478,7 +526,7 @@ def test_sweeper_module(data_dir, mock_connection, session):
     assert isinstance(sweeper_module.device, Node)
 
 
-def test_shfqa_sweeper(session, mock_sweeper_daq):
+def test_shfqa_sweeper(session):
     sweeper = session.modules.shfqa_sweeper
     assert sweeper == session.modules.shfqa_sweeper
     assert isinstance(sweeper, tk_modules.SHFQASweeper)
@@ -487,7 +535,6 @@ def test_shfqa_sweeper(session, mock_sweeper_daq):
 def test_session_wide_transaction(
     mock_connection, nodedoc_dev1234_json, session, shfqa, shfsg
 ):
-
     # Hack devices into the created once
     session._devices._devices = {"dev1": shfqa, "dev2": shfsg}
 

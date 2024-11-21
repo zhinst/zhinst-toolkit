@@ -1,4 +1,5 @@
 """Module for managing a session to a Data Server through zhinst.core."""
+
 import json
 import typing as t
 from collections.abc import MutableMapping
@@ -654,6 +655,12 @@ class Session(Node):
         connection: Existing DAQ server object. If specified the session will
             not create a new session to the data server but reuse the passed
             one. (default = None)
+        allow_version_mismatch: When set to False, an exception will be raised
+            when attempting to connect to a data-server on a different version
+            than that of the zhinst.core library. (default = True)
+
+    .. versionchanged:: 0.7.1
+        Added `allow_version_mismatch` argument.
     """
 
     def __init__(
@@ -663,6 +670,7 @@ class Session(Node):
         *,
         hf2: t.Optional[bool] = None,
         connection: t.Optional[core.ziDAQServer] = None,
+        allow_version_mismatch: bool = True,
     ):
         self._is_hf2_server = bool(hf2)
         if connection is not None:
@@ -683,10 +691,8 @@ class Session(Node):
             if self._is_hf2_server and server_port == 8004:
                 server_port = 8005
             try:
-                self._daq_server = core.ziDAQServer(
-                    server_host,
-                    server_port,
-                    1 if self._is_hf2_server else 6,
+                self._daq_server = self._create_daq(
+                    server_host, server_port, allow_version_mismatch
                 )
             except RuntimeError as error:
                 if "Unsupported API level" not in error.args[0]:
@@ -987,3 +993,37 @@ class Session(Node):
     def server_port(self) -> int:
         """Server port."""
         return self._daq_server.port
+
+    def clone_underlying_session(self) -> core.ziDAQServer:
+        """Create a new session to the data server.
+
+        Create a new core.ziDAQServer connected to the same data-server this
+        session is connected to.
+        """
+        # Don't execute version checking. When clone_underlying_session is called,
+        # a connection has already been made, so checking again would be redundant.
+        return self._create_daq(self.server_host, self.server_port, True)
+
+    def _create_daq(
+        self,
+        server_host: str,
+        server_port: int,
+        allow_version_mismatch: bool,
+    ):
+        """Create a new session to the data server.
+
+        Attempt to pass the allow_version_mismatch flag. Fallback in case
+        zhinst.core does not support it yet.
+        """
+        api_level = 1 if self._is_hf2_server else 6
+        try:
+            return core.ziDAQServer(
+                server_host,
+                server_port,
+                api_level,
+                allow_version_mismatch=allow_version_mismatch,
+            )
+        except TypeError as error:
+            if "allow_version_mismatch" not in error.args[0]:
+                raise
+            return core.ziDAQServer(server_host, server_port, api_level)

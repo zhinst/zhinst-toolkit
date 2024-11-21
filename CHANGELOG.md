@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 0.7.1
+* Added support for the `allow_version_mismatch` in the `Session` constructor. When set to False, an exception will be raised when attempting to connect to a data-server on a different version than that of the zhinst.core library.
+
 ## Version 0.7.0
 * Add QHub driver
 

@@ -45,7 +45,6 @@ def hf2_session(mock_connection):
 
 @pytest.fixture()
 def shfqa(data_dir, mock_connection, session):
-
     json_path = data_dir / "nodedoc_dev1234_shfqa.json"
     with json_path.open("r", encoding="UTF-8") as file:
         nodes_json = file.read()
@@ -62,7 +61,6 @@ def shfqa(data_dir, mock_connection, session):
 
 @pytest.fixture()
 def shfsg(data_dir, mock_connection, session):
-
     json_path = data_dir / "nodedoc_dev1234_shfsg.json"
     with json_path.open("r", encoding="UTF-8") as file:
         nodes_json = file.read()
@@ -74,7 +72,6 @@ def shfsg(data_dir, mock_connection, session):
 
 @pytest.fixture()
 def shfqc(data_dir, mock_connection, session):
-
     json_path = data_dir / "nodedoc_dev1234_shfqc.json"
     with json_path.open("r", encoding="UTF-8") as file:
         nodes_json = file.read()
@@ -96,11 +93,3 @@ def nodedoc_dev1234_json(data_dir):
     json_path = data_dir / "nodedoc_dev1234.json"
     with json_path.open("r", encoding="UTF-8") as file:
         return file.read()
-
-
-@pytest.fixture()
-def mock_sweeper_daq():
-    with patch(
-        "zhinst.toolkit.driver.modules.shfqa_sweeper.ziDAQServer", autospec=True
-    ) as connection:
-        yield connection
