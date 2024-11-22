@@ -10,7 +10,7 @@ from zhinst.toolkit.nodetree import Node
 
 def test_setup(mock_connection, session):
     mock_connection.assert_called_once_with(
-        "localhost", 8004, 6, allow_version_mismatch=True
+        "localhost", 8004, 6, allow_version_mismatch=False
     )
     mock_connection.return_value.listNodesJSON.assert_called_once_with("/zi/*")
     assert repr(session) == "DataServerSession(localhost:8004)"
@@ -21,7 +21,7 @@ def test_setup(mock_connection, session):
 
 def test_setup_hf2(mock_connection, hf2_session):
     mock_connection.assert_called_once_with(
-        "localhost", 8005, 1, allow_version_mismatch=True
+        "localhost", 8005, 1, allow_version_mismatch=False
     )
     mock_connection.return_value.listNodesJSON.assert_not_called()
     assert repr(hf2_session) == "HF2DataServerSession(localhost:8005)"
@@ -39,7 +39,7 @@ def test_allow_mismatch_not_supported(mock_connection, nodedoc_zi_json):
 
     mock_connection.side_effect = create_daq
     Session("localhost", 8004)
-    mock_connection.assert_any_call("localhost", 8004, 6, allow_version_mismatch=True)
+    mock_connection.assert_any_call("localhost", 8004, 6, allow_version_mismatch=False)
     mock_connection.assert_called_with("localhost", 8004, 6)
 
 
@@ -70,7 +70,7 @@ def test_allow_mismatch_default(mock_connection, nodedoc_zi_json):
     mock_connection.side_effect = create_daq
     Session("localhost", 8004)
     mock_connection.assert_called_once_with(
-        "localhost", 8004, 6, allow_version_mismatch=True
+        "localhost", 8004, 6, allow_version_mismatch=False
     )
 
 

@@ -655,11 +655,12 @@ class Session(Node):
         connection: Existing DAQ server object. If specified the session will
             not create a new session to the data server but reuse the passed
             one. (default = None)
-        allow_version_mismatch: When set to False, an exception will be raised
-            when attempting to connect to a data-server on a different version
-            than that of the zhinst.core library. (default = True)
+        allow_version_mismatch: if set to True, the connection to the data-server
+            will succeed even if the data-server is on a different version of LabOne.
+            If False, an exception will be raised if the data-server is on a
+            different version. (default = False)
 
-    .. versionchanged:: 0.7.1
+    .. versionchanged:: 0.8.0
         Added `allow_version_mismatch` argument.
     """
 
@@ -670,7 +671,7 @@ class Session(Node):
         *,
         hf2: t.Optional[bool] = None,
         connection: t.Optional[core.ziDAQServer] = None,
-        allow_version_mismatch: bool = True,
+        allow_version_mismatch: bool = False,
     ):
         self._is_hf2_server = bool(hf2)
         if connection is not None:
