@@ -5,7 +5,6 @@ from enum import Enum, IntEnum
 class SHFQAChannelMode(Enum):
     """SHFQA channel mode."""
 
-    SPECTROSCOPY = "spectroscopy"
     READOUT = "readout"
 
 
