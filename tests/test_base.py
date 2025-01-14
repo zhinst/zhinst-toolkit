@@ -166,6 +166,21 @@ def test_check_python_versions():
         BaseInstrument._check_python_versions(labone, sub(device_utils, (1, 0, 0)))
 
 
+def test_version_string_to_tuple_new():
+    test_version = BaseInstrument._version_string_to_tuple("25.1.0.2586")
+    assert test_version == (25, 1, 0)
+
+
+def test_version_string_to_tuple_old():
+    test_version = BaseInstrument._version_string_to_tuple("25.1.2586")
+    assert test_version == (25, 1, 2586)
+
+
+def test_version_string_to_tuple_invalid():
+    test_version = BaseInstrument._version_string_to_tuple("25.1.2586.4.8.d")
+    assert test_version == (25, 1, 2586)
+
+
 def test_check_labone_version():
 
     # matching version
