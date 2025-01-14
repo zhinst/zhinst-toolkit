@@ -141,3 +141,4 @@ enums
 GSa
 QHub
 qhub
+qualname

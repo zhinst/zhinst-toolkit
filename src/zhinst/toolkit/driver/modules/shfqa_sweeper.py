@@ -141,7 +141,7 @@ class SHFQASweeper(Node):
         for config_class, parent_name in self._config_classes.items():
             for parameter, default_value in asdict(config_class()).items():
                 node = (
-                    f"/{parent_name[0]}/{self._renamed_nodes.get(parameter,parameter)}"
+                    f"/{parent_name[0]}/{self._renamed_nodes.get(parameter, parameter)}"
                 )
                 try:
                     info[node] = raw_info[node]

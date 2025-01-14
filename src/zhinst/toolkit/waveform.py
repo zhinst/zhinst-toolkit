@@ -342,8 +342,8 @@ class Waveforms(MutableMapping):
             if marker is None:
                 return f"placeholder({wave_length}, false, false)"
             return (
-                f"placeholder({wave_length}, {marker_to_bool(i*2)}, "
-                + f"{marker_to_bool(i*2+1)})"
+                f"placeholder({wave_length}, {marker_to_bool(i * 2)}, "
+                + f"{marker_to_bool(i * 2 + 1)})"
             )
 
         w1_assign = to_wave_str(0)

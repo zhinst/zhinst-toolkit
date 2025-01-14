@@ -176,6 +176,11 @@ def test_version_string_to_tuple_old():
     assert test_version == (25, 1, 2586)
 
 
+def test_version_string_to_tuple_dev():
+    test_version = BaseInstrument._version_string_to_tuple("25.1.dev2586")
+    assert test_version == (25, 1, 0)
+
+
 def test_version_string_to_tuple_invalid():
     test_version = BaseInstrument._version_string_to_tuple("25.1.2586.4.8.d")
     assert test_version == (25, 1, 2586)

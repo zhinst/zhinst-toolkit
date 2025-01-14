@@ -120,15 +120,9 @@ class BaseInstrument(Node):
         Returns:
             Version as a tuple of ints
         """
-        version_split = version.split(".")
-        result = [0] * max(3, len(version_split))
-        for i, value in enumerate(version_split):
-            try:
-                result[i] = int(value)
-            except ValueError:
-                if i < 3:  # ignore dev versions
-                    result[i] = 0
-        return result[0], result[1], result[2]
+        return tuple(
+            int(v) if v.isdigit() else 0 for v in version.split(".")[:3]
+        )  # type: ignore
 
     @staticmethod
     def _check_python_versions(

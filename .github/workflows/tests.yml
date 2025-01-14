@@ -14,12 +14,6 @@ jobs:
     strategy:
       matrix:
         include:
-        - name: py37
-          python: 3.7
-          tox: py37
-        - name: py38
-          python: 3.8
-          tox: py38
         - name: py39
           python: 3.9
           coverage: true
@@ -30,6 +24,12 @@ jobs:
         - name: py311
           python: "3.11"
           tox: py311
+        - name: py312
+          python: "3.12"
+          tox: py312
+        - name: py313
+          python: "3.13"
+          tox: py313
 
     steps:
       - uses: "actions/checkout@v2"
