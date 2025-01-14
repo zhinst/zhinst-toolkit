@@ -120,12 +120,13 @@ class BaseInstrument(Node):
         Returns:
             Version as a tuple of ints
         """
-        result = [0] * 3
-        for i, value in enumerate(version.split(".")):
+        version_split = version.split(".")
+        result = [0] * max(3, len(version_split))
+        for i, value in enumerate(version_split):
             try:
                 result[i] = int(value)
             except ValueError:
-                if i < 3:  # ignore dev verisons
+                if i < 3:  # ignore dev versions
                     result[i] = 0
         return result[0], result[1], result[2]
 
