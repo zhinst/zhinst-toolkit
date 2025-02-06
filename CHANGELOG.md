@@ -1,6 +1,6 @@
 # zhinst-toolkit Changelog
 
-## Version 0.8.0
+## Version 0.7.1
 * The constructor of `Session` fails when attempting to connect to a data-server on a different LabOne version. This behavior can be overridden by setting the newly added allow_version_mismatch keyword argument to True. When allow_version_mismatch=True is passed to the `Session` constructor the connection to the data-server succeeds even if the version doesn't match.
 
 ## Version 0.7.0
