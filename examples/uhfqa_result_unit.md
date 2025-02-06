@@ -109,7 +109,7 @@ repeat (avg_cnt) {
         wait_time += wait_delta;
         playWave(w, w);
         wait(wait_time);
-        startQA(QA_INT_0 | QA_INT_1, true);
+        startQA(QA_INT_ALL, true);
         playZero(8*1024);
     }
 }
