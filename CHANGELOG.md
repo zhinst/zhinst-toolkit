@@ -1,5 +1,15 @@
 # zhinst-toolkit Changelog
 
+## Version 1.0
+`zhinst-toolkit` has been stable since version 0.3 and we intend to keep that stability going forward. This is way we have decided to promote the library to version 1.0. 
+
+Despite the major version bump, **this new version does not introduce any breaking change** with respect to 0.7. The interface is the same.
+
+Even if we haven't changed the public interface, there are some differences you should be aware of:
+
+* `zhinst-toolkit` 1.0 requires `zhinst-core` 25.04.
+* Set operations always block until the value has been set on the device, regardless of the value of the `deep` flag. The `deep` flag is still available and can be useful if you want to get back the node value after the setting has been applied.
+
 ## Version 0.7.1
 * The constructor of `Session` fails when attempting to connect to a data-server on a different LabOne version. This behavior can be overridden by setting the newly added allow_version_mismatch keyword argument to True. When allow_version_mismatch=True is passed to the `Session` constructor the connection to the data-server succeeds even if the version doesn't match.
 
