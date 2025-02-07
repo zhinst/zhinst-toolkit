@@ -529,25 +529,28 @@ class Node:
         parse=True,
         **kwargs,
     ) -> t.Any:
-        """Call operator that either gets (empty) or gets the value of a node.
+        """Call operator that either gets (empty) or sets the value of a node.
 
         Args:
             value: Optional value that should be set to the node. If not
                 specified the operator will return the value of the node
                 instead.
-            deep: Flag if the operation should block until the device has
-                acknowledged the operation. The operation returns the value
-                acknowledged by the device. This takes significantly longer
-                than a normal operation and should be used carefully.
+            deep: for set operations, deep=True will return the actual value of
+                the node after setting. This value can sometime differ from the
+                input value, e.g. due to rounding or clamping.
+                For get operations, deep=True will return the timestamp in addition
+                to the value.
             enum: Flag if enumerated values should return the enum value as
                 string or return the raw number.
             parse: Flag if the GetParser or SetParser, if present, should be
                 applied or not.
 
         Returns:
-            Value of the node for a get operation. If the deep flag is set the
-            acknowledged value from the device is returned (applies also for
-            the set operation).
+            The return value depends on the `deep` flag:
+                - set operation, `deep=False`: returns `None`
+                - set operation, `deep=True`: returns the node value
+                - get operation, `deep=False`: returns the node value
+                - get operation, `deep=True`: returns a tuple (timestamp, value)
 
         Raises:
             AttributeError: If the connection does not support the necessary
@@ -630,9 +633,7 @@ class Node:
         The kwargs will be forwarded to the mapped zhinst.core function call.
 
         Args:
-            deep: Flag if the get operation should return the cached value
-                from the Data Server or get the value from the device, which is
-                significantly slower.
+            deep: deep=True will return the timestamp in addition to the value.
             enum: Flag if enumerated values should return the enum value as
                 string or return the raw number.
             parse: Flag if the GetParser, if present, should be applied or not.
@@ -660,7 +661,7 @@ class Node:
             if deep:
                 timestamp, value = self._get_deep(**kwargs)
             else:
-                value = self._get_cached(**kwargs)
+                value = self._get_typed(**kwargs)
             value = self._parse_get_value(value, enum=enum, parse=parse)
             return (timestamp, value) if deep else value
         if readable is None and (
@@ -721,11 +722,7 @@ class Node:
         The kwargs will be forwarded to the maped zhinst.core function call.
 
         Args:
-            deep: Flag if the get operation should return the cached value
-                from the Data Server or get the value from the device, which is
-                significantly slower. The wildcard get is always performed as
-                deep get but the timestamp is only returned if the ``deep```
-                flag is set.
+            deep: deep=True will return the timestamp in addition to the value.
             enum: Flag if enumerated values should return the enum value as
                 string or return the raw number.
             parse: Flag if the GetParser, if present, should be applied or not.
@@ -796,13 +793,10 @@ class Node:
         raw_value = next(iter(raw_dict.values()))
         return self._parse_get_entry(raw_value)
 
-    def _get_cached(self, **kwargs) -> t.Any:
-        """Get the cached node value from the data server.
+    def _get_typed(self, **kwargs) -> t.Any:
+        """Get the node value from the data server.
 
         The kwargs will be forwarded to the maped zhinst.core function call.
-
-        Returns:
-            Cached node value from the data server.
 
         Raises:
             AttributeError: if the connection does not support the necessary
@@ -852,8 +846,9 @@ class Node:
 
         Args:
             value: value
-            deep: Flag if the set operation should be blocking until the data
-                has arrived at the device. (default=False)
+            deep: deep=True returns the actual value of the node after setting.
+                This value can sometime differ from the input value, e.g. due to
+                rounding or clamping.
             enum: Flag if enumerated values should accept the enum value as
                 string. (default=True)
             parse: Flag if the SetParser, if present, should be applied or not.
