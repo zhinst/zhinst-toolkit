@@ -66,8 +66,7 @@ class NodeEnum(IntEnum):
     """
 
     # Required for typing
-    def __init__(self, *args, **kwargs):
-        ...
+    def __init__(self, *args, **kwargs): ...
 
     # Required for typing
     def __call__(self, *args, **kwargs):  # noqa: D102 # pragma: no cover
@@ -511,25 +510,28 @@ class Node:
     def __call__(
         self, value: t.Any = None, *, deep=False, enum=True, parse=True, **kwargs
     ) -> t.Any:
-        """Call operator that either gets (empty) or gets the value of a node.
+        """Call operator that either gets (empty) or sets the value of a node.
 
         Args:
             value: Optional value that should be set to the node. If not
                 specified the operator will return the value of the node
                 instead.
-            deep: Flag if the operation should block until the device has
-                acknowledged the operation. The operation returns the value
-                acknowledged by the device. This takes significantly longer
-                than a normal operation and should be used carefully.
+            deep: for set operations, deep=True will return the actual value of
+                the node after setting. This value can sometime differ from the
+                input value, e.g. due to rounding or clamping.
+                For get operations, deep=True will return the timestamp in addition
+                to the value.
             enum: Flag if enumerated values should return the enum value as
                 string or return the raw number.
             parse: Flag if the GetParser or SetParser, if present, should be
                 applied or not.
 
         Returns:
-            Value of the node for a get operation. If the deep flag is set the
-            acknowledged value from the device is returned (applies also for
-            the set operation).
+            The return value depends on the `deep` flag:
+                - set operation, `deep=False`: returns `None`
+                - set operation, `deep=True`: returns the node value
+                - get operation, `deep=False`: returns the node value
+                - get operation, `deep=True`: returns a tuple (timestamp, value)
 
             .. versionchanged:: 0.3.5
 

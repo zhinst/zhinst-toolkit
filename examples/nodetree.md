@@ -107,31 +107,36 @@ The call operator support the following Flags:
 
 ### deep
 
-Flag if the set operation should be blocking until the data has been processed by the
-device, respectively if the get operation should return the value from the device or
-the cached value on the data server (if there is any). This flag is reset by
-default because the operation can take significantly longer.
-
-In addition to the value, a deep get operation will return the timestamp from the device
-(The timestamp can be None, e.g. deep gets on LabOne modules).
-
+The deep flag changes the return value of get/set operations and is `False` by default.
+- A set operation with `deep=False` returns `None`.
+```python
+device.demods[0].rate(1000)
+```
+- A set operation with `deep=True` returns the value of the node after the setting has been applied. This may differ from the input value, e.g. due to rounding or clamping.
+```python
+device.demods[0].rate(1000, deep=True)
+```
+- A get operation with `deep=False` simply returns the node value.
+```python
+device.demods[0].freq()
+```
+- A get operation with `deep=True` returns a (timestamp, value) tuple. The timestamp can be `None`, e.g. when using deep gets on LabOne modules.
 ```python
 device.demods[0].freq(deep=True)
 ```
 
-For a deep set the call operator will return the value acknowledged
-by the device. e.g. important for floating point values with a
-limited resolution.
+> Note:
+>
+> Up until version 0.7, a set with `deep=False` would return before the value was
+> actually set on the device. Since version 1.0, this is not the case anymore.
+> A set will always return only once the value has actually been set on the device,
+> regardless of the deep flag.
 
 > Warning:
 >
 > Does not work for wildcard nodes or non leaf nodes since they represent multiple
 > nodes that are set in a transactional set which does not report the acknowledged
 > values.
-
-```python
-device.demods[0].rate(1000, deep=True)
-```
 
 ### enum
 
@@ -179,8 +184,7 @@ device.demods[0].enable(parse= False)
 
 ## Transactions
 
-Setting up an experiment normal requires setting a couple of nodes to the correct
-value. Since every call operation triggers an individual message to the data
+Setting up an experiment normally requires setting multiple nodes. Since every call operation triggers an individual message to the data
 server, this can take a noticeable amount of time. To avoid this LabOne® offers
 an API functionality called transactional set. This functionality enables the user
 to bundle multiple set commands into a single command/message. In zhinst.toolkit
