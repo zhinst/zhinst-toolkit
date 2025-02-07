@@ -6,8 +6,7 @@
 Despite the major version bump, **this new version does not introduce any breaking change** with respect to 0.7. The interface is the same.
 
 Even if we haven't changed the public interface, there are some differences you should be aware of:
-
-* `zhinst-toolkit` 1.0 requires `zhinst-core` 25.04.
+* The minimum required version of zhinst.core is bumped from 23.06 to 25.04.
 * Set operations always block until the value has been set on the device, regardless of the value of the `deep` flag. The `deep` flag is still available and can be useful if you want to get back the node value after the setting has been applied.
 
 ## Version 0.7.1
