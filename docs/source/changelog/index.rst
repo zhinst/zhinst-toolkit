@@ -1,4 +1,0 @@
-Changelog
-^^^^^^^^^
-
-.. mdinclude:: ../../../CHANGELOG.md
