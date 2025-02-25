@@ -1,10 +1,12 @@
 """SHFQA Instrument Driver."""
 
+from __future__ import annotations
+
 import logging
 import typing as t
+from functools import cached_property
 
 import zhinst.utils.shfqa as utils
-
 from zhinst.toolkit.driver.devices.base import BaseInstrument
 from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.driver.nodes.readout import Readout
@@ -14,7 +16,6 @@ from zhinst.toolkit.exceptions import ToolkitError
 from zhinst.toolkit.interface import SHFQAChannelMode
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import (
-    lazy_property,
     create_or_append_set_transaction,
     not_callable_in_transactions,
 )
@@ -62,7 +63,10 @@ class Generator(AWG):
         self._max_qubits_per_channel = max_qubits_per_channel
 
     def write_to_waveform_memory(
-        self, pulses: t.Union[Waveforms, dict], *, clear_existing: bool = True
+        self,
+        pulses: t.Union[Waveforms, dict],
+        *,
+        clear_existing: bool = True,
     ) -> None:
         """Writes pulses to the waveform memory.
 
@@ -75,23 +79,29 @@ class Generator(AWG):
             len(pulses.keys()) > 0
             and max(pulses.keys()) >= self._max_qubits_per_channel
         ):
-            raise ToolkitError(
+            msg = (
                 f"The device only has {self._max_qubits_per_channel} qubits per channel"
                 f", but {max(pulses.keys())} were specified."
+            )
+            raise ToolkitError(
+                msg,
             )
         with create_or_append_set_transaction(self._root):
             if clear_existing:
                 self.clearwave(1)
             if isinstance(pulses, Waveforms):
-                for slot in pulses.keys():
+                for slot in pulses:
                     self.waveforms[slot].wave(
-                        pulses.get_raw_vector(slot, complex_output=True)
+                        pulses.get_raw_vector(slot, complex_output=True),
                     )
             else:
                 for slot, waveform in pulses.items():
                     self.waveforms[slot].wave(waveform)
 
-    def read_from_waveform_memory(self, slots: t.List[int] = None) -> Waveforms:
+    def read_from_waveform_memory(
+        self,
+        slots: t.Optional[list[int]] = None,
+    ) -> Waveforms:
         """Read pulses from the waveform memory.
 
         Args:
@@ -115,7 +125,10 @@ class Generator(AWG):
         return waveforms
 
     def configure_sequencer_triggering(
-        self, *, aux_trigger: str, play_pulse_delay: float = 0.0
+        self,
+        *,
+        aux_trigger: str,
+        play_pulse_delay: float = 0.0,
     ) -> None:
         """Configure the sequencer triggering.
 
@@ -134,8 +147,12 @@ class Generator(AWG):
         self._send_set_list(settings)
 
     @property
-    def available_aux_trigger_inputs(self) -> t.List[str]:
-        """List of available aux trigger sources for the generator."""
+    def available_aux_trigger_inputs(self) -> list[str]:
+        """List of available aux trigger sources for the generator.
+
+        Returns:
+            List of available aux trigger sources for the generator.
+        """
         return [
             option.enum
             for option in self.auxtriggers[0].channel.node_info.options.values()
@@ -145,9 +162,9 @@ class Generator(AWG):
 class QAChannel(Node):
     """Quantum Analyzer Channel for the SHFQA.
 
-    :class:`QAChannel` implements basic functionality to configure QAChannel
-    settings of the :class:`SHFQA` instrument.
-    Besides the :class:`Generator`, :class:`Readout` and :class:`Sweeper`
+    `QAChannel` implements basic functionality to configure QAChannel
+    settings of the `SHFQA` instrument.
+    Besides the `Generator`, `Readout` and `Sweeper`
     modules it also provides an easy access to commonly used `QAChannel` parameters.
 
     Args:
@@ -158,9 +175,9 @@ class QAChannel(Node):
 
     def __init__(
         self,
-        device: "SHFQA",
-        session: "Session",
-        tree: t.Tuple[str, ...],
+        device: SHFQA,
+        session: Session,
+        tree: tuple[str, ...],
     ):
         super().__init__(device.root, tree)
         self._index = int(tree[-1])
@@ -194,12 +211,16 @@ class QAChannel(Node):
         )
         self._send_set_list(settings)
 
-    @lazy_property
+    @cached_property
     def generator(self) -> Generator:
-        """Generator."""
+        """Generator.
+
+        Returns:
+            Generator node.
+        """
         return Generator(
             self._root,
-            self._tree + ("generator",),
+            (*self._tree, "generator"),
             self._device.serial,
             self._index,
             self._device.max_qubits_per_channel,
@@ -207,23 +228,31 @@ class QAChannel(Node):
             self._device.device_options,
         )
 
-    @lazy_property
+    @cached_property
     def readout(self) -> Readout:
-        """Readout."""
+        """Readout.
+
+        Returns:
+            Readout node.
+        """
         return Readout(
             self._root,
-            self._tree + ("readout",),
+            (*self._tree, "readout"),
             self._device.serial,
             self._index,
             self._device.max_qubits_per_channel,
         )
 
-    @lazy_property
+    @cached_property
     def spectroscopy(self) -> Spectroscopy:
-        """Spectroscopy."""
+        """Spectroscopy.
+
+        Returns:
+            Spectroscopy node.
+        """
         return Spectroscopy(
             self._root,
-            self._tree + ("spectroscopy",),
+            (*self._tree, "spectroscopy"),
             self._device.serial,
             self._index,
         )
@@ -234,7 +263,10 @@ class SHFQA(BaseInstrument):
 
     @not_callable_in_transactions
     def start_continuous_sw_trigger(
-        self, *, num_triggers: int, wait_time: float
+        self,
+        *,
+        num_triggers: int,
+        wait_time: float,
     ) -> None:
         """Issues a specified number of software triggers.
 
@@ -255,36 +287,48 @@ class SHFQA(BaseInstrument):
             wait_time=wait_time,
         )
 
-    @lazy_property
+    @cached_property
     def max_qubits_per_channel(self) -> int:
-        """Maximum number of supported qubits per channel."""
+        """Maximum number of supported qubits per channel.
+
+        Returns:
+            Maximum number of supported qubits per channel.
+        """
         return utils.max_qubits_per_channel(self._session.daq_server, self.serial)
 
-    @lazy_property
+    @cached_property
     def qachannels(self) -> t.Sequence[QAChannel]:
-        """A Sequence of QAChannels."""
+        """A Sequence of QAChannels.
+
+        Returns:
+            A Sequence of QAChannels.
+        """
         return NodeList(
             [
-                QAChannel(self, self._session, self._tree + ("qachannels", str(i)))
+                QAChannel(self, self._session, (*self._tree, "qachannels", str(i)))
                 for i in range(len(self["qachannels"]))
             ],
             self._root,
-            self._tree + ("qachannels",),
+            (*self._tree, "qachannels"),
         )
 
-    @lazy_property
+    @cached_property
     def scopes(self) -> t.Sequence[SHFScope]:
-        """A Sequence of SHFScopes."""
+        """A Sequence of SHFScopes.
+
+        Returns:
+            A Sequence of SHFScopes.
+        """
         return NodeList(
             [
                 SHFScope(
                     self._root,
-                    self._tree + ("scopes", str(i)),
+                    (*self._tree, "scopes", str(i)),
                     self._session.daq_server,
                     self.serial,
                 )
                 for i in range(len(self["scopes"]))
             ],
             self._root,
-            self._tree + ("scopes",),
+            (*self._tree, "scopes"),
         )

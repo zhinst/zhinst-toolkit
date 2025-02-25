@@ -1,11 +1,12 @@
 from itertools import cycle
+
 import pytest
 
 from zhinst.toolkit.driver.devices.qhub import QHub
 from zhinst.toolkit.exceptions import ToolkitError
 
 
-@pytest.fixture()
+@pytest.fixture
 def qhub(data_dir, mock_connection, session):
 
     json_path = data_dir / "nodedoc_dev1234_qhub.json"
@@ -14,7 +15,7 @@ def qhub(data_dir, mock_connection, session):
     mock_connection.return_value.listNodesJSON.return_value = nodes_json
     mock_connection.return_value.getString.return_value = ""
 
-    yield QHub("DEV1234", "QHUB", session)
+    return QHub("DEV1234", "QHUB", session)
 
 
 def test_repr(qhub):
@@ -24,24 +25,29 @@ def test_repr(qhub):
 def test_arm(mock_connection, qhub):
     qhub.arm()
     mock_connection.return_value.syncSetInt.assert_any_call(
-        "/dev1234/execution/enable", False
+        "/dev1234/execution/enable",
+        False,
     )
 
     qhub.arm(repetitions=3, holdoff=100.6)
     mock_connection.return_value.syncSetInt.assert_any_call(
-        "/dev1234/execution/enable", False
+        "/dev1234/execution/enable",
+        False,
     )
     mock_connection.return_value.set.assert_any_call(
-        "/dev1234/execution/repetitions", 3
+        "/dev1234/execution/repetitions",
+        3,
     )
     mock_connection.return_value.set.assert_any_call(
-        "/dev1234/execution/holdoff", 100.6
+        "/dev1234/execution/holdoff",
+        100.6,
     )
 
     qhub.arm(deep=False, repetitions=5, holdoff=67.4)
     mock_connection.return_value.set.assert_any_call("/dev1234/execution/enable", False)
     mock_connection.return_value.set.assert_any_call(
-        "/dev1234/execution/repetitions", 5
+        "/dev1234/execution/repetitions",
+        5,
     )
     mock_connection.return_value.set.assert_any_call("/dev1234/execution/holdoff", 67.4)
 
@@ -49,35 +55,43 @@ def test_arm(mock_connection, qhub):
 def test_run_stop(mock_connection, qhub):
     qhub.run(deep=False)
     mock_connection.return_value.set.assert_called_with(
-        "/dev1234/execution/enable", True
+        "/dev1234/execution/enable",
+        True,
     )
     qhub.run()
     mock_connection.return_value.syncSetInt.assert_called_with(
-        "/dev1234/execution/enable", True
+        "/dev1234/execution/enable",
+        True,
     )
 
     qhub.stop(deep=False)
     mock_connection.return_value.set.assert_called_with(
-        "/dev1234/execution/enable", False
+        "/dev1234/execution/enable",
+        False,
     )
     qhub.stop()
     mock_connection.return_value.syncSetInt.assert_called_with(
-        "/dev1234/execution/enable", False
+        "/dev1234/execution/enable",
+        False,
     )
     mock_connection.reset_mock()
 
     qhub.arm_and_run(repetitions=5, holdoff=100.8)
     mock_connection.return_value.syncSetInt.assert_any_call(
-        "/dev1234/execution/enable", False
+        "/dev1234/execution/enable",
+        False,
     )
     mock_connection.return_value.set.assert_any_call(
-        "/dev1234/execution/repetitions", 5
+        "/dev1234/execution/repetitions",
+        5,
     )
     mock_connection.return_value.set.assert_any_call(
-        "/dev1234/execution/holdoff", 100.8
+        "/dev1234/execution/holdoff",
+        100.8,
     )
     mock_connection.return_value.syncSetInt.assert_called_with(
-        "/dev1234/execution/enable", True
+        "/dev1234/execution/enable",
+        True,
     )
 
 
@@ -85,14 +99,14 @@ def test_wait_done(mock_connection, qhub):
     sequence = iter([1] * 3 + [0] * 5)
     mock_connection.return_value.getInt.side_effect = lambda node: next(sequence)
     mock_connection.return_value.get.side_effect = lambda node, **kwargs: {
-        node: {"timestamp": [0], "value": [next(sequence)]}
+        node: {"timestamp": [0], "value": [next(sequence)]},
     }
     qhub.wait_done(sleep_time=0.001)
     mock_connection.return_value.getInt.assert_called_with("/dev1234/execution/enable")
 
     mock_connection.return_value.getInt.side_effect = lambda node: 1
     mock_connection.return_value.get.side_effect = lambda node, **kwargs: {
-        node: {"timestamp": [0], "value": [1]}
+        node: {"timestamp": [0], "value": [1]},
     }
     with pytest.raises(TimeoutError) as e_info:
         qhub.wait_done(timeout=0.01)
@@ -133,7 +147,8 @@ def test_ref_clock(mock_connection, qhub):
     mock_connection.return_value.syncSetString.assert_not_called()
     assert not qhub.check_ref_clock(sleep_time=0.001)
     mock_connection.return_value.syncSetString.assert_called_with(
-        "/dev1234/system/clocks/referenceclock/in/source", "internal"
+        "/dev1234/system/clocks/referenceclock/in/source",
+        "internal",
     )
 
     # timeout
@@ -184,10 +199,9 @@ def test_check_zsync_connection(mock_connection, qhub, shfqa, shfsg, shfqc):
         if path.endswith("status"):
             value = getInt_side_effect(path)
             return {path: {"timestamp": [0], "value": [value]}}
-        elif path.endswith("serial"):
+        if path.endswith("serial"):
             return get_serials(path)
-        else:
-            return None
+        return None
 
     mock_connection.return_value.getInt.side_effect = getInt_side_effect
     mock_connection.return_value.get.side_effect = get_side_effect
@@ -204,20 +218,20 @@ def test_check_zsync_connection(mock_connection, qhub, shfqa, shfsg, shfqc):
 
     # one connected
     status0 = 2
-    assert True == qhub.check_zsync_connection(0)
+    assert qhub.check_zsync_connection(0) == True
     with pytest.raises(TimeoutError):
         qhub.check_zsync_connection(2, timeout=0, sleep_time=0.001)
-    assert [True] == qhub.check_zsync_connection([0])
+    assert qhub.check_zsync_connection([0]) == [True]
     with pytest.raises(TimeoutError):
         qhub.check_zsync_connection([0, 2], timeout=0, sleep_time=0.001)
 
     # one connected the other one in error state
     status0 = 2
     status2 = 3
-    assert True == qhub.check_zsync_connection(0, sleep_time=0.001)
+    assert qhub.check_zsync_connection(0, sleep_time=0.001) == True
     with pytest.raises(TimeoutError) as e_info:
         qhub.check_zsync_connection(2, timeout=0.01)
-    assert [True] == qhub.check_zsync_connection([0], sleep_time=0.001)
+    assert qhub.check_zsync_connection([0], sleep_time=0.001) == [True]
 
     with pytest.raises(TimeoutError) as e_info:
         qhub.check_zsync_connection([0, 2], timeout=0.01, sleep_time=0.001)
@@ -226,10 +240,10 @@ def test_check_zsync_connection(mock_connection, qhub, shfqa, shfsg, shfqc):
     # one connected the other one times out
     status0 = 2
     status2 = 1
-    assert True == qhub.check_zsync_connection(0, sleep_time=0.001)
+    assert qhub.check_zsync_connection(0, sleep_time=0.001) == True
     with pytest.raises(TimeoutError) as e_info:
         qhub.check_zsync_connection(2, timeout=0.01)
-    assert [True] == qhub.check_zsync_connection([0], sleep_time=0.001)
+    assert qhub.check_zsync_connection([0], sleep_time=0.001) == [True]
 
     with pytest.raises(TimeoutError) as e_info:
         qhub.check_zsync_connection([0, 2], timeout=0.01, sleep_time=0.001)
@@ -239,7 +253,7 @@ def test_check_zsync_connection(mock_connection, qhub, shfqa, shfsg, shfqc):
     status10 = 2
     status0 = 2
     status2 = 3
-    assert [True] == qhub.check_zsync_connection([10], sleep_time=0.001)
+    assert qhub.check_zsync_connection([10], sleep_time=0.001) == [True]
     with pytest.raises(TimeoutError) as e_info:
         qhub.check_zsync_connection([0, 2, 10], timeout=0.01, sleep_time=0.001)
     assert "2" in str(e_info.value)
@@ -248,11 +262,13 @@ def test_check_zsync_connection(mock_connection, qhub, shfqa, shfsg, shfqc):
     status0 = 2
     status2 = 2
 
-    assert True == qhub.check_zsync_connection(shfsg, timeout=0.05, sleep_time=0.001)
-    assert True == qhub.check_zsync_connection(shfqa, timeout=0.05, sleep_time=0.001)
-    assert [True, True] == qhub.check_zsync_connection(
-        [shfsg, shfqa], timeout=0.05, sleep_time=0.001
-    )
+    assert qhub.check_zsync_connection(shfsg, timeout=0.05, sleep_time=0.001) == True
+    assert qhub.check_zsync_connection(shfqa, timeout=0.05, sleep_time=0.001) == True
+    assert qhub.check_zsync_connection(
+        [shfsg, shfqa],
+        timeout=0.05,
+        sleep_time=0.001,
+    ) == [True, True]
 
     status10 = 3
     with pytest.raises(TimeoutError) as e_info:
@@ -273,8 +289,8 @@ def test_find_zsync_worker_port(mock_connection, qhub):
     # correct use case
     ret_val = {
         "/dev1234/zsyncs/0/connection/serial": [
-            {"timestamp": 0, "flags": 0, "vector": "1234"}
-        ]
+            {"timestamp": 0, "flags": 0, "vector": "1234"},
+        ],
     }
     mock_connection.return_value.get.return_value = ret_val
     assert qhub.find_zsync_worker_port(qhub) == 0

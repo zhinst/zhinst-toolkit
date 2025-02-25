@@ -1,7 +1,5 @@
 from unittest.mock import patch
 
-import pytest
-
 from zhinst.toolkit import SHFQAChannelMode
 from zhinst.toolkit.driver.devices.shfqa import Generator, QAChannel, Readout, SHFScope
 from zhinst.toolkit.driver.devices.shfsg import AWG, Node, SGChannel
@@ -15,7 +13,10 @@ def test_start_continuous_sw_trigger(mock_connection, shfqc):
     with patch("zhinst.toolkit.driver.devices.shfqa.utils", autospec=True) as utils:
         shfqc.start_continuous_sw_trigger(num_triggers=10, wait_time=20.0)
         utils.start_continuous_sw_trigger.assert_called_once_with(
-            mock_connection.return_value, "DEV1234", num_triggers=10, wait_time=20.0
+            mock_connection.return_value,
+            "DEV1234",
+            num_triggers=10,
+            wait_time=20.0,
         )
 
 
@@ -96,22 +97,32 @@ def test_sg_awg(shfqc):
 def test_sg_awg_compiler(mock_connection, shfqc):
     mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
     with patch(
-        "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
+        "zhinst.toolkit.driver.nodes.awg.compile_seqc",
+        autospec=True,
     ) as compile_seqc:
         shfqc.sgchannels[0].awg.compile_sequencer_program("test")
         compile_seqc.assert_called_once_with(
-            "test", "SHFQC", "AWG,FOOBAR", 0, sequencer="sg"
+            "test",
+            "SHFQC",
+            "AWG,FOOBAR",
+            0,
+            sequencer="sg",
         )
 
 
 def test_qa_awg_compiler(mock_connection, shfqc):
     mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
     with patch(
-        "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
+        "zhinst.toolkit.driver.nodes.awg.compile_seqc",
+        autospec=True,
     ) as compile_seqc:
         shfqc.qachannels[0].generator.compile_sequencer_program("test")
         compile_seqc.assert_called_once_with(
-            "test", "SHFQC", "AWG,FOOBAR", 0, sequencer="qa"
+            "test",
+            "SHFQC",
+            "AWG,FOOBAR",
+            0,
+            sequencer="qa",
         )
 
 
@@ -119,18 +130,18 @@ def test_sg_awg_modulation_freq(mock_connection, shfqc):
     mock_connection.return_value.getInt.return_value = 0
     shfqc.sgchannels[0].awg_modulation_freq()
     mock_connection.return_value.getInt.assert_called_with(
-        "/dev1234/sgchannels/0/sines/0/oscselect"
+        "/dev1234/sgchannels/0/sines/0/oscselect",
     )
     mock_connection.return_value.getDouble.assert_called_with(
-        "/dev1234/sgchannels/0/oscs/0/freq"
+        "/dev1234/sgchannels/0/oscs/0/freq",
     )
     mock_connection.return_value.getInt.return_value = 1
     shfqc.sgchannels[0].awg_modulation_freq()
     mock_connection.return_value.getInt.assert_called_with(
-        "/dev1234/sgchannels/0/sines/0/oscselect"
+        "/dev1234/sgchannels/0/sines/0/oscselect",
     )
     mock_connection.return_value.getDouble.assert_called_with(
-        "/dev1234/sgchannels/0/oscs/1/freq"
+        "/dev1234/sgchannels/0/oscs/1/freq",
     )
 
 
@@ -193,7 +204,10 @@ def test_awg_configure_marker_and_trigger(data_dir, mock_connection, shfqc):
 def test_configure_channel(mock_connection, shfqc):
     with patch("zhinst.toolkit.driver.devices.shfsg.utils", autospec=True) as utils:
         shfqc.sgchannels[0].configure_channel(
-            enable=True, output_range=111, center_frequency=20.4, rf_path=False
+            enable=True,
+            output_range=111,
+            center_frequency=20.4,
+            rf_path=False,
         )
         utils.configure_channel.assert_called_once_with(
             mock_connection.return_value,

@@ -3,11 +3,14 @@
 Natively works with all module types and provides the basic functionality like
 the module specific nodetree.
 """
+
+from __future__ import annotations
+
 import logging
 import time
 import typing as t
-from os import PathLike, fspath
 from functools import partial
+from os import PathLike, fspath
 
 from zhinst.core import ModuleBase
 from zhinst.toolkit.nodetree import Node, NodeTree
@@ -36,10 +39,10 @@ class BaseModule(Node):
         session: Session to the Data Server.
     """
 
-    def __init__(self, raw_module: ZIModule, session: "Session"):
+    def __init__(self, raw_module: ZIModule, session: Session):
         self._raw_module = raw_module
         self._session = session
-        super().__init__(NodeTree(raw_module), tuple())
+        super().__init__(NodeTree(raw_module), ())
         self.root.update_nodes(
             {
                 "/device": {
@@ -57,10 +60,10 @@ class BaseModule(Node):
         )
 
     def __repr__(self):
-        return str(f"{self._raw_module.__class__.__name__}({repr(self._session)})")
+        return str(f"{self._raw_module.__class__.__name__}({self._session!r})")
 
     @staticmethod
-    def _get_device(session, serial: str) -> t.Union["DeviceType", str]:
+    def _get_device(session, serial: str) -> t.Union[DeviceType, str]:
         """Convert a device serial into a toolkit device object.
 
         Args:
@@ -76,7 +79,7 @@ class BaseModule(Node):
             return serial
 
     @staticmethod
-    def _set_device(value: t.Union["DeviceType", str]) -> str:
+    def _set_device(value: t.Union[DeviceType, str]) -> str:
         """Convert a toolkit device object into a serial string.
 
         Args:
@@ -104,10 +107,10 @@ class BaseModule(Node):
         try:
             return self._session.raw_path_to_node(node.replace(".", "/"), module=self)
         except (KeyError, RuntimeError):
-            logger.error(
+            logger.exception(
                 f"Could not resolve {node} into a node of the "
                 f"{self._raw_module.__class__.__name__} or "
-                "a connected device."
+                "a connected device.",
             )
             return node
 
@@ -173,7 +176,8 @@ class BaseModule(Node):
             logger.info(f"Progress: {(self.progress() * 100):.1f}%")
             time.sleep(sleep_time)
         if not self._raw_module.finished() and self.progress() != 1:
-            raise TimeoutError(f"{self._raw_module.__class__.__name__} timed out.")
+            msg = f"{self._raw_module.__class__.__name__} timed out."
+            raise TimeoutError(msg)
         logger.info(f"Progress: {(self.progress() * 100):.1f}%")
 
     def progress(self) -> float:
@@ -191,8 +195,6 @@ class BaseModule(Node):
 
         Args:
             signal: Node that should be subscribed to.
-
-        .. versionchanged 0.5.0 Add support for raw string signals
         """
         try:
             self._raw_module.subscribe(signal.node_info.path)  # type: ignore
@@ -206,8 +208,6 @@ class BaseModule(Node):
 
         Args:
             signal: Node that should be unsubscribed from.
-
-        .. versionchanged 0.5.0 Add support for raw string signals
         """
         try:
             self._raw_module.unsubscribe(signal.node_info.path)  # type: ignore
@@ -219,8 +219,6 @@ class BaseModule(Node):
 
         Subscription or unsubscription is not possible until the execution is
         finished.
-
-        .. versionadded:: 0.4.1
         """
         self._raw_module.execute()
 

@@ -1,14 +1,15 @@
 """HDAWG Instrument Driver."""
+
 import typing as t
+from functools import cached_property
 
 from zhinst.toolkit.driver.devices.base import BaseInstrument
 from zhinst.toolkit.driver.nodes.awg import AWG
+from zhinst.toolkit.exceptions import ToolkitError
 from zhinst.toolkit.nodetree.helper import (
     create_or_append_set_transaction,
-    lazy_property,
 )
 from zhinst.toolkit.nodetree.node import NodeList
-from zhinst.toolkit.exceptions import ToolkitError
 
 
 class HDAWG(BaseInstrument):
@@ -28,8 +29,6 @@ class HDAWG(BaseInstrument):
                  Use 2 for a gen2 system, when only HDAWG and SHFs are used.
                  In this case, the sample rate is set to 2.0 GSa/s.
                  (default: 1)
-
-            .. versionchanged:: 0.6.2: Added gen parameter.
 
         Raises:
             ToolkitError: If the gen argument is not correct.
@@ -61,7 +60,8 @@ class HDAWG(BaseInstrument):
                 self.dios[0].drive(0b0000)
 
             else:
-                raise ToolkitError("Only gen1 or gen2 are supported!")
+                msg = "Only gen1 or gen2 are supported!"
+                raise ToolkitError(msg)
 
             # Set ZSync clock to be used as reference
             self.system.clocks.referenceclock.source("zsync")
@@ -71,14 +71,18 @@ class HDAWG(BaseInstrument):
             self.awgs["*"].dio.strobe.slope("off")
             self.awgs["*"].dio.valid.polarity("none")
 
-    @lazy_property
+    @cached_property
     def awgs(self) -> t.Sequence[AWG]:
-        """A Sequence of AWG Cores."""
+        """A Sequence of AWG Cores.
+
+        Returns:
+            A list of AWG objects.
+        """
         return NodeList(
             [
                 AWG(
                     self.root,
-                    self._tree + ("awgs", str(i)),
+                    (*self._tree, "awgs", str(i)),
                     self.serial,
                     i,
                     self.device_type,
@@ -87,5 +91,5 @@ class HDAWG(BaseInstrument):
                 for i in range(len(self["awgs"]))
             ],
             self._root,
-            self._tree + ("awgs",),
+            (*self._tree, "awgs"),
         )

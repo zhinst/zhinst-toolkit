@@ -1,9 +1,11 @@
+import enum
+from dataclasses import dataclass
+from typing import Optional
+
+import numpy as np
+
 from zhinst.toolkit import Session
 from zhinst.toolkit.driver.nodes.awg import AWG
-import enum
-from typing import Optional
-from dataclasses import dataclass
-import numpy as np
 
 
 class LogType(enum.Enum):
@@ -61,7 +63,9 @@ class LogEntry:
 
 
 def reset_and_enable_rtlogger(
-    awg: AWG, input: str = "zsync", start_timestamp: Optional[int] = None
+    awg: AWG,
+    input: str = "zsync",
+    start_timestamp: Optional[int] = None,
 ) -> None:
     """Reset and start a given RT Logger.
 
@@ -157,7 +161,7 @@ def print_rtlogger_data(
             ("value", np.int64),
             ("source", np.int64),
             ("error", np.int64),
-        ]
+        ],
     )
 
     # Get various parameter
@@ -296,9 +300,8 @@ def print_rtlogger_data(
 
     if silent:
         return entries
-    else:
-        # Print the RTLogger logs
-        print("t[clk]\tt[us]\tData")
-        for entry in entries:
-            print(entry)
-        return None  # Avoid dump to console in interactive session
+    # Print the RTLogger logs
+    print("t[clk]\tt[us]\tData")
+    for entry in entries:
+        print(entry)
+    return None  # Avoid dump to console in interactive session

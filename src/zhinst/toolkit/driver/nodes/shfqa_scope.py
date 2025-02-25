@@ -1,10 +1,9 @@
 """zhinst-toolkit scope node adaptions for the SHFQA."""
+
 import logging
-import typing as t
 
 import zhinst.utils.shfqa as utils
 from zhinst.core import ziDAQServer
-
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import not_callable_in_transactions
 
@@ -36,7 +35,11 @@ class SHFScope(Node):
         self._serial = serial
 
     def run(
-        self, *, single: bool = True, timeout: float = 10, sleep_time: float = 0.005
+        self,
+        *,
+        single: bool = True,
+        timeout: float = 10,
+        sleep_time: float = 0.005,
     ) -> None:
         """Run the scope recording.
 
@@ -55,9 +58,12 @@ class SHFScope(Node):
         try:
             self.enable.wait_for_state_change(1, timeout=timeout, sleep_time=sleep_time)
         except TimeoutError as error:
-            raise TimeoutError(
+            msg = (
                 "Scope could not been started within "
                 f"the specified timeout ({timeout})s"
+            )
+            raise TimeoutError(
+                msg,
             ) from error
 
     def stop(self, *, timeout: float = 10, sleep_time: float = 0.005) -> None:
@@ -77,9 +83,12 @@ class SHFScope(Node):
         try:
             self.enable.wait_for_state_change(0, timeout=timeout, sleep_time=sleep_time)
         except TimeoutError as error:
-            raise TimeoutError(
+            msg = (
                 "Scope could not been stopped within "
                 f"the specified timeout ({timeout})s"
+            )
+            raise TimeoutError(
+                msg,
             ) from error
 
     def wait_done(self, *, timeout: float = 10, sleep_time: float = 0.005) -> None:
@@ -98,15 +107,18 @@ class SHFScope(Node):
         try:
             self.enable.wait_for_state_change(0, timeout=timeout, sleep_time=sleep_time)
         except TimeoutError as error:
-            raise TimeoutError(
+            msg = (
                 "Scope recording did not finish "
                 f"within the specified timeout({timeout})s."
+            )
+            raise TimeoutError(
+                msg,
             ) from error
 
     def configure(
         self,
         *,
-        input_select: t.Dict[int, str],
+        input_select: dict[int, str],
         num_samples: int,
         trigger_input: str,
         num_segments: int = 1,
@@ -166,14 +178,14 @@ class SHFScope(Node):
         return utils.get_scope_data(self._daq_server, self._serial, timeout=timeout)
 
     @property
-    def available_trigger_inputs(self) -> t.List[str]:
+    def available_trigger_inputs(self) -> list[str]:
         """List of the available trigger sources for the scope."""
         return [
             option.enum for option in self.trigger.channel.node_info.options.values()
         ]
 
     @property
-    def available_inputs(self) -> t.List[str]:
+    def available_inputs(self) -> list[str]:
         """List of the available signal sources for the scope channels."""
         return [
             option.enum

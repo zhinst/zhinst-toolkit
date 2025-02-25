@@ -1,4 +1,5 @@
 """A script to generate Notebooks for documentation."""
+
 import argparse
 import fnmatch
 import os

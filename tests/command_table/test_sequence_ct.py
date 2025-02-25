@@ -1,4 +1,4 @@
-from zhinst.toolkit import Sequence, CommandTable
+from zhinst.toolkit import CommandTable, Sequence
 
 
 def test_setting_command_table(command_table_schema):

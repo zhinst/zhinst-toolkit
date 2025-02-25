@@ -1,17 +1,20 @@
 """zhinst-toolkit AWG node adaptions."""
+
+from __future__ import annotations
+
 import json
 import logging
 import typing as t
+from functools import cached_property
 
 from zhinst.core import compile_seqc
 from zhinst.toolkit.driver.nodes.command_table_node import CommandTableNode
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import (
-    lazy_property,
     create_or_append_set_transaction,
 )
-from zhinst.toolkit.waveform import Waveforms
 from zhinst.toolkit.sequence import Sequence
+from zhinst.toolkit.waveform import Waveforms
 
 logger = logging.getLogger(__name__)
 
@@ -65,16 +68,15 @@ class AWG(Node):
 
         Raises:
             RuntimeError: If the sequencer could not be enabled.
-
-        .. versionchanged:: 0.5.0
-
-            Check the acknowledged value instead of using `wait_for_state_change`.
         """
         self.single(single)
         if not self.enable(1, deep=True):
-            raise RuntimeError(
+            msg = (
                 "The sequencer could not be enabled. Please ensure that the "
                 "sequencer program is loaded and configured correctly."
+            )
+            raise RuntimeError(
+                msg,
             )
 
     def wait_done(self, *, timeout: float = 10, sleep_time: float = 0.005) -> None:
@@ -92,56 +94,61 @@ class AWG(Node):
                 the specified timeout time
         """
         if not self.single():
-            raise RuntimeError(
-                f"{repr(self)}: The generator is running in continuous mode, "
+            msg = (
+                f"{self!r}: The generator is running in continuous mode, "
                 "it will never be finished."
+            )
+            raise RuntimeError(
+                msg,
             )
         try:
             self.enable.wait_for_state_change(0, timeout=timeout, sleep_time=sleep_time)
         except TimeoutError as error:
-            raise TimeoutError(
-                f"{repr(self)}: The execution of the sequencer program did not finish "
+            msg = (
+                f"{self!r}: The execution of the sequencer program did not finish "
                 f"within the specified timeout ({timeout}s)."
+            )
+            raise TimeoutError(
+                msg,
             ) from error
 
     def compile_sequencer_program(
         self,
         sequencer_program: t.Union[str, Sequence],
         **kwargs: t.Union[str, int],
-    ) -> t.Tuple[bytes, t.Dict[str, t.Any]]:
+    ) -> tuple[bytes, dict[str, t.Any]]:
         """Compiles a sequencer program for the specific device.
 
         Args:
             sequencer_program: The sequencer program to compile.
 
         Keyword Args:
-            samplerate: Target sample rate of the sequencer. Only allowed/
+            samplerate (int): Target sample rate of the sequencer. Only allowed/
                 necessary for HDAWG devices. Must correspond to the samplerate
                 used by the device (device.system.clocks.sampleclock.freq()).
                 If not specified the function will get the value itself from
                 the device. It is recommended passing the samplerate if more
                 than one sequencer code is uploaded in a row to speed up the
                 execution time.
-            wavepath: path to directory with waveforms. Defaults to path used
+            wavepath (str): path to directory with waveforms. Defaults to path used
                 by LabOne UI or AWG Module.
-            waveforms: waveform CSV files separated by ';'
-            output: name of embedded ELF filename.
+            waveforms (str): waveform CSV files separated by ';'
+            output (str): name of embedded ELF filename.
 
         Returns:
             elf: Binary ELF data for sequencer.
             extra: Extra dictionary with compiler output.
 
-        Examples:
-            >>> elf, compile_info = device.awgs[0].compile_sequencer_program(seqc)
-            >>> device.awgs[0].elf.data(elf)
-            >>> device.awgs[0].ready.wait_for_state_change(1)
-            >>> device.awgs[0].enable(True)
+        Example:
+            elf, compile_info = device.awgs[0].compile_sequencer_program(seqc)
+            device.awgs[0].elf.data(elf)
+            device.awgs[0].ready.wait_for_state_change(1)
+            device.awgs[0].enable(True)
+
 
         Raises:
             RuntimeError: `sequencer_program` is empty.
             RuntimeError: If the compilation failed.
-
-        .. versionadded:: 0.4.0
         """
         if "SHFQC" in self._device_type:
             kwargs["sequencer"] = "sg" if "sgchannels" in self._tree else "qa"
@@ -160,7 +167,7 @@ class AWG(Node):
         self,
         sequencer_program: t.Union[str, Sequence],
         **kwargs: t.Union[str, int],
-    ) -> t.Dict[str, t.Any]:
+    ) -> dict[str, t.Any]:
         """Compiles the given sequencer program on the AWG Core.
 
         Warning:
@@ -173,43 +180,35 @@ class AWG(Node):
             sequencer_program: Sequencer program to be uploaded.
 
         Keyword Args:
-            samplerate: Target sample rate of the sequencer. Only allowed/
+            samplerate (int): Target sample rate of the sequencer. Only allowed/
                 necessary for HDAWG devices. Must correspond to the samplerate
                 used by the device (device.system.clocks.sampleclock.freq()).
                 If not specified the function will get the value itself from
                 the device. It is recommended passing the samplerate if more
                 than one sequencer code is uploaded in a row to speed up the
                 execution time.
-            wavepath: path to directory with waveforms. Defaults to path used
+            wavepath (str): path to directory with waveforms. Defaults to path used
                 by LabOne UI or AWG Module.
-            waveforms: waveform CSV files separated by ';'
-            output: name of embedded ELF filename.
+            waveforms (str): waveform CSV files separated by ';'
+            output (str): name of embedded ELF filename.
 
-        Examples:
-            >>> compile_info = device.awgs[0].load_sequencer_program(seqc)
-            >>> device.awgs[0].ready.wait_for_state_change(1)
-            >>> device.awgs[0].enable(True)
+        Example:
+            compile_info = device.awgs[0].load_sequencer_program(seqc)
+            device.awgs[0].ready.wait_for_state_change(1)
+            device.awgs[0].enable(True)
 
         Raises:
             RuntimeError: `sequencer_program` is empty.
             RuntimeError: If the upload or compilation failed.
-
-        .. versionadded:: 0.3.4
-
-            `sequencer_program` does not accept empty strings
-
-        .. versionadded:: 0.4.0
-
-            Use offline compiler instead of AWG module to compile the sequencer
-            program. This speeds of the compilation and also enables parallel
-            compilation/upload.
         """
         elf, compiler_info = self.compile_sequencer_program(sequencer_program, **kwargs)
         self.elf.data(elf)
         return compiler_info
 
     def write_to_waveform_memory(
-        self, waveforms: Waveforms, indexes: list = None
+        self,
+        waveforms: Waveforms,
+        indexes: t.Optional[list] = None,
     ) -> None:
         """Writes waveforms to the waveform memory.
 
@@ -220,14 +219,9 @@ class AWG(Node):
             indexes: Specify a list of indexes that should be uploaded. If
                 nothing is specified all available indexes in waveforms will
                 be uploaded. (default = None)
-
-        .. versionchanged:: 0.4.2
-
-            Removed `validate` flag and functionality. The validation check is
-            now done in the `Waveforms.validate` function.
         """
         with create_or_append_set_transaction(self._root):
-            for waveform_index in waveforms.keys():
+            for waveform_index in waveforms:
                 if indexes and waveform_index not in indexes:
                     continue
                 self.root.transaction.add(
@@ -235,7 +229,10 @@ class AWG(Node):
                     waveforms.get_raw_vector(waveform_index),
                 )
 
-    def read_from_waveform_memory(self, indexes: t.List[int] = None) -> Waveforms:
+    def read_from_waveform_memory(
+        self,
+        indexes: t.Optional[list[int]] = None,
+    ) -> Waveforms:
         """Read waveforms from the waveform memory.
 
         Args:
@@ -267,11 +264,17 @@ class AWG(Node):
             )
         return waveforms
 
-    @lazy_property
+    @cached_property
     def commandtable(self) -> t.Optional[CommandTableNode]:
-        """Command table module."""
+        """Command table module.
+
+        Returns:
+            Command table module.
+        """
         if self["commandtable"].is_valid():
             return CommandTableNode(
-                self._root, self._tree + ("commandtable",), self._device_type
+                self._root,
+                (*self._tree, "commandtable"),
+                self._device_type,
             )
         return None

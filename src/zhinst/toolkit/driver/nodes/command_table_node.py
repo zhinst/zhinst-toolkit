@@ -1,4 +1,7 @@
 """Command Table Node adaptions."""
+
+from __future__ import annotations
+
 import json
 import string
 import typing as t
@@ -33,11 +36,14 @@ class CommandTableNode(Node):
     """
 
     def __init__(
-        self, root: NodeTree, tree: t.Tuple[str, ...], device_type: str
+        self,
+        root: NodeTree,
+        tree: tuple[str, ...],
+        device_type: str,
     ) -> None:
         Node.__init__(self, root, tree)
         self._device_type = device_type
-        self._schema: t.Optional[t.Dict[str, t.Any]] = None
+        self._schema: t.Optional[dict[str, t.Any]] = None
 
     def check_status(self) -> bool:
         """Check status of the command table.
@@ -50,13 +56,16 @@ class CommandTableNode(Node):
         """
         ct_status = self.status()
         if ct_status >> 3:
-            raise RuntimeError(
+            msg = (
                 "Uploading of data to the command table failed "
                 "due to a JSON parsing error."
             )
+            raise RuntimeError(
+                msg,
+            )
         return ct_status == 1
 
-    def load_validation_schema(self) -> t.Dict[str, t.Any]:
+    def load_validation_schema(self) -> dict[str, t.Any]:
         """Load device command table validation schema.
 
         Returns:
@@ -99,11 +108,6 @@ class CommandTableNode(Node):
         Raises:
             RuntimeError: If the command table upload into the device failed.
             zhinst.toolkit.exceptions.ValidationError: Incorrect schema.
-
-        .. versionchanged:: 0.4.2
-
-            New Flag `check_upload` that makes the upload check optional.
-            `check_status` is only called when not in a ongoing transaction.
         """
         try:
             self.data(json.dumps(ct.as_dict()))  # type: ignore
@@ -121,8 +125,9 @@ class CommandTableNode(Node):
             and not self._root.transaction.in_progress()
             and not self.check_status()
         ):
+            msg = "No valid command table reported by the device after upload."
             raise RuntimeError(
-                "No valid command table reported by the device after upload."
+                msg,
             )
 
     def load_from_device(self) -> CommandTable:

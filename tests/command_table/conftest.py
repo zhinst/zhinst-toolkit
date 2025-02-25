@@ -1,9 +1,9 @@
 import json
-import pytest
 from pathlib import Path
 
-from zhinst.toolkit.command_table import CommandTable
+import pytest
 
+from zhinst.toolkit.command_table import CommandTable
 
 CT_SCHEMA_22_02 = Path(__file__).parent / "data/command_table_schema_22_02.json"
 CT_SCHEMA_22_08 = Path(__file__).parent / "data/command_table_schema_22_08.json"
@@ -14,7 +14,7 @@ def command_table_completed():
     """L1 22.02"""
     with open(Path(__file__).parent / "data/command_table_completed.json") as f:
         data = json.load(f)
-    yield data
+    return data
 
 
 @pytest.fixture(scope="module")
@@ -42,4 +42,4 @@ def command_table_schema(request):
 
 @pytest.fixture
 def command_table(command_table_schema):
-    yield CommandTable(command_table_schema)
+    return CommandTable(command_table_schema)

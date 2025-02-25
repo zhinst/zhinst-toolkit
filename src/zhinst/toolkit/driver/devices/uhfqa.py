@@ -1,6 +1,9 @@
 """UHFQA Instrument Driver."""
 
+from __future__ import annotations
+
 import typing as t
+from functools import cached_property
 
 import numpy as np
 
@@ -8,7 +11,6 @@ from zhinst.toolkit.driver.devices import UHFLI
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import (
     create_or_append_set_transaction,
-    lazy_property,
 )
 from zhinst.toolkit.nodetree.node import NodeList
 from zhinst.toolkit.waveform import Waveforms
@@ -22,8 +24,6 @@ class Integration(Node):
     Args:
         root: Underlying node tree.
         tree: tree (node path as tuple) of the corresponding node.
-
-    .. versionadded:: 0.3.2
     """
 
     def __init__(
@@ -59,7 +59,7 @@ class Integration(Node):
         """
         waveform_dict = {}
         if isinstance(weights, Waveforms):
-            for slot in weights.keys():
+            for slot in weights:
                 waveform_dict[slot] = weights.get_raw_vector(slot, complex_output=True)
         else:
             waveform_dict = weights
@@ -109,19 +109,21 @@ class QAS(Node):
                 for c in range(10):
                     m[r, c] = self.crosstalk.rows[r].cols[c]()
             return m
-        else:
-            rows, cols = matrix.shape  # type: ignore[attr-defined]
-            if rows > 10 or cols > 10:
-                raise ValueError(
-                    f"The shape of the given matrix is {rows} x {cols}. "
-                    "The maximum size is 10 x 10."
-                )
-            for r in range(rows):
-                for c in range(cols):
-                    self.crosstalk.rows[r].cols[c](matrix[r, c])  # type: ignore[index]
+        rows, cols = matrix.shape  # type: ignore[attr-defined]
+        if rows > 10 or cols > 10:
+            msg = (
+                f"The shape of the given matrix is {rows} x {cols}. "
+                "The maximum size is 10 x 10."
+            )
+            raise ValueError(
+                msg,
+            )
+        for r in range(rows):
+            for c in range(cols):
+                self.crosstalk.rows[r].cols[c](matrix[r, c])  # type: ignore[index]
         return None
 
-    def adjusted_delay(self, value: int = None) -> int:
+    def adjusted_delay(self, value: t.Optional[int] = None) -> int:
         """Set or get the adjustment in the quantum analyzer delay.
 
         Adjusts the delay that defines the time at which the integration starts
@@ -154,22 +156,26 @@ class QAS(Node):
         # Calculate final value of adjusted QA delay.
         qa_delay_adjusted = qa_delay_user + default_delay
         # Check if final delay is between 0 and 1020.
-        if qa_delay_adjusted not in range(0, 1021):
-            raise ValueError(
+        if qa_delay_adjusted not in range(1021):
+            msg = (
                 "The quantum analyzer delay is out of range (0 <= "
                 f"{qa_delay_user} + {default_delay} <= 1021)"
+            )
+            raise ValueError(
+                msg,
             )
         # Write the adjusted delay value to the node.
         self.delay(qa_delay_adjusted)
         return qa_delay_user
 
-    @lazy_property
+    @cached_property
     def integration(self) -> Integration:
         """Integration.
 
-        .. versionadded:: 0.3.2
+        Returns:
+            Integration: Integration
         """
-        return Integration(self.root, self._tree + ("integration",))
+        return Integration(self.root, (*self._tree, "integration"))
 
 
 class UHFQA(UHFLI):
@@ -199,14 +205,18 @@ class UHFQA(UHFLI):
             self.awgs[0].dio.valid.index(16)
             self.awgs[0].dio.valid.polarity("high")
 
-    @lazy_property
+    @cached_property
     def qas(self) -> t.Sequence[QAS]:
-        """A Sequence of QAS."""
+        """A Sequence of QAS.
+
+        Returns:
+            NodeList: List of QAS nodes.
+        """
         return NodeList(
             [
-                QAS(self.root, self._tree + ("qas", str(i)))
+                QAS(self.root, (*self._tree, "qas", str(i)))
                 for i in range(len(self["qas"]))
             ],
             self._root,
-            self._tree + ("qas",),
+            (*self._tree, "qas"),
         )

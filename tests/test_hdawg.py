@@ -1,12 +1,13 @@
-import pytest
 from unittest.mock import patch
 
+import pytest
+
 from zhinst.toolkit.driver.devices.hdawg import AWG, HDAWG
-from zhinst.toolkit.nodetree import Node
 from zhinst.toolkit.exceptions import ToolkitError
+from zhinst.toolkit.nodetree import Node
 
 
-@pytest.fixture()
+@pytest.fixture
 def hdawg(data_dir, mock_connection, session):
 
     json_path = data_dir / "nodedoc_dev1234_hdawg.json"
@@ -22,7 +23,7 @@ def hdawg(data_dir, mock_connection, session):
     ]
     mock_connection.return_value.getString.return_value = ""
 
-    yield HDAWG("DEV1234", "HDAWG4", session)
+    return HDAWG("DEV1234", "HDAWG4", session)
 
 
 def test_repr(hdawg):
@@ -41,7 +42,7 @@ def test_enable_qccs_mode(mock_connection, hdawg):
             ("/dev1234/system/clocks/referenceclock/source", "zsync"),
             ("/dev1234/awgs/*/dio/strobe/slope", "off"),
             ("/dev1234/awgs/*/dio/valid/polarity", "none"),
-        ]
+        ],
     )
 
     # Set transaction check
@@ -57,7 +58,7 @@ def test_enable_qccs_mode(mock_connection, hdawg):
             ("/dev1234/system/clocks/referenceclock/source", "zsync"),
             ("/dev1234/awgs/*/dio/strobe/slope", "off"),
             ("/dev1234/awgs/*/dio/valid/polarity", "none"),
-        ]
+        ],
     )
 
     # Gen1 test
@@ -72,7 +73,7 @@ def test_enable_qccs_mode(mock_connection, hdawg):
             ("/dev1234/system/clocks/referenceclock/source", "zsync"),
             ("/dev1234/awgs/*/dio/strobe/slope", "off"),
             ("/dev1234/awgs/*/dio/valid/polarity", "none"),
-        ]
+        ],
     )
 
     # Gen2 test
@@ -86,7 +87,7 @@ def test_enable_qccs_mode(mock_connection, hdawg):
             ("/dev1234/system/clocks/referenceclock/source", "zsync"),
             ("/dev1234/awgs/*/dio/strobe/slope", "off"),
             ("/dev1234/awgs/*/dio/valid/polarity", "none"),
-        ]
+        ],
     )
 
     # wrong argument
@@ -107,14 +108,23 @@ def test_awg_compiler(mock_connection, hdawg):
     mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
     mock_connection.return_value.getDouble.return_value = 10000
     with patch(
-        "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
+        "zhinst.toolkit.driver.nodes.awg.compile_seqc",
+        autospec=True,
     ) as compile_seqc:
         hdawg.awgs[0].compile_sequencer_program("test")
         compile_seqc.assert_called_once_with(
-            "test", "HDAWG4", "AWG,FOOBAR", 0, samplerate=10000
+            "test",
+            "HDAWG4",
+            "AWG,FOOBAR",
+            0,
+            samplerate=10000,
         )
         compile_seqc.reset_mock()
         hdawg.awgs[1].compile_sequencer_program("test")
         compile_seqc.assert_called_once_with(
-            "test", "HDAWG4", "AWG,FOOBAR", 1, samplerate=10000
+            "test",
+            "HDAWG4",
+            "AWG,FOOBAR",
+            1,
+            samplerate=10000,
         )

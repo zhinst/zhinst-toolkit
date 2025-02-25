@@ -1,11 +1,11 @@
-import numpy as np
-import pytest
 import json
 
-from zhinst.core import compile_seqc
+import numpy as np
+import pytest
 
-from zhinst.toolkit.waveform import Waveforms, Wave, OutputType
+from zhinst.core import compile_seqc
 from zhinst.toolkit.exceptions import ValidationError
+from zhinst.toolkit.waveform import OutputType, Wave, Waveforms
 
 
 def test_dict_behavior():
@@ -307,7 +307,7 @@ def test_validate_dict():
                 "timestamp": "0000000000000000",
                 "play_config": "5242753",
             },
-        ]
+        ],
     }
     waveform.validate(info)
 

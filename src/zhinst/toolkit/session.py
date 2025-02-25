@@ -1,18 +1,21 @@
 """Module for managing a session to a Data Server through zhinst.core."""
 
+from __future__ import annotations
+
 import json
 import typing as t
 from collections.abc import MutableMapping
-from enum import IntFlag
-from pathlib import Path
 from contextlib import contextmanager
+from enum import IntFlag
+from functools import cached_property
+from pathlib import Path
 
 import zhinst.toolkit.driver.devices as tk_devices
 import zhinst.toolkit.driver.modules as tk_modules
-from zhinst.toolkit.exceptions import ToolkitError
 from zhinst import core
+from zhinst.toolkit.exceptions import ToolkitError
 from zhinst.toolkit.nodetree import Node, NodeTree
-from zhinst.toolkit.nodetree.helper import lazy_property, NodeDict
+from zhinst.toolkit.nodetree.helper import NodeDict
 from zhinst.toolkit.nodetree.nodetree import Transaction
 
 
@@ -28,9 +31,9 @@ class Devices(MutableMapping):
         session: An active session to the data server.
     """
 
-    def __init__(self, session: "Session"):
+    def __init__(self, session: Session):
         self._session = session
-        self._devices: t.Dict[str, tk_devices.DeviceType] = {}
+        self._devices: dict[str, tk_devices.DeviceType] = {}
         self._device_classes = tk_devices.DEVICE_CLASS_BY_MODEL
 
     def __getitem__(self, key) -> tk_devices.DeviceType:
@@ -41,16 +44,19 @@ class Devices(MutableMapping):
                 # start a transaction if the session has a ongoing one
                 if self._session.multi_transaction.in_progress():
                     self._devices[key].root.transaction.start(
-                        self._session.multi_transaction.add
+                        self._session.multi_transaction.add,
                     )
             return self._devices[key]
         self._devices.pop(key, None)
         raise KeyError(key)
 
     def __setitem__(self, *_):
-        raise LookupError(
+        msg = (
             "Illegal operation. Can not add a device manually. Devices must be "
             "connected through the session (session.connect_device)."
+        )
+        raise LookupError(
+            msg,
         )
 
     def __delitem__(self, key):
@@ -83,10 +89,12 @@ class Devices(MutableMapping):
         """
         dev_type = self._session.daq_server.getString(f"/{serial}/features/devtype")
         return self._device_classes.get(dev_type, tk_devices.BaseInstrument)(
-            serial, dev_type, self._session
+            serial,
+            dev_type,
+            self._session,
         )
 
-    def connected(self) -> t.List[str]:
+    def connected(self) -> list[str]:
         """Get a list of devices connected to the data server.
 
         Returns:
@@ -98,7 +106,7 @@ class Devices(MutableMapping):
             .split(",")
         )
 
-    def visible(self) -> t.List[str]:
+    def visible(self) -> list[str]:
         """Get a list of devices visible to the data server.
 
         Returns:
@@ -117,6 +125,9 @@ class Devices(MutableMapping):
         Warning: This is not equal to the devices connected to the data server!
             Use the iterator of the `Devices` class directly to get all devices
             connected to the data server.
+
+        Returns:
+            View on all created devices.
         """
         return self._devices.values()
 
@@ -160,13 +171,16 @@ class HF2Devices(Devices):
                 discovery = core.ziDiscovery()
                 discovery.find(serial)
                 dev_type = discovery.get(serial)["devicetype"]
-                raise ToolkitError(
+                msg = (
                     "Can only connect HF2 devices to an HF2 data "
                     f"server. {serial} identifies itself as a {dev_type}."
+                )
+                raise ToolkitError(
+                    msg,
                 ) from error
             raise
 
-    def connected(self) -> t.List[str]:
+    def connected(self) -> list[str]:
         """Get a list of devices connected to the data server.
 
         Returns:
@@ -174,7 +188,7 @@ class HF2Devices(Devices):
         """
         return list(self._devices.keys())
 
-    def visible(self) -> t.List[str]:
+    def visible(self) -> list[str]:
         """Get a list of devices visible to the data server.
 
         Returns:
@@ -195,7 +209,8 @@ class HF2Devices(Devices):
             ToolkitError: If the device was already added in that session.
         """
         if serial in self._devices:
-            raise ToolkitError(f"Can only create one instance of {serial}.")
+            msg = f"Can only create one instance of {serial}."
+            raise ToolkitError(msg)
         self._devices[serial] = self._create_device(serial)
 
 
@@ -220,17 +235,15 @@ class ModuleHandler:
 
     Args:
         session: Active user session
-        server_host: Host address of the session
-        server_port: Port of the session
     """
 
-    def __init__(self, session: "Session"):
+    def __init__(self, session: Session):
         self._session = session
 
     def __repr__(self):
         return str(
             "LabOneModules("
-            f"{self._session.daq_server.host}:{self._session.daq_server.port})"
+            f"{self._session.daq_server.host}:{self._session.daq_server.port})",
         )
 
     def create_awg_module(self) -> tk_modules.BaseModule:
@@ -251,7 +264,8 @@ class ModuleHandler:
             Created module
         """
         return tk_modules.BaseModule(
-            self._session.daq_server.awgModule(), self._session
+            self._session.daq_server.awgModule(),
+            self._session,
         )
 
     def create_daq_module(self) -> tk_modules.DAQModule:
@@ -272,7 +286,8 @@ class ModuleHandler:
             Created module
         """
         return tk_modules.DAQModule(
-            self._session.daq_server.dataAcquisitionModule(), self._session
+            self._session.daq_server.dataAcquisitionModule(),
+            self._session,
         )
 
     def create_device_settings_module(self) -> tk_modules.DeviceSettingsModule:
@@ -293,7 +308,8 @@ class ModuleHandler:
             Created module
         """
         return tk_modules.DeviceSettingsModule(
-            self._session.daq_server.deviceSettings(), self._session
+            self._session.daq_server.deviceSettings(),
+            self._session,
         )
 
     def create_impedance_module(self) -> tk_modules.ImpedanceModule:
@@ -314,7 +330,8 @@ class ModuleHandler:
             Created module
         """
         return tk_modules.ImpedanceModule(
-            self._session.daq_server.impedanceModule(), self._session
+            self._session.daq_server.impedanceModule(),
+            self._session,
         )
 
     def create_mds_module(self) -> tk_modules.BaseModule:
@@ -335,7 +352,8 @@ class ModuleHandler:
             Created module
         """
         return tk_modules.BaseModule(
-            self._session.daq_server.multiDeviceSyncModule(), self._session
+            self._session.daq_server.multiDeviceSyncModule(),
+            self._session,
         )
 
     def create_pid_advisor_module(self) -> tk_modules.PIDAdvisorModule:
@@ -356,7 +374,8 @@ class ModuleHandler:
             Created module
         """
         return tk_modules.PIDAdvisorModule(
-            self._session.daq_server.pidAdvisor(), self._session
+            self._session.daq_server.pidAdvisor(),
+            self._session,
         )
 
     def create_precompensation_advisor_module(
@@ -378,7 +397,8 @@ class ModuleHandler:
             Created module
         """
         return tk_modules.PrecompensationAdvisorModule(
-            self._session.daq_server.precompensationAdvisor(), self._session
+            self._session.daq_server.precompensationAdvisor(),
+            self._session,
         )
 
     def create_qa_module(self) -> tk_modules.BaseModule:
@@ -399,7 +419,8 @@ class ModuleHandler:
             Created module
         """
         return tk_modules.BaseModule(
-            self._session.daq_server.quantumAnalyzerModule(), self._session
+            self._session.daq_server.quantumAnalyzerModule(),
+            self._session,
         )
 
     def create_scope_module(self) -> tk_modules.ScopeModule:
@@ -420,7 +441,8 @@ class ModuleHandler:
             Created module
         """
         return tk_modules.ScopeModule(
-            self._session.daq_server.scopeModule(), self._session
+            self._session.daq_server.scopeModule(),
+            self._session,
         )
 
     def create_sweeper_module(self) -> tk_modules.SweeperModule:
@@ -463,7 +485,7 @@ class ModuleHandler:
         """
         return tk_modules.SHFQASweeper(self._session)
 
-    @lazy_property
+    @cached_property
     def awg(self) -> tk_modules.BaseModule:
         """Managed instance of the awg module.
 
@@ -471,10 +493,13 @@ class ModuleHandler:
         and is held inside the connection Manager. This makes it easier to access
         the modules from within toolkit, since creating a module requires
         resources. (``use create_awg_module`` to create an unmanaged instance)
+
+        Returns:
+            Managed instance of the awg module
         """
         return self.create_awg_module()
 
-    @lazy_property
+    @cached_property
     def daq(self) -> tk_modules.DAQModule:
         """Managed instance of the daq module.
 
@@ -482,10 +507,13 @@ class ModuleHandler:
         and is held inside the connection Manager. This makes it easier to access
         the modules from within toolkit, since creating a module requires
         resources. (``use create_daq_module`` to create an unmanaged instance)
+
+        Returns:
+            Managed instance of the daq module
         """
         return self.create_daq_module()
 
-    @lazy_property
+    @cached_property
     def device_settings(self) -> tk_modules.DeviceSettingsModule:
         """Managed instance of the device settings module.
 
@@ -494,10 +522,13 @@ class ModuleHandler:
         the modules from within toolkit, since creating a module requires
         resources. (``use create_device_settings_module`` to create an
         unmanaged instance)
+
+        Returns:
+            Managed instance of the device settings module
         """
         return self.create_device_settings_module()
 
-    @lazy_property
+    @cached_property
     def impedance(self) -> tk_modules.ImpedanceModule:
         """Managed instance of the impedance module.
 
@@ -505,10 +536,13 @@ class ModuleHandler:
         and is held inside the connection Manager. This makes it easier to access
         the modules from within toolkit, since creating a module requires
         resources. (``use create_awg_module`` to create an unmanaged instance)
+
+        Returns:
+            Managed instance of the impedance module
         """
         return self.create_impedance_module()
 
-    @lazy_property
+    @cached_property
     def mds(self) -> tk_modules.BaseModule:
         """Managed instance of the multi device sync module.
 
@@ -516,10 +550,13 @@ class ModuleHandler:
         and is held inside the connection Manager. This makes it easier to access
         the modules from within toolkit, since creating a module requires
         resources. (``use create_mds_module`` to create an unmanaged instance)
+
+        Returns:
+            Managed instance of the multi device sync module
         """
         return self.create_mds_module()
 
-    @lazy_property
+    @cached_property
     def pid_advisor(self) -> tk_modules.PIDAdvisorModule:
         """Managed instance of the pid advisor module.
 
@@ -528,10 +565,13 @@ class ModuleHandler:
         the modules from within toolkit, since creating a module requires
         resources. (``use create_pid_advisor_module`` to create an unmanaged
         instance)
+
+        Returns:
+            Managed instance of the pid advisor module
         """
         return self.create_pid_advisor_module()
 
-    @lazy_property
+    @cached_property
     def precompensation_advisor(self) -> tk_modules.PrecompensationAdvisorModule:
         """Managed instance of the precompensation advisor module.
 
@@ -540,10 +580,14 @@ class ModuleHandler:
         the modules from within toolkit, since creating a module requires
         resources. (``use create_precompensation_advisor_module`` to create an
         unmanaged instance)
+
+
+        Returns:
+            Managed instance of the precompensation advisor module
         """
         return self.create_precompensation_advisor_module()
 
-    @lazy_property
+    @cached_property
     def qa(self) -> tk_modules.BaseModule:
         """Managed instance of the quantum analyzer module.
 
@@ -551,10 +595,13 @@ class ModuleHandler:
         and is held inside the connection Manager. This makes it easier to access
         the modules from within toolkit, since creating a module requires
         resources. (``use create_qa_module`` to create an unmanaged instance)
+
+        Returns:
+            Managed instance of the quantum analyzer module
         """
         return self.create_qa_module()
 
-    @lazy_property
+    @cached_property
     def scope(self) -> tk_modules.ScopeModule:
         """Managed instance of the scope module.
 
@@ -563,10 +610,13 @@ class ModuleHandler:
         the modules from within toolkit, since creating a module requires
         resources. (``use create_scope_module`` to create an unmanaged
         instance)
+
+        Returns:
+            Managed instance of the scope module
         """
         return self.create_scope_module()
 
-    @lazy_property
+    @cached_property
     def sweeper(self) -> tk_modules.SweeperModule:
         """Managed instance of the sweeper module.
 
@@ -574,10 +624,13 @@ class ModuleHandler:
         and is held inside the connection Manager. This makes it easier to access
         the modules from within toolkit, since creating a module requires
         resources. (``use create_sweeper_module`` to create an unmanaged instance)
+
+        Returns:
+            Managed instance of the sweeper module
         """
         return self.create_sweeper_module()
 
-    @lazy_property
+    @cached_property
     def shfqa_sweeper(self) -> tk_modules.SHFQASweeper:
         """Managed instance of the shfqa sweeper implementation.
 
@@ -586,6 +639,9 @@ class ModuleHandler:
         the modules from within toolkit, since creating a module requires
         resources. (``use create_shfqa_sweeper`` to create an unmanaged
         instance)
+
+        Returns:
+            Managed instance of the shfqa sweeper implementation
         """
         return self.create_shfqa_sweeper()
 
@@ -593,28 +649,24 @@ class ModuleHandler:
 class PollFlags(IntFlag):
     """Flags for polling Command.
 
-    DETECT_AND_THROW(12):
-        Detect data loss holes and throw EOFError exception
-
-    DETECT(8):
-        Detect data loss holes
-
-    FILL(1):
-        Fill holes
-
-    DEFAULT(0):
-        No Flags
+    Attributes:
+        DETECT_AND_THROW: Detect data loss holes and throw EOFError exception
+        DETECT: Detect data loss holes
+        FILL: Fill holes
+        DEFAULT: No Flags
 
     Can be combined with bitwise operations
 
-    >>> PollFlags.FILL | PollFlags.DETECT
+    ```
+    PollFlags.FILL | PollFlags.DETECT
         <PollFlags.DETECT|FILL: 9>
+    ```
     """
 
-    DETECT_AND_THROW = 12
-    DETECT = 8
-    FILL = 1
-    DEFAULT = 0
+    DETECT_AND_THROW: int = 12
+    DETECT: int = 8
+    FILL: int = 1
+    DEFAULT: int = 0
 
 
 class Session(Node):
@@ -625,9 +677,7 @@ class Session(Node):
     instrument takes place via a computer program called a server, the data
     sever. The data sever recognizes available instruments and manages all
     communication between the instrument and the host computer on one side, and
-    communication to all the connected clients on the other side. (For more
-    information on the architecture please refer to the user manual
-    http://docs.zhinst.com/labone_programming_manual/introduction.html)
+    communication to all the connected clients on the other side.
 
     The entry point into for any connection is therefore a client session to a
     existing data sever. This class represents a single client session to a
@@ -659,9 +709,6 @@ class Session(Node):
             will succeed even if the data-server is on a different version of LabOne.
             If False, an exception will be raised if the data-server is on a
             different version. (default = False)
-
-    .. versionchanged:: 0.8.0
-        Added `allow_version_mismatch` argument.
     """
 
     def __init__(
@@ -677,14 +724,20 @@ class Session(Node):
         if connection is not None:
             self._is_hf2_server = "HF2" in connection.getString("/zi/about/dataserver")
             if hf2 and not self._is_hf2_server:
-                raise ToolkitError(
+                msg = (
                     "hf2 flag was set but the passed "
                     "DAQServer instance is not a HF2 data server."
                 )
-            if hf2 is False and self._is_hf2_server:
                 raise ToolkitError(
+                    msg,
+                )
+            if hf2 is False and self._is_hf2_server:
+                msg = (
                     "hf2 flag was set but the passed "
                     "DAQServer instance is a HF2 data server."
+                )
+                raise ToolkitError(
+                    msg,
                 )
             self._daq_server = connection
         else:
@@ -693,7 +746,9 @@ class Session(Node):
                 server_port = 8005
             try:
                 self._daq_server = self._create_daq(
-                    server_host, server_port, allow_version_mismatch
+                    server_host,
+                    server_port,
+                    allow_version_mismatch,
                 )
             except RuntimeError as error:
                 if "Unsupported API level" not in error.args[0]:
@@ -706,10 +761,13 @@ class Session(Node):
                         1,
                     )
                 elif not hf2:
-                    raise ToolkitError(
+                    msg = (
                         "hf2 Flag was reset but the specified "
                         f"server at {server_host}:{server_port} is a "
                         "HF2 data server."
+                    )
+                    raise ToolkitError(
+                        msg,
                     ) from error
 
         self._devices = HF2Devices(self) if self._is_hf2_server else Devices(self)
@@ -720,27 +778,30 @@ class Session(Node):
             self._daq_server,
             prefix_hide="zi",
             list_nodes=["/zi/*"],
-            preloaded_json=json.loads(hf2_node_doc.open("r").read())
-            if self._is_hf2_server
-            else None,
+            preloaded_json=(
+                json.loads(hf2_node_doc.open("r").read())
+                if self._is_hf2_server
+                else None
+            ),
         )
-        super().__init__(nodetree, tuple())
+        super().__init__(nodetree, ())
         self._multi_transaction = Transaction(self.root)
 
     def __repr__(self):
         return str(
             f"{'HF2' if self._is_hf2_server else ''}DataServerSession("
-            f"{self._daq_server.host}:{self._daq_server.port})"
+            f"{self._daq_server.host}:{self._daq_server.port})",
         )
 
     @classmethod
-    def from_existing_connection(cls, connection: core.ziDAQServer) -> "Session":
+    def from_existing_connection(cls, connection: core.ziDAQServer) -> Session:
         """Initialize Session from an existing connection.
 
         Args:
             connection: Existing connection.
 
-        .. versionadded:: 0.4.0
+        Returns:
+            Session object
         """
         is_hf2_server = "HF2" in connection.getString("/zi/about/dataserver")
         return cls(
@@ -751,7 +812,10 @@ class Session(Node):
         )
 
     def connect_device(
-        self, serial: str, *, interface: t.Optional[str] = None
+        self,
+        serial: str,
+        *,
+        interface: t.Optional[str] = None,
     ) -> tk_devices.DeviceType:
         """Establish a connection to a device.
 
@@ -796,7 +860,7 @@ class Session(Node):
                             if "1gbe" in dev_info["INTERFACES"].lower()
                             else dev_info["INTERFACES"].split(",")[0]
                         )
-            self._daq_server.connectDevice(serial, interface)
+            self._daq_server.connectDevice(serial, interface)  # type: ignore[arg-type]
             if isinstance(self._devices, HF2Devices):
                 self._devices.add_hf2_device(serial)
         return self._devices[serial]
@@ -844,7 +908,7 @@ class Session(Node):
         *,
         timeout: float = 0.5,
         flags: PollFlags = PollFlags.DEFAULT,
-    ) -> t.Dict[Node, t.Dict[str, t.Any]]:
+    ) -> dict[Node, dict[str, t.Any]]:
         """Polls all subscribed data from the data server.
 
         Poll the value changes in all subscribed nodes since either subscribing
@@ -868,12 +932,18 @@ class Session(Node):
         """
         return NodeDict(
             self.daq_server.poll(
-                recording_time, int(timeout * 1000), flags=flags.value, flat=True
-            )
+                recording_time,
+                int(timeout * 1000),
+                flags=flags.value,
+                flat=True,
+            ),
         )
 
     def raw_path_to_node(
-        self, raw_path: str, *, module: tk_modules.ModuleType = None
+        self,
+        raw_path: str,
+        *,
+        module: tk_modules.ModuleType = None,
     ) -> Node:
         """Converts a raw node path string into a Node object.
 
@@ -892,15 +962,14 @@ class Session(Node):
             ValueError: If the `raw_path` does not start with a leading dash.
             ToolkitError: If the node does not belong to the optional module or
                 to a connected device.
-
-        .. versionchanged:: 0.5.3
-
-            Changed `RuntimeError` to `ValueError`.
         """
         if not raw_path.startswith("/"):
-            raise ValueError(
+            msg = (
                 f"{raw_path} does not seem to be an absolute path. "
                 "It must start with a leading slash."
+            )
+            raise ValueError(
+                msg,
             )
         if module is not None:
             node = module.root.raw_path_to_node(raw_path)
@@ -912,9 +981,12 @@ class Session(Node):
                 return self.root.raw_path_to_node(raw_path)
             return self.devices[serial].root.raw_path_to_node(raw_path)
         except KeyError as error:
-            raise ToolkitError(
+            msg = (
                 f"Node belongs to a device({raw_path.split('/')[1]}) not connected to "
                 "the Data Server."
+            )
+            raise ToolkitError(
+                msg,
             ) from error
 
     @contextmanager
@@ -937,12 +1009,10 @@ class Session(Node):
         Warning:
             The set is always performed as deep set if called on device nodes.
 
-        Examples:
+        Example:
             >>> with session.set_transaction():
                     device1.test[0].a(1)
                     device2.test[0].a(2)
-
-        .. versionadded:: 0.4.0
         """
         self._multi_transaction.start()
         for device in self.devices.created_devices():
@@ -950,7 +1020,7 @@ class Session(Node):
         self.root.transaction.start(self._multi_transaction.add)
         try:
             yield
-            self._daq_server.set(self._multi_transaction.result())
+            self._daq_server.set(self._multi_transaction.result())  # type: ignore[arg-type]
         finally:
             for device in self.devices.created_devices():
                 device.root.transaction.stop()
@@ -961,18 +1031,27 @@ class Session(Node):
     def multi_transaction(self) -> Transaction:
         """Flag if a session wide transaction is in progress.
 
-        .. versionadded:: 0.4.0
+        Returns:
+            Flag if a session wide transaction is in progress.
         """
         return self._multi_transaction
 
     @property
     def devices(self) -> Devices:
-        """Mapping for the connected devices."""
+        """Mapping for the connected devices.
+
+        Returns:
+            mapping for the connected devices.
+        """
         return self._devices
 
     @property
     def modules(self) -> ModuleHandler:
-        """Modules of LabOne."""
+        """Modules of LabOne.
+
+        Returns:
+            Modules of LabOne
+        """
         return self._modules
 
     @property
@@ -982,17 +1061,29 @@ class Session(Node):
 
     @property
     def daq_server(self) -> core.ziDAQServer:
-        """Managed instance of the core.ziDAQServer."""
+        """Managed instance of the core.ziDAQServer.
+
+        Returns:
+            Instance of the core.ziDAQServer.
+        """
         return self._daq_server
 
     @property
     def server_host(self) -> str:
-        """Server host."""
+        """Server host.
+
+        Returns:
+            Host address of the data server.
+        """
         return self._daq_server.host
 
     @property
     def server_port(self) -> int:
-        """Server port."""
+        """Server port.
+
+        Returns:
+            Port number of the data server.
+        """
         return self._daq_server.port
 
     def clone_underlying_session(self) -> core.ziDAQServer:
@@ -1000,6 +1091,9 @@ class Session(Node):
 
         Create a new core.ziDAQServer connected to the same data-server this
         session is connected to.
+
+        Returns:
+            New instance of the core.ziDAQServer.
         """
         # Don't execute version checking. When clone_underlying_session is called,
         # a connection has already been made, so checking again would be redundant.

@@ -4,7 +4,7 @@ import pytest
 from zhinst.toolkit.driver.modules.sweeper_module import SweeperModule
 
 
-@pytest.fixture()
+@pytest.fixture
 def sweeper_module(data_dir, mock_connection, session):
     json_path = data_dir / "nodedoc_sweeper_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -12,7 +12,7 @@ def sweeper_module(data_dir, mock_connection, session):
     mock_connection.return_value.sweep.return_value.listNodesJSON.return_value = (
         nodes_json
     )
-    yield SweeperModule(mock_connection.return_value.sweep(), session)
+    return SweeperModule(mock_connection.return_value.sweep(), session)
 
 
 def test_repr(sweeper_module):
@@ -73,7 +73,7 @@ def test_read(sweeper_module, mock_connection, session):
                     "x": np.array([[1, 2, 3, 4, 5]]),
                     "y": np.array([[1, 2, 4, 4, 5]]),
                     "testsignal": np.array([[9, 9, 9, 9, 9]]),
-                }
+                },
             ],
         ],
     }

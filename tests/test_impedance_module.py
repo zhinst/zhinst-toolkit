@@ -1,13 +1,14 @@
-import pytest
 from itertools import cycle
 
+import pytest
+
 from zhinst.toolkit.driver.modules.impedance_module import (
-    ImpedanceModule,
     CalibrationStatus,
+    ImpedanceModule,
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def impedance_module(data_dir, mock_connection, session):
     json_path = data_dir / "nodedoc_impedance_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -15,7 +16,7 @@ def impedance_module(data_dir, mock_connection, session):
     mock_connection.return_value.impedanceModule.return_value.listNodesJSON.return_value = (
         nodes_json
     )
-    yield ImpedanceModule(mock_connection.return_value.impedanceModule(), session)
+    return ImpedanceModule(mock_connection.return_value.impedanceModule(), session)
 
 
 def test_repr(impedance_module):

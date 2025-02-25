@@ -2,7 +2,7 @@
 
 All interactions with an Zurich Instruments device or a LabOne
 module happens through manipulating nodes. The
-:class:`zhinst.toolkit.nodetree.nodetree.NodeTree` provides a pythonic way for
+`zhinst.toolkit.nodetree.nodetree.NodeTree` provides a pythonic way for
 that.
 
 >>> nodetree = NodeTree(connection)
@@ -12,6 +12,5 @@ that.
 
 from zhinst.toolkit.nodetree.node import Node
 from zhinst.toolkit.nodetree.nodetree import NodeTree
-
 
 __all__ = ["Node", "NodeTree"]

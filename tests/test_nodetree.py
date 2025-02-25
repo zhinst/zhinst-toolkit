@@ -1,36 +1,35 @@
+import gc
 import json
+import pickle
 from array import array
 from collections import OrderedDict
+from copy import deepcopy
+from itertools import cycle
 from pathlib import Path
 from types import GeneratorType
 from unittest.mock import MagicMock, Mock
-from copy import deepcopy
-import pickle
-import gc
-from itertools import cycle
 
-import pytest
 import numpy as np
-
-from zhinst.toolkit.driver.devices import HDAWG
-from zhinst.toolkit.nodetree import Node, NodeTree
-from zhinst.toolkit.nodetree.connection_dict import ConnectionDict
-from zhinst.toolkit.nodetree.node import NodeList
-from zhinst.toolkit.nodetree.helper import (
-    resolve_wildcards_labone,
-    not_callable_in_transactions,
-)
-from zhinst.toolkit.exceptions import ToolkitError
+import pytest
 
 from zhinst.core.errors import CoreError
+from zhinst.toolkit.driver.devices import HDAWG
+from zhinst.toolkit.exceptions import ToolkitError
+from zhinst.toolkit.nodetree import Node, NodeTree
+from zhinst.toolkit.nodetree.connection_dict import ConnectionDict
+from zhinst.toolkit.nodetree.helper import (
+    not_callable_in_transactions,
+    resolve_wildcards_labone,
+)
+from zhinst.toolkit.nodetree.node import NodeList
 
 
-@pytest.fixture()
+@pytest.fixture
 def data_dir(request):
-    yield Path(request.fspath).parent / "data"
+    return Path(request.fspath).parent / "data"
 
 
-@pytest.fixture()
+@pytest.fixture
 def connection(data_dir):
     json_path = data_dir / "nodedoc_dev1234_zi.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -38,7 +37,7 @@ def connection(data_dir):
 
     connection = MagicMock()
     connection.listNodesJSON.return_value = nodes_json
-    yield connection
+    return connection
 
 
 def test_init(connection, data_dir):
@@ -142,7 +141,8 @@ def test_node_access(connection):
 
     # test local variable
     assert not tree._test
-    assert not tree.demods._test
+    with pytest.raises(AttributeError):
+        tree.demods._test
     # test attribute vs item
     assert tree.demods == tree["demods"]
     assert tree.demods == tree["/demods"]
@@ -297,7 +297,7 @@ def test_add_raw_list(connection):
             ("/dev1234/test1", True),
             ("/dev1234/test2", 17),
             ("/dev1234/test4", False),
-        ]
+        ],
     )
 
 
@@ -312,7 +312,8 @@ def test_not_callable_in_transactions(connection):
     example_func(node)  # no error
 
     with pytest.raises(
-        RuntimeError, match="'example_func' cannot be called inside a transaction"
+        RuntimeError,
+        match="'example_func' cannot be called inside a transaction",
     ):
         with tree.set_transaction():
             example_func(node)
@@ -406,7 +407,9 @@ def test_get_deep(connection):
     with pytest.raises(TypeError) as e_info:
         tree.demods[0].rate(deep=True)
         connection.get.assert_called_with(
-            tree.demods[0].rate.node_info.path, settingsonly=False, flat=True
+            tree.demods[0].rate.node_info.path,
+            settingsonly=False,
+            flat=True,
         )
     with pytest.raises(TypeError) as e_info:
         tree.demods[0].rate(deep=True, test=True)
@@ -429,8 +432,8 @@ def test_get_deep(connection):
                     "timestamp": array("q", [1236389131550]),
                     "value": array("d", [1674.10717773]),
                 },
-            )
-        ]
+            ),
+        ],
     )
     timestamp, data = tree.demods[0].rate(deep=True)
     assert timestamp == 1236389131550
@@ -445,17 +448,17 @@ def test_get_deep(connection):
                         "timestamp": 3880906635,
                         "flags": 0,
                         "vector": array("l", [123, 10, 32, 10, 125, 10]),
-                    }
+                    },
                 ],
-            )
-        ]
+            ),
+        ],
     )
     timestamp, data = tree.demods[0].sample(deep=True)
     assert timestamp == 3880906635
     assert data == array("l", [123, 10, 32, 10, 125, 10])
     # HF2 node
     connection.get.return_value = OrderedDict(
-        [("/dev1234/demods/0/rate", np.array([1674.10717773]))]
+        [("/dev1234/demods/0/rate", np.array([1674.10717773]))],
     )
     timestamp, data = tree.demods[0].sample(deep=True)
     assert data == 1674.10717773
@@ -472,8 +475,8 @@ def test_get_deep_module(connection):
                     "timestamp": array("q", [1236389131550]),
                     "value": array("d", [1674.10717773]),
                 },
-            )
-        ]
+            ),
+        ],
     )
     connection.get.side_effect = [TypeError(), data]
     tree.demods[0].rate(deep=True)
@@ -491,8 +494,8 @@ def test_get_wildcard(connection):
                     "timestamp": array("q", [3880906635]),
                     "value": array("l", [123]),
                 },
-            )
-        ]
+            ),
+        ],
     )
     result = tree.demods()
     assert result[tree.demods[0].impedance] == 123
@@ -516,7 +519,7 @@ def test_get_wildcard(connection):
 
     # HF2 support
     connection.get.return_value = OrderedDict(
-        [("/dev1234/demods/0/impedance", np.array([125]))]
+        [("/dev1234/demods/0/impedance", np.array([125]))],
     )
     result = tree.demods()
     assert result[tree.demods[0].impedance] == 125
@@ -534,8 +537,8 @@ def test_get_wildcard(connection):
                     "x": array("l", [123]),
                     "y": array("l", [123]),
                 },
-            )
-        ]
+            ),
+        ],
     )
     result = tree.demods()
     assert (
@@ -556,8 +559,8 @@ def test_module_get_wildcard(connection):
                     "timestamp": array("q", [3880906635]),
                     "value": array("l", [123]),
                 },
-            )
-        ]
+            ),
+        ],
     )
     connection.get.side_effect = [TypeError(), return_value]
     assert tree.demods()[tree.demods[0].impedance] == 123
@@ -569,20 +572,24 @@ def test_set(connection):
     connection.set.assert_called_with(tree.demods[0].rate.node_info.path, 22.0)
     tree.demods[0].rate(22.0, test=True)
     connection.set.assert_called_with(
-        tree.demods[0].rate.node_info.path, 22.0, test=True
+        tree.demods[0].rate.node_info.path,
+        22.0,
+        test=True,
     )
 
     # sync set of nodes is only dependend on the input parameter not the
     # type of the node iself
     tree.demods[0].rate(22.0, deep=True)
     connection.syncSetDouble.assert_called_with(
-        tree.demods[0].rate.node_info.path, 22.0
+        tree.demods[0].rate.node_info.path,
+        22.0,
     )
     tree.demods[0].rate(0, deep=True)
     connection.syncSetInt.assert_called_once_with(tree.demods[0].rate.node_info.path, 0)
     tree.demods[0].rate("test", deep=True)
     connection.syncSetString.assert_called_once_with(
-        tree.demods[0].rate.node_info.path, "test"
+        tree.demods[0].rate.node_info.path,
+        "test",
     )
     with pytest.raises(Exception) as e_info:
         tree.demods[0].rate(complex(2, -3), deep=True)
@@ -608,7 +615,8 @@ def test_runtimerror_set_set_vector(connection):
     connection.set = Mock(side_effect=RuntimeError)
     tree.system.impedance.calib.user.data(b"Test Binary Data")
     connection.setVector.assert_called_with(
-        tree.system.impedance.calib.user.data.node_info.path, b"Test Binary Data"
+        tree.system.impedance.calib.user.data.node_info.path,
+        b"Test Binary Data",
     )
 
 
@@ -632,19 +640,19 @@ def test_transactional_set(connection):
         tree.demods[0].rate(22.0)
         tree.demods[0].phaseshift(1)
     connection.set.assert_called_with(
-        [("/dev1234/demods/0/rate", 22.0), ("/dev1234/demods/0/phaseshift", 1)]
+        [("/dev1234/demods/0/rate", 22.0), ("/dev1234/demods/0/phaseshift", 1)],
     )
     with tree.set_transaction():
         tree.demods[0].rate(22.0)
         tree.transaction.add("demods/0/phaseshift", 2)
     connection.set.assert_called_with(
-        [("/dev1234/demods/0/rate", 22.0), ("/dev1234/demods/0/phaseshift", 2)]
+        [("/dev1234/demods/0/rate", 22.0), ("/dev1234/demods/0/phaseshift", 2)],
     )
 
     with tree.set_transaction():
         tree.system.impedance.calib.user.data(b"Test Binary Data")
     connection.set.assert_called_with(
-        [("/dev1234/system/impedance/calib/user/data", b"Test Binary Data")]
+        [("/dev1234/system/impedance/calib/user/data", b"Test Binary Data")],
     )
 
     with pytest.raises(AttributeError) as e_info:
@@ -660,15 +668,15 @@ def test_get_node_info_raw(connection):
     tree = NodeTree(connection, "DEV1234")
     # raw get
     assert tree.get_node_info_raw("demods/0/rate") == tree.get_node_info_raw(
-        tree.demods[0].rate
+        tree.demods[0].rate,
     )
     assert tree.get_node_info_raw("/dev1234/demods/0/rate") == tree.get_node_info_raw(
-        tree.demods[0].rate
+        tree.demods[0].rate,
     )
     with pytest.raises(KeyError) as e_info:
         tree.get_node_info_raw("zi/config/open")
     assert tree.get_node_info_raw("/zi/config/open") == tree.get_node_info_raw(
-        tree.zi.config.open
+        tree.zi.config.open,
     )
     with pytest.raises(KeyError) as e_info:
         tree.get_node_info_raw("/demods/0/rate")
@@ -681,7 +689,7 @@ def test_get_node_info_raw(connection):
 
     # raw get wildcards
     assert tree.get_node_info_raw("demods/*/rate") == tree.get_node_info_raw(
-        "demods/?/rate"
+        "demods/?/rate",
     )
     assert len(tree.get_node_info_raw("demods/0/*")) > 1
     with pytest.raises(KeyError) as e_info:
@@ -705,7 +713,8 @@ def test_update_node(connection):
     tree.update_node("demods/0/rate", {"Unit": "test2", "Test2": True})
     assert tree.demods[0].rate.node_info.unit == "test2"
     assert next(iter(tree.get_node_info_raw("demods/0/rate").values())).get(
-        "Test2", None
+        "Test2",
+        None,
     )
 
     # new Node
@@ -737,18 +746,19 @@ def test_update_nodes(connection):
     tree = NodeTree(connection, "DEV1234")
 
     tree.update_nodes(
-        {"demods/0/rate": {"Unit": "test"}, "demods/0/order": {"Unit": "test2"}}
+        {"demods/0/rate": {"Unit": "test"}, "demods/0/order": {"Unit": "test2"}},
     )
     assert tree.demods[0].rate.node_info.unit == "test"
     assert tree.demods[0].order.node_info.unit == "test2"
 
     with pytest.raises(KeyError) as e_info:
         tree.update_nodes(
-            {"demods/0/rate": {"Unit": "test3"}, "test": {"Node": "test"}}
+            {"demods/0/rate": {"Unit": "test3"}, "test": {"Node": "test"}},
         )
     assert tree.demods[0].rate.node_info.unit == "test3"
     tree.update_nodes(
-        {"demods/0/rate": {"Unit": "test3"}, "test": {"Node": "test4"}}, add=True
+        {"demods/0/rate": {"Unit": "test3"}, "test": {"Node": "test4"}},
+        add=True,
     )
     assert tree.test.node_info.path == "test4"
     assert tree.test.is_valid() is True
@@ -766,12 +776,14 @@ def test_options(connection):
 
     tree.demods[0].trigger("continuous")
     connection.set.assert_called_with(
-        tree.demods[0].trigger.node_info.path, "continuous"
+        tree.demods[0].trigger.node_info.path,
+        "continuous",
     )
 
     tree.demods[0].trigger("continuou")
     connection.set.assert_called_with(
-        tree.demods[0].trigger.node_info.path, "continuou"
+        tree.demods[0].trigger.node_info.path,
+        "continuou",
     )
 
     connection.getInt.return_value = 0
@@ -864,7 +876,7 @@ def test_child_nodes(connection):
             basechannelonly=False,
             excludestreaming=True,
             excludevectors=False,
-        )
+        ),
     )
     connection.listNodes.assert_called_with(
         tree.demods[0].sample.node_info.path,
@@ -891,7 +903,7 @@ def test_child_nodes(connection):
             basechannelonly=True,
             excludestreaming=True,
             excludevectors=True,
-        )
+        ),
     )
     connection.listNodes.assert_called_with(
         tree.demods[0].node_info.path,
@@ -940,7 +952,7 @@ def test_wait_for_state_change(connection):
     sequence = iter([1] * 3 + [2] * 2)
     connection.getInt.side_effect = lambda node: next(sequence)
     connection.get.side_effect = lambda node, **kwargs: {
-        node: {"timestamp": [0], "value": [next(sequence)]}
+        node: {"timestamp": [0], "value": [next(sequence)]},
     }
     tree.demods[0].trigger.wait_for_state_change(2)
 
@@ -955,7 +967,7 @@ def test_wait_for_state_change(connection):
 
     connection.getInt.side_effect = lambda node: 2
     connection.get.side_effect = lambda node, **kwargs: {
-        node: {"timestamp": [0], "value": [2]}
+        node: {"timestamp": [0], "value": [2]},
     }
     tree.demods[0].trigger.wait_for_state_change(2)
     tree.demods[0].trigger.wait_for_state_change(value_enum2)
@@ -964,7 +976,7 @@ def test_wait_for_state_change(connection):
 
     connection.getInt.side_effect = lambda node: 1
     connection.get.side_effect = lambda node, **kwargs: {
-        node: {"timestamp": [0], "value": [1]}
+        node: {"timestamp": [0], "value": [1]},
     }
     with pytest.raises(TimeoutError) as e:
         tree.demods[0].trigger.wait_for_state_change(2, timeout=0.1)
@@ -989,7 +1001,8 @@ def test_wait_for_state_change(connection):
 
     with pytest.raises(TimeoutError) as e:
         tree.demods[0].trigger.wait_for_state_change(
-            "trigger_input0_falling", timeout=0.1
+            "trigger_input0_falling",
+            timeout=0.1,
         )
     assert (
         str(e.value) == "/dev1234/demods/0/trigger did not change to the "
@@ -1005,7 +1018,9 @@ def test_wait_for_state_change(connection):
 
     with pytest.raises(TimeoutError) as e:
         tree.demods[0].trigger.wait_for_state_change(
-            value_enum1, invert=True, timeout=0.1
+            value_enum1,
+            invert=True,
+            timeout=0.1,
         )
     assert (
         str(e.value) == "/dev1234/demods/0/trigger did not change from the "
@@ -1014,7 +1029,9 @@ def test_wait_for_state_change(connection):
 
     with pytest.raises(TimeoutError) as e:
         tree.demods[0].trigger.wait_for_state_change(
-            "trigger_input0_rising", invert=True, timeout=0.1
+            "trigger_input0_rising",
+            invert=True,
+            timeout=0.1,
         )
     assert (
         str(e.value) == "/dev1234/demods/0/trigger did not change from the "
@@ -1024,7 +1041,7 @@ def test_wait_for_state_change(connection):
     sequence = cycle([1] * 3 + [2])
     connection.getInt.side_effect = lambda node: next(sequence)
     connection.get.side_effect = lambda node, **kwargs: {
-        node: {"timestamp": [0], "value": [next(sequence)]}
+        node: {"timestamp": [0], "value": [next(sequence)]},
     }
     tree.demods["*"].trigger.wait_for_state_change(2)
 
@@ -1084,7 +1101,7 @@ def test_wait_for_state_change(connection):
     # Test with zero timeout
     connection.getInt.side_effect = lambda node: 2
     connection.get.side_effect = lambda node, **kwargs: {
-        node: {"timestamp": [0], "value": [2]}
+        node: {"timestamp": [0], "value": [2]},
     }
     tree.demods[0].trigger.wait_for_state_change(2, timeout=0.0)
 
@@ -1192,7 +1209,7 @@ def test_connection_dict_set_list(data_dir):
         nodes_json = json.loads(file.read())
     connection = ConnectionDict(data, nodes_json)
     connection.set([("/car/seat", 1), ("/car/color", "red")])
-    assert {"/car/seat": 1, "/car/color": "red", "/street/length": 110.4} == data
+    assert data == {"/car/seat": 1, "/car/color": "red", "/street/length": 110.4}
 
 
 def test_connection_dict_missing_node(data_dir):
@@ -1228,7 +1245,7 @@ def test_connection_dict_callable_nodes(data_dir):
     assert seat == 11
 
 
-@pytest.fixture()
+@pytest.fixture
 def hdawg(data_dir, mock_connection, session):
     json_path = data_dir / "nodedoc_dev1234_hdawg.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -1243,7 +1260,7 @@ def hdawg(data_dir, mock_connection, session):
     ]
     mock_connection.return_value.getString.return_value = ""
 
-    yield HDAWG("DEV1234", "HDAWG4", session)
+    return HDAWG("DEV1234", "HDAWG4", session)
 
 
 def test_nodelist_is_node(connection, hdawg):
@@ -1366,7 +1383,7 @@ def test_node_info_caching(connection):
 
 
 class TestWildCardResult:
-    @pytest.fixture()
+    @pytest.fixture
     def node_tree(self, connection):
         tree = NodeTree(connection, "DEV1234")
         connection.get.return_value = OrderedDict(
@@ -1385,7 +1402,7 @@ class TestWildCardResult:
                         "value": array("d", [3]),
                     },
                 ),
-            ]
+            ],
         )
         return tree
 
@@ -1401,7 +1418,7 @@ class TestWildCardResult:
 
     def test_repr(self, wildcard_call_no_deep):
         assert repr(wildcard_call_no_deep) == str(
-            {"/dev1234/demods/0/rate": 2.0, "/dev1234/demods/1/rate": 3.0}
+            {"/dev1234/demods/0/rate": 2.0, "/dev1234/demods/1/rate": 3.0},
         )  # repr() displays here as float, but in Notebooks and prints it is int
 
     def test_getitem(self, wildcard_call_no_deep, node_tree):

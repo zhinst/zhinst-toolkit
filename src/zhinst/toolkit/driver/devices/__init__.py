@@ -1,4 +1,5 @@
 """Module for all device drivers."""
+
 import typing as t
 
 from zhinst.toolkit.driver.devices.base import BaseInstrument
@@ -13,7 +14,15 @@ from zhinst.toolkit.driver.devices.uhfqa import UHFQA
 from zhinst.toolkit.driver.devices.shfqc import SHFQC  # isort:skip
 
 DeviceType = t.Union[
-    BaseInstrument, HDAWG, PQSC, QHub, SHFQA, SHFSG, UHFLI, UHFQA, SHFQC
+    BaseInstrument,
+    HDAWG,
+    PQSC,
+    QHub,
+    SHFQA,
+    SHFSG,
+    UHFLI,
+    UHFQA,
+    SHFQC,
 ]
 
 DEVICE_CLASS_BY_MODEL = {
@@ -32,15 +41,15 @@ DEVICE_CLASS_BY_MODEL = {
 }
 
 __all__ = [
-    "DeviceType",
     "DEVICE_CLASS_BY_MODEL",
-    "BaseInstrument",
     "HDAWG",
     "PQSC",
-    "QHub",
     "SHFQA",
+    "SHFQC",
     "SHFSG",
     "UHFLI",
     "UHFQA",
-    "SHFQC",
+    "BaseInstrument",
+    "DeviceType",
+    "QHub",
 ]

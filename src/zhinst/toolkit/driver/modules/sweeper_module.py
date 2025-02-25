@@ -4,7 +4,6 @@ import logging
 import typing as t
 
 from zhinst.core import SweeperModule as ZISweeperModule
-
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 
 if t.TYPE_CHECKING:  # pragma: no cover
@@ -23,7 +22,6 @@ class SweeperModule(BaseModule):
     Module, have a look at the LabOne Programming Manual.
 
     For a complete documentation see the LabOne user manual
-    https://docs.zhinst.com/labone_programming_manual/sweeper_module.html
 
     Args:
         sweeper_module: Instance of the core Sweeper Module.
@@ -37,14 +35,11 @@ class SweeperModule(BaseModule):
                 "/gridnode": {
                     "GetParser": self._get_node,
                     "SetParser": self._set_node,
-                }
+                },
             },
             raise_for_invalid_node=False,
         )
 
     def finish(self) -> None:
-        """Stop the module.
-
-        .. versionadded:: 0.5.0
-        """
+        """Stop the module."""
         self._raw_module.finish()

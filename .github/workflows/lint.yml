@@ -7,20 +7,19 @@ on:
     branches: ["main"]
 
 jobs:
-  lint:
+  code-quality:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        tool: [black, lint, typing]
-
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python
+    - name: Setup Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
-        python-version: 3.12
+        python-version: ${{ matrix.python-version }}
     - name: Install dependencies
-      run:  pip install -U tox
-    - name: Run Tox
-      run:  tox -e ${{ matrix.tool }}
+      run:  pip install -r requirements.txt
+    - name: Run style check
+      run:  hatch run +py=${{ matrix.python-version }} lint:style

@@ -1,12 +1,12 @@
-import pytest
-
 from unittest.mock import patch
+
+import pytest
 
 from zhinst.toolkit.driver.devices.uhfli import AWG, UHFLI
 from zhinst.toolkit.nodetree import Node
 
 
-@pytest.fixture()
+@pytest.fixture
 def uhfli(data_dir, mock_connection, session):
 
     json_path = data_dir / "nodedoc_dev1234_uhfli.json"
@@ -15,7 +15,7 @@ def uhfli(data_dir, mock_connection, session):
     mock_connection.return_value.listNodesJSON.return_value = nodes_json
     mock_connection.return_value.getString.return_value = ""
 
-    yield UHFLI("DEV1234", "UHFLI", session)
+    return UHFLI("DEV1234", "UHFLI", session)
 
 
 def test_repr(uhfli):
@@ -37,7 +37,8 @@ def test_awg(mock_connection, uhfli):
 def test_awg_compiler(mock_connection, uhfli):
     mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
     with patch(
-        "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
+        "zhinst.toolkit.driver.nodes.awg.compile_seqc",
+        autospec=True,
     ) as compile_seqc:
         uhfli.awgs[0].compile_sequencer_program("test")
         compile_seqc.assert_called_once_with("test", "UHFLI", "AWG,FOOBAR", 0)

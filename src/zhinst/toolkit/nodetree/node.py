@@ -1,4 +1,6 @@
-"""Single lazy node of a :class:`zhinst.toolkit.nodetree.Nodetree`."""
+"""Single lazy node of a `zhinst.toolkit.nodetree.Nodetree`."""
+
+from __future__ import annotations
 
 import fnmatch
 import json
@@ -9,11 +11,12 @@ import typing as t
 from collections import namedtuple
 from collections.abc import Sequence
 from enum import IntEnum
+from functools import cached_property
+
 import numpy as np
 
 from zhinst.toolkit.nodetree.helper import (
     NodeDict,
-    lazy_property,
     resolve_wildcards_labone,
 )
 
@@ -38,14 +41,18 @@ class NodeEnumMeta:
     (type(value_old) != type(value_new) but value_old == value_new)
 
     Args:
-        value: Value of the NodeEnum object that should be created.
-        class_name: Name of the NodeEnum class.
-        names: Mapping of the enum names to their corresponding integer value.
-        module: Should be set to the module this class is being created in.
+        value (int): Value of the NodeEnum object that should be created.
+        class_name (str): Name of the NodeEnum class.
+        names (dict[str, int]): Mapping of the enum names to their corresponding integer value.
+        module (str): Should be set to the module this class is being created in.
     """
 
     def __new__(  # noqa: D102
-        cls, value: int, class_name: str, names: t.Dict[str, int], module: str
+        cls,
+        value: int,
+        class_name: str,
+        names: dict[str, int],
+        module: str,
     ):
         new_enum = NodeEnum(class_name, names, module=module)
         return new_enum(value)
@@ -66,8 +73,7 @@ class NodeEnum(IntEnum):
     """
 
     # Required for typing
-    def __init__(self, *args, **kwargs):
-        ...
+    def __init__(self, *args, **kwargs): ...
 
     # Required for typing
     def __call__(self, *args, **kwargs):  # noqa: D102 # pragma: no cover
@@ -95,17 +101,9 @@ class NodeInfo:
 
     Args:
         node: A node the information belong to.
-
-    .. versionchanged:: 0.5.0
-
-        Add support for signals in sample nodes. The daq module of LabOne
-        supports subscribing to signals of samples nodes directly. They can be
-        specified by appending them with a dot to the node path
-        (e.g. /dev1234/demods/0/sample.x). The change now support these signals
-        natively in the nodetree.
     """
 
-    def __init__(self, node: "Node"):
+    def __init__(self, node: Node):
         self._info = {}
         self._is_wildcard = False
         self._is_partial = False
@@ -116,11 +114,12 @@ class NodeInfo:
             try:
                 self._info = next(iter(node.root.get_node_info_raw(node).values()))
                 self._info["Node"] = self._info.get(
-                    "Node", node.root.node_to_raw_path(node)
+                    "Node",
+                    node.root.node_to_raw_path(node),
                 ).lower()
             except KeyError as error:
                 self._info = {"Node": error.args[0]}
-                if "sample" in node.raw_tree and "sample" != node.raw_tree[-1]:
+                if "sample" in node.raw_tree and node.raw_tree[-1] != "sample":
                     path, signal = self._info["Node"].split("/sample/")
                     self._info["Node"] = path + "/sample." + ".".join(signal.split("/"))
                 if self._check_partial(node):
@@ -128,8 +127,8 @@ class NodeInfo:
                 if self._check_dynamic(node):
                     self._info.update(
                         json.loads(
-                            node.root.connection.listNodesJSON(error.args[0])
-                        ).get(error.args[0], {})
+                            node.root.connection.listNodesJSON(error.args[0]),
+                        ).get(error.args[0], {}),
                     )
 
     def __dir__(self):
@@ -161,7 +160,7 @@ class NodeInfo:
                 string += f"\n{key}: {value}"
         return string
 
-    def __getitem__(self, item: str) -> t.Union[str, t.Dict[str, str]]:
+    def __getitem__(self, item: str) -> t.Union[str, dict[str, str]]:
         return self._info[item]
 
     def __contains__(self, k):
@@ -200,7 +199,7 @@ class NodeInfo:
             return value
 
     @staticmethod
-    def _check_partial(node: "Node") -> bool:
+    def _check_partial(node: Node) -> bool:
         """Flag if the node is a partial node."""
         for child_node, _ in node.root:
             if node.is_child_node(child_node) and node != child_node:
@@ -208,7 +207,7 @@ class NodeInfo:
         return False
 
     @staticmethod
-    def _check_dynamic(node: "Node") -> bool:
+    def _check_dynamic(node: Node) -> bool:
         try:
             return node.raw_tree[-2] == "waves"
         except IndexError:
@@ -294,8 +293,8 @@ class NodeInfo:
 
     _option_info = namedtuple("_option_info", ["enum", "description"])
 
-    @lazy_property
-    def options(self) -> t.Dict[int, _option_info]:
+    @cached_property
+    def options(self) -> dict[int, _option_info]:
         """Options of the node."""
         option_map = {}
         for key, value in self._info.get("Options", {}).items():
@@ -313,7 +312,7 @@ class NodeInfo:
             option_map[int(key)] = self._option_info(enum, desc)
         return option_map
 
-    @lazy_property
+    @cached_property
     def enum(self) -> t.Optional[NodeEnum]:
         """Enum of the node options."""
         options_reversed = {}
@@ -353,27 +352,21 @@ class Node:
         nodes that matches that node. It should therefor be used with great care
         to avoid unintentional changes.
 
-    >>> nodetree.demods[0].freq()
-    1000
-    >>> nodetree.demods[0].freq(2000)
-    >>> nodetree.demods[0].freq()
-    2000
+    Example:
+        >>> nodetree.demods[0].freq()
+        1000
+        >>> nodetree.demods[0].freq(2000)
+        >>> nodetree.demods[0].freq()
+        2000
 
-    >>> nodetree.demods["*"].freq(3000)
-    >>> nodetree.demods["*"].freq()
-    {
-        '/dev1234/demods/0/freq': 3000
-        '/dev1234/demods/1/freq': 3000
-        '/dev1234/demods/2/freq': 3000
-        '/dev1234/demods/3/freq': 3000
-    }
-
-    .. versionchanged:: 0.3.5
-
-        Call operator returns `WildcardResult` when wildcards are used in
-        getting values.
-
-    .. versionchanged:: 0.5.0 Returns NodeDict instead of WildcardResult
+        >>> nodetree.demods["*"].freq(3000)
+        >>> nodetree.demods["*"].freq()
+        {
+            '/dev1234/demods/0/freq': 3000
+            '/dev1234/demods/1/freq': 3000
+            '/dev1234/demods/2/freq': 3000
+            '/dev1234/demods/3/freq': 3000
+        }
 
     The call operator supports the following flags:
 
@@ -387,15 +380,19 @@ class Node:
         in addition to the value (The timestamp can be None, e.g. deep gets
         on LabOne modules).
 
+        ```
         >>> nodetree.demods[0].freq(deep=True)
         (343283971893, 2000)
+        ```
 
         For a deep set the call operator will return the value acknowledged
         by the device. e.g. important for floating point values with a
         limited resolution.
 
+        ```
         >>> nodetree.demods[0].freq(29999,99999, deep=True)
         3000
+        ```
 
     Warning:
         The deep flag does not work for wildcard nodes or non leaf nodes since
@@ -417,6 +414,7 @@ class Node:
 
         To add a parser to a node use the ``NodeTree.update_node`` function.
 
+        ```
         >>> nodetree.update_node(
                 "/dev1234/demods/0/freq",
                 {
@@ -424,23 +422,34 @@ class Node:
                     "SetParser": lambda v: print(f"set {v} to LabOne") return v,
                 },
             )
+        ```
 
     In addition to the call operator the following magic methods are
     implemented:
 
     * __contains__
+        ```
         >>> "freq" in nodetree.demods[0]
         True
+        ```
     * __iter__
+        ```
         >>> for node, info in nodetree.demods["*"].freq
+        ```
     * __eq__
+        ```
         >>> nodetree.demods[0].freq == nodetree.demods["*/freq"]
+        ```
     * __len__ (only implemented for list like nodes)
+        ```
         >>> len(nodetree.demods)
         4
+        ```
     * __bool__ test if the node is a existing node
+        ```
         >>> if nodetree.demods[0].freq:
             ...
+        ```
     * __hash__ (e.g. necessary to be able to use nodes as key in dictionaries)
 
     Args:
@@ -448,22 +457,24 @@ class Node:
         tree: Tree (node path as tuple) of the current node.
     """
 
-    def __init__(self, root: "NodeTree", tree: tuple):
+    def __init__(self, root: NodeTree, tree: tuple):
         self._root = root
         self._tree = tree
         self._is_valid: t.Optional[bool] = None
 
-    def __getattr__(self, name) -> "Node":
-        return Node(self._root, self._tree + (name,))
+    def __getattr__(self, name) -> Node:
+        if name.startswith("_"):
+            return super().__getattribute__(name)
+        return Node(self._root, (*self._tree, name))
 
-    def __getitem__(self, name) -> "Node":
+    def __getitem__(self, name) -> Node:
         name = str(name).lower()
         if "/" in name:
             name_list = name.split("/")
             if name_list[0]:
-                return Node(self._root, self._tree + (*name_list,))
-            return Node(self._root, self._tree + (*name_list[1:],))
-        return Node(self._root, self._tree + (name,))
+                return Node(self._root, (*self._tree, *name_list))
+            return Node(self._root, (*self._tree, *name_list[1:]))
+        return Node(self._root, (*self._tree, name))
 
     def __contains__(self, k):
         return k in self._next_layer
@@ -505,11 +516,18 @@ class Node:
 
     def __len__(self):
         if not self._is_list():
-            raise TypeError(f"Node {self.node_info.path} is not a list")
+            msg = f"Node {self.node_info.path} is not a list"
+            raise TypeError(msg)
         return len(self._next_layer)
 
     def __call__(
-        self, value: t.Any = None, *, deep=False, enum=True, parse=True, **kwargs
+        self,
+        value: t.Any = None,
+        *,
+        deep=False,
+        enum=True,
+        parse=True,
+        **kwargs,
     ) -> t.Any:
         """Call operator that either gets (empty) or gets the value of a node.
 
@@ -531,16 +549,6 @@ class Node:
             acknowledged value from the device is returned (applies also for
             the set operation).
 
-            .. versionchanged:: 0.3.5
-
-                Returns `WildcardResult` when wildcards are used in
-                getting values.
-
-            .. versionchanged:: 0.5.0 Returns NodeDict instead of WildcardResult
-
-            .. versionchanged:: 0.6.1 Returns an enum on keywords nodes also
-                for deep gets.
-
         Raises:
             AttributeError: If the connection does not support the necessary
                 function to get/set the value.
@@ -557,8 +565,8 @@ class Node:
             return self._get(deep=deep, enum=enum, parse=parse, **kwargs)
         return self._set(value, deep=deep, enum=enum, parse=parse, **kwargs)
 
-    @lazy_property
-    def _next_layer(self) -> t.Set[str]:
+    @cached_property
+    def _next_layer(self) -> set[str]:
         """A set of direct child nodes."""
         next_layer = set()
         for node, _ in self:
@@ -569,7 +577,7 @@ class Node:
         """Checks if the node is a list type."""
         return len(self._next_layer) > 0 and next(iter(self._next_layer)).isdecimal()
 
-    def _resolve_wildcards(self) -> t.List[str]:
+    def _resolve_wildcards(self) -> list[str]:
         """Resolves potential wildcards.
 
         Also will resolve partial nodes to its leaf nodes.
@@ -578,11 +586,15 @@ class Node:
             List of matched nodes in the raw path format
         """
         return resolve_wildcards_labone(
-            self._root.node_to_raw_path(self), self._root.raw_dict.keys()
+            self._root.node_to_raw_path(self),
+            self._root.raw_dict.keys(),
         )
 
     def _parse_get_value(
-        self, value: t.Any, enum: bool = True, parse: bool = True
+        self,
+        value: t.Any,
+        enum: bool = True,
+        parse: bool = True,
     ) -> t.Any:
         """Parse the raw value from the data server.
 
@@ -607,7 +619,11 @@ class Node:
         return value
 
     def _get(
-        self, deep: bool = False, enum: bool = True, parse: bool = True, **kwargs
+        self,
+        deep: bool = False,
+        enum: bool = True,
+        parse: bool = True,
+        **kwargs,
     ) -> t.Any:
         """Get the value from the node.
 
@@ -652,11 +668,12 @@ class Node:
         ):
             return self._get_wildcard(deep=deep, enum=enum, parse=parse, **kwargs)
         if readable is False:
-            raise AttributeError(f"{self.node_info.path} is not readable.")
+            msg = f"{self.node_info.path} is not readable."
+            raise AttributeError(msg)
         raise KeyError(self.node_info.path)
 
     @staticmethod
-    def _parse_get_entry(raw_value: t.Dict[t.Union[str, int], t.Any]):
+    def _parse_get_entry(raw_value: dict[t.Union[str, int], t.Any]):
         """Parser for the get function of zhinst.core.
 
         The get function in zhinst.core support multiple values and returns the
@@ -689,8 +706,12 @@ class Node:
         return (timestamp, value)
 
     def _get_wildcard(
-        self, deep=True, enum=True, parse=True, **kwargs
-    ) -> t.Union[NodeDict, t.Dict[str, t.Any]]:
+        self,
+        deep=True,
+        enum=True,
+        parse=True,
+        **kwargs,
+    ) -> t.Union[NodeDict, dict[str, t.Any]]:
         """Execute a wildcard get.
 
         The get is performed as a deep get (for all devices except HF2)
@@ -740,7 +761,7 @@ class Node:
             result[sub_node_raw] = (timestamp, value) if deep else value
         return NodeDict(result)
 
-    def _get_deep(self, **kwargs) -> t.Tuple[int, t.Any]:
+    def _get_deep(self, **kwargs) -> tuple[int, t.Any]:
         """Get the node value from the device.
 
         The kwargs will be forwarded to the maped zhinst.core function call.
@@ -765,9 +786,12 @@ class Node:
             # Modules do not support the additional flags
             raw_dict = self._root.connection.get(self.node_info.path, flat=True)
         if not raw_dict or len(raw_dict) == 0:
-            raise TypeError(
+            msg = (
                 "keyword 'deep' is not available for this node. "
                 "(e.g. node is a sample node)"
+            )
+            raise TypeError(
+                msg,
             )
         raw_value = next(iter(raw_dict.values()))
         return self._parse_get_entry(raw_value)
@@ -806,13 +830,21 @@ class Node:
         if self.node_info.type == "ZIAdvisorWave":
             raw_value = self._root.connection.get(self.node_info.path, flat=True)
             return next(iter(raw_value.values()))[-1]
-        raise RuntimeError(
+        msg = (
             f"{self.node_info.path} has type {self.node_info.type} and can "
             "only be polled."
         )
+        raise RuntimeError(
+            msg,
+        )
 
     def _set(
-        self, value: t.Any, deep=False, enum=True, parse=True, **kwargs
+        self,
+        value: t.Any,
+        deep=False,
+        enum=True,
+        parse=True,
+        **kwargs,
     ) -> t.Optional[t.Any]:
         """Set the value to the node.
 
@@ -847,7 +879,9 @@ class Node:
                 self._root.transaction.add(self, value)
             elif deep:
                 return self._parse_get_value(
-                    self._set_deep(value, **kwargs), enum=enum, parse=parse
+                    self._set_deep(value, **kwargs),
+                    enum=enum,
+                    parse=parse,
                 )
             else:
                 try:
@@ -856,7 +890,9 @@ class Node:
                     # Some vector nodes do not support support set command.
                     if self.node_info.type == "ZIVectorData":
                         self._root.connection.setVector(
-                            self.node_info.path, value, **kwargs
+                            self.node_info.path,
+                            value,
+                            **kwargs,
                         )
                     else:
                         raise
@@ -864,7 +900,8 @@ class Node:
         if self.node_info.is_partial:
             return self["*"](value, deep=deep, enum=enum, parse=parse, **kwargs)
         if writable is False:
-            raise AttributeError(f"{self.node_info.path} is read-only.")
+            msg = f"{self.node_info.path} is read-only."
+            raise AttributeError(msg)
         raise KeyError(self.node_info.path)
 
     def _set_deep(self, value: t.Any, **kwargs) -> t.Any:
@@ -886,28 +923,40 @@ class Node:
         try:
             if isinstance(value, numbers.Integral):
                 return self._root.connection.syncSetInt(
-                    self.node_info.path, value, **kwargs
+                    self.node_info.path,
+                    value,
+                    **kwargs,
                 )
             if isinstance(value, numbers.Real):
                 return self._root.connection.syncSetDouble(
-                    self.node_info.path, value, **kwargs
+                    self.node_info.path,
+                    value,
+                    **kwargs,
                 )
             if isinstance(value, str):
                 return self._root.connection.syncSetString(
-                    self.node_info.path, value, **kwargs
+                    self.node_info.path,
+                    value,
+                    **kwargs,
                 )
         except TypeError as error:
-            raise TypeError(
+            msg = (
                 "deep set is not supported for this connection."
                 "(this likely cause because the connection is a module and a deep "
                 "set does not make sense there.)"
+            )
+            raise TypeError(
+                msg,
             ) from error
-        raise RuntimeError(
+        msg = (
             f"Invalid type {type(value)} for deep set "
             "(only int,float and str are supported)"
         )
+        raise RuntimeError(
+            msg,
+        )
 
-    def is_child_node(self, child_node: "Node") -> bool:
+    def is_child_node(self, child_node: Node) -> bool:
         """Checks if a node is child node of this node.
 
         Args:
@@ -917,7 +966,8 @@ class Node:
             Boolean if passed node is a child node
         """
         return fnmatch.fnmatchcase(
-            "/".join(child_node.raw_tree), "/".join(self.raw_tree) + "*"
+            "/".join(child_node.raw_tree),
+            "/".join(self.raw_tree) + "*",
         )
 
     def wait_for_state_change(
@@ -936,17 +986,10 @@ class Node:
 
         Args:
             value: Expected value of the node.
-
-            .. versionchanged:: 0.6.1 Enums or strings are accepted for keywords nodes.
-
             invert: Instead of waiting for the value, the function will wait for
-                any value except the passed value instead. (default = False)
-
-                Useful when waiting for value to change from existing one.
+                any value except the passed value instead. Useful when waiting
+                for value to change from existing one.(default = False)
             timeout: Maximum wait time in seconds. (default = 2)
-
-            .. versionchanged:: 0.6.4 A zero seconds timeout is accepted.
-
             sleep_time: Sleep interval in seconds. (default = 0.005)
 
         Raises:
@@ -1001,13 +1044,19 @@ class Node:
                 curr_value = repr(curr_value.name)
 
             if invert:
-                raise TimeoutError(
+                msg = (
                     f"{self.node_info.path} did not change from the expected"
                     f" value {value} within {timeout}s."
                 )
-            raise TimeoutError(
+                raise TimeoutError(
+                    msg,
+                )
+            msg = (
                 f"{self.node_info.path} did not change to the expected value"
                 f" within {timeout}s. {value} != {curr_value}"
+            )
+            raise TimeoutError(
+                msg,
             )
 
     def subscribe(self) -> None:
@@ -1056,7 +1105,7 @@ class Node:
         basechannelonly: bool = False,
         excludestreaming: bool = False,
         excludevectors: bool = False,
-    ) -> t.Generator["Node", None, None]:
+    ) -> t.Generator[Node, None, None]:
         """Generator for all child nodes that matches the filters.
 
         If the nodes does not contain any child nodes the generator will only
@@ -1073,7 +1122,7 @@ class Node:
             needs to enable the `full_wildcard` flag in order to support the
             manual generation of the matching child nodes.
 
-        Examples:
+        Example:
             >>> child_nodes = nodetree.demods[0].child_nodes()
             >>> next(child_nodes)
             /dev1234/demods/0/freq
@@ -1125,7 +1174,7 @@ class Node:
             self._is_valid = len(keys) > 0
         return self._is_valid
 
-    def _send_set_list(self, settings: t.List[t.Tuple[str, t.Any]]) -> None:
+    def _send_set_list(self, settings: list[tuple[str, t.Any]]) -> None:
         """Applies settings and takes care of a possibly ongoing transaction.
 
         In case of an active transaction, the settings will be put into it,
@@ -1142,17 +1191,29 @@ class Node:
 
     @property
     def node_info(self) -> NodeInfo:
-        """Additional information about the node."""
+        """Additional information about the node.
+
+        Returns:
+            Node Info.
+        """
         return self.root.get_node_info(self)
 
     @property
-    def raw_tree(self) -> t.Tuple[str, ...]:
-        """Internal representation of the node."""
+    def raw_tree(self) -> tuple[str, ...]:
+        """Internal representation of the node.
+
+        Returns:
+            Raw tree of the node.
+        """
         return self._tree
 
     @property
-    def root(self) -> "NodeTree":
-        """Node tree to which this node belongs to."""
+    def root(self) -> NodeTree:
+        """Node tree to which this node belongs to.
+
+        Returns:
+            Node tree.
+        """
         return self._root
 
 
@@ -1176,20 +1237,22 @@ class NodeList(Sequence, Node):
         tree: Node tree (node path as tuple) of the current node
     """
 
-    def __init__(self, elements: t.Sequence[t.Any], root: "NodeTree", tree: tuple):
+    def __init__(self, elements: t.Sequence[t.Any], root: NodeTree, tree: tuple):
         Sequence.__init__(self)
         Node.__init__(self, root, tree)
         self._elements: t.Sequence[t.Any] = elements
 
     @t.overload
     def __getitem__(
-        self, idx: t.Union[int, str]
+        self,
+        idx: t.Union[int, str],
     ) -> t.Union[t.Any, Node]:  # pragma: no cover
         ...
 
     @t.overload
     def __getitem__(
-        self, s: slice
+        self,
+        s: slice,
     ) -> t.Sequence[t.Union[t.Any, Node]]:  # pragma: no cover
         ...
 
@@ -1197,7 +1260,7 @@ class NodeList(Sequence, Node):
         # User numpy check here to ensure numpy types are handled correctly (#252)
         if np.issubdtype(type(item), np.integer):
             return self._elements[item]
-        return Node(self._root, self._tree + (str(item),))
+        return Node(self._root, (*self._tree, str(item)))
 
     def __len__(self):
         return len(self._elements)

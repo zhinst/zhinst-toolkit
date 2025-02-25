@@ -1,4 +1,7 @@
 """Implements Connection wrapper around a native python dictionary."""
+
+from __future__ import annotations
+
 import fnmatch
 import json
 import re
@@ -7,15 +10,15 @@ from collections import OrderedDict
 
 from numpy import array
 
-from zhinst.toolkit.nodetree.helper import NodeDoc
 from zhinst.toolkit.exceptions import ToolkitError
+from zhinst.toolkit.nodetree.helper import NodeDoc
 
 
 class ConnectionDict:
     """Connection wrapper around a dictionary.
 
     The ``NodeTree`` expects a connection that complies to the
-    protocol :class:`nodetree.Connection`. In order to also support raw
+    protocol `nodetree.Connection`. In order to also support raw
     dictionaries this class wraps around a python dictionary and exposes the
     required protocol.
 
@@ -24,7 +27,7 @@ class ConnectionDict:
         json_info: JSON information for each path (path: info)
     """
 
-    def __init__(self, data: t.Dict[str, t.Any], json_info: NodeDoc):
+    def __init__(self, data: dict[str, t.Any], json_info: NodeDoc):
         super().__init__()
         self._values = data
         self.json_info = json_info
@@ -45,7 +48,7 @@ class ConnectionDict:
             return value()
         return value
 
-    def _resolve_wildcards(self, path: str) -> t.List[str]:
+    def _resolve_wildcards(self, path: str) -> list[str]:
         path_raw = path.replace("/\\*/", "/[^/]*/")
         path_raw_regex = re.compile(path_raw)
         return list(filter(path_raw_regex.match, self._values.keys()))
@@ -62,8 +65,8 @@ class ConnectionDict:
         paths = self._resolve_wildcards(path)
         if not paths:
             raise KeyError(path)
-        for path in paths:
-            self._do_set_value(path, value)
+        for path_part in paths:
+            self._do_set_value(path_part, value)
 
     def _do_set_value(self, path: str, value: t.Any) -> None:
         if callable(self._values[path]):
@@ -119,7 +122,7 @@ class ConnectionDict:
 
     def set(
         self,
-        path: t.Union[str, t.List[t.Tuple[str, t.Any]]],
+        path: t.Union[str, list[tuple[str, t.Any]]],
         value: t.Any = None,
         **kwargs,
     ) -> None:
@@ -136,8 +139,10 @@ class ConnectionDict:
 
     def subscribe(self, path: str) -> None:
         """Mirrors the behavior of zhinst.core subscribe command."""
-        raise ToolkitError("Can not subscribe within the SHFQA_Sweeper")
+        msg = "Can not subscribe within the SHFQA_Sweeper"
+        raise ToolkitError(msg)
 
     def unsubscribe(self, path: str) -> None:
         """Mirrors the behavior of zhinst.core unsubscribe command."""
-        raise ToolkitError("Can not subscribe within the SHFQA_Sweeper")
+        msg = "Can not subscribe within the SHFQA_Sweeper"
+        raise ToolkitError(msg)

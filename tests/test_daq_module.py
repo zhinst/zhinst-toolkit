@@ -4,7 +4,7 @@ import pytest
 from zhinst.toolkit.driver.modules.daq_module import DAQModule
 
 
-@pytest.fixture()
+@pytest.fixture
 def daq_module(data_dir, mock_connection, session):
     json_path = data_dir / "nodedoc_daq_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -12,7 +12,7 @@ def daq_module(data_dir, mock_connection, session):
     mock_connection.return_value.dataAcquisitionModule.return_value.listNodesJSON.return_value = (
         nodes_json
     )
-    yield DAQModule(mock_connection.return_value.dataAcquisitionModule(), session)
+    return DAQModule(mock_connection.return_value.dataAcquisitionModule(), session)
 
 
 def test_repr(daq_module):
@@ -79,7 +79,7 @@ def test_read(daq_module, mock_connection, session):
                 "header": {"systemtime": np.array([1643040922025522])},
                 "timestamp": np.array([[1, 2, 3, 4, 5]]),
                 "value": np.array([[1, 2, 3, 4, 5]]),
-            }
+            },
         ],
     }
     result = daq_module.read()

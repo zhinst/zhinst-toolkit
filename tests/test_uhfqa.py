@@ -1,6 +1,7 @@
+from unittest.mock import patch
+
 import numpy as np
 import pytest
-from unittest.mock import patch
 
 from zhinst.toolkit import Waveforms
 from zhinst.toolkit.driver.devices.uhfqa import QAS, UHFQA, Integration
@@ -8,7 +9,7 @@ from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.nodetree import Node
 
 
-@pytest.fixture()
+@pytest.fixture
 def uhfqa(data_dir, mock_connection, session):
 
     json_path = data_dir / "nodedoc_dev1234_uhfqa.json"
@@ -17,7 +18,7 @@ def uhfqa(data_dir, mock_connection, session):
     mock_connection.return_value.listNodesJSON.return_value = nodes_json
     mock_connection.return_value.getString.return_value = ""
 
-    yield UHFQA("DEV1234", "UHFQA", session)
+    return UHFQA("DEV1234", "UHFQA", session)
 
 
 def test_repr(uhfqa):
@@ -48,7 +49,7 @@ def test_enable_qccs_mode(mock_connection, uhfqa):
             ("/dev1234/awgs/0/dio/strobe/slope", "off"),
             ("/dev1234/awgs/0/dio/valid/index", 16),
             ("/dev1234/awgs/0/dio/valid/polarity", "high"),
-        ]
+        ],
     )
     mock_connection.reset_mock()
     with uhfqa.set_transaction():
@@ -62,7 +63,7 @@ def test_enable_qccs_mode(mock_connection, uhfqa):
             ("/dev1234/awgs/0/dio/strobe/slope", "off"),
             ("/dev1234/awgs/0/dio/valid/index", 16),
             ("/dev1234/awgs/0/dio/valid/polarity", "high"),
-        ]
+        ],
     )
 
 
@@ -94,10 +95,10 @@ def test_adjusted_delay(uhfqa, mock_connection):
     # set value
     bypass_deskew = 0
     assert uhfqa.qas[0].adjusted_delay(400) == 400
-    mock_connection.return_value.set.assert_called_with(f"/dev1234/qas/0/delay", 600)
+    mock_connection.return_value.set.assert_called_with("/dev1234/qas/0/delay", 600)
     bypass_deskew = 1
     assert uhfqa.qas[0].adjusted_delay(400) == 400
-    mock_connection.return_value.set.assert_called_with(f"/dev1234/qas/0/delay", 584)
+    mock_connection.return_value.set.assert_called_with("/dev1234/qas/0/delay", 584)
 
     with pytest.raises(ValueError):
         uhfqa.qas[0].adjusted_delay(-185)
@@ -127,7 +128,8 @@ def test_qas_crosstalk_matrix(uhfqa, mock_connection):
     for row in range(10):
         for col in range(10):
             mock_connection.return_value.set.assert_any_call(
-                f"/dev1234/qas/0/crosstalk/rows/{row}/cols/{col}", matrix2[row][col]
+                f"/dev1234/qas/0/crosstalk/rows/{row}/cols/{col}",
+                matrix2[row][col],
             )
 
     matrix2 = np.random.rand(11, 10)
@@ -147,7 +149,8 @@ def test_awg(mock_connection, uhfqa):
 def test_awg_compiler(mock_connection, uhfqa):
     mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
     with patch(
-        "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
+        "zhinst.toolkit.driver.nodes.awg.compile_seqc",
+        autospec=True,
     ) as compile_seqc:
         uhfqa.awgs[0].compile_sequencer_program("test")
         compile_seqc.assert_called_once_with("test", "UHFQA", "AWG,FOOBAR", 0)
@@ -161,9 +164,9 @@ class TestWriteIntegrationWeights:
         waveforms.assign_waveform(0, wave1, wave2)
         uhfqa.qas[0].integration.write_integration_weights(waveforms)
         call_args = mock_connection.return_value.set.call_args
-        assert "/dev1234/qas/0/integration/weights/0/real" == call_args[0][0][0][0]
+        assert call_args[0][0][0][0] == "/dev1234/qas/0/integration/weights/0/real"
         np.testing.assert_array_equal(wave1, call_args[0][0][0][1])
-        assert "/dev1234/qas/0/integration/weights/0/imag" == call_args[0][0][1][0]
+        assert call_args[0][0][1][0] == "/dev1234/qas/0/integration/weights/0/imag"
         np.testing.assert_array_equal(wave2, call_args[0][0][1][1])
 
     def test_write_integration_weights_waveforms_idx1(self, mock_connection, uhfqa):
@@ -172,23 +175,23 @@ class TestWriteIntegrationWeights:
         waveforms.assign_waveform(1, wave1)
         uhfqa.qas[0].integration.write_integration_weights(waveforms)
         call_args = mock_connection.return_value.set.call_args
-        assert "/dev1234/qas/0/integration/weights/1/real" == call_args[0][0][0][0]
+        assert call_args[0][0][0][0] == "/dev1234/qas/0/integration/weights/1/real"
         np.testing.assert_array_equal(wave1, call_args[0][0][0][1])
 
     def test_write_integration_weights_dict_complex(self, mock_connection, uhfqa):
         wave_complex = 1.0 * np.ones(8, dtype=np.complex128)
         uhfqa.qas[0].integration.write_integration_weights({0: wave_complex})
         call_args = mock_connection.return_value.set.call_args
-        assert "/dev1234/qas/0/integration/weights/0/real" == call_args[0][0][0][0]
+        assert call_args[0][0][0][0] == "/dev1234/qas/0/integration/weights/0/real"
         np.testing.assert_array_equal(wave_complex.real, call_args[0][0][0][1])
-        assert "/dev1234/qas/0/integration/weights/0/imag" == call_args[0][0][1][0]
+        assert call_args[0][0][1][0] == "/dev1234/qas/0/integration/weights/0/imag"
         np.testing.assert_array_equal(wave_complex.imag, call_args[0][0][1][1])
 
     def test_write_integration_weights_dict_real(self, mock_connection, uhfqa):
         wave = 1.0 * np.ones(8)
         uhfqa.qas[0].integration.write_integration_weights({0: wave})
         call_args = mock_connection.return_value.set.call_args
-        assert "/dev1234/qas/0/integration/weights/0/real" == call_args[0][0][0][0]
+        assert call_args[0][0][0][0] == "/dev1234/qas/0/integration/weights/0/real"
         np.testing.assert_array_equal(wave.real, call_args[0][0][0][1])
-        assert "/dev1234/qas/0/integration/weights/0/imag" == call_args[0][0][1][0]
+        assert call_args[0][0][1][0] == "/dev1234/qas/0/integration/weights/0/imag"
         np.testing.assert_array_equal(np.zeros(8), call_args[0][0][1][1])

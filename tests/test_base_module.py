@@ -1,12 +1,12 @@
+from pathlib import Path
+
 import numpy as np
 import pytest
-
-from pathlib import Path
 
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 
 
-@pytest.fixture()
+@pytest.fixture
 def base_module(data_dir, mock_connection, session):
     json_path = data_dir / "nodedoc_awg_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -14,7 +14,7 @@ def base_module(data_dir, mock_connection, session):
     mock_connection.return_value.awgModule.return_value.listNodesJSON.return_value = (
         nodes_json
     )
-    yield BaseModule(mock_connection.return_value.awgModule(), session)
+    return BaseModule(mock_connection.return_value.awgModule(), session)
 
 
 def test_repr(base_module):
@@ -53,12 +53,14 @@ def test_device(zi_devices_json, base_module, mock_connection):
     # set
     base_module.device("dev1634")
     mock_connection.return_value.awgModule.return_value.set.assert_called_with(
-        "/device", "dev1634"
+        "/device",
+        "dev1634",
     )
 
     base_module.device(result)
     mock_connection.return_value.awgModule.return_value.set.assert_called_with(
-        "/device", "dev1234"
+        "/device",
+        "dev1234",
     )
 
 

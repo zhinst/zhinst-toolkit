@@ -1,10 +1,11 @@
-import pytest
 from pathlib import Path
+
+import pytest
 
 from zhinst.toolkit.driver.modules.device_settings_module import DeviceSettingsModule
 
 
-@pytest.fixture()
+@pytest.fixture
 def device_settings_module(data_dir, mock_connection, session):
     json_path = data_dir / "nodedoc_device_settings_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -12,19 +13,19 @@ def device_settings_module(data_dir, mock_connection, session):
     mock_connection.return_value.deviceSettings.return_value.listNodesJSON.return_value = (
         nodes_json
     )
-    yield DeviceSettingsModule(mock_connection.return_value.deviceSettings(), session)
+    return DeviceSettingsModule(mock_connection.return_value.deviceSettings(), session)
 
 
 def test_repr(device_settings_module):
     assert "MagicMock(DataServerSession(localhost:8004))" in repr(
-        device_settings_module
+        device_settings_module,
     )
 
 
 def test_load_from_file(device_settings_module):
     device_settings_module.raw_module.getInt.return_value = 1
     device_settings_module.raw_module.get.return_value = {
-        "/finished": {"timestamp": [0], "value": [1]}
+        "/finished": {"timestamp": [0], "value": [1]},
     }
 
     device_settings_module.load_from_file(Path("/path/to/file.json"), "dev1234")
@@ -38,19 +39,21 @@ def test_load_from_file(device_settings_module):
 def test_load_from_file_timeout(device_settings_module):
     device_settings_module.raw_module.getInt.return_value = 0
     device_settings_module.raw_module.get.return_value = {
-        "/finished": {"timestamp": [0], "value": [0]}
+        "/finished": {"timestamp": [0], "value": [0]},
     }
 
     with pytest.raises(TimeoutError):
         device_settings_module.load_from_file(
-            Path("/path/to/file.json"), "dev1234", timeout=0.01
+            Path("/path/to/file.json"),
+            "dev1234",
+            timeout=0.01,
         )
 
 
 def test_save_to_file(device_settings_module):
     device_settings_module.raw_module.getInt.return_value = 1
     device_settings_module.raw_module.get.return_value = {
-        "/finished": {"timestamp": [0], "value": [1]}
+        "/finished": {"timestamp": [0], "value": [1]},
     }
 
     device_settings_module.save_to_file(Path("/path/to/file.json"), "dev1234")
@@ -64,12 +67,14 @@ def test_save_to_file(device_settings_module):
 def test_save_to_file_timeout(device_settings_module):
     device_settings_module.raw_module.getInt.return_value = 0
     device_settings_module.raw_module.get.return_value = {
-        "/finished": {"timestamp": [0], "value": [0]}
+        "/finished": {"timestamp": [0], "value": [0]},
     }
 
     with pytest.raises(TimeoutError):
         device_settings_module.save_to_file(
-            Path("/path/to/file.json"), "dev1234", timeout=0.01
+            Path("/path/to/file.json"),
+            "dev1234",
+            timeout=0.01,
         )
 
 

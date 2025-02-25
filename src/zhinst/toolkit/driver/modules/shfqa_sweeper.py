@@ -10,18 +10,23 @@ from enum import IntEnum
 from pathlib import Path
 
 import numpy as np
-from zhinst.utils.shf_sweeper import AvgConfig, EnvelopeConfig, RfConfig
-from zhinst.utils.shf_sweeper import ShfSweeper as CoreSweeper
-from zhinst.utils.shf_sweeper import SweepConfig, TriggerConfig
 
 from zhinst.toolkit.driver.parsers import Parse
 from zhinst.toolkit.exceptions import ToolkitError
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.connection_dict import ConnectionDict
-from zhinst.toolkit.nodetree.helper import NodeDoc
+from zhinst.utils.shf_sweeper import (
+    AvgConfig,
+    EnvelopeConfig,
+    RfConfig,
+    SweepConfig,
+    TriggerConfig,
+)
+from zhinst.utils.shf_sweeper import ShfSweeper as CoreSweeper
 
 if t.TYPE_CHECKING:  # pragma: no cover
     from zhinst.toolkit.driver.devices import DeviceType
+    from zhinst.toolkit.nodetree.helper import NodeDoc
     from zhinst.toolkit.session import Session
 
 logger = logging.getLogger(__name__)
@@ -69,7 +74,7 @@ class SHFQASweeper(Node):
             "use_sequencer": "mode",
             "force_sw_trigger": "sw_trigger_mode",
         }
-        super().__init__(self._create_nodetree(), tuple())
+        super().__init__(self._create_nodetree(), ())
         self._daq_server = session.clone_underlying_session()
         self._raw_module = CoreSweeper(self._daq_server, "")
         self._session = session
@@ -88,7 +93,7 @@ class SHFQASweeper(Node):
         )
 
     def __repr__(self):
-        return str(f"SHFQASweeper({repr(self._session)})")
+        return str(f"SHFQASweeper({self._session!r})")
 
     def _get_device(self, serial: str) -> t.Union["DeviceType", str]:
         """Convert a device serial into a toolkit device object.
@@ -136,7 +141,7 @@ class SHFQASweeper(Node):
         json_path = Path(__file__).parent / "../../resources/shfqa_sweeper_nodes.json"
         with json_path.open("r") as file:
             raw_info: NodeDoc = json.loads(file.read())
-        values: t.Dict[str, t.Any] = {}
+        values: dict[str, t.Any] = {}
         info: NodeDoc = {}
         for config_class, parent_name in self._config_classes.items():
             for parameter, default_value in asdict(config_class()).items():
@@ -191,8 +196,9 @@ class SHFQASweeper(Node):
         Converts the nodetree into a valid configuration for the SHFSweeper.
         """
         if not self.device():
+            msg = "The device serial needs to be set before using the module."
             raise ToolkitError(
-                "The device serial needs to be set before using the module."
+                msg,
             )
         data = OrderedDict()
         for config_class, parent_name in self._config_classes.items():
@@ -215,7 +221,7 @@ class SHFQASweeper(Node):
             data["trig_config"].imp50 = data["trig_config"].imp50 == "imp50"
         except AttributeError:
             logger.warning(
-                "imp50 setting is no longer available in the shf_sweeper class."
+                "imp50 setting is no longer available in the shf_sweeper class.",
             )
         # special treatment for mode
         try:
@@ -224,7 +230,7 @@ class SHFQASweeper(Node):
             )
         except AttributeError:
             logger.warning(
-                "use_sequencer setting is no longer available in the shf_sweeper class."
+                "use_sequencer setting is no longer available in the shf_sweeper class.",
             )
         # special treatment for trigger source
         try:
@@ -235,7 +241,7 @@ class SHFQASweeper(Node):
             )
         except AttributeError:
             logger.warning(
-                "source setting is no longer available in the shf_sweeper class."
+                "source setting is no longer available in the shf_sweeper class.",
             )
         # special treatment for the force_sw_trigger
         try:
@@ -244,7 +250,7 @@ class SHFQASweeper(Node):
             )
         except AttributeError:
             logger.warning(
-                "force_sw_trigger setting is no longer available in the shf_sweeper."
+                "force_sw_trigger setting is no longer available in the shf_sweeper.",
             )
         self._raw_module.configure(**data)
 
