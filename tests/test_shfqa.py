@@ -1,7 +1,5 @@
 from unittest.mock import patch
 
-import pytest
-
 from zhinst.toolkit import SHFQAChannelMode
 from zhinst.toolkit.driver.devices.shfqa import Generator, QAChannel, Readout, SHFScope
 
@@ -14,7 +12,10 @@ def test_start_continuous_sw_trigger(mock_connection, shfqa):
     with patch("zhinst.toolkit.driver.devices.shfqa.utils", autospec=True) as utils:
         shfqa.start_continuous_sw_trigger(num_triggers=10, wait_time=20.0)
         utils.start_continuous_sw_trigger.assert_called_once_with(
-            mock_connection.return_value, "DEV1234", num_triggers=10, wait_time=20.0
+            mock_connection.return_value,
+            "DEV1234",
+            num_triggers=10,
+            wait_time=20.0,
         )
 
 
@@ -67,7 +68,8 @@ def test_qa_generator(shfqa):
 def test_qa_generator_compiler(mock_connection, shfqa):
     mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
     with patch(
-        "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
+        "zhinst.toolkit.driver.nodes.awg.compile_seqc",
+        autospec=True,
     ) as compile_seqc:
         shfqa.qachannels[0].generator.compile_sequencer_program("test")
         compile_seqc.assert_called_once_with("test", "SHFQA4", "AWG,FOOBAR", 0)

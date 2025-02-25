@@ -4,7 +4,6 @@ import logging
 import typing as t
 
 from zhinst.core import ScopeModule as ZIScopeModule
-
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 
 if t.TYPE_CHECKING:  # pragma: no cover
@@ -22,7 +21,6 @@ class ScopeModule(BaseModule):
     programmatically.
 
     For a complete documentation see the LabOne user manual
-    https://docs.zhinst.com/labone_programming_manual/scope_module.html
 
 
     Although it is possible to acquire scope data using the lower-level
@@ -37,14 +35,14 @@ class ScopeModule(BaseModule):
       scaling and offset must be applied manually.
     * Assembles large multi-block transferred scope data into single complete
       records. When the scope is configured to record large scope lengths and
-      data is directly polled from the device node /DEV…​/SCOPES/n/WAVE the data
+      data is directly polled from the device node /DEV…\u200b/SCOPES/n/WAVE the data
       is split into multiple blocks for efficient transfer of data from the
       Data Server to the API; these must then be programmatically reassembled.
       The Scope Module performs this assembly and returns complete scope
       records (unless used in pass-through mode, mode=0).
     * Can be configured to return the FFT of the acquired scope records
       (with mode=3) as provided by the Scope Tab in the LabOne UI. FFT data is
-      not available from the device nodes in the /DEV/…​./SCOPES/ branch using
+      not available from the device nodes in the /DEV/…\u200b./SCOPES/ branch using
       subscribe/poll.
     * Can be configured to average the acquired scope records the
       averager/parameters.
@@ -54,8 +52,6 @@ class ScopeModule(BaseModule):
     Args:
         scope_module: Instance of the core scope module.
         session: Session to the Data Server.
-
-    .. versionadded:: 0.5.0
     """
 
     def __init__(self, scope_module: ZIScopeModule, session: "Session"):

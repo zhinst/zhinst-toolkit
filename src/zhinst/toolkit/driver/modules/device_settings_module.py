@@ -1,13 +1,13 @@
 """Device Settings Module."""
 
+from __future__ import annotations
+
 import logging
 import typing as t
 from pathlib import Path
 
 from zhinst.core import DeviceSettingsModule as ZIDeviceSettingsModule
-
 from zhinst.toolkit.driver.modules.base_module import BaseModule
-
 from zhinst.toolkit.nodetree.helper import NodeDict
 
 if t.TYPE_CHECKING:  # pragma: no cover
@@ -26,13 +26,13 @@ class DeviceSettingsModule(BaseModule):
     For simple save and load two helper functions exist `save_to_file` and
     `load_from_file`.
 
-    Note: It is not recommend to use this function to read the
+    Note:
+        It is not recommend to use this function to read the
         device settings. Instead one can use the zhinst-toolkit functionality
         to read all settings from a device/subtree from the device directly by
         calling it.
 
     For a complete documentation see the LabOne user manual
-    https://docs.zhinst.com/labone_programming_manual/device_settings_module.html
 
     Args:
         device_settings_module: Instance of the core Impedance Module.
@@ -40,14 +40,16 @@ class DeviceSettingsModule(BaseModule):
     """
 
     def __init__(
-        self, device_settings_module: ZIDeviceSettingsModule, session: "Session"
+        self,
+        device_settings_module: ZIDeviceSettingsModule,
+        session: Session,
     ):
         super().__init__(device_settings_module, session)
         self.root.update_nodes(
             {
                 "/path": {
                     "SetParser": self._set_path,
-                }
+                },
             },
             raise_for_invalid_node=False,
         )
@@ -56,7 +58,7 @@ class DeviceSettingsModule(BaseModule):
         self,
         command: str,
         filename: t.Union[str, Path],
-        device: t.Union[str, "DeviceType"],
+        device: t.Union[str, DeviceType],
         timeout: float = 30,
     ) -> None:
         """Execute a command on a clean module.
@@ -86,14 +88,15 @@ class DeviceSettingsModule(BaseModule):
             # wait for state change functionality.
             temp_module.finished.wait_for_state_change(1, timeout=timeout)
         except TimeoutError as e:
+            msg = f"Unable to load device settings after {timeout} seconds."
             raise TimeoutError(
-                f"Unable to load device settings after {timeout} seconds."
+                msg,
             ) from e
 
     def load_from_file(
         self,
         filename: t.Union[str, Path],
-        device: t.Union["DeviceType", str],
+        device: t.Union[DeviceType, str],
         timeout: float = 30,
     ) -> None:
         """Load a LabOne settings file to a device.
@@ -115,7 +118,7 @@ class DeviceSettingsModule(BaseModule):
     def save_to_file(
         self,
         filename: t.Union[str, Path],
-        device: t.Union["DeviceType", str],
+        device: t.Union[DeviceType, str],
         timeout: int = 30,
     ) -> None:
         """Save the device settings to a LabOne settings file.
@@ -142,12 +145,12 @@ class DeviceSettingsModule(BaseModule):
         to read all settings from a device/subtree from the device directly by
         calling it.
 
-        >>> device = session.connect_device()
-        >>> ...
-        >>> device()
-        <all device settings>
-        >>> device.demods()
-        <all demodulator settings>
+        ```
+        device = session.connect_device()
+        ...
+        device_settings = device()
+        demods_settings = device.demods()
+        ```
 
         Returns:
             Device settings.

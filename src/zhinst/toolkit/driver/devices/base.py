@@ -3,23 +3,24 @@
 Natively works with all device types and provides the basic functionality like
 the device specific nodetree.
 """
+
+from __future__ import annotations
+
 import copy
 import json
 import logging
 import re
 import typing as t
 import warnings
+from functools import cached_property
 from pathlib import Path
 
-from zhinst.utils._version import version as utils_version_str
 from zhinst.core import __version__ as zhinst_version_str
-
 from zhinst.toolkit._min_version import _MIN_DEVICE_UTILS_VERSION, _MIN_LABONE_VERSION
 from zhinst.toolkit.driver.parsers import node_parser
-from zhinst.toolkit.nodetree import Node, NodeTree
-from zhinst.toolkit.nodetree.helper import lazy_property
 from zhinst.toolkit.exceptions import ToolkitError
-
+from zhinst.toolkit.nodetree import Node, NodeTree
+from zhinst.utils._version import version as utils_version_str
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ class BaseInstrument(Node):
         self,
         serial: str,
         device_type: str,
-        session: "Session",
+        session: Session,
     ):
         self._serial = serial
         self._device_type = device_type
@@ -62,10 +63,10 @@ class BaseInstrument(Node):
         preloaded_json = None
         if "HF2" in self._device_type:
             preloaded_json = self._load_preloaded_json(
-                Path(__file__).parent / "../../resources/nodedoc_hf2.json"
+                Path(__file__).parent / "../../resources/nodedoc_hf2.json",
             )
 
-        self._streaming_nodes: t.Optional[t.List[Node]] = None
+        self._streaming_nodes: t.Optional[list[Node]] = None
 
         nodetree = NodeTree(
             self._session.daq_server,
@@ -75,16 +76,17 @@ class BaseInstrument(Node):
         )
         # Add predefined parseres (in node_parser) to nodetree nodes
         nodetree.update_nodes(
-            node_parser.get(self.__class__.__name__, {}), raise_for_invalid_node=False
+            node_parser.get(self.__class__.__name__, {}),
+            raise_for_invalid_node=False,
         )
 
-        super().__init__(nodetree, tuple())
+        super().__init__(nodetree, ())
 
     def __repr__(self):
         options = f"({self._options})" if self._options else ""
         options = options.replace("\n", ",")
         return str(
-            f"{self.__class__.__name__}({self._device_type}" f"{options},{self.serial})"
+            f"{self.__class__.__name__}({self._device_type}{options},{self.serial})",
         )
 
     def factory_reset(self, *, deep: bool = True, timeout: int = 30) -> None:
@@ -105,13 +107,14 @@ class BaseInstrument(Node):
         self.system.preset.load(1, deep=deep)
         self.system.preset.busy.wait_for_state_change(0, timeout=timeout)
         if self.system.preset.error(deep=True)[1]:
+            msg = f"Failed to load factory preset to device {self.serial.upper()}."
             raise ToolkitError(
-                f"Failed to load factory preset to device {self.serial.upper()}."
+                msg,
             )
         logger.info(f"Factory preset is loaded to device {self.serial.upper()}.")
 
     @staticmethod
-    def _version_string_to_tuple(version: str) -> t.Tuple[int, int, int]:
+    def _version_string_to_tuple(version: str) -> tuple[int, int, int]:
         """Converts a version string into a version tuple.
 
         Args:
@@ -126,8 +129,8 @@ class BaseInstrument(Node):
 
     @staticmethod
     def _check_python_versions(
-        zi_python_version: t.Tuple[int, int, int],
-        zi_utils_version: t.Tuple[int, int, int],
+        zi_python_version: tuple[int, int, int],
+        zi_utils_version: tuple[int, int, int],
     ) -> None:
         """Check if the minimum required zhinst packages are installed.
 
@@ -145,27 +148,33 @@ class BaseInstrument(Node):
                 minimum requirements for zhinst.toolkit
         """
         if zi_python_version < BaseInstrument._version_string_to_tuple(
-            _MIN_LABONE_VERSION
+            _MIN_LABONE_VERSION,
         ):
-            raise ToolkitError(
+            msg = (
                 "zhinst.core version does not match the minimum required version "
                 f"for zhinst.toolkit {zi_python_version} < {_MIN_LABONE_VERSION}. "
                 "Use `pip install --upgrade zhinst` to get the latest version."
             )
-        if zi_utils_version < BaseInstrument._version_string_to_tuple(
-            _MIN_DEVICE_UTILS_VERSION
-        ):
             raise ToolkitError(
+                msg,
+            )
+        if zi_utils_version < BaseInstrument._version_string_to_tuple(
+            _MIN_DEVICE_UTILS_VERSION,
+        ):
+            msg = (
                 "zhinst.utils version does not match the minimum required "
                 f"version for zhinst.toolkit {zi_utils_version} < "
                 f"{_MIN_DEVICE_UTILS_VERSION}. Use `pip install "
                 "--upgrade zhinst.utils` to get the latest version."
             )
+            raise ToolkitError(
+                msg,
+            )
 
     @staticmethod
     def _check_labone_version(
-        zi_python_version: t.Tuple[int, int, int],
-        labone_version: t.Tuple[int, int, int],
+        zi_python_version: tuple[int, int, int],
+        labone_version: tuple[int, int, int],
     ) -> None:
         """Check that the LabOne version matches the zhinst version.
 
@@ -178,17 +187,23 @@ class BaseInstrument(Node):
                 version of the connected LabOne DataServer.
         """
         if labone_version[:2] < zi_python_version[:2]:
-            raise ToolkitError(
+            msg = (
                 "The LabOne version is smaller than the zhinst.core version. "
                 f"{labone_version} < {zi_python_version}. "
                 "Please install the latest/matching LabOne version from "
                 "https://www.zhinst.com/support/download-center."
             )
-        if labone_version[:2] > zi_python_version[:2]:
             raise ToolkitError(
+                msg,
+            )
+        if labone_version[:2] > zi_python_version[:2]:
+            msg = (
                 "the zhinst.core version is smaller than the LabOne version "
                 f"{zi_python_version} < {labone_version}. "
                 "Please install the latest/matching version from pypi.org."
+            )
+            raise ToolkitError(
+                msg,
             )
         if labone_version[-1] != zi_python_version[-1]:
             warnings.warn(
@@ -211,20 +226,29 @@ class BaseInstrument(Node):
         ]
         status_flag = device_info["STATUSFLAGS"]
         if status_flag & 1 << 8:
-            raise ConnectionError(
+            msg = (
                 "The device is currently updating please try again after the update "
                 "process is complete"
             )
+            raise ConnectionError(
+                msg,
+            )
         if status_flag & 1 << 4 or status_flag & 1 << 5:
-            raise ToolkitError(
+            msg = (
                 "The Firmware does not match the LabOne version. "
                 "Please update the firmware (e.g. in the LabOne UI)"
             )
-        if status_flag & 1 << 6 or status_flag & 1 << 7:
             raise ToolkitError(
+                msg,
+            )
+        if status_flag & 1 << 6 or status_flag & 1 << 7:
+            msg = (
                 "The Firmware does not match the LabOne version. "
                 "Please update LabOne to the latest version from "
                 "https://www.zhinst.com/support/download-center."
+            )
+            raise ToolkitError(
+                msg,
             )
 
     def check_compatibility(self) -> None:
@@ -250,14 +274,15 @@ class BaseInstrument(Node):
         labone_version_str = self._session.about.version()
         labone_revision_str = str(self._session.about.revision())[4:]
         labone_version = self._version_string_to_tuple(
-            labone_version_str + "." + labone_revision_str
+            labone_version_str + "." + labone_revision_str,
         )
         self._check_labone_version(
-            self._version_string_to_tuple(zhinst_version_str), labone_version
+            self._version_string_to_tuple(zhinst_version_str),
+            labone_version,
         )
         self._check_firmware_update_status()
 
-    def get_streamingnodes(self) -> t.List[Node]:
+    def get_streamingnodes(self) -> list[Node]:
         """Create a list with all streaming nodes available.
 
         Returns:
@@ -288,7 +313,9 @@ class BaseInstrument(Node):
         json_raw = json.loads(raw_file)
 
         existing_nodes = self._session.daq_server.listNodes(
-            f"/{self.serial}/*", recursive=True, leavesonly=True
+            f"/{self.serial}/*",
+            recursive=True,
+            leavesonly=True,
         )
 
         preloaded_json = {}
@@ -319,7 +346,7 @@ class BaseInstrument(Node):
         Warning:
             The set is always performed as deep set if called on device nodes.
 
-        Examples:
+        Example:
             >>> with device.set_transaction():
                     device.test[0].a(1)
                     device.test[1].a(2)
@@ -328,23 +355,36 @@ class BaseInstrument(Node):
 
     @property
     def serial(self) -> str:
-        """Instrument specific serial."""
+        """Instrument specific serial.
+
+        Returns:
+            Serial number of the device.
+        """
         return self._serial
 
     @property
-    def session(self) -> "Session":
+    def session(self) -> Session:
         """Underlying session to the data server.
 
-        .. versionadded:: 0.5.1
+        Returns:
+            Session object.
         """
         return self._session
 
     @property
     def device_type(self) -> str:
-        """Type of the instrument (e.g. MFLI)."""
+        """Type of the instrument (e.g. MFLI).
+
+        Returns:
+            Device type.
+        """
         return self._device_type
 
-    @lazy_property
+    @cached_property
     def device_options(self) -> str:
-        """Enabled options of the instrument."""
+        """Enabled options of the instrument.
+
+        Returns:
+            Device options.
+        """
         return self.features.options()

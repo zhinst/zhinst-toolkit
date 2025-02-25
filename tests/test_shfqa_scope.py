@@ -3,9 +3,9 @@ from unittest.mock import patch
 import pytest
 
 
-@pytest.fixture()
+@pytest.fixture
 def scope(shfqa):
-    yield shfqa.scopes[0]
+    return shfqa.scopes[0]
 
 
 def test_run(mock_connection, scope):
@@ -14,14 +14,14 @@ def test_run(mock_connection, scope):
     # already enabled
     mock_connection.return_value.getInt.return_value = 1
     mock_connection.return_value.get.return_value = {
-        node: {"timestamp": [0], "value": [1]}
+        node: {"timestamp": [0], "value": [1]},
     }
     scope.run()
     mock_connection.return_value.set.assert_called_with(node, True)
     # never disabled
     mock_connection.return_value.getInt.return_value = 0
     mock_connection.return_value.get.return_value = {
-        node: {"timestamp": [0], "value": [0]}
+        node: {"timestamp": [0], "value": [0]},
     }
     with pytest.raises(TimeoutError) as e_info:
         scope.run(timeout=0.5)
@@ -33,14 +33,14 @@ def test_stop(mock_connection, scope):
     # already disabled
     mock_connection.return_value.getInt.return_value = 0
     mock_connection.return_value.get.return_value = {
-        node: {"timestamp": [0], "value": [0]}
+        node: {"timestamp": [0], "value": [0]},
     }
     scope.stop()
     mock_connection.return_value.set.assert_called_with(node, False)
     # never disabled
     mock_connection.return_value.getInt.return_value = 1
     mock_connection.return_value.get.return_value = {
-        node: {"timestamp": [0], "value": [1]}
+        node: {"timestamp": [0], "value": [1]},
     }
     with pytest.raises(TimeoutError) as e_info:
         scope.stop(timeout=0.5)
@@ -52,13 +52,13 @@ def test_wait_done(mock_connection, scope):
     # already disabled
     mock_connection.return_value.getInt.return_value = 0
     mock_connection.return_value.get.return_value = {
-        node: {"timestamp": [0], "value": [0]}
+        node: {"timestamp": [0], "value": [0]},
     }
     scope.wait_done()
     # never disabled
     mock_connection.return_value.getInt.return_value = 1
     mock_connection.return_value.get.return_value = {
-        node: {"timestamp": [0], "value": [1]}
+        node: {"timestamp": [0], "value": [1]},
     }
     with pytest.raises(TimeoutError) as e_info:
         scope.wait_done(timeout=0.5)
@@ -108,7 +108,9 @@ def test_read(mock_connection, scope):
         )
         recorded_data, recorded_data_range, scope_time = scope.read()
         utils.get_scope_data.assert_called_with(
-            mock_connection.return_value, "DEV1234", timeout=10
+            mock_connection.return_value,
+            "DEV1234",
+            timeout=10,
         )
         assert recorded_data == ["data1", "data2"]
         assert recorded_data_range == ["range1", "range2"]
@@ -117,5 +119,7 @@ def test_read(mock_connection, scope):
         # timout argument is forwarded
         scope.read(timeout=1)
         utils.get_scope_data.assert_called_with(
-            mock_connection.return_value, "DEV1234", timeout=1
+            mock_connection.return_value,
+            "DEV1234",
+            timeout=1,
         )

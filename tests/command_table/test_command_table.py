@@ -1,5 +1,5 @@
 import json
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 import jsonref
 import jsonschema
@@ -82,7 +82,7 @@ def test_header_parent_entry(command_table_schema):
     ct = CommandTable(command_table_schema)
     test_props = dir(ct.header)
     json_props = list(
-        command_table_schema["definitions"]["header"]["properties"].keys()
+        command_table_schema["definitions"]["header"]["properties"].keys(),
     )
     assert test_props.sort() == json_props.sort()
 
@@ -146,7 +146,8 @@ def test_command_table_active_validation(command_table_schema, value):
 
 @pytest.mark.parametrize("value", [True, False])
 def test_command_table_active_validation_change_header_table_true(
-    command_table_schema, value
+    command_table_schema,
+    value,
 ):
     ct = CommandTable(command_table_schema)
     ct.active_validation = value
@@ -203,7 +204,9 @@ def test_command_table_active_validation_header(command_table_schema):
 
 @pytest.mark.parametrize("input_, output", [(1, 1), (40, 40), ("foo", "foo"), (-2, -2)])
 def test_assert_validate_called_parent_entry_attribute_set(
-    input_, output, command_table
+    input_,
+    output,
+    command_table,
 ):
     obj = command_table.table[0]
     with patch("zhinst.toolkit.command_table.jsonschema.validate") as mocked_method:
@@ -298,7 +301,8 @@ def test_modify_completed_command_table(command_table_schema, command_table_comp
 
 
 def test_command_table_schema_version_mismatch(
-    command_table_schema, command_table_completed
+    command_table_schema,
+    command_table_completed,
 ):
     command_table_completed["header"]["version"] = "2.0"
     ct = CommandTable(command_table_schema)

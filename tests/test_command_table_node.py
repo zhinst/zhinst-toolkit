@@ -6,20 +6,20 @@ from unittest.mock import patch
 
 import pytest
 
-from zhinst.toolkit.driver.nodes.command_table_node import CommandTableNode
 from zhinst.toolkit.driver.devices.shfsg import SHFSG
+from zhinst.toolkit.driver.nodes.command_table_node import CommandTableNode
 
 
-@pytest.fixture()
+@pytest.fixture
 def command_table_node(shfsg_no_ct_schema):
-    yield CommandTableNode(
+    return CommandTableNode(
         shfsg_no_ct_schema.root,
         ("sgchannels", "0", "awg", "commandtable"),
         device_type="shfsg",
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def shfsg_no_ct_schema(data_dir, mock_connection, session):
     json_path = data_dir / "nodedoc_dev1234_shfsg.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -31,7 +31,7 @@ def shfsg_no_ct_schema(data_dir, mock_connection, session):
     mock_connection.return_value.listNodesJSON.return_value = nodes_json
 
     mock_connection.return_value.getString.return_value = ""
-    yield SHFSG("DEV1234", "SHFSG8", session)
+    return SHFSG("DEV1234", "SHFSG8", session)
 
 
 def test_attributes_init_node(command_table_node):
@@ -43,8 +43,8 @@ def test_ct_schema_load_from_device(shfsg, mock_connection):
     ct_schema = '{\n  "$schema": "https://json-schema.org/draft-04/schema#",\n  "title": "AWG Command Table Schema",\n}\n'
     d = {
         "/dev1234/sgchannels/0/awg/commandtable/schema": [
-            {"timestamp": 31066847852080, "flags": 0, "vector": ct_schema}
-        ]
+            {"timestamp": 31066847852080, "flags": 0, "vector": ct_schema},
+        ],
     }
     schema_rturn = OrderedDict(d)
     mock_connection.return_value.get.return_value = schema_rturn
@@ -54,7 +54,8 @@ def test_ct_schema_load_from_device(shfsg, mock_connection):
 def test_correct_ct_node_schema_loaded(shfsg_no_ct_schema):
     mock_json = {"test ": 123}
     with patch(
-        "builtins.open", mock.mock_open(read_data=json.dumps(mock_json))
+        "builtins.open",
+        mock.mock_open(read_data=json.dumps(mock_json)),
     ) as mock_open:
         assert (
             shfsg_no_ct_schema.sgchannels[0].awg.commandtable.load_validation_schema()
@@ -84,14 +85,17 @@ def test_correct_ct_node_schema_loaded(shfsg_no_ct_schema):
                 {
                     "header": {"version": "1.1", "userString": "Test string"},
                     "table": [],
-                }
+                },
             ),
             False,
         ),
     ],
 )
 def test_ct_node_upload_to_device(
-    payload, validate, mock_connection, command_table_node
+    payload,
+    validate,
+    mock_connection,
+    command_table_node,
 ):
     mock_connection.return_value.set = mock.Mock(side_effect=RuntimeError)
     command_table_node.check_status = mock.Mock(return_value=True)
@@ -130,8 +134,8 @@ def shfsg_ct_node(mock_connection, shfsg_no_ct_schema):
                     "timestamp": array("q", [3880906635]),
                     "value": [schema],
                 },
-            )
-        ]
+            ),
+        ],
     )
     return CommandTableNode(
         shfsg_no_ct_schema.root,
@@ -151,7 +155,9 @@ def test_ct_node_load_from_device_correct_data(shfsg_ct_node, mock_connection):
 def test_ct_node_load_from_device_correct_node(shfsg_ct_node, mock_connection):
     shfsg_ct_node.load_from_device()
     mock_connection.return_value.get.assert_called_with(
-        "/dev1234/sgchannels/0/awg/commandtable/data", settingsonly=False, flat=True
+        "/dev1234/sgchannels/0/awg/commandtable/data",
+        settingsonly=False,
+        flat=True,
     )
 
 
@@ -179,5 +185,5 @@ def test_ct_node_status_called(command_table_node, mock_connection):
     mock_connection.return_value.getInt.return_value = 1
     command_table_node.check_status()
     mock_connection.return_value.getInt.assert_called_with(
-        "/dev1234/sgchannels/0/awg/commandtable/status"
+        "/dev1234/sgchannels/0/awg/commandtable/status",
     )

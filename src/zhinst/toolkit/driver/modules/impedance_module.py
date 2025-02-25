@@ -1,13 +1,13 @@
 """Impedance Module."""
 
-import logging
-import typing as t
-import time
+from __future__ import annotations
 
+import logging
+import time
+import typing as t
 from collections.abc import Sequence
 
 from zhinst.core import ImpedanceModule as ZIImpedanceModule
-
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 
 if t.TYPE_CHECKING:  # pragma: no cover
@@ -29,9 +29,7 @@ class CalibrationStatus(int, Sequence):
     individual steps through items (e.g. module.step[0]).
 
     Args:
-        value: Integer value of the status.
-
-    .. versionadded:: 0.5.1
+        value (int): Integer value of the status.
     """
 
     def __new__(cls, value: int):
@@ -40,14 +38,14 @@ class CalibrationStatus(int, Sequence):
         Args:
             value: Integer value of the status.
         """
-        new_object = super(CalibrationStatus, cls).__new__(cls, value)
+        new_object = super().__new__(cls, value)
         new_object._value = value  # type: ignore[attr-defined]
         new_object._binary = new_object._to_binary()  # type: ignore[attr-defined]
         return new_object
 
     def __repr__(self):
         return ", ".join(
-            [f"step {i}: {bool(value)}" for i, value in enumerate(self._binary)]
+            [f"step {i}: {bool(value)}" for i, value in enumerate(self._binary)],
         )
 
     def _to_binary(self):
@@ -76,16 +74,13 @@ class ImpedanceModule(BaseModule):
     compensation that will be applied to impedance measurements.
 
     For a complete documentation see the LabOne user manual
-    https://docs.zhinst.com/labone_programming_manual/impedance_module.html
 
     Args:
         impedance_module: Instance of the core Impedance Module.
         session: Session to the Data Server.
-
-    .. versionadded:: 0.5.1
     """
 
-    def __init__(self, impedance_module: ZIImpedanceModule, session: "Session"):
+    def __init__(self, impedance_module: ZIImpedanceModule, session: Session):
         super().__init__(impedance_module, session)
         self.root.update_nodes(
             {
@@ -123,18 +118,25 @@ class ImpedanceModule(BaseModule):
             logger.info(f"Progress: {(self.progress() * 100):.1f}%")
             time.sleep(sleep_time)
         if self.progress() < 1:
-            raise TimeoutError("Impedance module timed out.")
+            msg = "Impedance module timed out."
+            raise TimeoutError(msg)
         if not self.finished(step):
             if step is None:
-                raise RuntimeError(
+                msg = (
                     "Impedance module did not reach the status "
                     f"{CalibrationStatus(self.expectedstatus())} that "
                     "corresponds to a full compensation. "
                     f"(current status: {CalibrationStatus(self.status())})"
                 )
-            raise RuntimeError(
+                raise RuntimeError(
+                    msg,
+                )
+            msg = (
                 f"Impedance module did not finish the requested step {step}. "
                 f"(current status: {CalibrationStatus(self.status())})"
+            )
+            raise RuntimeError(
+                msg,
             )
 
     def finish(self) -> None:

@@ -1,9 +1,10 @@
 """zhinst-toolkit spectroscopy node adaptions."""
+
 import logging
 
 import numpy as np
-import zhinst.utils.shfqa as utils
 
+import zhinst.utils.shfqa as utils
 from zhinst.toolkit.interface import AveragingMode
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import not_callable_in_transactions
@@ -85,12 +86,17 @@ class Spectroscopy(Node):
         self.result.enable(False)
         try:
             self.result.enable.wait_for_state_change(
-                0, timeout=timeout, sleep_time=sleep_time
+                0,
+                timeout=timeout,
+                sleep_time=sleep_time,
             )
         except TimeoutError as error:
-            raise TimeoutError(
-                f"{repr(self)}: The result logger could not been stopped "
+            msg = (
+                f"{self!r}: The result logger could not been stopped "
                 f"within the specified timeout ({timeout}s)."
+            )
+            raise TimeoutError(
+                msg,
             ) from error
 
     def wait_done(self, *, timeout: float = 10, sleep_time: float = 0.05) -> None:
@@ -109,12 +115,17 @@ class Spectroscopy(Node):
         """
         try:
             self.result.enable.wait_for_state_change(
-                0, timeout=timeout, sleep_time=sleep_time
+                0,
+                timeout=timeout,
+                sleep_time=sleep_time,
             )
         except TimeoutError as error:
-            raise TimeoutError(
-                f"{repr(self)}: The spectroscopy did not finish "
+            msg = (
+                f"{self!r}: The spectroscopy did not finish "
                 f"within the specified timeout ({timeout}s)."
+            )
+            raise TimeoutError(
+                msg,
             ) from error
 
     @not_callable_in_transactions

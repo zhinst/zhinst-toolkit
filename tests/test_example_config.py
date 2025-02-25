@@ -1,7 +1,8 @@
-import yaml
 import os
 from glob import glob
 from pathlib import Path
+
+import yaml
 
 EXAMPLES_DIRECTORY = "examples/"
 

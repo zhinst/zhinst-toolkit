@@ -1,36 +1,183 @@
-[tool.black]
-line-length = 88
-target-version = ['py37']
-include = '\.pyi?$'
-required-version = "22.8.0"
-extend-exclude = '''
-/(
-  | .mypy-cache
-  | .tox
-  | venv*
-  | docs
-  | build
-  | dist
-)/
-'''
-
-[tool.isort]
-profile = "black"
-src_paths = ["src", "tests"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests", "scripts/tests"]
-addopts = "-l"
-filterwarnings = ["ignore::DeprecationWarning"]
-
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel",
-    "setuptools_scm[toml]"
-]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
-[tool.setuptools_scm]
-"write_to" = "src/zhinst/toolkit/_version.py"
-"local_scheme" = "no-local-version"
+[project]
+name = "zhinst-toolkit"
+dynamic = ["version"]
+authors = [{ name = "Zurich Instrument", email = "info@zhinst.com" }]
+description = "Zurich Instruments Toolkit High Level API"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering",
+]
+dependencies = [
+  "numpy>=1.13",
+  "zhinst-core>=23.06",
+  "zhinst-utils>=0.4.0",
+  "jsonschema>=3.2.0",
+  "jsonref>=0.2",
+  "typing_extensions>=4.1.1",
+  "pyelftools>=0.29",
+]
+
+[project.urls]
+homepage = "https://github.com/zhinst/zhinst-toolkit"
+
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/zhinst/toolkit/_version.py"
+
+[tool.hatch.build.targets.sdist]
+exclude = ["/.github", "/docs"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/zhinst"]
+only-include = ["src/zhinst/toolkit"]
+
+[[tool.hatch.envs.test.matrix]]
+python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
+
+[tool.hatch.envs.test]
+dependencies = ["coverage[toml]>=6.5", "hypothesis", "pytest", "pytest-asyncio"]
+
+[tool.hatch.envs.test.scripts]
+test = "pytest {args:tests}"
+test-cov = "coverage run -m pytest"
+cov-report = [
+  "- coverage combine",
+  "coverage report",
+  "coverage html",
+  "coverage xml",
+]
+cov = ["test-cov", "cov-report"]
+
+[tool.hatch.envs.docs]
+post-install-commands = [
+  'pip install --extra-index-url="https://artifactory.zhinst.com/artifactory/api/pypi/ZIPyPI/simple" mkdocs-zhinst ',
+]
+
+[tool.hatch.envs.docs.scripts]
+build = ["mkdocs-zhinst build"]
+serve = ["mkdocs-zhinst serve"]
+
+[[tool.hatch.envs.lint.matrix]]
+python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
+
+[tool.hatch.envs.lint]
+dependencies = [
+  "black>=24.8.0",
+  "mypy>=1.11.2",
+  "ruff>=0.6.4",
+  "numpy>=1.20",
+  "zhinst-comms~=3.0",
+]
+
+[tool.hatch.envs.lint.scripts]
+typing = "mypy --install-types --non-interactive -p zhinst.toolkit"
+style = ["ruff check {args:.}", "black --check --diff {args:.}"]
+fmt = ["black {args:.}", "ruff check --fix {args:.}", "style"]
+unsafe = ["ruff check --fix --unsafe-fixes {args:.}"]
+all = ["style", "typing"]
+
+[tool.black]
+target-version = ["py39"]
+
+[tool.ruff]
+src = ["src"]
+extend-exclude = ["tests", "scripts", "examples", "docs"]
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+  # Missing docstring in `__init__`
+  "D107",
+  # Missing docstring in magic method
+  "D105",
+  # Missing type annotation for `*args`
+  "ANN002",
+  # Missing type annotation for `**kwargs`
+  "ANN003",
+  # Too many return statements
+  "PLR0911",
+  # Missing return type annotation for special method
+  "ANN204",
+  # Too many arguments in function definition
+  "PLR0913",
+  # Magic value used in comparison
+  "PLR2004",
+  # Dynamically typed expressions (typing.Any) are disallowed
+  "ANN401",
+  # Boolean positional value in function call
+  "FBT003",
+  # TODO fix
+  "B005",
+  "ANN001",
+  "UP007",
+  "ISC003",
+  "C901",
+  "FBT002",
+  "FBT001",
+  "PYI034",
+  "ANN202",
+  "D417",
+  "TC001",
+  "PGH003",
+  "PERF203",
+  "ANN201",
+  "D418",
+  "N802",
+  "SLF001",
+  "ANN205",
+  "SIM105",
+  "PYI024",
+  "ARG002",
+  "PERF403",
+  "G004",
+  "PERF401",
+  "TC002",
+  "PTH123",
+  "E501",
+  "RUF002",
+  "ERA001",
+  "TRY300",
+  "RUF034",
+]
+
+[tool.ruff.lint.flake8-annotations]
+mypy-init-return = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.mypy]
+disable_error_code = [
+  "attr-defined",
+  "import-untyped",
+  "arg-type",
+  "typeddict-item",
+  "return-value",
+  "misc",
+  "union-attr",
+  "index",
+]
+

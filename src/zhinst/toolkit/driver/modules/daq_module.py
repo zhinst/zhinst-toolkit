@@ -1,12 +1,14 @@
 """DAQ Module."""
 
+from __future__ import annotations
+
 import logging
 import typing as t
 from collections import namedtuple
 
 import numpy as np
-from zhinst.core import DataAcquisitionModule as ZIDAQModule
 
+from zhinst.core import DataAcquisitionModule as ZIDAQModule
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 from zhinst.toolkit.nodetree.helper import NodeDict
 
@@ -28,28 +30,29 @@ class DAQModule(BaseModule):
     oscilloscopes.
 
     For a complete documentation see the LabOne user manual
-    https://docs.zhinst.com/labone_programming_manual/data_acquisition_module.html
 
     Args:
         daq_module: Instance of the core DAQ module.
         session: Session to the Data Server.
     """
 
-    def __init__(self, daq_module: ZIDAQModule, session: "Session"):
+    def __init__(self, daq_module: ZIDAQModule, session: Session):
         super().__init__(daq_module, session)
         self.root.update_nodes(
             {
                 "/triggernode": {
                     "GetParser": self._get_node,
                     "SetParser": self._set_node,
-                }
+                },
             },
             raise_for_invalid_node=False,
         )
 
     @staticmethod
     def _process_burst(
-        node: str, burst: t.Dict[str, t.Any], clk_rate: float
+        node: str,
+        burst: dict[str, t.Any],
+        clk_rate: float,
     ) -> DAQResult:
         """Process a single burst into a formatted DAQResult object.
 
@@ -88,8 +91,10 @@ class DAQModule(BaseModule):
 
     @staticmethod
     def _process_node_data(
-        node: str, data: t.List[t.Dict[str, t.Any]], clk_rate: float
-    ) -> t.List[t.Union[t.Dict[str, t.Any], DAQResult]]:
+        node: str,
+        data: list[dict[str, t.Any]],
+        clk_rate: float,
+    ) -> list[t.Union[dict[str, t.Any], DAQResult]]:
         """Process the data of a node.
 
         Only subscribed sample nodes are processed. Other nodes (module native nodes)
@@ -109,10 +114,7 @@ class DAQModule(BaseModule):
         return data
 
     def finish(self) -> None:
-        """Stop the module.
-
-        .. versionadded:: 0.5.0
-        """
+        """Stop the module."""
         self._raw_module.finish()
 
     def finished(self) -> bool:
@@ -120,16 +122,11 @@ class DAQModule(BaseModule):
 
         Returns:
             Flag if the acquisition has finished.
-
-        .. versionadded:: 0.5.0
         """
         return self._raw_module.finished()
 
     def trigger(self) -> None:
-        """Execute a manual trigger.
-
-        .. versionadded:: 0.5.0
-        """
+        """Execute a manual trigger."""
         self._raw_module.trigger()
 
     def read(self, *, raw: bool = False, clk_rate: float = 60e6) -> NodeDict:
@@ -154,5 +151,5 @@ class DAQModule(BaseModule):
             {
                 node: self._process_node_data(node, data, clk_rate)
                 for node, data in raw_result.items()
-            }
+            },
         )

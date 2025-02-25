@@ -1,16 +1,20 @@
 """zhinst-toolkit readout node adaptions."""
+
+from __future__ import annotations
+
 import logging
 import typing as t
+from functools import cached_property
 
 import numpy as np
-import zhinst.utils.shfqa as utils
-from zhinst.toolkit.exceptions import ToolkitError
 
+import zhinst.utils.shfqa as utils
+from zhinst.toolkit.driver.nodes.multistate import MultiState
+from zhinst.toolkit.exceptions import ToolkitError
 from zhinst.toolkit.interface import AveragingMode
 from zhinst.toolkit.nodetree import Node, NodeTree
-from zhinst.toolkit.nodetree.helper import lazy_property, not_callable_in_transactions
+from zhinst.toolkit.nodetree.helper import not_callable_in_transactions
 from zhinst.toolkit.waveform import Waveforms
-from zhinst.toolkit.driver.nodes.multistate import MultiState
 
 logger = logging.getLogger(__name__)
 
@@ -96,12 +100,17 @@ class Readout(Node):
         self.result.enable(False)
         try:
             self.result.enable.wait_for_state_change(
-                0, timeout=timeout, sleep_time=sleep_time
+                0,
+                timeout=timeout,
+                sleep_time=sleep_time,
             )
         except TimeoutError as error:
-            raise TimeoutError(
-                f"{repr(self)}: The result logger could not been stopped "
+            msg = (
+                f"{self!r}: The result logger could not been stopped "
                 f"within the specified timeout ({timeout}s)."
+            )
+            raise TimeoutError(
+                msg,
             ) from error
 
     def wait_done(self, *, timeout: float = 10, sleep_time: float = 0.05) -> None:
@@ -118,12 +127,17 @@ class Readout(Node):
         """
         try:
             self.result.enable.wait_for_state_change(
-                0, timeout=timeout, sleep_time=sleep_time
+                0,
+                timeout=timeout,
+                sleep_time=sleep_time,
             )
         except TimeoutError as error:
-            raise TimeoutError(
-                f"{repr(self)}: The readout did not finish "
+            msg = (
+                f"{self!r}: The readout did not finish "
                 f"within the specified timeout ({timeout}s)."
+            )
+            raise TimeoutError(
+                msg,
             ) from error
 
     @not_callable_in_transactions
@@ -141,7 +155,11 @@ class Readout(Node):
             Result logger data.
         """
         return utils.get_result_logger_data(
-            self._daq_server, self._serial, self._index, mode="readout", timeout=timeout
+            self._daq_server,
+            self._serial,
+            self._index,
+            mode="readout",
+            timeout=timeout,
         )
 
     def write_integration_weights(
@@ -169,13 +187,16 @@ class Readout(Node):
             len(weights.keys()) > 0
             and max(weights.keys()) >= self._max_qubits_per_channel
         ):
-            raise ToolkitError(
+            msg = (
                 f"The device only has {self._max_qubits_per_channel} qubits per channel"
                 f", but {max(weights.keys())} were specified."
             )
+            raise ToolkitError(
+                msg,
+            )
         waveform_dict = {}
         if isinstance(weights, Waveforms):
-            for slot in weights.keys():
+            for slot in weights:
                 waveform_dict[slot] = weights.get_raw_vector(slot, complex_output=True)
         else:
             waveform_dict = weights
@@ -190,7 +211,10 @@ class Readout(Node):
         )
         self._send_set_list(settings)
 
-    def read_integration_weights(self, slots: t.List[int] = None) -> Waveforms:
+    def read_integration_weights(
+        self,
+        slots: t.Optional[list[int]] = None,
+    ) -> Waveforms:
         """Read integration weights from the waveform memory.
 
         Args:
@@ -213,9 +237,12 @@ class Readout(Node):
             weights[slot] = weight[0]["vector"]
         return weights
 
-    @lazy_property
+    @cached_property
     def multistate(self) -> MultiState:
         """Multistate discrimination node tree branch."""
         return MultiState(
-            self._root, self._tree + ("multistate",), self._serial, self._index
+            self._root,
+            (*self._tree, "multistate"),
+            self._serial,
+            self._index,
         )

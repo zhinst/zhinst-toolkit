@@ -1,12 +1,13 @@
 """PQSC and QHub base Instrument Driver."""
 
+from __future__ import annotations
+
 import logging
 import time
-from typing import List, Union
+from typing import Optional, Union
 
 from zhinst.toolkit.driver.devices.base import BaseInstrument
 from zhinst.toolkit.exceptions import ToolkitError
-
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,12 @@ class QuantumSystemHub(BaseInstrument):
         """
         self.execution.enable(True, deep=deep)
 
-    def arm_and_run(self, *, repetitions: int = None, holdoff: float = None) -> None:
+    def arm_and_run(
+        self,
+        *,
+        repetitions: Optional[int] = None,
+        holdoff: Optional[float] = None,
+    ) -> None:
         """Arm the PQSC/QHub and start sending out triggers.
 
         Simply combines the methods arm and run. A synchronization
@@ -77,13 +83,19 @@ class QuantumSystemHub(BaseInstrument):
         """
         try:
             self.execution.enable.wait_for_state_change(
-                0, timeout=timeout, sleep_time=sleep_time
+                0,
+                timeout=timeout,
+                sleep_time=sleep_time,
             )
         except TimeoutError as error:
-            raise TimeoutError(f"{self.__class__.__name__:s} timed out.") from error
+            msg = f"{self.__class__.__name__:s} timed out."
+            raise TimeoutError(msg) from error
 
     def check_ref_clock(
-        self, *, timeout: float = 30.0, sleep_time: float = 1.0
+        self,
+        *,
+        timeout: float = 30.0,
+        sleep_time: float = 1.0,
     ) -> bool:
         """Check if reference clock is locked successfully.
 
@@ -102,11 +114,15 @@ class QuantumSystemHub(BaseInstrument):
         ref_clock_actual = self.system.clocks.referenceclock.in_.sourceactual
         try:
             ref_clock_status.wait_for_state_change(
-                2, invert=True, timeout=timeout, sleep_time=sleep_time
+                2,
+                invert=True,
+                timeout=timeout,
+                sleep_time=sleep_time,
             )
         except TimeoutError as error:
+            msg = "Timeout during locking to reference clock signal"
             raise TimeoutError(
-                "Timeout during locking to reference clock signal"
+                msg,
             ) from error
         if ref_clock_status() == 0:
             return True
@@ -115,17 +131,17 @@ class QuantumSystemHub(BaseInstrument):
             logger.error(
                 f"There was an error locking the device({self.serial}) "
                 f"onto reference clock signal. Automatically switching to internal "
-                f"reference clock. Please try again."
+                f"reference clock. Please try again.",
             )
         return False
 
     def check_zsync_connection(
         self,
-        inputs: Union[List[int], int, List[BaseInstrument], BaseInstrument],
+        inputs: Union[list[int], int, list[BaseInstrument], BaseInstrument],
         *,
         timeout: float = 10.0,
         sleep_time: float = 0.1,
-    ) -> Union[List[bool], bool]:
+    ) -> Union[list[bool], bool]:
         """Check if a ZSync connection is established.
 
         Checks the current status of the instrument connected to the given ports.
@@ -140,11 +156,6 @@ class QuantumSystemHub(BaseInstrument):
             sleep_time: Time in seconds to wait between requesting the reference
                 clock status (default: 0.1)
 
-            .. versionchanged:: 0.6.1: Reduce default timeout and sleep_time.
-            .. versionchanged:: 0.6.1: Raise an error if the port is in a faulty
-                                       state, instead of return False.
-
-
         Raises:
             TimeoutError: If the process of establishing a ZSync connection on
                 one of the specified ports exceeds the specified timeout.
@@ -155,16 +166,16 @@ class QuantumSystemHub(BaseInstrument):
 
         # Check the status of all ports
         status = []
-        for input in inputs_list:
+        for input_value in inputs_list:
             # Convert the instrument into a port, if needed
-            if isinstance(input, BaseInstrument):
+            if isinstance(input_value, BaseInstrument):
                 port = self.find_zsync_worker_port(
-                    input,
+                    input_value,
                     timeout=max(0, timeout - (time.time() - start_time)),
                     sleep_time=sleep_time,
                 )
             else:
-                port = input
+                port = input_value
 
             # Check or wait until the connection is ready
             status.append(
@@ -172,12 +183,15 @@ class QuantumSystemHub(BaseInstrument):
                     port,
                     timeout=max(0, timeout - (time.time() - start_time)),
                     sleep_time=sleep_time,
-                )
+                ),
             )
         return status if isinstance(inputs, list) else status[0]
 
     def _check_zsync_connection(
-        self, port: int, timeout: float, sleep_time: float
+        self,
+        port: int,
+        timeout: float,
+        sleep_time: float,
     ) -> bool:
         """Check if the ZSync connection on the given port is successful.
 
@@ -238,16 +252,12 @@ class QuantumSystemHub(BaseInstrument):
             sleep_time: Time in seconds to wait between requesting the port
                 serials list (default: 0.1)
 
-            .. versionchanged:: 0.6.1: Added timeout and sleep_time parameters.
-
         Returns:
             Index of the searched PQSC/QHub ZSync port.
 
         Raises:
             ToolkitError: If the given device doesn't appear to be connected
                 to the PQSC/QHub via ZSync.
-
-        .. versionadded:: 0.5.1
         """
         device_serial = device.serial[3:]
 
@@ -260,9 +270,12 @@ class QuantumSystemHub(BaseInstrument):
 
             time.sleep(sleep_time)
         else:
-            raise ToolkitError(
+            msg = (
                 f"No ZSync connection found between {self.__class__.__name__:s}"
                 f"{self.serial:s} and the device {device.serial:s}."
+            )
+            raise ToolkitError(
+                msg,
             )
 
         # Get the node of the ZSync connected to the device

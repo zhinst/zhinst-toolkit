@@ -1,4 +1,7 @@
 """Dictionary like waveform representation."""
+
+from __future__ import annotations
+
 import json
 import typing as t
 import warnings
@@ -7,26 +10,25 @@ from enum import IntFlag
 from io import BytesIO
 
 import numpy as np
-from elftools.elf.elffile import ELFFile
 from elftools.common.exceptions import ELFError
-from zhinst.utils import convert_awg_waveform, parse_awg_waveform
+from elftools.elf.elffile import ELFFile
 
 from zhinst.toolkit.exceptions import ValidationError
+from zhinst.utils import convert_awg_waveform, parse_awg_waveform
 
-_Waveform = t.Tuple[np.ndarray, t.Optional[np.ndarray], t.Optional[np.ndarray]]
+_Waveform = tuple[np.ndarray, t.Optional[np.ndarray], t.Optional[np.ndarray]]
 
 
 class OutputType(IntFlag):
     """Waveform output type.
 
-    OUT1: Enables the output 1 for the respective wave.
-    OUT2: Enables the output 2 for the respective wave.
-
-    .. versionadded:: 0.3.5
+    Attributes:
+        OUT1: Enables the output 1 for the respective wave.
+        OUT2: Enables the output 2 for the respective wave.
     """
 
-    OUT1 = 1
-    OUT2 = 2
+    OUT1: int = 1
+    OUT2: int = 2
 
 
 class Wave(np.ndarray):
@@ -46,8 +48,6 @@ class Wave(np.ndarray):
         name: optional name of the waveform in the sequencer code snippet.
         output: optional output configuration for the waveform in the
                 sequencer code snippet.
-
-    .. versionadded:: 0.3.5
     """
 
     def __new__(
@@ -55,7 +55,7 @@ class Wave(np.ndarray):
         input_array,
         name: t.Optional[str] = None,
         output: t.Optional[OutputType] = None,
-    ) -> "Wave":
+    ) -> Wave:
         """Casts an existing ndarray to a Wave type.
 
         Args:
@@ -87,14 +87,16 @@ class Waveforms(MutableMapping):
     (wave1, wave2, marker).
 
     The value tuple(wave1, wave2=None, marker=None) consists of the following parts:
-        * wave1 (array): Array with data of waveform 1.
-        * wave2 (array): Array with data of waveform 2.
-        * markers (array): Array with marker data.
+
+    * wave1 (array): Array with data of waveform 1.
+    * wave2 (array): Array with data of waveform 2.
+    * markers (array): Array with marker data.
 
     A helper function exist called `assign_waveform` which provides an easy way
     of assigning waveforms to slots. But one can also use the direct dictionary
     access:
 
+    ```
     >>> wave = 1.0 * np.ones(1008)
     >>> markers = np.zeros(1008)
     >>> waveforms = Waveforms()
@@ -106,6 +108,7 @@ class Waveforms(MutableMapping):
     >>> waveforms[5] = (wave, -wave)
     >>> waveforms[6] = (wave, -wave, markers)
     >>> waveforms[7] = (wave, None, markers)
+    ```
 
     The arrays can be provided as arrays of integer, float. The first wave also
     can be of type complex. In that case the second waveform must be `None`.
@@ -201,6 +204,7 @@ class Waveforms(MutableMapping):
         """Assigns a tuple of waves to the slot.
 
         The passed waves are validated against the following requirements:
+
         * At least one wave must be defined
         * At most three waves are defined
         * The waves must by numpy arrays
@@ -211,9 +215,12 @@ class Waveforms(MutableMapping):
             RuntimeError: If the tuple does not comply to the requirements.
         """
         if len(value) < 1 or len(value) > 3:
-            raise RuntimeError(
+            msg = (
                 "Only one(complex) or two(real) waveforms (plus an optional marker) "
                 f"can be specified per waveform. ({len(value)} where specified."
+            )
+            raise RuntimeError(
+                msg,
             )
         if (
             not isinstance(value[0], np.ndarray)
@@ -228,17 +235,23 @@ class Waveforms(MutableMapping):
                 and not isinstance(value[2], np.ndarray)
             )
         ):
-            raise RuntimeError("Waveform must be specified as numpy.arrays")
+            msg = "Waveform must be specified as numpy.arrays"
+            raise RuntimeError(msg)
         if len(value) >= 2 and value[1] is not None and len(value[0]) != len(value[1]):
-            raise RuntimeError("The two waves must have the same length")
+            msg = "The two waves must have the same length"
+            raise RuntimeError(msg)
         if len(value) == 3 and value[2] is not None and len(value[0]) != len(value[2]):
+            msg = "The marker must have the same length than the waveforms"
             raise RuntimeError(
-                "The marker must have the same length than the waveforms"
+                msg,
             )
         if np.iscomplexobj(value[0]) and not (len(value) < 3 or value[1] is None):
-            raise RuntimeError(
+            msg = (
                 "The first waveform is complex therefore only one "
                 "waveform can be specified."
+            )
+            raise RuntimeError(
+                msg,
             )
         self._waveforms[slot] = tuple(
             w.view(Wave) if w is not None else None for w in value
@@ -268,11 +281,6 @@ class Waveforms(MutableMapping):
 
         Raises:
             ValueError: The length of the waves does not match the target length.
-
-        .. versionchanged:: 0.4.2
-
-            Removed `target_length` flag and functionality. The length check is
-            now done in the `validate` function.
         """
         waves = self._waveforms[slot]
         wave1 = np.zeros(1) if len(waves[0]) == 0 else waves[0]
@@ -280,11 +288,19 @@ class Waveforms(MutableMapping):
         marker = waves[2]
         if complex_output and np.iscomplexobj(wave1):
             if wave2 is not None or marker is not None:
-                warnings.warn("Complex values do not support markers", RuntimeWarning)
+                warnings.warn(
+                    "Complex values do not support markers",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
             return wave1
         if complex_output and not np.iscomplexobj(wave1):
             if marker is not None:
-                warnings.warn("Complex values do not support markers", RuntimeWarning)
+                warnings.warn(
+                    "Complex values do not support markers",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
             complex_wave = np.zeros(wave1.shape, dtype=np.complex128)
             complex_wave.real = wave1
             if wave2 is not None:
@@ -306,16 +322,15 @@ class Waveforms(MutableMapping):
         """Get sequencer code snippet for a single waveform.
 
         The sequencer code snippet is generated with the following information:
-            * Waveform length
-            * Waveform index
-            * presence of markers and for which channel
-            * Defined names of the waveforms (if set)
-            * Defined output configuration (if set)
+
+        * Waveform length
+        * Waveform index
+        * presence of markers and for which channel
+        * Defined names of the waveforms (if set)
+        * Defined output configuration (if set)
 
         Returns:
             Sequencer code snippet.
-
-        .. versionadded:: 0.3.5
         """
         waves = self._waveforms[index]
         wave_length = max(1, waves[0].size)
@@ -336,7 +351,7 @@ class Waveforms(MutableMapping):
         marker = None if marker is None else np.unpackbits(marker.astype(np.uint8))
 
         def marker_to_bool(i: int) -> str:
-            return "true" if np.any(marker[7 - i :: 8]) else "false"  # noqa: E203
+            return "true" if np.any(marker[7 - i :: 8]) else "false"
 
         def to_wave_str(i: int) -> str:
             if marker is None:
@@ -379,11 +394,11 @@ class Waveforms(MutableMapping):
         function generates a sequencer code snippet that can be used to define
         the given waveforms. The following information will be used:
 
-            * Waveform length
-            * Waveform index
-            * presence of markers and for which channel
-            * Defined names of the waveforms (if set)
-            * Defined output configuration (if set)
+        * Waveform length
+        * Waveform index
+        * presence of markers and for which channel
+        * Defined names of the waveforms (if set)
+        * Defined output configuration (if set)
 
         Example:
             >>> waveform = Waveform()
@@ -407,14 +422,12 @@ class Waveforms(MutableMapping):
 
         Returns:
             Sequencer Code snippet.
-
-        .. versionadded:: 0.3.5
         """
         return "\n".join(
             [
                 self._get_waveform_sequence(slot)
                 for slot in sorted(self._waveforms.keys())
-            ]
+            ],
         )
 
     def validate(self, meta_info: t.Union[bytes, str], *, allow_missing=True) -> None:
@@ -438,8 +451,6 @@ class Waveforms(MutableMapping):
             TypeError: If the meta_info are not a compiled elf file, string or
                 dictionary.
             ValidationError: If the Validation fails.
-
-        .. versionadded:: 0.4.2
         """
         waveform_info = {}
         try:
@@ -450,14 +461,15 @@ class Waveforms(MutableMapping):
             if isinstance(meta_info, str):
                 waveform_info = json.loads(meta_info)["waveforms"]
             elif isinstance(meta_info, dict):
-                waveform_info = (
-                    meta_info["waveforms"] if "waveforms" in meta_info else meta_info
-                )
+                waveform_info = meta_info.get("waveforms", meta_info)
             else:
-                raise TypeError(
+                msg = (
                     "meta_info needs to be an elf file or the waveform descriptor from "
                     "the device (e.g. device.awgs[0].waveform.descriptor(). The passed "
-                    f"meta_info are of type {type(meta_info)} ({str(meta_info)})."
+                    f"meta_info are of type {type(meta_info)} ({meta_info!s})."
+                )
+                raise TypeError(
+                    msg,
                 ) from e
         defined_wave_lengths = {
             index: wave["length"]
@@ -467,35 +479,50 @@ class Waveforms(MutableMapping):
         }
         for index, waves in self._waveforms.items():
             if index >= len(waveform_info):
-                raise IndexError(
+                msg = (
                     f"There are {len(waveform_info)} waveforms defined on the device "
                     f"but the passed waveforms specified one with index {index}."
+                )
+                raise IndexError(
+                    msg,
                 )
             try:
                 target_length = int(defined_wave_lengths[index])
             except KeyError as e:
                 if "__filler" in waveform_info[index]["name"]:
-                    raise ValidationError(
+                    msg = (
                         f"The waveform at index {index} is only "
                         "a filler and can not be overwritten."
+                    )
+                    raise ValidationError(
+                        msg,
                     ) from e
-                raise ValidationError(
+                msg = (
                     f"The waveform at index {index} is not a placeholder but of "
                     f"type {waveform_info[index]['name'].lstrip('__')[:-4]}"
+                )
+                raise ValidationError(
+                    msg,
                 ) from e
             wave_length = max(len(waves[0]), 1)
             if wave_length != target_length:
                 # Waveforms can only be to short since the compiler always rounds
                 # up the length to next valid value.
-                raise ValidationError(
+                msg = (
                     f"Waveforms at index {index} are smaller than the target length "
                     f"{wave_length} < {target_length}."
                 )
+                raise ValidationError(
+                    msg,
+                )
         if not allow_missing and len(defined_wave_lengths) > len(self._waveforms):
             missing_indexes = [
-                i for i in defined_wave_lengths.keys() if i not in self._waveforms
+                i for i in defined_wave_lengths if i not in self._waveforms
             ]
-            raise ValidationError(
+            msg = (
                 "The the sequencer code defines placeholder waveforms for the "
                 f"following indexes that are missing in this object: {missing_indexes}"
+            )
+            raise ValidationError(
+                msg,
             )

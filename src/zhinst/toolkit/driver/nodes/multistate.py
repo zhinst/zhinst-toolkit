@@ -1,15 +1,14 @@
 """zhinst-toolkit multistate node adaptions."""
+
 import typing as t
+from functools import cached_property
 
 import numpy as np
-import zhinst.utils.shfqa.multistate as utils
 
+import zhinst.utils.shfqa.multistate as utils
 from zhinst.toolkit.nodetree import Node, NodeTree
+from zhinst.toolkit.nodetree.helper import create_or_append_set_transaction
 from zhinst.toolkit.nodetree.node import NodeList
-from zhinst.toolkit.nodetree.helper import (
-    lazy_property,
-    create_or_append_set_transaction,
-)
 
 
 class Qudit(Node):
@@ -85,7 +84,7 @@ class MultiState(Node):
         self._serial = serial
         self._index = index
 
-    def get_qudits_results(self) -> t.Dict[int, np.ndarray]:
+    def get_qudits_results(self) -> dict[int, np.ndarray]:
         """Downloads the qudit results from the device and group them by qudit.
 
         This function accesses the multistate nodes to determine which
@@ -101,19 +100,19 @@ class MultiState(Node):
             self._index,
         )
 
-    @lazy_property
+    @cached_property
     def qudits(self) -> t.Sequence[Qudit]:
         """A Sequence of Qudits."""
         return NodeList(
             [
                 Qudit(
                     self._root,
-                    self._tree + ("qudits", str(i)),
+                    (*self._tree, "qudits", str(i)),
                     self._serial,
                     self._index,
                 )
                 for i in range(len(self["qudits"]))
             ],
             self._root,
-            self._tree + ("qudits",),
+            (*self._tree, "qudits"),
         )

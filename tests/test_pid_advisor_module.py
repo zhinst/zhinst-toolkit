@@ -4,7 +4,7 @@ import pytest
 from zhinst.toolkit.driver.modules.pid_advisor_module import PIDAdvisorModule, PIDMode
 
 
-@pytest.fixture()
+@pytest.fixture
 def pid_advisor_module(data_dir, mock_connection, session):
     json_path = data_dir / "nodedoc_pid_advisor_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -12,7 +12,7 @@ def pid_advisor_module(data_dir, mock_connection, session):
     mock_connection.return_value.pidAdvisor.return_value.listNodesJSON.return_value = (
         nodes_json
     )
-    yield PIDAdvisorModule(mock_connection.return_value.pidAdvisor(), session)
+    return PIDAdvisorModule(mock_connection.return_value.pidAdvisor(), session)
 
 
 def test_repr(pid_advisor_module):

@@ -3,14 +3,17 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from zhinst.toolkit import Session
 import zhinst.toolkit.driver.modules as tk_modules
+from zhinst.toolkit import Session
 from zhinst.toolkit.nodetree import Node
 
 
 def test_setup(mock_connection, session):
     mock_connection.assert_called_once_with(
-        "localhost", 8004, 6, allow_version_mismatch=False
+        "localhost",
+        8004,
+        6,
+        allow_version_mismatch=False,
     )
     mock_connection.return_value.listNodesJSON.assert_called_once_with("/zi/*")
     assert repr(session) == "DataServerSession(localhost:8004)"
@@ -21,7 +24,10 @@ def test_setup(mock_connection, session):
 
 def test_setup_hf2(mock_connection, hf2_session):
     mock_connection.assert_called_once_with(
-        "localhost", 8005, 1, allow_version_mismatch=False
+        "localhost",
+        8005,
+        1,
+        allow_version_mismatch=False,
     )
     mock_connection.return_value.listNodesJSON.assert_not_called()
     assert repr(hf2_session) == "HF2DataServerSession(localhost:8005)"
@@ -70,7 +76,10 @@ def test_allow_mismatch_default(mock_connection, nodedoc_zi_json):
     mock_connection.side_effect = create_daq
     Session("localhost", 8004)
     mock_connection.assert_called_once_with(
-        "localhost", 8004, 6, allow_version_mismatch=False
+        "localhost",
+        8004,
+        6,
+        allow_version_mismatch=False,
     )
 
 
@@ -125,7 +134,10 @@ def test_unkown_init_error(mock_connection):
 
 
 def test_connect_device(
-    zi_devices_json, mock_connection, session, nodedoc_dev1234_json
+    zi_devices_json,
+    mock_connection,
+    session,
+    nodedoc_dev1234_json,
 ):
     connected_devices = ""
 
@@ -184,7 +196,10 @@ def test_connect_device(
 
 
 def test_connect_device_autodetection(
-    zi_devices_json, mock_connection, session, nodedoc_dev1234_json
+    zi_devices_json,
+    mock_connection,
+    session,
+    nodedoc_dev1234_json,
 ):
     connected_devices = ""
     selected_interface = ""
@@ -307,7 +322,7 @@ def test_connect_device_h2(mock_connection, hf2_session, nodedoc_dev1234_json):
     mock_connection.return_value.getString.side_effect = RuntimeError("Unkown")
     with pytest.raises(RuntimeError) as e_info:
         hf2_session.connect_device("dev5555")
-    assert "Unkown" == e_info.value.args[0]
+    assert e_info.value.args[0] == "Unkown"
 
 
 def test_devices_visible(mock_connection, session, hf2_session):
@@ -316,7 +331,7 @@ def test_devices_visible(mock_connection, session, hf2_session):
 
     def get_string_side_effect(arg):
         if arg == "/zi/devices/visible":
-            raise RuntimeError()
+            raise RuntimeError
 
     mock_connection.return_value.getString.side_effect = get_string_side_effect
     with patch("zhinst.toolkit.session.core.ziDiscovery", autospec=True) as discovery:
@@ -479,7 +494,8 @@ def test_precompensation_advisor_module(data_dir, mock_connection, session):
     assert precompensation_advisor_module == session.modules.precompensation_advisor
     mock_connection.return_value.precompensationAdvisor.assert_called_once()
     assert isinstance(
-        precompensation_advisor_module, tk_modules.PrecompensationAdvisorModule
+        precompensation_advisor_module,
+        tk_modules.PrecompensationAdvisorModule,
     )
     assert isinstance(precompensation_advisor_module.device, Node)
 
@@ -533,7 +549,11 @@ def test_shfqa_sweeper(session):
 
 
 def test_session_wide_transaction(
-    mock_connection, nodedoc_dev1234_json, session, shfqa, shfsg
+    mock_connection,
+    nodedoc_dev1234_json,
+    session,
+    shfqa,
+    shfsg,
 ):
     # Hack devices into the created once
     session._devices._devices = {"dev1": shfqa, "dev2": shfsg}
@@ -550,7 +570,7 @@ def test_session_wide_transaction(
             ("/dev1234/qachannels/0/centerfreq", 1000000000.0),  # lower bound ;)
             ("/dev1234/sgchannels/1/awg/time", 100),
             ("/zi/mds/groups/0/keepalive", 4),
-        ]
+        ],
     )
 
     # impossible to create two transactions
@@ -571,5 +591,5 @@ def test_session_wide_transaction(
             ("/zi/mds/groups/0/keepalive", 1),
             ("/dev1234/qachannels/0/centerfreq", 1000000000.0),  # lower bound ;)
             ("/dev1234/demods/0/enable", 1),
-        ]
+        ],
     )

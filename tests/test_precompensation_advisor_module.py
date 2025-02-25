@@ -1,12 +1,11 @@
 import pytest
 
-
 from zhinst.toolkit.driver.modules.precompensation_advisor_module import (
     PrecompensationAdvisorModule,
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def precomensation_advisor_module(data_dir, mock_connection, session):
     json_path = data_dir / "nodedoc_precomensation_advisor_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -14,21 +13,15 @@ def precomensation_advisor_module(data_dir, mock_connection, session):
     mock_connection.return_value.precompensationAdvisor.return_value.listNodesJSON.return_value = (
         nodes_json
     )
-    yield PrecompensationAdvisorModule(
-        mock_connection.return_value.precompensationAdvisor(), session
+    return PrecompensationAdvisorModule(
+        mock_connection.return_value.precompensationAdvisor(),
+        session,
     )
 
 
 def test_repr(precomensation_advisor_module):
     assert "MagicMock(DataServerSession(localhost:8004))" in repr(
-        precomensation_advisor_module
-    )
-
-
-def test_raw_module(precomensation_advisor_module, mock_connection):
-    assert (
-        precomensation_advisor_module.raw_module
-        == mock_connection.return_value.precompensationAdvisor()
+        precomensation_advisor_module,
     )
 
 
@@ -62,10 +55,12 @@ def test_device(zi_devices_json, precomensation_advisor_module, mock_connection)
     # set
     precomensation_advisor_module.device("dev1634")
     mock_connection.return_value.precompensationAdvisor.return_value.set.assert_called_with(
-        "/device", "dev1634"
+        "/device",
+        "dev1634",
     )
 
     precomensation_advisor_module.device(result)
     mock_connection.return_value.precompensationAdvisor.return_value.set.assert_called_with(
-        "/device", "dev1234"
+        "/device",
+        "dev1234",
     )

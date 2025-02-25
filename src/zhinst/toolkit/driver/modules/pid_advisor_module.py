@@ -1,11 +1,11 @@
 """PID Advisor Module."""
+
 import logging
-import typing as t
 import time
+import typing as t
 from enum import IntFlag
 
 from zhinst.core import PidAdvisorModule as ZIPidAdvisorModule
-
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 
 if t.TYPE_CHECKING:  # pragma: no cover
@@ -17,19 +17,18 @@ logger = logging.getLogger(__name__)
 class PIDMode(IntFlag):
     """PID Advisor mode.
 
-    P_Gain:         Optimize/Tune P gain.
-    I_Gain:         Optimize/Tune I gain.
-    D_Gain:         Optimize/Tune D gain.
-    D_Filter_Limit: Optimize/Tune D filter limit.
-
-    .. versionadded:: 0.5.1
+    Attributes:
+        P_Gain:         Optimize/Tune P gain.
+        I_Gain:         Optimize/Tune I gain.
+        D_Gain:         Optimize/Tune D gain.
+        D_Filter_Limit: Optimize/Tune D filter limit.
     """
 
-    NONE = 0
-    P_Gain = 1
-    I_Gain = 2
-    D_Gain = 4
-    D_Filter_Limit = 8
+    NONE: int = 0
+    P_Gain: int = 1
+    I_Gain: int = 2
+    D_Gain: int = 4
+    D_Filter_Limit: int = 8
 
 
 class PIDAdvisorModule(BaseModule):
@@ -44,13 +43,10 @@ class PIDAdvisorModule(BaseModule):
     modeling are available as Bode and step response plot data.
 
     For a complete documentation see the LabOne user manual
-    https://docs.zhinst.com/labone_programming_manual/pid_advisor_module.html
 
     Args:
         pid_advisor_module: Instance of the core PID advisor module.
         session: Session to the Data Server.
-
-    .. versionadded:: 0.5.1
     """
 
     def __init__(self, pid_advisor_module: ZIPidAdvisorModule, session: "Session"):
@@ -97,5 +93,6 @@ class PIDAdvisorModule(BaseModule):
         if self.calculate() or (
             not self._raw_module.finished() and self.progress() != 1
         ):
-            raise TimeoutError(f"{self._raw_module.__class__.__name__} timed out.")
+            msg = f"{self._raw_module.__class__.__name__} timed out."
+            raise TimeoutError(msg)
         logger.info(f"Progress: {(self.progress() * 100):.1f}%")

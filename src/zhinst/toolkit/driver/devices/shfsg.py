@@ -1,14 +1,16 @@
 """SHFSG Instrument Driver."""
 
+from __future__ import annotations
+
 import logging
 import typing as t
+from functools import cached_property
 
 import zhinst.utils.shfsg as utils
-
 from zhinst.toolkit.driver.devices.base import BaseInstrument
 from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.nodetree import Node
-from zhinst.toolkit.nodetree.helper import lazy_property, not_callable_in_transactions
+from zhinst.toolkit.nodetree.helper import not_callable_in_transactions
 from zhinst.toolkit.nodetree.node import NodeList
 
 logger = logging.getLogger(__name__)
@@ -50,24 +52,36 @@ class AWGCore(AWG):
         self._send_set_list(settings)
 
     @property
-    def available_trigger_inputs(self) -> t.List[str]:
-        """List the available trigger sources for the sequencer."""
+    def available_trigger_inputs(self) -> list[str]:
+        """List the available trigger sources for the sequencer.
+
+        Returns:
+            List of available trigger sources.
+        """
         return [
             option.enum
             for option in self.auxtriggers[0].channel.node_info.options.values()
         ]
 
     @property
-    def available_trigger_slopes(self) -> t.List[str]:
-        """List the available trigger slopes for the sequencer."""
+    def available_trigger_slopes(self) -> list[str]:
+        """List the available trigger slopes for the sequencer.
+
+        Returns:
+            List of available trigger slopes.
+        """
         return [
             option.enum
             for option in self.auxtriggers[0].slope.node_info.options.values()
         ]
 
     @property
-    def available_marker_outputs(self) -> t.List[str]:
-        """List the available trigger marker outputs for the sequencer."""
+    def available_marker_outputs(self) -> list[str]:
+        """List the available trigger marker outputs for the sequencer.
+
+        Returns:
+            List of available marker outputs.
+        """
         return [
             option.enum
             for option in self.root.sgchannels[
@@ -79,8 +93,8 @@ class AWGCore(AWG):
 class SGChannel(Node):
     """Signal Generator Channel for the SHFSG.
 
-    :class:`SGChannel` implements basic functionality to configure SGChannel
-    settings of the :class:`SHFSG` instrument.
+    `SGChannel` implements basic functionality to configure SGChannel
+    settings of the `SHFSG` instrument.
 
     Args:
         device: SHFQA device object.
@@ -90,9 +104,9 @@ class SGChannel(Node):
 
     def __init__(
         self,
-        device: "SHFSG",
-        session: "Session",
-        tree: t.Tuple[str, ...],
+        device: SHFSG,
+        session: Session,
+        tree: tuple[str, ...],
     ):
         super().__init__(device.root, tree)
         self._index = int(tree[-1])
@@ -218,16 +232,23 @@ class SGChannel(Node):
         """Modulation frequency of the AWG.
 
         Depends on the selected oscillator.
+
+        Returns:
+            Modulation frequency of the AWG.
         """
         selected_osc = self.sines[0].oscselect()
         return self.oscs[selected_osc].freq()
 
-    @lazy_property
+    @cached_property
     def awg(self) -> AWGCore:
-        """AWG."""
+        """AWG.
+
+        Returns:
+            AWG node.
+        """
         return AWGCore(
             self._root,
-            self._tree + ("awg",),
+            (*self._tree, "awg"),
             self._device.serial,
             self._index,
             self._device.device_type,
@@ -238,14 +259,18 @@ class SGChannel(Node):
 class SHFSG(BaseInstrument):
     """High-level driver for the Zurich Instruments SHFSG."""
 
-    @lazy_property
+    @cached_property
     def sgchannels(self) -> t.Sequence[SGChannel]:
-        """A Sequence of SG Channels."""
+        """A Sequence of SG Channels.
+
+        Returns:
+            A list of SG Channels or a single SG Channel node.
+        """
         return NodeList(
             [
-                SGChannel(self, self._session, self._tree + ("sgchannels", str(i)))
+                SGChannel(self, self._session, (*self._tree, "sgchannels", str(i)))
                 for i in range(len(self["sgchannels"]))
             ],
             self._root,
-            self._tree + ("sgchannels",),
+            (*self._tree, "sgchannels"),
         )

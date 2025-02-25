@@ -1,5 +1,5 @@
 from pathlib import Path
-from unittest.mock import patch, PropertyMock
+from unittest.mock import PropertyMock, patch
 
 import pytest
 
@@ -9,12 +9,12 @@ from zhinst.toolkit.driver.devices.shfqc import SHFQC
 from zhinst.toolkit.driver.devices.shfsg import SHFSG
 
 
-@pytest.fixture()
+@pytest.fixture
 def data_dir(request):
-    yield Path(request.fspath).parent / "data"
+    return Path(request.fspath).parent / "data"
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_connection():
     with patch("zhinst.toolkit.session.core.ziDAQServer", autospec=True) as connection:
         type(connection.return_value).port = PropertyMock(return_value=8004)
@@ -23,27 +23,27 @@ def mock_connection():
         yield connection
 
 
-@pytest.fixture()
+@pytest.fixture
 def nodedoc_zi_json(data_dir):
     json_path = data_dir / "nodedoc_zi.json"
     with json_path.open("r", encoding="UTF-8") as file:
         return file.read()
 
 
-@pytest.fixture()
+@pytest.fixture
 def session(nodedoc_zi_json, mock_connection):
     mock_connection.return_value.listNodesJSON.return_value = nodedoc_zi_json
-    yield Session("localhost")
+    return Session("localhost")
 
 
-@pytest.fixture()
+@pytest.fixture
 def hf2_session(mock_connection):
     mock_connection.return_value.getString.return_value = "HF2DataServer"
     type(mock_connection.return_value).port = PropertyMock(return_value=8005)
-    yield Session("localhost", hf2=True)
+    return Session("localhost", hf2=True)
 
 
-@pytest.fixture()
+@pytest.fixture
 def shfqa(data_dir, mock_connection, session):
     json_path = data_dir / "nodedoc_dev1234_shfqa.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -59,7 +59,7 @@ def shfqa(data_dir, mock_connection, session):
         yield SHFQA("DEV1234", "SHFQA4", session)
 
 
-@pytest.fixture()
+@pytest.fixture
 def shfsg(data_dir, mock_connection, session):
     json_path = data_dir / "nodedoc_dev1234_shfsg.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -67,10 +67,10 @@ def shfsg(data_dir, mock_connection, session):
     mock_connection.return_value.listNodesJSON.return_value = nodes_json
 
     mock_connection.return_value.getString.return_value = ""
-    yield SHFSG("DEV1234", "SHFSG8", session)
+    return SHFSG("DEV1234", "SHFSG8", session)
 
 
-@pytest.fixture()
+@pytest.fixture
 def shfqc(data_dir, mock_connection, session):
     json_path = data_dir / "nodedoc_dev1234_shfqc.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -78,17 +78,17 @@ def shfqc(data_dir, mock_connection, session):
     mock_connection.return_value.listNodesJSON.return_value = nodes_json
 
     mock_connection.return_value.getString.return_value = ""
-    yield SHFQC("DEV1234", "SHFQC", session)
+    return SHFQC("DEV1234", "SHFQC", session)
 
 
-@pytest.fixture()
+@pytest.fixture
 def zi_devices_json(data_dir):
     json_path = data_dir / "zi_devices.json"
     with json_path.open("r", encoding="UTF-8") as file:
         return file.read()
 
 
-@pytest.fixture()
+@pytest.fixture
 def nodedoc_dev1234_json(data_dir):
     json_path = data_dir / "nodedoc_dev1234.json"
     with json_path.open("r", encoding="UTF-8") as file:

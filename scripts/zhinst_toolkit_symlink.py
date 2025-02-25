@@ -14,10 +14,10 @@ Running the script:
 
     >>> python scripts/zhinst_toolkit_symlink.py
 """
+
 import os
 import sysconfig
 from pathlib import Path
-
 
 SRC_DIR = Path(Path(__file__).parent.parent / Path("src/zhinst/toolkit")).resolve()
 DEST_DIR = Path(sysconfig.get_path("purelib")) / "zhinst/toolkit"

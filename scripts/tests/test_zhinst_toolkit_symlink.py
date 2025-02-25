@@ -1,5 +1,5 @@
-from pathlib import Path
 import tempfile
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 from .. import zhinst_toolkit_symlink
@@ -16,7 +16,7 @@ def test_create_symlink(mock_os, mock_print):
         zhinst_toolkit_symlink.create_symlink(src, dest)
         mock_os.symlink.assert_called_with(src, dest)
         mock_print.assert_called_with(
-            f"Symlink created. Source: {src}, Destination: {dest}"
+            f"Symlink created. Source: {src}, Destination: {dest}",
         )
 
 

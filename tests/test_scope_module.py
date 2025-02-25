@@ -4,7 +4,7 @@ import pytest
 from zhinst.toolkit.driver.modules.scope_module import ScopeModule
 
 
-@pytest.fixture()
+@pytest.fixture
 def scope_module(data_dir, mock_connection, session):
     json_path = data_dir / "nodedoc_scope_test.json"
     with json_path.open("r", encoding="UTF-8") as file:
@@ -12,7 +12,7 @@ def scope_module(data_dir, mock_connection, session):
     mock_connection.return_value.scopeModule.return_value.listNodesJSON.return_value = (
         nodes_json
     )
-    yield ScopeModule(mock_connection.return_value.scopeModule(), session)
+    return ScopeModule(mock_connection.return_value.scopeModule(), session)
 
 
 def test_repr(scope_module):

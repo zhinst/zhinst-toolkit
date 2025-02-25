@@ -6,15 +6,16 @@ import pytest
 from zhinst.toolkit.driver.modules.shfqa_sweeper import SHFQASweeper, SweepConfig
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_shf_sweeper():
     with patch(
-        "zhinst.toolkit.driver.modules.shfqa_sweeper.CoreSweeper", autospec=True
+        "zhinst.toolkit.driver.modules.shfqa_sweeper.CoreSweeper",
+        autospec=True,
     ) as sweeper:
         yield sweeper
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_SweepConfig():
     with patch(
         "zhinst.toolkit.driver.modules.shfqa_sweeper.SweepConfig",
@@ -23,7 +24,7 @@ def mock_SweepConfig():
         yield sweeper_config
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_TriggerConfig():
     with patch(
         "zhinst.toolkit.driver.modules.shfqa_sweeper.TriggerConfig",
@@ -32,9 +33,9 @@ def mock_TriggerConfig():
         yield trigger_config
 
 
-@pytest.fixture()
+@pytest.fixture
 def sweeper_module(session, mock_shf_sweeper):
-    yield SHFQASweeper(session)
+    return SHFQASweeper(session)
 
 
 def test_repr(sweeper_module):

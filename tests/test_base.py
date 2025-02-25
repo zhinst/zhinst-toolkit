@@ -11,12 +11,12 @@ from zhinst.toolkit.driver.devices.base import BaseInstrument
 from zhinst.toolkit.exceptions import ToolkitError
 
 
-@pytest.fixture()
+@pytest.fixture
 def base_instrument(mock_connection, session, nodedoc_dev1234_json):
     mock_connection.return_value.listNodesJSON.return_value = nodedoc_dev1234_json
     mock_connection.return_value.getString.return_value = "OptionA"
 
-    yield BaseInstrument("DEV1234", "test_type", session)
+    return BaseInstrument("DEV1234", "test_type", session)
 
 
 def test_instrument_session_property(base_instrument, session):
@@ -25,7 +25,7 @@ def test_instrument_session_property(base_instrument, session):
 
 def test_basic_setup(mock_connection, base_instrument):
     mock_connection.return_value.listNodesJSON.assert_called_with(
-        f"/{base_instrument.serial}/*"
+        f"/{base_instrument.serial}/*",
     )
 
     assert base_instrument.device_type == "test_type"
@@ -55,12 +55,13 @@ def test_factory_reset_ok(base_instrument, mock_connection):
             (
                 f"/{dev_id}/system/preset/error",
                 {"timestamp": [0], "value": [0]},
-            )
-        ]
+            ),
+        ],
     )
     base_instrument.factory_reset()
     mock_connection.return_value.syncSetInt.assert_called_once_with(
-        f"/{dev_id}/system/preset/load", 1
+        f"/{dev_id}/system/preset/load",
+        1,
     )
 
 
@@ -68,7 +69,7 @@ def test_factory_reset_timeout(base_instrument, mock_connection):
     dev_id = base_instrument.serial.lower()
     mock_connection.return_value.getInt.return_value = 1
     mock_connection.return_value.get.return_value = {
-        f"/{dev_id}/system/preset/busy": {"timestamp": [0], "value": [1]}
+        f"/{dev_id}/system/preset/busy": {"timestamp": [0], "value": [1]},
     }
 
     with pytest.raises(TimeoutError):
@@ -83,8 +84,8 @@ def test_factory_reset_failure(base_instrument, mock_connection):
             (
                 f"/{dev_id}/system/preset/error",
                 {"timestamp": [0], "value": [1]},
-            )
-        ]
+            ),
+        ],
     )
     with pytest.raises(ToolkitError):
         base_instrument.factory_reset()
@@ -127,14 +128,14 @@ def test_load_preloaded_json(base_instrument, mock_connection, data_dir):
 
     mock_connection.return_value.listNodes.side_effect = [["/dev1234/stats/0/temp"]]
     return_value = base_instrument._load_preloaded_json(
-        data_dir / "preloadable_nodetree.json"
+        data_dir / "preloadable_nodetree.json",
     )
     assert len(return_value) == 1
     assert "/dev1234/stats/0/temp" in return_value
 
     mock_connection.return_value.listNodes.side_effect = [["/dev1234/stats/0/test"]]
     return_value = base_instrument._load_preloaded_json(
-        data_dir / "preloadable_nodetree.json"
+        data_dir / "preloadable_nodetree.json",
     )
     assert len(return_value) == 0
 

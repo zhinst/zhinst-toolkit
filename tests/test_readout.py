@@ -6,9 +6,9 @@ import pytest
 from zhinst.toolkit.waveform import Waveforms
 
 
-@pytest.fixture()
+@pytest.fixture
 def readout(shfqa):
-    yield shfqa.qachannels[0].readout
+    return shfqa.qachannels[0].readout
 
 
 def test_configure_result_logger(mock_connection, readout):
@@ -23,7 +23,10 @@ def test_configure_result_logger(mock_connection, readout):
             averaging_mode=0,
         )
         readout.configure_result_logger(
-            result_source="test2", result_length=0, num_averages=2, averaging_mode=1
+            result_source="test2",
+            result_length=0,
+            num_averages=2,
+            averaging_mode=1,
         )
         utils.get_result_logger_for_readout_settings.assert_called_with(
             "DEV1234",
@@ -52,14 +55,14 @@ def test_stop(mock_connection, readout):
     # already disabled
     mock_connection.return_value.getInt.return_value = 0
     mock_connection.return_value.get.return_value = {
-        node: {"timestamp": [0], "value": [0]}
+        node: {"timestamp": [0], "value": [0]},
     }
     readout.stop()
     mock_connection.return_value.set.assert_called_with(node, False)
     # never disabled
     mock_connection.return_value.getInt.return_value = 1
     mock_connection.return_value.get.return_value = {
-        node: {"timestamp": [0], "value": [1]}
+        node: {"timestamp": [0], "value": [1]},
     }
     with pytest.raises(TimeoutError) as e_info:
         readout.stop(timeout=0.5)
@@ -71,13 +74,13 @@ def test_wait_done(mock_connection, readout):
     # already disabled
     mock_connection.return_value.getInt.return_value = 0
     mock_connection.return_value.get.return_value = {
-        node: {"timestamp": [0], "value": [0]}
+        node: {"timestamp": [0], "value": [0]},
     }
     readout.wait_done()
     # never disabled
     mock_connection.return_value.getInt.return_value = 1
     mock_connection.return_value.get.return_value = {
-        node: {"timestamp": [0], "value": [1]}
+        node: {"timestamp": [0], "value": [1]},
     }
     with pytest.raises(TimeoutError) as e_info:
         readout.wait_done(timeout=0.5)
@@ -87,11 +90,19 @@ def test_read(mock_connection, readout):
     with patch("zhinst.toolkit.driver.nodes.readout.utils", autospec=True) as utils:
         readout.read()
         utils.get_result_logger_data.assert_called_with(
-            mock_connection.return_value, "DEV1234", 0, mode="readout", timeout=10
+            mock_connection.return_value,
+            "DEV1234",
+            0,
+            mode="readout",
+            timeout=10,
         )
         readout.read(timeout=1)
         utils.get_result_logger_data.assert_called_with(
-            mock_connection.return_value, "DEV1234", 0, mode="readout", timeout=1
+            mock_connection.return_value,
+            "DEV1234",
+            0,
+            mode="readout",
+            timeout=1,
         )
 
 
@@ -157,7 +168,7 @@ def test_write_integration_weights(mock_connection, readout):
         readout.write_integration_weights({0: np.ones(1000)}, clear_existing=True)
         assert all(
             utils.get_configure_weighted_integration_settings.call_args[1]["weights"][0]
-            == np.ones(1000)
+            == np.ones(1000),
         )
 
     with pytest.raises(RuntimeError) as e_info:
@@ -183,10 +194,10 @@ def test_read_integration_weights(mock_connection, readout):
 
     mock_connection.return_value.get.return_value = {
         "/dev1234/qachannels/0/readout/integration/weights/0/wave": [
-            {"vector": np.ones(1000, dtype=np.complex128)}
+            {"vector": np.ones(1000, dtype=np.complex128)},
         ],
         "/dev1234/qachannels/0/readout/integration/weights/1/wave": [
-            {"vector": np.ones(1000, dtype=np.complex128)}
+            {"vector": np.ones(1000, dtype=np.complex128)},
         ],
     }
     result = readout.read_integration_weights()

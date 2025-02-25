@@ -1,8 +1,10 @@
 """Zurich Instruments Toolkit (zhinst-toolkit) Command Table Module.
 
-This module provides a :class:`CommandTable` class to create and modify ZI device
+This module provides a `CommandTable` class to create and modify ZI device
 command tables.
 """
+
+from __future__ import annotations
 
 import copy
 import json
@@ -17,7 +19,11 @@ from zhinst.toolkit.exceptions import ValidationError
 JSON_SCHEMA_VALIDATOR = jsonschema.Draft4Validator
 
 
-def _validate_instance(instance: object, schema: dict, validator=JSON_SCHEMA_VALIDATOR):
+def _validate_instance(
+    instance: object,
+    schema: dict,
+    validator=JSON_SCHEMA_VALIDATOR,
+) -> None:
     """Validate JSON instance.
 
     Args:
@@ -52,17 +58,20 @@ class ParentNode:
     """
 
     def __init__(
-        self, schema: dict, path: t.Tuple[str, ...], active_validation: bool = True
+        self,
+        schema: dict,
+        path: tuple[str, ...],
+        active_validation: bool = True,
     ):
         self._schema = schema
         self._path = path
-        self._childs: t.Dict[t.Union[str, int], t.Any] = {}
+        self._childs: dict[t.Union[str, int], t.Any] = {}
         self._active_validation = active_validation
 
     def __repr__(self) -> str:
         return "/" + "/".join(self._path)
 
-    def _validate_instance(self, instance: object, schema: dict):
+    def _validate_instance(self, instance: object, schema: dict) -> None:
         """Validate JSON instance.
 
         Args:
@@ -84,7 +93,7 @@ class ParentNode:
         return not bool(self._childs)
 
 
-def _change_active_validation(obj: ParentNode, value: bool):
+def _change_active_validation(obj: ParentNode, value: bool) -> None:
     """Change object active validation state.
 
     Args:
@@ -106,12 +115,15 @@ class ParentEntry(ParentNode):
     """
 
     def __init__(
-        self, schema: dict, path: t.Tuple[str, ...], active_validation: bool = True
+        self,
+        schema: dict,
+        path: tuple[str, ...],
+        active_validation: bool = True,
     ):
         super().__init__(schema, path, active_validation)
         self._attributes = {}
         self._child_props = {}
-        self._properties: t.Dict[str, t.Any] = {}
+        self._properties: dict[str, t.Any] = {}
         # ParentEntry does not have json list entries at this moment.
         for name, property_ in schema["properties"].items():
             if "properties" in property_:
@@ -127,9 +139,9 @@ class ParentEntry(ParentNode):
         for k in super().__dir__():
             if not k.startswith("_"):
                 dir_info.add(k)
-        return dir_info.union(set(list(self._schema["properties"].keys())))
+        return dir_info.union(set(self._schema["properties"].keys()))
 
-    def __getattr__(self, name: str) -> t.Union["ParentEntry", t.Any]:
+    def __getattr__(self, name: str) -> t.Union[ParentEntry, t.Any]:
         if name.startswith("_"):
             return None
         try:
@@ -138,14 +150,15 @@ class ParentEntry(ParentNode):
             if name in self._child_props:
                 self._childs[name] = ParentEntry(
                     self._child_props[name],
-                    self._path + (name,),
+                    (*self._path, name),
                     self._active_validation,
                 )
                 return self._childs[name]
             if name in self._attributes:
                 return self._properties.get(name, None)
+        msg = f"{name}. Available entries: {self._available_attributes()}"
         raise AttributeError(
-            f"{name}. Available entries: {self._available_attributes()}"
+            msg,
         )
 
     def __setattr__(self, name: str, value: t.Any):
@@ -162,14 +175,15 @@ class ParentEntry(ParentNode):
         elif value is None and name in self._childs:
             self._childs.pop(name)
         else:
+            msg = f"{name}. Available entries: {self._available_attributes()}"
             raise AttributeError(
-                f"{name}. Available entries: {self._available_attributes()}"
+                msg,
             )
 
-    def _available_attributes(self) -> t.List[str]:
+    def _available_attributes(self) -> list[str]:
         """Available property attributes for the instance."""
         return list(
-            self._attributes.keys() if self._attributes else self._child_props.keys()
+            self._attributes.keys() if self._attributes else self._child_props.keys(),
         )
 
     def as_dict(self) -> dict:
@@ -218,7 +232,7 @@ class ListEntry(ParentNode):
         self,
         schema: dict,
         index_schema: dict,
-        path: t.Tuple[str, ...],
+        path: tuple[str, ...],
         active_validation: bool = True,
     ):
         super().__init__(schema, path, active_validation)
@@ -236,7 +250,7 @@ class ListEntry(ParentNode):
             self._validate_instance(number, self._index_schema)
             self._childs[number] = ParentEntry(
                 self._schema["items"],
-                self._path + (str(number),),
+                (*self._path, str(number)),
                 self._active_validation,
             )
             return self._childs[number]
@@ -245,7 +259,7 @@ class ListEntry(ParentNode):
         del self._childs[key]
 
     @property
-    def range(self) -> t.Tuple[int, int]:
+    def range(self) -> tuple[int, int]:
         """Get the range for number of minimum and maximum items in the table.
 
         Returns:
@@ -253,7 +267,7 @@ class ListEntry(ParentNode):
         """
         return (self._min_length, self._max_length)
 
-    def as_list(self) -> t.List[dict]:
+    def as_list(self) -> list[dict]:
         """Return a list representation of the table.
 
         Returns:
@@ -343,63 +357,60 @@ class CommandTable:
             Method `is_valid()` can be used for command table validation when active
             validation is disabled. It is recommended to avoid it in production code.
 
-    .. versionadded:: 0.5.0
-       The ``active_validation`` parameter was added.
-
     Example:
-        .. code-block:: python
+    ```
+    >>> from zhinst.toolkit import CommandTable
+    >>> ct = CommandTable(json_schema)
+    ```
 
-            >>> from zhinst.toolkit import CommandTable
-            >>> ct = CommandTable(json_schema)
+    The ``header`` and ``table`` and then be called:
 
-        The ``header`` and ``table`` and then be called:
+    ```
+    >>> ct.header.version
+    "1.1"
+    >>> ct.header.userString = "My table"
+    >>> ct.table[0].amplitude.value = 1
+    >>> ct.table[0].amplitude
+    1
+    >>> ct.as_dict()
+    ```
 
-        .. code-block:: python
+    Example: Active validation
 
-            >>> ct.header.version
-            "1.1"
-            >>> ct.header.userString = "My table"
-            >>> ct.table[0].amplitude.value = 1
-            >>> ct.table[0].amplitude
-            1
-            >>> ct.as_dict()
+    Using active validation, error raised instantly on incorrect value:
 
-    Active validation
+    ```
+    >>> ct = CommandTable(json_schema, active_validation=True)
+    >>> ct.table[0].amplitude0.value = 999e9
+    ValidationError
+    ```
 
-        Using active validation, error raised instantly on incorrect value:
+    Disabling active validation:
 
-        .. code-block:: python
+    No ``ValidationError`` is raised during the creation of the command table,
+    but once it is uploaded or called ``as_dict()``, the validation happens.
 
-            >>> ct = CommandTable(json_schema, active_validation=True)
-            >>> ct.table[0].amplitude0.value = 999e9
-            ValidationError
+    ```
+    >>> ct = CommandTable(json_schema, active_validation=False)
+    >>> ct.table[0].amplitude0.value = 999e9  # No errors raised
+    >>> ct.as_dict()
+    ValidationError
+    ```
 
-        Disabling active validation:
+    Disabling active validation improves the speed of large command tables:
 
-        No ``ValidationError`` is raised during the creation of the command table,
-        but once it is uploaded or called ``as_dict()``, the validation happens.
-
-        .. code-block:: python
-
-            >>> ct = CommandTable(json_schema, active_validation=False)
-            >>> ct.table[0].amplitude0.value = 999e9  # No errors raised
-            >>> ct.as_dict()
-            ValidationError
-
-        Disabling active validation improves the speed of large command tables:
-
-        .. code-block:: python
-
-            >>> for i in range(1024):
-            >>>    ct.table[i].waveform.index = 1
-            >>>    ct.table[i].amplitude0.value = 1
-            >>>    ct.table[i].amplitude1.value = -0.0
-            >>>    ct.table[i].amplitude0.increment = False
-            >>>    ct.table[i].amplitude0.increment = True
+    ```
+    >>> for i in range(1024):
+    >>>    ct.table[i].waveform.index = 1
+    >>>    ct.table[i].amplitude0.value = 1
+    >>>    ct.table[i].amplitude1.value = -0.0
+    >>>    ct.table[i].amplitude0.increment = False
+    >>>    ct.table[i].amplitude0.increment = True
+    ```
     """
 
     def __init__(self, json_schema: t.Union[str, dict], active_validation: bool = True):
-        self._ct_schema: t.Dict = _derefence_json(json_schema)
+        self._ct_schema: dict = _derefence_json(json_schema)
         self._active_validation = active_validation
         self._header: HeaderEntry = self._header_entry()
         self._table: ListEntry = self._table_entry()
@@ -410,19 +421,15 @@ class CommandTable:
 
         Returns:
             True if active validation is enabled.
-
-        .. versionadded:: 0.5.0
         """
         return self._active_validation
 
     @active_validation.setter
-    def active_validation(self, value: bool):
+    def active_validation(self, value: bool) -> None:
         """Active validation.
 
         Args:
             value: The state of active validation.
-
-        .. versionadded:: 0.5.0
         """
         self._active_validation = value
         _change_active_validation(self._table, value)
@@ -430,12 +437,20 @@ class CommandTable:
 
     @property
     def header(self) -> HeaderEntry:
-        """Header of the built command table."""
+        """Header of the built command table.
+
+        Returns:
+            Header Entry
+        """
         return self._header
 
     @property
     def table(self) -> ListEntry:
-        """Table entry of the built command table."""
+        """Table entry of the built command table.
+
+        Returns:
+            List Entry
+        """
         return self._table
 
     def _header_entry(self) -> HeaderEntry:
@@ -462,7 +477,7 @@ class CommandTable:
         self._table = self._table_entry()
 
     def as_dict(self) -> dict:
-        """Return a dictionary representation of the :class:`CommandTable`.
+        """Return a dictionary representation of the `CommandTable`.
 
         The function formats the returner value into a schema which is
         accepted by the ZI devices which support command tables.
@@ -473,17 +488,8 @@ class CommandTable:
             CommandTable as a Python dictionary.
 
         Raises:
-            :class:`~zhinst.toolkit.exceptions.ValidateError`: The command table
+            `~zhinst.toolkit.exceptions.ValidateError`: The command table
                 does not correspond to the given JSON schema.
-
-        .. versionchanged:: 0.6.2
-
-            Removed validation when `active_validation` is set to `False`.
-                This improves performance when validation is not needed.
-
-        .. versionchanged:: 0.4.2
-
-            Removed `$schema` key from resulting dictionary.
         """
         result = {
             "header": self._header.as_dict(),
@@ -507,8 +513,6 @@ class CommandTable:
         Raises:
             ValidationError: If `raise_for_invalid` was set to `True` and the
                 command table is invalid.
-
-        .. versionadded:: 0.6.2
         """
         # Due to active_validation having a state, we need to force it to True.
         orig_state = self._active_validation
@@ -517,10 +521,10 @@ class CommandTable:
             self.as_dict()
             self._active_validation = orig_state
             return True
-        except ValidationError as e:
+        except ValidationError:
             self._active_validation = orig_state
             if raise_for_invalid:
-                raise e
+                raise
             return False
 
     def update(self, command_table: t.Union[str, dict]) -> None:
@@ -533,7 +537,7 @@ class CommandTable:
             command_table: Existing command table JSON.
         """
 
-        def json_to_dict(json_: t.Union[str, t.Dict]) -> t.Dict:
+        def json_to_dict(json_: t.Union[str, dict]) -> dict:
             if isinstance(json_, str):
                 json_ = json.loads(json_)
             return json_  # type: ignore[return-value]
@@ -542,14 +546,14 @@ class CommandTable:
         if self._active_validation:
             _validate_instance(command_table, self._ct_schema)
 
-        def build_nodes(path: t.Optional[ParentEntry], index: int, obj: dict):
+        def build_nodes(path: t.Optional[ParentEntry], index: int, obj: dict) -> None:
             for k, v in obj.items():
                 if isinstance(v, dict):
                     build_nodes(getattr(path, k), index, v)
                 else:
                     setattr(path, k, v)
 
-        def build_header_nodes(header: HeaderEntry, obj: dict):
+        def build_header_nodes(header: HeaderEntry, obj: dict) -> None:
             for k, v in obj.items():
                 setattr(header, k, v)
 

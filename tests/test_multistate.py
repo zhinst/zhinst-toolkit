@@ -6,9 +6,9 @@ import pytest
 from zhinst.utils.shfqa.multistate import QuditSettings
 
 
-@pytest.fixture()
+@pytest.fixture
 def multistate(shfqa):
-    yield shfqa.qachannels[0].readout.multistate
+    return shfqa.qachannels[0].readout.multistate
 
 
 def test_get_qudits_results(mock_connection, multistate):
@@ -29,7 +29,7 @@ def test_configure_qudit(mock_connection, multistate):
                 np.random.rand(400),
                 np.random.rand(400),
                 np.random.rand(400),
-            ]
+            ],
         )
         utils.get_settings_transaction.return_value = [
             ("/dev1234/qachannels/0/centerfreq", 1),
@@ -37,15 +37,23 @@ def test_configure_qudit(mock_connection, multistate):
         ]
         multistate.qudits[0].configure(settings)
         utils.get_settings_transaction.assert_called_with(
-            "DEV1234", 0, 0, settings, enable=True
+            "DEV1234",
+            0,
+            0,
+            settings,
+            enable=True,
         )
         mock_connection.return_value.set.assert_called_with(
-            utils.get_settings_transaction.return_value
+            utils.get_settings_transaction.return_value,
         )
         # Enable = False
         multistate.qudits[0].configure(settings, enable=False)
         utils.get_settings_transaction.assert_called_with(
-            "DEV1234", 0, 0, settings, enable=False
+            "DEV1234",
+            0,
+            0,
+            settings,
+            enable=False,
         )
 
 
@@ -57,7 +65,7 @@ def test_configure_qudit_existing_transaction(mock_connection, shfqa, multistate
                 np.random.rand(400),
                 np.random.rand(400),
                 np.random.rand(400),
-            ]
+            ],
         )
         utils.get_settings_transaction.return_value = [
             ("/dev1234/qachannels/0/centerfreq", 1),
@@ -67,9 +75,13 @@ def test_configure_qudit_existing_transaction(mock_connection, shfqa, multistate
             shfqa.qachannels[3].centerfreq(1, parse=False)
             multistate.qudits[0].configure(settings)
         utils.get_settings_transaction.assert_called_with(
-            "DEV1234", 0, 0, settings, enable=True
+            "DEV1234",
+            0,
+            0,
+            settings,
+            enable=True,
         )
         mock_connection.return_value.set.assert_called_with(
             [("/dev1234/qachannels/3/centerfreq", 1)]
-            + utils.get_settings_transaction.return_value
+            + utils.get_settings_transaction.return_value,
         )

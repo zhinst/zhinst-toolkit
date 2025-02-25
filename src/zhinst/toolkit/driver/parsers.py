@@ -1,4 +1,5 @@
 """Predefined parsers for device specific nodes."""
+
 import logging
 
 UHFQA_SAMPLE_RATE = 1.8e9
@@ -60,11 +61,10 @@ class Parse:
             logger.warning(
                 f"The value {value:.3e} must be greater than or equal to "
                 f"{limit:.3e} and will be rounded up to: "
-                f"{limit:.3e}"
+                f"{limit:.3e}",
             )
             return limit
-        else:
-            return value
+        return value
 
     @staticmethod
     def smaller_equal(value: float, limit: float) -> float:
@@ -84,8 +84,7 @@ class Parse:
                 f"{limit:.3e}",
             )
             return limit
-        else:
-            return value
+        return value
 
     @staticmethod
     def multiple_of(value: float, factor: float, rounding: str) -> float:
@@ -98,14 +97,10 @@ class Parse:
 
         Returns:
             Rounded value.
-
-        .. versionchanged:: 0.5.3
-
-            Invalid `rounding` value raises `ValueError` instead of `RuntimeError`.
         """
         if abs(round(value / factor) * factor - value) < 1e-12:
             return value
-        elif rounding == "nearest":
+        if rounding == "nearest":
             v_rounded = round(value / factor) * factor
             logger.warning(
                 f"The value {value:.3e} is not a multiple of "
@@ -113,7 +108,7 @@ class Parse:
                 f"multiple: {v_rounded:.3e}",
             )
             return v_rounded
-        elif rounding == "down":
+        if rounding == "down":
             v_rounded = round(value // factor) * factor
             logger.warning(
                 f"The value {value:.3e} is not a multiple of "
@@ -121,9 +116,12 @@ class Parse:
                 f"multiple: {v_rounded:.3e}",
             )
             return v_rounded
-        raise ValueError(
+        msg = (
             f"Invalid rounding type {rounding} only the "
             "following values are allowed: [nearest,down]"
+        )
+        raise ValueError(
+            msg,
         )
 
 
@@ -219,7 +217,7 @@ node_parser = {
             ],
         },
         "qachannels/*/spectroscopy/delay": {
-            "SetParser": lambda v: Parse.multiple_of(v, 2e-9, "nearest")
+            "SetParser": lambda v: Parse.multiple_of(v, 2e-9, "nearest"),
         },
     },
     "SHFSG": {

@@ -4,22 +4,24 @@ from unittest.mock import patch
 import numpy as np
 import pytest
 
-from zhinst.toolkit import Waveforms
 from zhinst.core import compile_seqc
+from zhinst.toolkit import Waveforms
 
 
-@pytest.fixture()
+@pytest.fixture
 def generator(data_dir, mock_connection, shfqa):
-    yield shfqa.qachannels[0].generator
+    return shfqa.qachannels[0].generator
 
 
 def test_enable_sequencer(shfqa, mock_connection):
     shfqa.qachannels[0].generator.enable_sequencer(single=True)
     mock_connection.return_value.set.assert_called_with(
-        "/dev1234/qachannels/0/generator/single", 1
+        "/dev1234/qachannels/0/generator/single",
+        1,
     )
     mock_connection.return_value.syncSetInt.assert_called_with(
-        "/dev1234/qachannels/0/generator/enable", 1
+        "/dev1234/qachannels/0/generator/enable",
+        1,
     )
 
 
@@ -104,7 +106,7 @@ def test_write_to_waveform_memory(shfqa, generator, mock_connection):
     )
     assert all(
         mock_connection.return_value.set.call_args[0][0][1][1]
-        == np.ones(1000, dtype=np.complex128)
+        == np.ones(1000, dtype=np.complex128),
     )
     assert (
         mock_connection.return_value.set.call_args[0][0][2][0]
@@ -112,7 +114,7 @@ def test_write_to_waveform_memory(shfqa, generator, mock_connection):
     )
     assert all(
         mock_connection.return_value.set.call_args[0][0][2][1]
-        == np.ones(1000, dtype=np.complex128)
+        == np.ones(1000, dtype=np.complex128),
     )
     assert (
         mock_connection.return_value.set.call_args[0][0][3][0]
@@ -121,7 +123,8 @@ def test_write_to_waveform_memory(shfqa, generator, mock_connection):
     assert all(mock_connection.return_value.set.call_args[0][0][3][1] == complex_wave)
 
     shfqa.qachannels[0].generator.write_to_waveform_memory(
-        waveforms, clear_existing=False
+        waveforms,
+        clear_existing=False,
     )
     assert (
         mock_connection.return_value.set.call_args[0][0][0][0]
@@ -129,7 +132,7 @@ def test_write_to_waveform_memory(shfqa, generator, mock_connection):
     )
     assert all(
         mock_connection.return_value.set.call_args[0][0][0][1]
-        == np.ones(1000, dtype=np.complex128)
+        == np.ones(1000, dtype=np.complex128),
     )
     assert (
         mock_connection.return_value.set.call_args[0][0][1][0]
@@ -137,7 +140,7 @@ def test_write_to_waveform_memory(shfqa, generator, mock_connection):
     )
     assert all(
         mock_connection.return_value.set.call_args[0][0][1][1]
-        == np.ones(1000, dtype=np.complex128)
+        == np.ones(1000, dtype=np.complex128),
     )
     assert (
         mock_connection.return_value.set.call_args[0][0][2][0]
@@ -146,7 +149,8 @@ def test_write_to_waveform_memory(shfqa, generator, mock_connection):
     assert all(mock_connection.return_value.set.call_args[0][0][2][1] == complex_wave)
 
     shfqa.qachannels[0].generator.write_to_waveform_memory(
-        {0: np.ones(1000)}, clear_existing=True
+        {0: np.ones(1000)},
+        clear_existing=True,
     )
     assert mock_connection.return_value.set.call_args[0][0][0] == (
         "/dev1234/qachannels/0/generator/clearwave",
@@ -158,7 +162,7 @@ def test_write_to_waveform_memory(shfqa, generator, mock_connection):
     )
     assert all(
         mock_connection.return_value.set.call_args[0][0][1][1]
-        == np.ones(1000, dtype=np.complex128)
+        == np.ones(1000, dtype=np.complex128),
     )
 
     with pytest.raises(RuntimeError) as e_info:
@@ -184,10 +188,10 @@ def test_read_from_waveform_memory(shfqa, mock_connection):
 
     mock_connection.return_value.get.return_value = {
         "/dev1234/qachannels/0/generator/waveforms/0/wave": [
-            {"vector": np.ones(1000, dtype=np.complex128)}
+            {"vector": np.ones(1000, dtype=np.complex128)},
         ],
         "/dev1234/qachannels/0/generator/waveforms/1/wave": [
-            {"vector": np.ones(1000, dtype=np.complex128)}
+            {"vector": np.ones(1000, dtype=np.complex128)},
         ],
     }
     result = shfqa.qachannels[0].generator.read_from_waveform_memory()
@@ -201,7 +205,8 @@ def test_read_from_waveform_memory(shfqa, mock_connection):
 def test_configure_sequencer_triggering(generator, mock_connection):
     with patch("zhinst.toolkit.driver.devices.shfqa.utils", autospec=True) as utils:
         generator.configure_sequencer_triggering(
-            aux_trigger="fobarob", play_pulse_delay=0.0001
+            aux_trigger="fobarob",
+            play_pulse_delay=0.0001,
         )
         utils.get_sequencer_triggering_settings.assert_called_with(
             "DEV1234",

@@ -1,21 +1,19 @@
 """High-level generic lazy node tree for the zhinst.core package."""
+
+from __future__ import annotations
+
 import fnmatch
 import json
 import typing as t
+from contextlib import contextmanager
 from keyword import iskeyword as is_keyword
 
-# Protocol is available in the typing module since 3.8
-# Ift we only support 3.8 we should switch to t.Protocol
-from typing_extensions import Protocol
-
-from contextlib import contextmanager
-
+from zhinst.toolkit.exceptions import ToolkitError
 from zhinst.toolkit.nodetree.helper import NodeDoc, _NodeInfo
 from zhinst.toolkit.nodetree.node import Node, NodeInfo
-from zhinst.toolkit.exceptions import ToolkitError
 
 
-class Connection(Protocol):
+class Connection(t.Protocol):
     """Protocol class for the connection used in the nodetree.
 
     Every connection object used in the Nodetree is expected to have at least
@@ -43,7 +41,7 @@ class Connection(Protocol):
         """Mirrors the behavior of zhinst.core ``set`` command."""
 
     @t.overload
-    def set(self, path: t.Union[t.List[t.Tuple[str, t.Any]]]) -> None:
+    def set(self, path: t.Union[list[tuple[str, t.Any]]]) -> None:
         """Mirrors the behavior of zhinst.core ``set`` command."""
 
     def set(self, path, value=None) -> None:
@@ -65,13 +63,14 @@ class Transaction:
         nodetree: Underlying Nodetree
     """
 
-    def __init__(self, nodetree: "NodeTree"):
-        self._queue: t.Optional[t.List[t.Tuple[str, t.Any]]] = None
+    def __init__(self, nodetree: NodeTree):
+        self._queue: t.Optional[list[tuple[str, t.Any]]] = None
         self._root = nodetree
         self._add_callback: t.Optional[t.Callable[[str, t.Any], None]] = None
 
     def start(
-        self, add_callback: t.Optional[t.Callable[[str, t.Any], None]] = None
+        self,
+        add_callback: t.Optional[t.Callable[[str, t.Any], None]] = None,
     ) -> None:
         """Start the transaction.
 
@@ -82,15 +81,14 @@ class Transaction:
 
         Raises:
             ToolkitError: A transaction is already in progress.
-
-        .. versionchanged:: 0.4.0
-
-            add_callback added.
         """
         if self.in_progress():
-            raise ToolkitError(
+            msg = (
                 "A transaction is already in progress. Only one transaction is "
                 "possible at a time."
+            )
+            raise ToolkitError(
+                msg,
             )
         self._queue = []
         self._add_callback = add_callback
@@ -114,14 +112,15 @@ class Transaction:
         """
         try:
             self._queue.append(  # type: ignore[union-attr]
-                (self._root.to_raw_path(node), value)
+                (self._root.to_raw_path(node), value),
             )
             if self._add_callback:
                 self._add_callback(*self._queue[-1])  # type: ignore[index]
         except AttributeError as exception:
-            raise AttributeError("No set transaction is in progress.") from exception
+            msg = "No set transaction is in progress."
+            raise AttributeError(msg) from exception
 
-    def add_raw_list(self, node_value_pairs: t.List[t.Tuple[str, t.Any]]) -> None:
+    def add_raw_list(self, node_value_pairs: list[tuple[str, t.Any]]) -> None:
         """Adds multiple set commands at a time.
 
         Args:
@@ -132,22 +131,23 @@ class Transaction:
             TookitError: if this function is called outside a transaction. It is
                 exclusively designed to be used within transactions.
 
-        Note: settings can only take strings which to
-                describe a node, but no node objects
+        Note:
+            settings can only take strings which to describe a node, but no node objects
         """
         try:
             self._queue += node_value_pairs  # type: ignore[operator]  # caught
         except TypeError as exception:
-            raise ToolkitError("No set transaction is in progress.") from exception
+            msg = "No set transaction is in progress."
+            raise ToolkitError(msg) from exception
 
     def in_progress(self) -> bool:
         """Flag if the transaction is in progress."""
         return self._queue is not None
 
-    def result(self) -> t.Optional[t.List[t.Tuple[str, t.Any]]]:
+    def result(self) -> t.Optional[list[tuple[str, t.Any]]]:
         """Resulting transaction list.
 
-        Result:
+        Returns:
             List of all added node value pairs.
         """
         return self._queue
@@ -164,9 +164,11 @@ class NodeTree:
     connection and makes them available in nested dictionary like interface. The
     interface also supports accessing the nodes by attribute.
 
+    ```
     >>> nodetree = NodeTree(connection)
     >>> nodetree.example.nodes[8].test
-        /example/nodes/8/test
+    /example/nodes/8/test
+    ```
 
     To speed up the initialization time the node tree is initialized lazy.
     Meaning the dictionary is kept as a flat dictionary and is not converted
@@ -174,9 +176,9 @@ class NodeTree:
     ``NodeTree`` also are just simple placeholders. Only when performing
     operations on a node its validity is checked an the calls get translated to
     the correct node string. (For more information on how to manipulate nodes
-    refer to :class:`zhinst.toolkit.nodetree.node.Node`).
+    refer to `zhinst.toolkit.nodetree.node.Node`).
 
-    Examples:
+    Example:
         >>> nodetree = NodeTree(daq)
         >>> nodetree.dev123.demods[0].freq
         /dev123/demods/0/freq
@@ -219,9 +221,9 @@ class NodeTree:
         self._transaction = Transaction(self)
         # First Layer must be generate during initialization to calculate the
         # prefixes to keep
-        self._first_layer: t.List[str] = []
-        self._prefixes_keep: t.List[str] = []
-        self._node_infos: t.Dict[Node, NodeInfo] = {}
+        self._first_layer: list[str] = []
+        self._prefixes_keep: list[str] = []
+        self._node_infos: dict[Node, NodeInfo] = {}
         self._generate_first_layer()
 
     def __getattr__(self, name):
@@ -244,7 +246,7 @@ class NodeTree:
     def __dir__(self):
         return self._first_layer
 
-    def __iter__(self) -> t.Iterator[t.Tuple[Node, _NodeInfo]]:
+    def __iter__(self) -> t.Iterator[tuple[Node, _NodeInfo]]:
         for node_raw, info in self._flat_dict.items():
             yield self.raw_path_to_node(node_raw), info
 
@@ -261,16 +263,16 @@ class NodeTree:
         """
         for raw_node in self._flat_dict:
             if not raw_node.startswith("/"):
-                raise SyntaxError(f"{raw_node}: Leading slash not found")
+                msg = f"{raw_node}: Leading slash not found"
+                raise SyntaxError(msg)
             node_split = raw_node.split("/")
             # Since we always have a leading slash we ignore the first element
             # which is empty.
             if node_split[1] == self._prefix_hide:
                 if node_split[2] not in self._first_layer:
                     self._first_layer.append(node_split[2])
-            else:
-                if node_split[1] not in self._prefixes_keep:
-                    self._prefixes_keep.append(node_split[1])
+            elif node_split[1] not in self._prefixes_keep:
+                self._prefixes_keep.append(node_split[1])
         self._first_layer.extend(self._prefixes_keep)
 
     def get_node_info(self, node: Node):
@@ -291,8 +293,6 @@ class NodeTree:
 
         Returns:
             Node information
-
-        .. versionadded:: 0.6.0
         """
         try:
             return self._node_infos[node]
@@ -301,8 +301,9 @@ class NodeTree:
             return self._node_infos[node]
 
     def get_node_info_raw(
-        self, node: t.Union[Node, str]
-    ) -> t.Dict[Node, t.Optional[t.Dict]]:
+        self,
+        node: t.Union[Node, str],
+    ) -> dict[Node, t.Optional[dict]]:
         """Get the information/data for a node.
 
         Unix shell-style wildcards are supported.
@@ -331,7 +332,7 @@ class NodeTree:
     def update_node(
         self,
         node: t.Union[Node, str],
-        updates: t.Dict[str, t.Any],
+        updates: dict[str, t.Any],
         *,
         add: bool = False,
     ) -> None:
@@ -358,13 +359,16 @@ class NodeTree:
                 raise KeyError(potential_key)
             if any(wildcard in potential_key for wildcard in ["*", "?", "["]):
                 # Can be implemented in the future if necessary
-                raise RuntimeError(
+                msg = (
                     f"{potential_key}: Unable to resolve wildcards when adding "
                     "new nodes."
                 )
+                raise RuntimeError(
+                    msg,
+                )
             self._flat_dict[potential_key] = updates
             first_node = potential_key.split("/")[1]
-            if not self._prefix_hide == first_node:
+            if self._prefix_hide != first_node:
                 self._prefixes_keep.append(first_node)
                 self._first_layer.append(first_node)
         else:
@@ -374,7 +378,7 @@ class NodeTree:
 
     def update_nodes(
         self,
-        update_dict: t.Dict[t.Union[Node, str], t.Dict[str, t.Any]],
+        update_dict: dict[t.Union[Node, str], dict[str, t.Any]],
         *,
         add: bool = False,
         raise_for_invalid_node: bool = True,
@@ -392,8 +396,6 @@ class NodeTree:
                 node(s) are invalid/nonexistent, an error is raised.
 
                 Otherwise will issue a warning and continue adding the valid nodes.
-
-                .. versionadded:: 0.3.4
 
         Raises:
             KeyError: If node does not exist and the ``add`` flag is not set
@@ -473,7 +475,7 @@ class NodeTree:
         else:
             try:
                 string_list = "/".join(
-                    [self._prefix_hide] + node_list  # type: ignore[arg-type]
+                    [self._prefix_hide, *node_list],  # type: ignore[arg-type]
                 )
             except TypeError:
                 string_list = "/".join(node_list)
@@ -502,9 +504,12 @@ class NodeTree:
             try:
                 return "/" + self._prefix_hide + "/" + node.lower()  # type: ignore
             except TypeError as error:
-                raise ValueError(
+                msg = (
                     f"{node} is a relative path but should be a "
                     "absolute path (leading slash)"
+                )
+                raise ValueError(
+                    msg,
                 ) from error
         return node.lower()
 
@@ -524,7 +529,7 @@ class NodeTree:
         Warning:
             The set is always performed as deep set if called on device nodes.
 
-        Examples:
+        Example:
             >>> with nodetree.set_transaction():
                     nodetree.test[0].a(1)
                     nodetree.test[1].a(2)
@@ -538,12 +543,20 @@ class NodeTree:
 
     @property
     def transaction(self) -> Transaction:
-        """Transaction manager."""
+        """Transaction manager.
+
+        Returns:
+            Transaction manager.
+        """
         return self._transaction
 
     @property
     def connection(self) -> Connection:
-        """Underlying connection."""
+        """Underlying connection.
+
+        Returns:
+            Underlying connection.
+        """
         return self._connection
 
     @property
@@ -552,10 +565,17 @@ class NodeTree:
 
         Hidden means that users do not need to specify it and it will be added
         automatically to the nodes if necessary.
+
+        Returns:
+            Prefix that is hidden in the nodetree.
         """
         return self._prefix_hide
 
     @property
     def raw_dict(self) -> dict:
-        """Underlying flat dictionary with all node information."""
+        """Underlying flat dictionary with all node information.
+
+        Returns:
+            Underlying flat dictionary with all node information.
+        """
         return self._flat_dict

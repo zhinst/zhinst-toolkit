@@ -1,8 +1,12 @@
 """Custom sequence code class."""
-from zhinst.toolkit.waveform import Waveforms
-from zhinst.toolkit.command_table import CommandTable
+
+from __future__ import annotations
+
 import re
 import typing as t
+
+from zhinst.toolkit.command_table import CommandTable
+from zhinst.toolkit.waveform import Waveforms
 
 
 class Sequence:
@@ -12,11 +16,11 @@ class Sequence:
     Instruments device. Although a sequencer code can be represented by a
     simple string this class offers the following advantages:
 
-        * Define a constants dictionary. The constants will be added
-          automatically to the top of the resulting sequencer code and helps
-          to prevent the use of fstrings (which require the escaping of {})
-        * Link Waveforms to the sequence. This adds the waveform placeholder
-          definitions to the top of the resulting sequencer code.
+    * Define a constants dictionary. The constants will be added
+        automatically to the top of the resulting sequencer code and helps
+        to prevent the use of fstrings (which require the escaping of {})
+    * Link Waveforms to the sequence. This adds the waveform placeholder
+        definitions to the top of the resulting sequencer code.
 
     Note:
         This class is only for convenience. The same functionality can be
@@ -54,9 +58,9 @@ class Sequence:
 
     def __init__(
         self,
-        code: str = None,
+        code: t.Optional[str] = None,
         *,
-        constants: t.Dict[str, float] = None,
+        constants: t.Optional[dict[str, float]] = None,
         waveforms: Waveforms = None,
         command_table: CommandTable = None,
     ):
@@ -97,7 +101,7 @@ class Sequence:
             sequence = (
                 "// Constants\n"
                 + "\n".join(
-                    [f"const {key} = {value};" for key, value in new_constants.items()]
+                    [f"const {key} = {value};" for key, value in new_constants.items()],
                 )
                 + "\n"
                 + sequence
@@ -106,40 +110,72 @@ class Sequence:
 
     @property
     def code(self) -> str:
-        """Code of the Sequence."""
+        """Code of the Sequence.
+
+        Returns:
+            Code of the Sequence.
+        """
         return self._partial_seq
 
     @code.setter
     def code(self, value: str) -> None:
-        """Code of the Sequence."""
+        """Code of the Sequence.
+
+        Args:
+            value: Code of the Sequence.
+        """
         self._partial_seq = value
 
     @property
-    def constants(self) -> t.Dict[str, float]:
-        """Constants of the Sequence."""
+    def constants(self) -> dict[str, float]:
+        """Constants of the Sequence.
+
+        Returns:
+            Constants of the Sequence.
+        """
         return self._constants
 
     @constants.setter
-    def constants(self, value: t.Dict[str, float]) -> None:
-        """Constants of the Sequence."""
+    def constants(self, value: dict[str, float]) -> None:
+        """Constants of the Sequence.
+
+        Args:
+            value: Constants of the Sequence.
+        """
         self._constants = value
 
     @property
     def waveforms(self) -> Waveforms:
-        """Waveforms of the Sequence."""
+        """Waveforms of the Sequence.
+
+        Returns:
+            Waveforms of the Sequence.
+        """
         return self._waveforms
 
     @waveforms.setter
     def waveforms(self, value: Waveforms) -> None:
-        """Waveforms of the Sequence."""
+        """Waveforms of the Sequence.
+
+        Args:
+            value: Waveforms of the Sequence.
+        """
         self._waveforms = value
 
     @property
     def command_table(self) -> CommandTable:
-        """Command table of the Sequence."""
+        """Command table of the Sequence.
+
+        Returns:
+            Command table of the Sequence.
+        """
         return self._command_table
 
     @command_table.setter
     def command_table(self, value: CommandTable) -> None:
-        """Command table of the Sequence."""
+        """Command table of the Sequence.
+
+        Args:
+            value: Command table of the Sequence.
+        """
         self._command_table = value

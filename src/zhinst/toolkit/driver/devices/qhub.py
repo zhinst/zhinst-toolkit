@@ -1,12 +1,22 @@
 """QHub Instrument Driver."""
 
+from __future__ import annotations
+
+from typing import Optional
+
 from zhinst.toolkit.driver.devices.quantum_system_hub import QuantumSystemHub
 
 
 class QHub(QuantumSystemHub):
     """High-level driver for the Zurich Instruments QHub."""
 
-    def arm(self, *, deep=True, repetitions: int = None, holdoff: float = None) -> None:
+    def arm(
+        self,
+        *,
+        deep=True,
+        repetitions: Optional[int] = None,
+        holdoff: Optional[float] = None,
+    ) -> None:
         """Prepare QHub for triggering the instruments.
 
         This method configures the execution engine of QHub.

@@ -1,7 +1,5 @@
 from unittest.mock import patch
 
-import pytest
-
 from zhinst.toolkit.driver.devices.shfsg import AWG, Node, SGChannel
 
 
@@ -31,7 +29,8 @@ def test_sg_awg(shfsg):
 def test_sg_awg_compiler(mock_connection, shfsg):
     mock_connection.return_value.getString.return_value = "AWG,FOOBAR"
     with patch(
-        "zhinst.toolkit.driver.nodes.awg.compile_seqc", autospec=True
+        "zhinst.toolkit.driver.nodes.awg.compile_seqc",
+        autospec=True,
     ) as compile_seqc:
         shfsg.sgchannels[0].awg.compile_sequencer_program("test")
         compile_seqc.assert_called_once_with("test", "SHFSG8", "AWG,FOOBAR", 0)
@@ -41,18 +40,18 @@ def test_sg_awg_modulation_freq(mock_connection, shfsg, data_dir):
     mock_connection.return_value.getInt.return_value = 0
     shfsg.sgchannels[0].awg_modulation_freq()
     mock_connection.return_value.getInt.assert_called_with(
-        "/dev1234/sgchannels/0/sines/0/oscselect"
+        "/dev1234/sgchannels/0/sines/0/oscselect",
     )
     mock_connection.return_value.getDouble.assert_called_with(
-        "/dev1234/sgchannels/0/oscs/0/freq"
+        "/dev1234/sgchannels/0/oscs/0/freq",
     )
     mock_connection.return_value.getInt.return_value = 1
     shfsg.sgchannels[0].awg_modulation_freq()
     mock_connection.return_value.getInt.assert_called_with(
-        "/dev1234/sgchannels/0/sines/0/oscselect"
+        "/dev1234/sgchannels/0/sines/0/oscselect",
     )
     mock_connection.return_value.getDouble.assert_called_with(
-        "/dev1234/sgchannels/0/oscs/1/freq"
+        "/dev1234/sgchannels/0/oscs/1/freq",
     )
 
 
@@ -114,7 +113,10 @@ def test_awg_configure_marker_and_trigger(data_dir, mock_connection, shfsg):
 def test_configure_channel(mock_connection, shfsg):
     with patch("zhinst.toolkit.driver.devices.shfsg.utils", autospec=True) as utils:
         shfsg.sgchannels[0].configure_channel(
-            enable=True, output_range=111, center_frequency=20.4, rf_path=False
+            enable=True,
+            output_range=111,
+            center_frequency=20.4,
+            rf_path=False,
         )
         utils.configure_channel.assert_called_once_with(
             mock_connection.return_value,
