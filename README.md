@@ -23,7 +23,7 @@ The zhinst-toolkit is well tested and considered stable enough for general usage
 The interfaces may have some incompatible changes between releases.
 Please check the changelog if you are upgrading.
 ## LabOne software
-As prerequisite, the LabOne software version 22.02 or later must be installed.
+As prerequisite, the LabOne software version 25.04 or later must be installed.
 It can be downloaded for free at
 [https://www.zhinst.com/labone](https://www.zhinst.com/labone). Follow the
 installation instructions specific to your platform. Verify that you can
