@@ -57,7 +57,6 @@ class SHFQASweeper(Node):
     used in the same way.
 
     Args:
-        daq_server: Client Session that should be used by the sweeper.
         session: Session to the Data Server.
     """
 

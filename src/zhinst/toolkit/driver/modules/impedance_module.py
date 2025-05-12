@@ -27,9 +27,6 @@ class CalibrationStatus(int, Sequence):
     This class wraps around this by both deriving from an integer and a
     Sequence. Therefore one can use it like a int but also access the
     individual steps through items (e.g. module.step[0]).
-
-    Args:
-        value (int): Integer value of the status.
     """
 
     def __new__(cls, value: int):

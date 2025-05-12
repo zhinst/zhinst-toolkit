@@ -30,10 +30,10 @@ class AWG(Node):
     Args:
         root: Root of the nodetree
         tree: Tree (node path as tuple) of the current node
-        session: Underlying session.
         serial: Serial of the device.
         index: Index of the corresponding awg channel
         device_type: Device type
+        device_options: Device options
     """
 
     def __init__(
@@ -64,7 +64,7 @@ class AWG(Node):
 
         Args:
             single: Flag if the sequencer should be disabled after finishing
-            execution.
+                execution.
 
         Raises:
             RuntimeError: If the sequencer could not be enabled.

@@ -13,7 +13,7 @@ class QHub(QuantumSystemHub):
     def arm(
         self,
         *,
-        deep=True,
+        deep: bool = True,
         repetitions: Optional[int] = None,
         holdoff: Optional[float] = None,
     ) -> None:

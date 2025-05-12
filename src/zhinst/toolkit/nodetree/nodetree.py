@@ -125,7 +125,8 @@ class Transaction:
 
         Args:
             node_value_pairs: List of settings in the form of (node_string, value)
-            the node_strings are assumed to be valid and of the form /dev1234/.../attr1
+                the node_strings are assumed to be valid and of the form
+                /dev1234/.../attr1
 
         Raises:
             TookitError: if this function is called outside a transaction. It is
@@ -275,7 +276,7 @@ class NodeTree:
                 self._prefixes_keep.append(node_split[1])
         self._first_layer.extend(self._prefixes_keep)
 
-    def get_node_info(self, node: Node):
+    def get_node_info(self, node: Node) -> NodeInfo:
         """Get the node information for a node.
 
         The nodetree caches the node information for each node.
@@ -315,7 +316,7 @@ class NodeTree:
             Node(s) information.
 
         Raises:
-            KeyError if the node does not match an existing node.
+            KeyError: if the node does not match an existing node.
             ValueError: If the node is passed as a string in form of a relative
                 path and no prefix can be added.
         """
@@ -445,7 +446,7 @@ class NodeTree:
 
         Raises:
             ValueError: If the node is passed as a string in form of a relative
-            path and no prefix can be added.
+                path and no prefix can be added.
         """
         return (
             self.node_to_raw_path(node)

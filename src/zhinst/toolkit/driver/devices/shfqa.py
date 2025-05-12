@@ -43,10 +43,11 @@ class Generator(AWG):
     Args:
         root: Root of the nodetree
         tree: Tree (node path as tuple) of the current node
-        daq_server: Instance of the ziDAQServer
         serial: Serial of the device.
         index: Index of the corresponding awg channel
         max_qubits_per_channel: Max qubits per channel
+        device_type: Type of the device.
+        device_options: Options of the device.
     """
 
     def __init__(

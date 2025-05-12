@@ -42,17 +42,11 @@ class Wave(np.ndarray):
     The additional metadata is only used for the sequencer code generation.
 
     (Based on https://numpy.org/doc/stable/user/basics.subclassing.html)
-
-    Args:
-        input_array: existing ndarray
-        name: optional name of the waveform in the sequencer code snippet.
-        output: optional output configuration for the waveform in the
-                sequencer code snippet.
     """
 
     def __new__(
         cls,
-        input_array,
+        input_array: np.ndarray,
         name: t.Optional[str] = None,
         output: t.Optional[OutputType] = None,
     ) -> Wave:
@@ -430,7 +424,9 @@ class Waveforms(MutableMapping):
             ],
         )
 
-    def validate(self, meta_info: t.Union[bytes, str], *, allow_missing=True) -> None:
+    def validate(
+        self, meta_info: t.Union[bytes, str], *, allow_missing: bool = True
+    ) -> None:
         """Validates the waveforms against the ones defined in a sequencer program.
 
         The information about the sequencer code can either be passed in form
