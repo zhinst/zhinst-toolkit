@@ -425,7 +425,10 @@ class Waveforms(MutableMapping):
         )
 
     def validate(
-        self, meta_info: t.Union[bytes, str], *, allow_missing: bool = True
+        self,
+        meta_info: t.Union[bytes, str],
+        *,
+        allow_missing: bool = True,
     ) -> None:
         """Validates the waveforms against the ones defined in a sequencer program.
 
