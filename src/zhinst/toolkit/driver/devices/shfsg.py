@@ -7,7 +7,7 @@ import typing as t
 from functools import cached_property
 
 import zhinst.utils.shfsg as utils
-from zhinst.toolkit.driver.devices.base import BaseInstrument
+from zhinst.toolkit.driver.devices.shf import SHF
 from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.nodetree import Node
 from zhinst.toolkit.nodetree.helper import not_callable_in_transactions
@@ -256,7 +256,7 @@ class SGChannel(Node):
         )
 
 
-class SHFSG(BaseInstrument):
+class SHFSG(SHF):
     """High-level driver for the Zurich Instruments SHFSG."""
 
     @cached_property

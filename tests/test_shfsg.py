@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 from zhinst.toolkit.driver.devices.shfsg import AWG, Node, SGChannel
+from tests.utils import shf_test_ref_clock
 
 
 def test_repr(shfsg):
@@ -173,3 +174,7 @@ def test_configure_sine_generation(mock_connection, shfsg):
             gains=(3.0, -1.0, 5.0, 1.0),
             sine_generator_index=8,
         )
+
+
+def test_ref_clock(mock_connection, shfsg):
+    shf_test_ref_clock(mock_connection, shfsg)
