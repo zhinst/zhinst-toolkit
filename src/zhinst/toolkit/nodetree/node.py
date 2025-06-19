@@ -364,15 +364,8 @@ class Node:
 
     The call operator supports the following flags:
 
-    * deep: Flag if the set operation should be blocking until the data
-        has arrived at the device, respectively if the get operation should
-        return the value from the device or the cached value on the data
-        server (if there is any). If this flag is set the operation can
-        take significantly longer. (default = False)
-
-        For a deep get operation the timestamp from the device is returned
-        in addition to the value (The timestamp can be None, e.g. deep gets
-        on LabOne modules).
+    * deep: for get operations, deep=True will return the timestamp in addition
+        to the value.
 
         ```
         >>> nodetree.demods[0].freq(deep=True)
