@@ -110,11 +110,14 @@ class QuantumSystemHub(BaseInstrument):
                 exceeds the specified timeout.
         """
         ref_clock_status = self.system.clocks.referenceclock.in_.status
+        locked_enum = ref_clock_status.node_info.enum.locked
+        busy_enum = ref_clock_status.node_info.enum.busy
+
         ref_clock = self.system.clocks.referenceclock.in_.source
         ref_clock_actual = self.system.clocks.referenceclock.in_.sourceactual
         try:
             ref_clock_status.wait_for_state_change(
-                2,
+                busy_enum,
                 invert=True,
                 timeout=timeout,
                 sleep_time=sleep_time,
@@ -124,15 +127,15 @@ class QuantumSystemHub(BaseInstrument):
             raise TimeoutError(
                 msg,
             ) from error
-        if ref_clock_status() == 0:
+        if ref_clock_status() == locked_enum and ref_clock_actual() == ref_clock():
             return True
-        if ref_clock_status() == 1 and ref_clock_actual() != ref_clock():
-            ref_clock("internal", deep=True)
-            logger.error(
-                f"There was an error locking the device({self.serial}) "
-                f"onto reference clock signal. Automatically switching to internal "
-                f"reference clock. Please try again.",
-            )
+
+        ref_clock("internal", deep=True)
+        logger.error(
+            f"There was an error locking the device({self.serial}) "
+            f"onto reference clock signal. Automatically switching to internal "
+            f"reference clock. Please try again.",
+        )
         return False
 
     def check_zsync_connection(

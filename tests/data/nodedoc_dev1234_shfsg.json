@@ -1,4 +1,60 @@
 {
+    "/dev1234/sgchannels/0/busy": {
+        "Node": "/DEV1234/SGCHANNELS/0/BUSY",
+        "Description": "Indicates that the channel is busy applying settings, e.g., center-frequency or analog output settings.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "/dev1234/sgchannels/1/busy": {
+        "Node": "/DEV1234/SGCHANNELS/1/BUSY",
+        "Description": "Indicates that the channel is busy applying settings, e.g., center-frequency or analog output settings.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "/dev1234/sgchannels/2/busy": {
+        "Node": "/DEV1234/SGCHANNELS/2/BUSY",
+        "Description": "Indicates that the channel is busy applying settings, e.g., center-frequency or analog output settings.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "/dev1234/sgchannels/3/busy": {
+        "Node": "/DEV1234/SGCHANNELS/3/BUSY",
+        "Description": "Indicates that the channel is busy applying settings, e.g., center-frequency or analog output settings.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "/dev1234/sgchannels/4/busy": {
+        "Node": "/DEV1234/SGCHANNELS/4/BUSY",
+        "Description": "Indicates that the channel is busy applying settings, e.g., center-frequency or analog output settings.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "/dev1234/sgchannels/5/busy": {
+        "Node": "/DEV1234/SGCHANNELS/5/BUSY",
+        "Description": "Indicates that the channel is busy applying settings, e.g., center-frequency or analog output settings.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "/dev1234/sgchannels/6/busy": {
+        "Node": "/DEV1234/SGCHANNELS/6/BUSY",
+        "Description": "Indicates that the channel is busy applying settings, e.g., center-frequency or analog output settings.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
+    "/dev1234/sgchannels/7/busy": {
+        "Node": "/DEV1234/SGCHANNELS/7/BUSY",
+        "Description": "Indicates that the channel is busy applying settings, e.g., center-frequency or analog output settings.",
+        "Properties": "Read",
+        "Type": "Integer (64 bit)",
+        "Unit": "None"
+    },
     "/dev1234/stats/physical/voltages/0": {
         "Node": "/DEV1234/STATS/PHYSICAL/VOLTAGES/0",
         "Description": "Provides internal voltage readings for monitoring.",
@@ -464,9 +520,9 @@
         "Type": "Integer (enumerated)",
         "Unit": "None",
         "Options": {
-            "0": "Reference clock has been locked on.",
-            "1": "There was an error locking onto the reference clock signal.",
-            "2": "The device is busy trying to lock onto the reference clock signal."
+            "0": "\"locked\": Reference clock has been locked on.",
+            "1": "\"error\": There was an error locking onto the reference clock signal.",
+            "2": "\"busy\": The device is busy trying to lock onto the reference clock signal."
         }
     },
     "/dev1234/system/clocks/referenceclock/in/freq": {
