@@ -150,56 +150,58 @@ def test_check_python_versions():
     # matching version
     BaseInstrument._check_python_versions(labone, device_utils)
     # zhinst.core heigher
-    BaseInstrument._check_python_versions(add(labone, (1, 0, 0)), device_utils)
+    BaseInstrument._check_python_versions(add(labone, (1, 0, 0, 0)), device_utils)
     # zhinst.core lower
     with pytest.raises(ToolkitError):
-        BaseInstrument._check_python_versions(sub(labone, (1, 0, 0)), device_utils)
+        BaseInstrument._check_python_versions(sub(labone, (1, 0, 0, 0)), device_utils)
     # utils heigher
     BaseInstrument._check_python_versions(
         labone,
         add(
             device_utils,
-            (1, 0, 0),
+            (1, 0, 0, 0),
         ),
     )
     # utils lower
     with pytest.raises(ToolkitError):
-        BaseInstrument._check_python_versions(labone, sub(device_utils, (1, 0, 0)))
+        BaseInstrument._check_python_versions(labone, sub(device_utils, (1, 0, 0, 0)))
 
 
 def test_version_string_to_tuple_new():
-    test_version = BaseInstrument._version_string_to_tuple("25.1.0.2586")
-    assert test_version == (25, 1, 0)
+    test_version = BaseInstrument._version_string_to_tuple("25.1.4.2586")
+    assert test_version == (25, 1, 4, 2586)
 
 
 def test_version_string_to_tuple_old():
     test_version = BaseInstrument._version_string_to_tuple("25.1.2586")
-    assert test_version == (25, 1, 2586)
+    assert test_version == (25, 1, 0, 2586)
 
 
 def test_version_string_to_tuple_dev():
     test_version = BaseInstrument._version_string_to_tuple("25.1.dev2586")
-    assert test_version == (25, 1, 0)
+    assert test_version == (25, 1, 0, 0)
 
 
 def test_version_string_to_tuple_invalid():
-    test_version = BaseInstrument._version_string_to_tuple("25.1.2586.4.8.d")
-    assert test_version == (25, 1, 2586)
+    test_version = BaseInstrument._version_string_to_tuple("25.1.3.2586.4.8.d")
+    assert test_version == (25, 1, 3, 2586)
 
 
 def test_check_labone_version():
 
     # matching version
-    BaseInstrument._check_labone_version((21, 8, 0), (21, 8, 0))
+    BaseInstrument._check_labone_version((21, 8, 1, 0), (21, 8, 1, 0))
     # zhinst.core heigher
     with pytest.raises(ToolkitError):
-        BaseInstrument._check_labone_version((22, 2, 0), (21, 8, 0))
+        BaseInstrument._check_labone_version((22, 2, 0, 0), (21, 8, 0, 0))
     # zhinst.core lower
     with pytest.raises(ToolkitError):
-        BaseInstrument._check_labone_version((21, 2, 0), (21, 8, 0))
+        BaseInstrument._check_labone_version((21, 2, 0, 0), (21, 8, 3, 0))
     # patchversion missmatch
     with pytest.warns(RuntimeWarning):
-        BaseInstrument._check_labone_version((21, 8, 1), (21, 8, 0))
+        BaseInstrument._check_labone_version((21, 8, 1, 0), (21, 8, 2, 0))
+    # build number missmatch is ignored
+    BaseInstrument._check_labone_version((21, 8, 1, 7852), (21, 8, 1, 1258))
 
 
 def test_check_firmware_update_status(base_instrument, mock_connection):

@@ -114,23 +114,28 @@ class BaseInstrument(Node):
         logger.info(f"Factory preset is loaded to device {self.serial.upper()}.")
 
     @staticmethod
-    def _version_string_to_tuple(version: str) -> tuple[int, int, int]:
+    def _version_string_to_tuple(version: str) -> tuple[int, int, int, int]:
         """Converts a version string into a version tuple.
 
         Args:
-            version: Version
+            version: The version string may contain three or four parts
+                     separated by dots, e.g., '24.10.64896' or '25.04.1.17'.
+                     The third part is optional and may contain the patch version.
 
         Returns:
-            Version as a tuple of ints
+            Version as a tuple of ints, where the patch version is set to 0
+            if it is missing.
         """
-        return tuple(
-            int(v) if v.isdigit() else 0 for v in version.split(".")[:3]
-        )  # type: ignore
+        parts = version.split(".")
+        if len(parts) == 3:
+            # The patch version is optional, so we insert a 0
+            parts.insert(2, "0")
+        return tuple(int(v) if v.isdigit() else 0 for v in parts[:4])  # type: ignore
 
     @staticmethod
     def _check_python_versions(
-        zi_python_version: tuple[int, int, int],
-        zi_utils_version: tuple[int, int, int],
+        zi_python_version: tuple[int, int, int, int],
+        zi_utils_version: tuple[int, int, int, int],
     ) -> None:
         """Check if the minimum required zhinst packages are installed.
 
@@ -147,25 +152,26 @@ class BaseInstrument(Node):
             ToolkitError: If the zhinst.utils version does not match the
                 minimum requirements for zhinst.toolkit
         """
-        if zi_python_version < BaseInstrument._version_string_to_tuple(
+        if zi_python_version[:2] < BaseInstrument._version_string_to_tuple(
             _MIN_LABONE_VERSION,
         ):
             msg = (
                 "zhinst.core version does not match the minimum required version "
-                f"for zhinst.toolkit {zi_python_version} < {_MIN_LABONE_VERSION}. "
+                "for zhinst.toolkit: "
+                f"{zi_python_version[0]}.{zi_python_version[:1]} < {_MIN_LABONE_VERSION}. "
                 "Use `pip install --upgrade zhinst` to get the latest version."
             )
             raise ToolkitError(
                 msg,
             )
-        if zi_utils_version < BaseInstrument._version_string_to_tuple(
+        if zi_utils_version[:2] < BaseInstrument._version_string_to_tuple(
             _MIN_DEVICE_UTILS_VERSION,
         ):
             msg = (
                 "zhinst.utils version does not match the minimum required "
-                f"version for zhinst.toolkit {zi_utils_version} < "
-                f"{_MIN_DEVICE_UTILS_VERSION}. Use `pip install "
-                "--upgrade zhinst.utils` to get the latest version."
+                "version for zhinst.toolkit: "
+                f"{zi_utils_version[0]}.{zi_utils_version[1]} < {_MIN_DEVICE_UTILS_VERSION}."
+                "Use `pip install --upgrade zhinst.utils` to get the latest version."
             )
             raise ToolkitError(
                 msg,
@@ -173,8 +179,8 @@ class BaseInstrument(Node):
 
     @staticmethod
     def _check_labone_version(
-        zi_python_version: tuple[int, int, int],
-        labone_version: tuple[int, int, int],
+        zi_python_version: tuple[int, int, int, int],
+        labone_version: tuple[int, int, int, int],
     ) -> None:
         """Check that the LabOne version matches the zhinst version.
 
@@ -188,8 +194,8 @@ class BaseInstrument(Node):
         """
         if labone_version[:2] < zi_python_version[:2]:
             msg = (
-                "The LabOne version is smaller than the zhinst.core version. "
-                f"{labone_version} < {zi_python_version}. "
+                "The LabOne version is smaller than the zhinst.core version: "
+                f"{labone_version[0]}.{labone_version[1]} < {zi_python_version[0]}.{zi_python_version[1]}. "
                 "Please install the latest/matching LabOne version from "
                 "https://www.zhinst.com/support/download-center."
             )
@@ -198,17 +204,17 @@ class BaseInstrument(Node):
             )
         if labone_version[:2] > zi_python_version[:2]:
             msg = (
-                "the zhinst.core version is smaller than the LabOne version "
-                f"{zi_python_version} < {labone_version}. "
+                "The zhinst.core version is smaller than the LabOne version: "
+                f"{zi_python_version[0]}.{zi_python_version[1]} < {labone_version[0]}.{labone_version[1]}. "
                 "Please install the latest/matching version from pypi.org."
             )
             raise ToolkitError(
                 msg,
             )
-        if labone_version[-1] != zi_python_version[-1]:
+        if labone_version[2] != zi_python_version[2]:
             warnings.warn(
                 "The patch version of zhinst.core and the LabOne DataServer "
-                f"mismatch {labone_version[-1]} ! {zi_python_version[-1]}.",
+                f"mismatch: {labone_version[2]} != {zi_python_version[2]}.",
                 RuntimeWarning,
                 stacklevel=2,
             )
@@ -271,14 +277,19 @@ class BaseInstrument(Node):
             self._version_string_to_tuple(zhinst_version_str),
             self._version_string_to_tuple(utils_version_str),
         )
-        labone_version_str = self._session.about.version()
-        labone_revision_str = str(self._session.about.revision())[4:]
-        labone_version = self._version_string_to_tuple(
-            labone_version_str + "." + labone_revision_str,
-        )
+        try:
+            # Use the full version available since LabOne 25.01.0
+            # and includes the patch version.
+            labone_full_version = self._session.about.fullversion()
+        except KeyError:
+            # Retrieve the full version for older LabOne versions,
+            # which do not have a patch version.
+            labone_version_str = self._session.about.version()
+            labone_revision_str = str(self._session.about.revision())[4:]
+            labone_full_version = labone_version_str + ".0." + labone_revision_str
         self._check_labone_version(
             self._version_string_to_tuple(zhinst_version_str),
-            labone_version,
+            self._version_string_to_tuple(labone_full_version),
         )
         self._check_firmware_update_status()
 
