@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 1.1.1
+* Use device base-type for instrument model lookup
+
 ## Version 1.1.0
 * Added `check_ref_clock`-function for HDAWG, and SHF* devices
 * Handle LabOne versions 25.01 and later that include a patch version

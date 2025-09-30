@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 import typing as t
 from collections.abc import MutableMapping
 from contextlib import contextmanager
@@ -88,7 +89,9 @@ class Devices(MutableMapping):
             RuntimeError: If the device is not connected to the data server
         """
         dev_type = self._session.daq_server.getString(f"/{serial}/features/devtype")
-        return self._device_classes.get(dev_type, tk_devices.BaseInstrument)(
+        # Strip trailing channel number
+        dev_type_base = re.sub(r"\d+$", "", dev_type)
+        return self._device_classes.get(dev_type_base, tk_devices.BaseInstrument)(
             serial,
             dev_type,
             self._session,

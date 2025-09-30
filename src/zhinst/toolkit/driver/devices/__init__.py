@@ -27,12 +27,9 @@ DeviceType = t.Union[
 
 DEVICE_CLASS_BY_MODEL = {
     "SHFQC": SHFQC,
-    "SHFQA4": SHFQA,
-    "SHFQA2": SHFQA,
-    "SHFSG4": SHFSG,
-    "SHFSG8": SHFSG,
-    "HDAWG4": HDAWG,
-    "HDAWG8": HDAWG,
+    "SHFQA": SHFQA,
+    "SHFSG": SHFSG,
+    "HDAWG": HDAWG,
     "PQSC": PQSC,
     "QHUB": QHub,
     "UHFQA": UHFQA,
