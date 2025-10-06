@@ -43,14 +43,12 @@ pip install zhinst-toolkit
 ```
 
 ## Documentation
-For a full documentation see [here](https://docs.zhinst.com/zhinst-toolkit/en/latest).
+For a full documentation see [here](https://docs.zhinst.com/labone_api_user_manual/reference/toolkit/index.html).
 
 ## Contributing
 We welcome contributions by the community, either as bug reports, fixes and new
 code. Please use the GitHub issue tracker to report bugs or submit patches.
-Before developing something new, please get in contact with us.
-
-Please see [Contributing section](https://docs.zhinst.com/zhinst-toolkit/en/latest/contributing/)
+Before developing something new, please get in contact with us via info@zhinst.com.
 
 ## License
 This software is licensed under the terms of the MIT license.
