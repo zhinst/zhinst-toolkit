@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 1.1.2
+* Update to Python 3.14
+
 ## Version 1.1.1
 * Use device base-type for instrument model lookup
 
