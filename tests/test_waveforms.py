@@ -2,8 +2,8 @@ import json
 
 import numpy as np
 import pytest
-
 from zhinst.core import compile_seqc
+
 from zhinst.toolkit.exceptions import ValidationError
 from zhinst.toolkit.waveform import OutputType, Wave, Waveforms
 
@@ -176,9 +176,7 @@ def test_sequence_snippet():
     waveform[5] = (np.ones(252),)
 
     result = waveform.get_sequence_snippet()
-    assert (
-        result
-        == """\
+    assert result == """\
 wave w1 = placeholder(1008, false, false);
 wave w2 = placeholder(1008, false, false);
 assignWaveIndex(1, 2, w1, 2, w2, 0);
@@ -186,7 +184,6 @@ assignWaveIndex(placeholder(504, true, true), placeholder(504, true, true), 1);
 wave w3 = placeholder(252, true, false);
 assignWaveIndex(w3, placeholder(252, false, false), 3);
 assignWaveIndex(placeholder(252, false, false), 5);"""
-    )
 
     waveform = Waveforms()
     waveform.assign_waveform(
@@ -222,9 +219,7 @@ assignWaveIndex(placeholder(252, false, false), 5);"""
     )
 
     result = waveform.get_sequence_snippet()
-    assert (
-        result
-        == """\
+    assert result == """\
 wave w1 = placeholder(1008, true, false);
 wave w2 = placeholder(1008, false, false);
 assignWaveIndex(1, 2, w1, 1, 2, w2, 0);
@@ -237,7 +232,6 @@ wave test1 = placeholder(1008, false, false);
 wave test2 = placeholder(1008, false, false);
 assignWaveIndex(2, test1, 1, test2, 4);
 assignWaveIndex(placeholder(1008, false, false), placeholder(1008, false, false), 5);"""
-    )
 
 
 def test_validate_ok():

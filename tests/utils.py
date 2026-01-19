@@ -1,5 +1,5 @@
-from itertools import cycle
 import re
+from itertools import cycle
 
 import pytest
 
@@ -54,7 +54,8 @@ def shf_test_ref_clock(mock_connection, shf):
     source = 1
     assert not shf.check_ref_clock(sleep_time=0.001)
     mock_connection.return_value.syncSetString.assert_called_with(
-        "/dev1234/system/clocks/referenceclock/in/source", "internal"
+        "/dev1234/system/clocks/referenceclock/in/source",
+        "internal",
     )
 
     # timeout

@@ -8,6 +8,7 @@ import typing as t
 from collections.abc import Sequence
 
 from zhinst.core import ImpedanceModule as ZIImpedanceModule
+
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 
 if t.TYPE_CHECKING:  # pragma: no cover

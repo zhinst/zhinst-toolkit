@@ -3,8 +3,8 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
-
 from zhinst.core import compile_seqc
+
 from zhinst.toolkit import Waveforms
 
 

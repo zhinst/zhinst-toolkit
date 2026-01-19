@@ -4,9 +4,9 @@ from itertools import cycle
 
 import numpy as np
 import pytest
-
 import zhinst.utils as zi_utils
 from zhinst.core import compile_seqc
+
 from zhinst.toolkit.driver.nodes.awg import CommandTableNode, Waveforms
 
 

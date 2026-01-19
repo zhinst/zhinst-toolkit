@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
-from zhinst.toolkit.driver.devices.shfsg import AWG, Node, SGChannel
 from tests.utils import shf_test_ref_clock
+from zhinst.toolkit.driver.devices.shfsg import AWG, Node, SGChannel
 
 
 def test_repr(shfsg):

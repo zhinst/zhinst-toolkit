@@ -5,6 +5,7 @@ import typing as t
 from functools import partial
 
 from zhinst.core import PrecompensationAdvisorModule as TKPrecompensationAdvisorModule
+
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 from zhinst.toolkit.nodetree import Node, NodeTree
 

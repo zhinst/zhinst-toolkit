@@ -1,5 +1,9 @@
 # zhinst-toolkit Changelog
 
+## Version 1.3.0
+* Add support for Data Streaming Module
+* Drop support for Python 3.9
+
 ## Version 1.2.0
 * Update to Python 3.14
 

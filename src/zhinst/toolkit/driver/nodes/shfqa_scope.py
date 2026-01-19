@@ -4,6 +4,7 @@ import logging
 
 import zhinst.utils.shfqa as utils
 from zhinst.core import ziDAQServer
+
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import not_callable_in_transactions
 

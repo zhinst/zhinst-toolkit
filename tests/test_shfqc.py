@@ -1,9 +1,9 @@
 from unittest.mock import patch
 
+from tests.utils import shf_test_ref_clock
 from zhinst.toolkit import SHFQAChannelMode
 from zhinst.toolkit.driver.devices.shfqa import Generator, QAChannel, Readout, SHFScope
 from zhinst.toolkit.driver.devices.shfsg import AWG, Node, SGChannel
-from tests.utils import shf_test_ref_clock
 
 
 def test_repr(shfqc):

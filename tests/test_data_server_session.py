@@ -574,10 +574,9 @@ def test_session_wide_transaction(
     )
 
     # impossible to create two transactions
-    with pytest.raises(RuntimeError) as e_info:
+    with pytest.raises(RuntimeError) as e_info, session.set_transaction():
         with session.set_transaction():
-            with session.set_transaction():
-                session.mds.groups[0].keepalive(1)
+            session.mds.groups[0].keepalive(1)
 
     # add new device during transaction
     mock_connection.return_value.getString.side_effect = ["dev1234", "MFLI", ""]

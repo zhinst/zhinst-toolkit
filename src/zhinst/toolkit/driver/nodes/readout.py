@@ -7,8 +7,8 @@ import typing as t
 from functools import cached_property
 
 import numpy as np
-
 import zhinst.utils.shfqa as utils
+
 from zhinst.toolkit.driver.nodes.multistate import MultiState
 from zhinst.toolkit.exceptions import ToolkitError
 from zhinst.toolkit.interface import AveragingMode

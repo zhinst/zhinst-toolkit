@@ -7,6 +7,7 @@ import typing as t
 from functools import cached_property
 
 import zhinst.utils.shfqa as utils
+
 from zhinst.toolkit.driver.devices.shf import SHF
 from zhinst.toolkit.driver.nodes.awg import AWG
 from zhinst.toolkit.driver.nodes.readout import Readout

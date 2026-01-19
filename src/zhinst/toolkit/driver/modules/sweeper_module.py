@@ -4,6 +4,7 @@ import logging
 import typing as t
 
 from zhinst.core import SweeperModule as ZISweeperModule
+
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 
 if t.TYPE_CHECKING:  # pragma: no cover

@@ -10,6 +10,7 @@ they offer an easy and user-friendly way to control Zurich Instruments
 devices. It  is tailored to control multiple instruments together,
 especially for device management and multiple AWG distributed control.
 """
+
 from zhinst.toolkit.command_table import CommandTable
 from zhinst.toolkit.driver.modules.pid_advisor_module import PIDMode
 from zhinst.toolkit.interface import AveragingMode, SHFQAChannelMode

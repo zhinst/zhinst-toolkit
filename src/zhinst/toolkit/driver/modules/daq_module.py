@@ -7,8 +7,8 @@ import typing as t
 from collections import namedtuple
 
 import numpy as np
-
 from zhinst.core import DataAcquisitionModule as ZIDAQModule
+
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 from zhinst.toolkit.nodetree.helper import NodeDict
 

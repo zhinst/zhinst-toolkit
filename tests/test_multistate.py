@@ -2,7 +2,6 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
-
 from zhinst.utils.shfqa.multistate import QuditSettings
 
 
