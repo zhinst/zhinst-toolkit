@@ -1,5 +1,5 @@
-from itertools import cycle
 import re
+from itertools import cycle
 from unittest.mock import patch
 
 import pytest

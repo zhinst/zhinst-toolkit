@@ -12,9 +12,9 @@ from io import BytesIO
 import numpy as np
 from elftools.common.exceptions import ELFError
 from elftools.elf.elffile import ELFFile
+from zhinst.utils import convert_awg_waveform, parse_awg_waveform
 
 from zhinst.toolkit.exceptions import ValidationError
-from zhinst.utils import convert_awg_waveform, parse_awg_waveform
 
 _Waveform = tuple[np.ndarray, t.Optional[np.ndarray], t.Optional[np.ndarray]]
 

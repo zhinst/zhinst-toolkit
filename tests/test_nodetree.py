@@ -11,8 +11,8 @@ from unittest.mock import MagicMock, Mock
 
 import numpy as np
 import pytest
-
 from zhinst.core.errors import CoreError
+
 from zhinst.toolkit.driver.devices import HDAWG
 from zhinst.toolkit.exceptions import ToolkitError
 from zhinst.toolkit.nodetree import Node, NodeTree
@@ -175,9 +175,7 @@ def test_node(connection):
         repr(tree.demods[0].rate.node_info)
         == 'NodeInfo("/dev1234/demods/0/rate",leaf-node)'
     )
-    assert (
-        str(tree.demods[0].rate.node_info)
-        == """\
+    assert str(tree.demods[0].rate.node_info) == """\
 /dev1234/demods/0/rate
 Defines the demodulator sampling rate, the number of samples that are sent to the host \
 computer per second. A rate of about 7-10 higher as compared to the filter bandwidth \
@@ -189,7 +187,6 @@ instrument.
 Properties: Read, Write, Setting
 Type: Double
 Unit: 1/s"""
-    )
 
     assert "Options" in str(tree.demods[0].enable.node_info)
     assert "Partial node" in str(tree.demods[0].node_info)
@@ -311,12 +308,14 @@ def test_not_callable_in_transactions(connection):
 
     example_func(node)  # no error
 
-    with pytest.raises(
-        RuntimeError,
-        match="'example_func' cannot be called inside a transaction",
+    with (
+        pytest.raises(
+            RuntimeError,
+            match="'example_func' cannot be called inside a transaction",
+        ),
+        tree.set_transaction(),
     ):
-        with tree.set_transaction():
-            example_func(node)
+        example_func(node)
 
 
 def test_node_dir_property_not_duplicated(connection):
@@ -658,10 +657,9 @@ def test_transactional_set(connection):
     with pytest.raises(AttributeError) as e_info:
         tree.transaction.add("demods/0/phaseshift", 2)
 
-    with pytest.raises(RuntimeError) as e_info:
+    with pytest.raises(RuntimeError) as e_info, tree.set_transaction():
         with tree.set_transaction():
-            with tree.set_transaction():
-                pass
+            pass
 
 
 def test_get_node_info_raw(connection):

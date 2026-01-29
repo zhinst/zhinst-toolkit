@@ -7,6 +7,7 @@ import typing as t
 from pathlib import Path
 
 from zhinst.core import DeviceSettingsModule as ZIDeviceSettingsModule
+
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 from zhinst.toolkit.nodetree.helper import NodeDict
 

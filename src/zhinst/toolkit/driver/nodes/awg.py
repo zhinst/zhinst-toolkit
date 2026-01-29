@@ -8,6 +8,7 @@ import typing as t
 from functools import cached_property
 
 from zhinst.core import compile_seqc
+
 from zhinst.toolkit.driver.nodes.command_table_node import CommandTableNode
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import (

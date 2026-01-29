@@ -4,8 +4,8 @@ import typing as t
 from functools import cached_property
 
 import numpy as np
-
 import zhinst.utils.shfqa.multistate as utils
+
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import create_or_append_set_transaction
 from zhinst.toolkit.nodetree.node import NodeList

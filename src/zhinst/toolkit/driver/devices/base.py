@@ -16,11 +16,12 @@ from functools import cached_property
 from pathlib import Path
 
 from zhinst.core import __version__ as zhinst_version_str
+from zhinst.utils._version import version as utils_version_str
+
 from zhinst.toolkit._min_version import _MIN_DEVICE_UTILS_VERSION, _MIN_LABONE_VERSION
 from zhinst.toolkit.driver.parsers import node_parser
 from zhinst.toolkit.exceptions import ToolkitError
 from zhinst.toolkit.nodetree import Node, NodeTree
-from zhinst.utils._version import version as utils_version_str
 
 logger = logging.getLogger(__name__)
 

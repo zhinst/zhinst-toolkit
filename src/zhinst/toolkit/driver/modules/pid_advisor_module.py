@@ -6,6 +6,7 @@ import typing as t
 from enum import IntFlag
 
 from zhinst.core import PidAdvisorModule as ZIPidAdvisorModule
+
 from zhinst.toolkit.driver.modules.base_module import BaseModule
 
 if t.TYPE_CHECKING:  # pragma: no cover

@@ -3,8 +3,8 @@
 import logging
 
 import numpy as np
-
 import zhinst.utils.shfqa as utils
+
 from zhinst.toolkit.interface import AveragingMode
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import not_callable_in_transactions

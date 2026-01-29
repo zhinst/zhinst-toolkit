@@ -257,7 +257,7 @@ class ModuleHandler:
         property.
 
         The new instance establishes a new session to the DataServer.
-        New instances should therefor be created carefully since they consume
+        New instances should therefore be created carefully since they consume
         resources.
 
         The new module is not managed by toolkit. A managed instance is provided
@@ -279,7 +279,7 @@ class ModuleHandler:
         property.
 
         The new instance establishes a new session to the DataServer.
-        New instances should therefor be created carefully since they consume
+        New instances should therefore be created carefully since they consume
         resources.
 
         The new module is not managed by toolkit. A managed instance is provided
@@ -293,6 +293,28 @@ class ModuleHandler:
             self._session,
         )
 
+    def create_data_streaming_module(self) -> tk_modules.DataStreamingModule:
+        """Create an instance of the DataStreamingModule.
+
+        The resulting Module will have the nodetree accessible. The underlying
+        zhinst.core Module can be accessed through the `raw_module`
+        property.
+
+        The new instance establishes a new session to the DataServer.
+        New instances should therefore be created carefully since they consume
+        resources.
+
+        The new module is not managed by toolkit. A managed instance is provided
+        by the property `data_streaming`.
+
+        Returns:
+            Created module
+        """
+        return tk_modules.DataStreamingModule(
+            self._session.daq_server.dataStreamingModule(),
+            self._session,
+        )
+
     def create_device_settings_module(self) -> tk_modules.DeviceSettingsModule:
         """Create an instance of the DeviceSettingsModule.
 
@@ -301,7 +323,7 @@ class ModuleHandler:
         property.
 
         The new instance establishes a new session to the DataServer.
-        New instances should therefor be created carefully since they consume
+        New instances should therefore be created carefully since they consume
         resources.
 
         The new module is not managed by toolkit. A managed instance is provided
@@ -323,7 +345,7 @@ class ModuleHandler:
         property.
 
         The new instance establishes a new session to the DataServer.
-        New instances should therefor be created carefully since they consume
+        New instances should therefore be created carefully since they consume
         resources.
 
         The new module is not managed by toolkit. A managed instance is provided
@@ -345,7 +367,7 @@ class ModuleHandler:
         property.
 
         The new instance establishes a new session to the DataServer.
-        New instances should therefor be created carefully since they consume
+        New instances should therefore be created carefully since they consume
         resources.
 
         The new module is not managed by toolkit. A managed instance is provided
@@ -367,7 +389,7 @@ class ModuleHandler:
         property.
 
         The new instance establishes a new session to the DataServer.
-        New instances should therefor be created carefully since they consume
+        New instances should therefore be created carefully since they consume
         resources.
 
         The new module is not managed by toolkit. A managed instance is provided
@@ -390,7 +412,7 @@ class ModuleHandler:
         is added.
 
         The new instance establishes a new session to the DataServer.
-        New instances should therefor be created carefully since they consume
+        New instances should therefore be created carefully since they consume
         resources.
 
         The new module is not managed by toolkit. A managed instance is provided
@@ -412,7 +434,7 @@ class ModuleHandler:
         property.
 
         The new instance establishes a new session to the DataServer.
-        New instances should therefor be created carefully since they consume
+        New instances should therefore be created carefully since they consume
         resources.
 
         The new module is not managed by toolkit. A managed instance is provided
@@ -434,7 +456,7 @@ class ModuleHandler:
         property.
 
         The new instance establishes a new session to the DataServer.
-        New instances should therefor be created carefully since they consume
+        New instances should therefore be created carefully since they consume
         resources.
 
         The new module is not managed by toolkit. A managed instance is provided
@@ -456,7 +478,7 @@ class ModuleHandler:
         property.
 
         The new instance establishes a new session to the DataServer.
-        New instances should therefor be created carefully since they consume
+        New instances should therefore be created carefully since they consume
         resources.
 
         The new module is not managed by toolkit. A managed instance is provided
@@ -515,6 +537,20 @@ class ModuleHandler:
             Managed instance of the daq module
         """
         return self.create_daq_module()
+
+    @cached_property
+    def data_streaming(self) -> tk_modules.DataStreamingModule:
+        """Managed instance of the daq module.
+
+        Managed means that only one instance is created
+        and is held inside the connection Manager. This makes it easier to access
+        the modules from within toolkit, since creating a module requires
+        resources. (``use create_data_streaming_module`` to create an unmanaged instance)
+
+        Returns:
+            Managed instance of the data streaming module
+        """
+        return self.create_data_streaming_module()
 
     @cached_property
     def device_settings(self) -> tk_modules.DeviceSettingsModule:

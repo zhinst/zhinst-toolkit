@@ -10,11 +10,6 @@ from enum import IntEnum
 from pathlib import Path
 
 import numpy as np
-
-from zhinst.toolkit.driver.parsers import Parse
-from zhinst.toolkit.exceptions import ToolkitError
-from zhinst.toolkit.nodetree import Node, NodeTree
-from zhinst.toolkit.nodetree.connection_dict import ConnectionDict
 from zhinst.utils.shf_sweeper import (
     AvgConfig,
     EnvelopeConfig,
@@ -23,6 +18,11 @@ from zhinst.utils.shf_sweeper import (
     TriggerConfig,
 )
 from zhinst.utils.shf_sweeper import ShfSweeper as CoreSweeper
+
+from zhinst.toolkit.driver.parsers import Parse
+from zhinst.toolkit.exceptions import ToolkitError
+from zhinst.toolkit.nodetree import Node, NodeTree
+from zhinst.toolkit.nodetree.connection_dict import ConnectionDict
 
 if t.TYPE_CHECKING:  # pragma: no cover
     from zhinst.toolkit.driver.devices import DeviceType

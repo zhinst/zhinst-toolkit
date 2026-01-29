@@ -13,6 +13,7 @@ from functools import partial
 from os import PathLike, fspath
 
 from zhinst.core import ModuleBase
+
 from zhinst.toolkit.nodetree import Node, NodeTree
 from zhinst.toolkit.nodetree.helper import NodeDict
 

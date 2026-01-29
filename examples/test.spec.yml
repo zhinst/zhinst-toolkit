@@ -10,6 +10,9 @@ bell_state_stabilization:
 daq_module:
   device_type: ["MFLI", "UHFLI"]
 
+data_streaming_module:
+  device_type: ["MFLI", "UHFLI", "SHFLI", "GHFLI", "VHFLI"]
+
 device_settings_module:
   device_type: ["MFLI", "UHFLI", "UHFQA", "HDAWG8", "SHFSG4"]
 

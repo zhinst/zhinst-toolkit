@@ -37,9 +37,7 @@ repeat(5)
 ..."""
 
     assert sequencer.to_string() == str(sequencer)
-    assert (
-        sequencer.to_string()
-        == """\
+    assert sequencer.to_string() == """\
 // Constants
 const PULSE_WIDTH = 1e-08;
 // Waveforms declaration
@@ -47,34 +45,24 @@ assignWaveIndex(placeholder(1008, true, false), placeholder(1008, false, false),
 // Hello World
 repeat(5)
 ..."""
-    )
 
     sequencer.constants = {}
-    assert (
-        sequencer.to_string()
-        == """\
+    assert sequencer.to_string() == """\
 // Waveforms declaration
 assignWaveIndex(placeholder(1008, true, false), placeholder(1008, false, false), 0);
 // Hello World
 repeat(5)
 ..."""
-    )
 
-    assert (
-        sequencer.to_string(waveform_snippet=False)
-        == """\
+    assert sequencer.to_string(waveform_snippet=False) == """\
 // Hello World
 repeat(5)
 ..."""
-    )
     sequencer.waveforms = None
-    assert (
-        sequencer.to_string()
-        == """\
+    assert sequencer.to_string() == """\
 // Hello World
 repeat(5)
 ..."""
-    )
 
 
 def test_to_string_existing_constant():
@@ -91,9 +79,7 @@ repeat(5)
 }
 ..."""
 
-    assert (
-        sequencer.to_string()
-        == """\
+    assert sequencer.to_string() == """\
 // Constants
 const TEST = 10;
 // Hello World
@@ -104,4 +90,3 @@ repeat(5)
     PULSE_WIDTH
 }
 ..."""
-    )
