@@ -1,3 +1,18 @@
+---
+jupyter:
+  jupytext:
+    formats: ipynb,md
+    text_representation:
+      extension: .md
+      format_name: markdown
+      format_version: "1.3"
+      jupytext_version: 1.14.1
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
 # Data Streaming
 Example for the Data Streaming module. This example demonstrates how to record data from an instrument continuously for a given duration including saving the data to file. The data is in a format that can be easily loaded into a Pandas data frame.
 
