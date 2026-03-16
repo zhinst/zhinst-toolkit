@@ -27,7 +27,6 @@ Requirements:
 from zhinst.toolkit import Session
 from pathlib import Path
 import time
-import os
 import matplotlib.pyplot as plt
 import pandas
 ```
@@ -39,12 +38,12 @@ import pandas
 
 ```python
 ### UHFLI, VHFLI, GHFLI, SHFLI
-device_id = "dev13016"
+device_id = "DEVXXXX"
 device_interface = "1GbE" # "1GbE" or "USB"
-data_server_host = "127.0.0.1"
+data_server_host = "localhost"
 
 ### MFLI, MFIA
-# device_id = "dev4696"
+# device_id = "DEVXXXX"
 # device_interface = "PCIe"
 # data_server_host = f"mf-{device_id}"
 
@@ -52,17 +51,16 @@ data_server_host = "127.0.0.1"
 is_hf2 = False
 
 ### HF2LI
-# device_id = "dev878"
+# device_id = "DEVXXXX"
 # device_interface = "USB"
-# data_server_host = "127.0.0.1"
+# data_server_host = "localhost"
 # is_hf2 = True
 
 ### Connection
 session = Session(data_server_host, hf2=is_hf2)
 device = session.connect_device(device_id, interface=device_interface)
 
-devtype = device.features.devtype()
-print(f"The API client is connected to {device_id.upper()} of type {devtype} via the data server with the following version:")
+print(f"The API client is connected to {device.serial.upper()} of type {device.device_type} via the data server with the following version:")
 print(f"Client: {session.about.version()}")
 print(f"Server: {session.daq_server.getString('/zi/about/version')}")
 ```
@@ -108,9 +106,9 @@ stream = session.modules.data_streaming
 
 ```python
 signal_paths = [
-    f"/{device_id}/demods/0/sample.x",
-    f"/{device_id}/demods/0/sample.y",
-    f"/{device_id}/demods/0/sample.r",
+    f"/{device.serial}/demods/0/sample.x",
+    f"/{device.serial}/demods/0/sample.y",
+    f"/{device.serial}/demods/0/sample.r",
 ]
 stream.subscribe(signal_paths)
 ```
@@ -120,7 +118,7 @@ stream.subscribe(signal_paths)
 
 ```python
 stream.save.fileformat("hdf5")  # Possible formats are "csv", "mat" (MATLAB) or "hdf5"
-stream.save.filename(f"data_streaming_module_{device_id}")
+stream.save.filename(f"data_streaming_module_{device.serial}")
 stream.save.directory(Path(".").absolute())
 ```
 
@@ -176,7 +174,7 @@ print("Data is available for processing.")
 
 
 ```python
-ts = data[f"/{device_id}/timestamp"]
+ts = data[f"/{device.serial}/timestamp"]
 t = (ts - ts[0]) / clockbase
 
 fig = plt.figure()
@@ -216,7 +214,7 @@ start_time = time.time()
 
 # Acquisition, read and save
 stream.execute()
-while time.time() - start_time < timeout:sec:
+while time.time() - start_time < timeout_sec:
     print(f"Progress: {stream.progress()*100:.0f}%")
     if stream.finished():
         data = stream.read()
