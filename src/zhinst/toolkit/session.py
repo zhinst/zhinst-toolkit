@@ -780,7 +780,7 @@ class Session(Node):
                 )
             self._daq_server = connection
         else:
-            server_port = server_port if server_port else 8004
+            server_port = server_port or 8004
             if self._is_hf2_server and server_port == 8004:
                 server_port = 8005
             try:

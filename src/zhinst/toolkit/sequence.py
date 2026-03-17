@@ -64,8 +64,8 @@ class Sequence:
         waveforms: Waveforms = None,
         command_table: CommandTable = None,
     ):
-        self._partial_seq = code if code else ""
-        self._constants = constants if constants else {}
+        self._partial_seq = code or ""
+        self._constants = constants or {}
         self._waveforms = waveforms
         self._command_table = command_table
 
