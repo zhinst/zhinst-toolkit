@@ -22,4 +22,4 @@ jobs:
           exempt-branches-regex: "^(main|master)$"
           exempt-protected-branches: true
           ignore-branches-with-open-prs: true
-          operations-per-run: 10
+          operations-per-run: 100
