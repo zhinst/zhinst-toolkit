@@ -22,4 +22,6 @@ jobs:
           exempt-branches-regex: "^(main|master)$"
           exempt-protected-branches: true
           ignore-branches-with-open-prs: true
+          ignore-unknown-authors: true
+          default-recipient: fibbo
           operations-per-run: 100
