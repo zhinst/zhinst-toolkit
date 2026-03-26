@@ -5,7 +5,7 @@ jupyter:
     text_representation:
       extension: .md
       format_name: markdown
-      format_version: '1.3'
+      format_version: "1.3"
       jupytext_version: 1.14.1
   kernelspec:
     display_name: Python 3 (ipykernel)
@@ -34,7 +34,7 @@ from zhinst.toolkit import Session
 session = Session("localhost", hf2=True)
 ```
 
-The flag ``hf2`` indicates that the session should be established with the HF2
+The flag `hf2` indicates that the session should be established with the HF2
 data server.
 
 > Note:
@@ -249,8 +249,4 @@ plt.show()
 
 ```python
 pid_advisor.todevice(1)
-```
-
-```python
-
 ```

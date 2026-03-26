@@ -296,7 +296,3 @@ axis.set_ylabel("Amplitude [V]")
 axis.autoscale(enable=True, axis="x", tight=True)
 plt.show()
 ```
-
-```python
-
-```

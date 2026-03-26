@@ -357,7 +357,3 @@ plt.grid()
 plt.show()
 
 ```
-
-```python
-
-```
