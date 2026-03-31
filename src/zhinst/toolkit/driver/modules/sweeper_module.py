@@ -44,3 +44,11 @@ class SweeperModule(BaseModule):
     def finish(self) -> None:
         """Stop the module."""
         self._raw_module.finish()
+
+    def finished(self) -> bool:
+        """Flag if the sweep has finished.
+
+        Returns:
+            `True` if the sweep has finished.
+        """
+        return self._raw_module.finished()

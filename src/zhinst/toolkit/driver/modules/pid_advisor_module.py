@@ -97,3 +97,15 @@ class PIDAdvisorModule(BaseModule):
             msg = f"{self._raw_module.__class__.__name__} timed out."
             raise TimeoutError(msg)
         logger.info(f"Progress: {(self.progress() * 100):.1f}%")
+
+    def finish(self) -> None:
+        """Stop the module."""
+        self._raw_module.finish()
+
+    def finished(self) -> bool:
+        """Check if the calculation has finished.
+
+        Returns:
+            Flag if the calculation has finished.
+        """
+        return self._raw_module.finished()
