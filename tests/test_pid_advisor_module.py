@@ -84,3 +84,13 @@ def test_wait_done(pid_advisor_module):
     pid_advisor_module.raw_module.progress.return_value = np.array([0.1])
     with pytest.raises(TimeoutError):
         pid_advisor_module.wait_done(timeout=0.01, sleep_time=0.001)
+
+
+def test_finish(pid_advisor_module):
+    pid_advisor_module.finish()
+    pid_advisor_module.raw_module.finish.assert_called_once()
+
+
+def test_finished(pid_advisor_module):
+    pid_advisor_module.finished()
+    pid_advisor_module.raw_module.finished.assert_called_once()

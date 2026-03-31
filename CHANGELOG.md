@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 1.3.1
+* Expose finish and finished methods for the Sweeper and PIDAdvisor modules
+
 ## Version 1.3.0
 * Add support for Data Streaming Module
 * Drop support for Python 3.9

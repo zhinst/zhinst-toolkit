@@ -94,3 +94,8 @@ def test_finish(sweeper_module):
 def test_progress(sweeper_module):
     sweeper_module.progress()
     sweeper_module.raw_module.progress.assert_called_once()
+
+
+def test_finished(sweeper_module):
+    sweeper_module.finished()
+    sweeper_module.raw_module.finished.assert_called_once()
