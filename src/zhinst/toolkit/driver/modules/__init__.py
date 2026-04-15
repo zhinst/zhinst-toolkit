@@ -14,6 +14,7 @@ from zhinst.toolkit.driver.modules.precompensation_advisor_module import (
 from zhinst.toolkit.driver.modules.scope_module import ScopeModule
 from zhinst.toolkit.driver.modules.shfqa_sweeper import SHFQASweeper
 from zhinst.toolkit.driver.modules.sweeper_module import SweeperModule
+from zhinst.toolkit.driver.modules.timeline_module import TimelineModule
 
 ModuleType = t.Union[
     BaseModule,
@@ -26,6 +27,7 @@ ModuleType = t.Union[
     DeviceSettingsModule,
     PIDAdvisorModule,
     PrecompensationAdvisorModule,
+    TimelineModule,
 ]
 
 __all__ = [
@@ -40,4 +42,5 @@ __all__ = [
     "SHFQASweeper",
     "ScopeModule",
     "SweeperModule",
+    "TimelineModule",
 ]
