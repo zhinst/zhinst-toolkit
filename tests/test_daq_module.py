@@ -144,6 +144,14 @@ def test_read(daq_module, mock_connection, session):
     assert result1[0].shape == (1, 5)
 
 
+def test_read_empty_node(daq_module, mock_connection, session):
+    module_mock = mock_connection.return_value.dataAcquisitionModule.return_value
+    empty_node = {"/dev1234/demods/0/sample.r": []}
+    module_mock.read.return_value = empty_node
+    result = daq_module.read()
+    assert result == empty_node
+
+
 def test_subscribe(daq_module, mock_connection):
     module_mock = mock_connection.return_value.dataAcquisitionModule.return_value
     daq_module.subscribe(daq_module.test.sample.x.avg)

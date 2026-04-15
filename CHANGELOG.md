@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 1.3.2
+* Guard against accessing a possibly empty node returned by the DAQ Module read() method
+
 ## Version 1.3.1
 * Expose finish and finished methods for the Sweeper and PIDAdvisor modules
 
