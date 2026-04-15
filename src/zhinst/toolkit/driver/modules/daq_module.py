@@ -109,7 +109,7 @@ class DAQModule(BaseModule):
         Returns:
                 Processed and formatted node data.
         """
-        if isinstance(data[0], dict):
+        if data and isinstance(data[0], dict):
             return [DAQModule._process_burst(node, burst, clk_rate) for burst in data]
         return data
 
