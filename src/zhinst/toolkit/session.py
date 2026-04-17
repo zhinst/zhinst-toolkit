@@ -256,7 +256,7 @@ class ModuleHandler:
         zhinst.core Module can be accessed through the `raw_module`
         property.
 
-        The new instance establishes a new session to the DataServer.
+        The new instance establishes a new session with the DataServer.
         New instances should therefore be created carefully since they consume
         resources.
 
@@ -278,7 +278,7 @@ class ModuleHandler:
         zhinst.core Module can be accessed through the `raw_module`
         property.
 
-        The new instance establishes a new session to the DataServer.
+        The new instance establishes a new session with the DataServer.
         New instances should therefore be created carefully since they consume
         resources.
 
@@ -300,7 +300,7 @@ class ModuleHandler:
         zhinst.core Module can be accessed through the `raw_module`
         property.
 
-        The new instance establishes a new session to the DataServer.
+        The new instance establishes a new session with the DataServer.
         New instances should therefore be created carefully since they consume
         resources.
 
@@ -322,7 +322,7 @@ class ModuleHandler:
         zhinst.core Module can be accessed through the `raw_module`
         property.
 
-        The new instance establishes a new session to the DataServer.
+        The new instance establishes a new session with the DataServer.
         New instances should therefore be created carefully since they consume
         resources.
 
@@ -344,7 +344,7 @@ class ModuleHandler:
         zhinst.core Module can be accessed through the `raw_module`
         property.
 
-        The new instance establishes a new session to the DataServer.
+        The new instance establishes a new session with the DataServer.
         New instances should therefore be created carefully since they consume
         resources.
 
@@ -366,7 +366,7 @@ class ModuleHandler:
         zhinst.core Module can be accessed through the `raw_module`
         property.
 
-        The new instance establishes a new session to the DataServer.
+        The new instance establishes a new session with the DataServer.
         New instances should therefore be created carefully since they consume
         resources.
 
@@ -388,7 +388,7 @@ class ModuleHandler:
         zhinst.core Module can be accessed through the `raw_module`
         property.
 
-        The new instance establishes a new session to the DataServer.
+        The new instance establishes a new session with the DataServer.
         New instances should therefore be created carefully since they consume
         resources.
 
@@ -411,7 +411,7 @@ class ModuleHandler:
         In contrast to core.ziDAQServer.precompensationAdvisor() a nodetree property
         is added.
 
-        The new instance establishes a new session to the DataServer.
+        The new instance establishes a new session with the DataServer.
         New instances should therefore be created carefully since they consume
         resources.
 
@@ -433,7 +433,7 @@ class ModuleHandler:
         zhinst.core Module can be accessed through the `raw_module`
         property.
 
-        The new instance establishes a new session to the DataServer.
+        The new instance establishes a new session with the DataServer.
         New instances should therefore be created carefully since they consume
         resources.
 
@@ -455,7 +455,7 @@ class ModuleHandler:
         zhinst.core Module can be accessed through the `raw_module`
         property.
 
-        The new instance establishes a new session to the DataServer.
+        The new instance establishes a new session with the DataServer.
         New instances should therefore be created carefully since they consume
         resources.
 
@@ -477,7 +477,7 @@ class ModuleHandler:
         zhinst.core Module can be accessed through the `raw_module`
         property.
 
-        The new instance establishes a new session to the DataServer.
+        The new instance establishes a new session with the DataServer.
         New instances should therefore be created carefully since they consume
         resources.
 
@@ -509,6 +509,28 @@ class ModuleHandler:
             Created object
         """
         return tk_modules.SHFQASweeper(self._session)
+
+    def create_timeline_module(self) -> tk_modules.TimelineModule:
+        """Create an instance of the TimelineModule.
+
+        The resulting Module will have the nodetree accessible. The underlying
+        zhinst.core Module can be accessed through the `raw_module`
+        property.
+
+        The new instance establishes a new session with the DataServer.
+        New instances should therefore be created carefully since they consume
+        resources.
+
+        The new module is not managed by toolkit. A managed instance is provided
+        by the property `timeline`.
+
+        Returns:
+            Created module
+        """
+        return tk_modules.TimelineModule(
+            self._session.daq_server.timelineModule(),
+            self._session,
+        )
 
     @cached_property
     def awg(self) -> tk_modules.BaseModule:
@@ -683,6 +705,21 @@ class ModuleHandler:
             Managed instance of the shfqa sweeper implementation
         """
         return self.create_shfqa_sweeper()
+
+    @cached_property
+    def timeline(self) -> tk_modules.timelineModule:
+        """Managed instance of the Timeline module.
+
+        Managed means that only one instance is created
+        and is held inside the connection Manager. This makes it easier to access
+        the modules from within toolkit, since creating a module requires
+        resources. (``use create_timeline_module`` to create an unmanaged
+        instance)
+
+        Returns:
+            Managed instance of the timeline module
+        """
+        return self.create_timeline_module()
 
 
 class PollFlags(IntFlag):
