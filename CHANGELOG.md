@@ -2,6 +2,7 @@
 
 ## Version 1.4.0
 * Add support for Timeline Module
+* Add missing unit test for creation of Data Streaming Module
 
 ## Version 1.3.2
 * Guard against accessing a possibly empty node returned by the DAQ Module read() method

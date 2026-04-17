@@ -548,6 +548,34 @@ def test_shfqa_sweeper(session):
     assert isinstance(sweeper, tk_modules.SHFQASweeper)
 
 
+def test_data_streaming_module(data_dir, mock_connection, session):
+    json_path = data_dir / "nodedoc_data_streaming_test.json"
+    with json_path.open("r", encoding="UTF-8") as file:
+        nodes_json = file.read()
+    mock_connection.return_value.dataStreamingModule.return_value.listNodesJSON.return_value = (
+        nodes_json
+    )
+    data_streaming_module = session.modules.data_streaming
+    assert data_streaming_module == session.modules.data_streaming
+    mock_connection.return_value.dataStreamingModule.assert_called_once()
+    assert isinstance(data_streaming_module, tk_modules.DataStreamingModule)
+    assert isinstance(data_streaming_module.device, Node)
+
+
+def test_timeline_module(data_dir, mock_connection, session):
+    json_path = data_dir / "nodedoc_timeline_test.json"
+    with json_path.open("r", encoding="UTF-8") as file:
+        nodes_json = file.read()
+    mock_connection.return_value.timelineModule.return_value.listNodesJSON.return_value = (
+        nodes_json
+    )
+    timeline_module = session.modules.timeline
+    assert timeline_module == session.modules.timeline
+    mock_connection.return_value.timelineModule.assert_called_once()
+    assert isinstance(timeline_module, tk_modules.TimelineModule)
+    assert isinstance(timeline_module.device, Node)
+
+
 def test_session_wide_transaction(
     mock_connection,
     nodedoc_dev1234_json,

@@ -1,0 +1,72 @@
+{
+    "/duration": {
+        "Node": "/duration",
+        "Description": "The recording length of the data to be captured. A value of zero means endless capture, in which case the module has to be stopped by calling the finish() method. The value may be adjusted upwards by the module to match its internal sampling grid.",
+        "Properties": "Read, Write",
+        "Unit": "Seconds",
+        "Type": "Double"
+    },
+    "/save/csvlocale": {
+        "Node": "/save/csvlocale",
+        "Description": "The locale to use for the decimal point character and digit grouping character for numerical values in CSV files: \"C\": Dot for the decimal point and no digit grouping (default); \"\" (empty string): Use the symbols set in the language and region settings of the computer.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/save/csvseparator": {
+        "Node": "/save/csvseparator",
+        "Description": "The character to use as CSV separator when saving files in this format.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/save/directory": {
+        "Node": "/save/directory",
+        "Description": "The base directory where files are saved.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/save/fileformat": {
+        "Node": "/save/fileformat",
+        "Description": "The format of the file for saving data.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (enumerated)",
+        "Options": {
+            "0": "\"mat\": MATLAB",
+            "1": "\"csv\": CSV",
+            "2": "\"zview\": ZView (Impedance data only)",
+            "3": "\"sxm\": SXM (Image format)",
+            "4": "\"hdf5\": HDF5"
+        }
+    },
+    "/save/filename": {
+        "Node": "/save/filename",
+        "Description": "Defines the sub-directory where files are saved. The actual sub-directory has this name with a sequence count (per save) appended, e.g. daq_000.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "String"
+    },
+    "/save/save": {
+        "Node": "/save/save",
+        "Description": "Initiate the saving of data to file. The saving is done in the background. When the save has finished, the module resets this parameter to 0.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/save/saveonly": {
+        "Node": "/save/saveonly",
+        "Description": "Set to 1 to enable automatic saving of the streaming data to file, in the selected file format (HDF5, CSV or MATLAB), without the need to call the read command. When enabled, the read command has no effect.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    },
+    "/save/saveonread": {
+        "Node": "/save/saveonread",
+        "Description": "Automatically save the data to file immediately before reading out the data from the module using the read() command. Set this parameter to 1 if you want to save data to file when running the module continuously and performing intermediate reads.",
+        "Properties": "Read, Write",
+        "Unit": "None",
+        "Type": "Integer (64 bit)"
+    }
+}
