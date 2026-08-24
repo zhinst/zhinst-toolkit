@@ -1,3 +1,7 @@
+# Copyright (C) 2020 Zurich Instruments
+#
+# This software may be modified and distributed under the terms
+# of the MIT license. See the LICENSE file for details.
 """Single lazy node of a `zhinst.toolkit.nodetree.Nodetree`."""
 
 from __future__ import annotations

@@ -1,3 +1,7 @@
+# Copyright (C) 2020 Zurich Instruments
+#
+# This software may be modified and distributed under the terms
+# of the MIT license. See the LICENSE file for details.
 """Module for managing a session to a Data Server through zhinst.core."""
 
 from __future__ import annotations
