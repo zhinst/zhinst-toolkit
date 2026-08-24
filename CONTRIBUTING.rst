@@ -7,8 +7,8 @@ Ways to contribute
 * By contributing code; bug fixes, new features and so on.
 
 .. _Issues: https://github.com/zhinst/zhinst-toolkit/issues
-.. _documentation: https://docs.zhinst.com/zhinst-toolkit/en/latest/
-.. _examples: https://docs.zhinst.com/zhinst-toolkit/en/latest/examples/index.html
+.. _documentation: https://docs.zhinst.com/labone_api_user_manual/reference/toolkit/
+.. _examples: https://github.com/zhinst/zhinst-toolkit/tree/main/examples
 
 Code contributions
 ==================
@@ -98,38 +98,16 @@ The examples are stored as Markdown files. If you wish to turn the local
 
     .. code-block:: sh
 
-        $ python scripts/generate_notebooks.py local
+        $ python scripts/generate_notebooks.py
 
 Building the documentation
 --------------------------
 
-Zhinst-toolkit uses `Sphinx <https://pypi.org/project/Sphinx/>`_ to build the package documentation.
+zhinst-toolkit no longer builds its own documentation here; the API
+reference is now part of the `LabOne API User Manual`_, built from the
+``labone/labone`` repository.
 
-- Install the package in editable mode
-
-    .. code-block:: sh
-
-        $ pip install -e .
-
-Change to docs directory
-
-    .. code-block:: sh
-
-        $ cd docs
-
-- Install the docs dependencies
-
-    .. code-block:: sh
-
-        $ pip install -r docs/requirements.txt
-
-- Build the HTML documentation along with examples with Sphinx
-
-    .. code-block:: sh
-
-        $ make html [local | remote]
-
-The generated documentation can be seen in your browser by opening `docs/html/index.html`.
+.. _LabOne API User Manual: https://docs.zhinst.com/labone_api_user_manual/reference/toolkit/
 
 Pull requests
 --------------
