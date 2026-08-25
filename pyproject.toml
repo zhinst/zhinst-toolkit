@@ -120,6 +120,8 @@ ignore = [
   "ANN204",
   # Too many arguments in function definition
   "PLR0913",
+  # Too many positional arguments (companion to PLR0913, same rationale)
+  "PLR0917",
   # Magic value used in comparison
   "PLR2004",
   # Dynamically typed expressions (typing.Any) are disallowed
