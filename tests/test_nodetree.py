@@ -698,6 +698,30 @@ def test_get_node_info_raw(connection):
     assert e_info.value.args[0] == "/dev1234/demod/0/*"
 
 
+def test_get_node_info_raw_exact_path_skips_pattern_matching(connection, monkeypatch):
+    tree = NodeTree(connection, "DEV1234")
+    expected = {tree.demods[0].rate: tree._flat_dict["/dev1234/demods/0/rate"]}
+
+    def fail(*args, **kwargs):
+        raise AssertionError("fnmatch.filter must not scan the tree")
+
+    # An existing path without wildcards is a direct lookup, which keeps node
+    # access independent of the size of the node tree.
+    monkeypatch.setattr("zhinst.toolkit.nodetree.nodetree.fnmatch.filter", fail)
+    assert tree.get_node_info_raw("demods/0/rate") == expected
+    assert tree.get_node_info_raw(tree.demods[0].rate) == expected
+    tree.update_node("demods/0/rate", {"Unit": "test"})
+    assert tree.demods[0].rate.node_info.unit == "test"
+
+
+def test_get_node_info_raw_pattern_matching_fallback(connection):
+    tree = NodeTree(connection, "DEV1234")
+    # Paths with wildcards still go through pattern matching, also when the
+    # pattern matches a single node.
+    assert list(tree.get_node_info_raw("demods/0/rat?")) == [tree.demods[0].rate]
+    assert list(tree.get_node_info_raw("demods/0/[r]ate")) == [tree.demods[0].rate]
+
+
 def test_update_node(connection):
     tree = NodeTree(connection, "DEV1234")
 
