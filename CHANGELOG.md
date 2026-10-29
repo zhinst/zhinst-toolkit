@@ -1,5 +1,8 @@
 # zhinst-toolkit Changelog
 
+## Version 1.5.0
+* Update to Python 3.15
+
 ## Version 1.4.0
 * Add support for Timeline Module
 * Add missing unit test for creation of Data Streaming Module

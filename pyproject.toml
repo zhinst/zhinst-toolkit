@@ -21,6 +21,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
   "Topic :: Scientific/Engineering",
 ]
 dependencies = [
@@ -51,7 +52,7 @@ packages = ["src/zhinst"]
 only-include = ["src/zhinst/toolkit"]
 
 [[tool.hatch.envs.test.matrix]]
-python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+python = ["3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
 
 [tool.hatch.envs.test]
 dependencies = ["coverage[toml]>=6.5", "hypothesis", "pytest", "pytest-asyncio"]
@@ -77,7 +78,7 @@ build = ["mkdocs-zhinst build"]
 serve = ["mkdocs-zhinst serve"]
 
 [[tool.hatch.envs.lint.matrix]]
-python = ["3.10", "3.11", "3.12", "3.13", "3.14"]
+python = ["3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
 
 [tool.hatch.envs.lint]
 dependencies = [
@@ -85,7 +86,7 @@ dependencies = [
   "mypy>=1.11.2",
   "ruff>=0.11",
   "numpy>=1.20",
-  "zhinst-comms~=3.0",
+  "zhinst-comms>=3.0",
 ]
 
 [tool.hatch.envs.lint.scripts]

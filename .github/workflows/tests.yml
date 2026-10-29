@@ -24,6 +24,8 @@ jobs:
           python-version: "3.13"
         - name: py314
           python-version: "3.14"
+        - name: py315
+          python-version: "3.15"
     steps:
     - uses: actions/checkout@v4
     - name: Setup Python ${{ matrix.python-version }}
