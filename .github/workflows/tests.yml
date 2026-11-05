@@ -38,6 +38,8 @@ jobs:
       run:  hatch run +py=${{ matrix.python-version }} test:cov
     - name: Upload coverage reports to Codecov
       if: matrix.coverage
-      uses: codecov/codecov-action@v4
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        # Forks get no secrets, so only fail on main where the token is required.
+        fail_ci_if_error: ${{ github.event_name == 'push' }}
