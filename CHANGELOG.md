@@ -2,6 +2,8 @@
 
 ## Version 1.5.0
 * Update to Python 3.15
+* Speed up node access by looking up node paths without wildcards directly
+  instead of matching them against every node in the tree
 
 ## Version 1.4.0
 * Add support for Timeline Module
