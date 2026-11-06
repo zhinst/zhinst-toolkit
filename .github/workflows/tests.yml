@@ -27,9 +27,9 @@ jobs:
         - name: py315
           python-version: "3.15"
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Setup Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -38,6 +38,8 @@ jobs:
       run:  hatch run +py=${{ matrix.python-version }} test:cov
     - name: Upload coverage reports to Codecov
       if: matrix.coverage
-      uses: codecov/codecov-action@v4
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      uses: codecov/codecov-action@v7
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        # Forks get no secrets, so only fail on main where the token is required.
+        fail_ci_if_error: ${{ github.event_name == 'push' }}
